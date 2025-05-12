@@ -43,4 +43,19 @@ System Image: Google Play Intel x86_64 Atom System Image
 
 Android application id: com.hitchhopmovil
 
-Es necesario seguir los pasos del development build para que el emulador funcione bien 
+Es necesario seguir los pasos del development build para que el emulador funcione bien. 
+
+Node es requisito para correr los proyectos. 
+
+## Comandos 
+Para ejecutar el proyecto web: 
+    cd hitch-hop-web
+    npm i 
+    npm run dev
+
+Para ejecutar el proyecto movil: 
+    cd hitch-hop-movil
+    npm i 
+    npx expo start 
+
+
