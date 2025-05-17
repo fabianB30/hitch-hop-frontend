@@ -26,10 +26,10 @@ const Login: React.FC = () => {
           </span>
             
           <div className="flex flex-col w-full max-w-[440px] mb-4">
-              <label className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
-                Correo
-              </label>
-              <Input type="email" placeholder="Correo electrónico" className="w-full h-[37px]" />
+            <label className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
+              Correo
+            </label>
+            <Input type="email" placeholder="Correo electrónico" className="w-full h-[37px]" />
           </div>
 
           <div className="flex flex-col w-full max-w-[440px] mb-4">
@@ -67,10 +67,10 @@ const Login: React.FC = () => {
           </div>
             
           <div className="flex items-center w-full max-w-[440px] mb-4">
-              <Checkbox id="rememberMe" className="mr-2" />
-              <label htmlFor="rememberMe" className="text-sm font-medium text-gray-700 select-none">
-                Guardar los datos de acceso
-              </label>
+            <Checkbox id="rememberMe" className="mr-2" />
+            <label htmlFor="rememberMe" className="text-sm font-medium text-gray-700 select-none">
+              Guardar los datos de acceso
+            </label>
           </div>
             
           <Button type="submit" className="w-full max-w-[166px] h-[48px] text-[18px] bg-[#7875F8] ">
