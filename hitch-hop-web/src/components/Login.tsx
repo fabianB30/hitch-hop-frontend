@@ -6,10 +6,15 @@ import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 
 
+
 import { useState } from 'react';
 
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
 
   return (
     <div className="fixed inset-0 flex flex-row items-start justify-between bg-white shadow-md overflow-hidden min-h-screen w-full">
@@ -20,7 +25,26 @@ const Login: React.FC = () => {
           <span className="ml-[1px] text-[60px] font-extrabold text-black font-montserrat leading-tight">HitchHop</span>
         </div>
 
-        <form className="flex flex-col items-center justify-center w-full mt-8">
+        <form
+          className="flex flex-col items-center justify-center w-full mt-8"
+          onSubmit={e => {
+            e.preventDefault();
+            // Validar campos vacíos
+            if (!email || !password) {
+              setError("Debe completar todos los campos.");
+              return;
+            }
+            // Validar correo institucional TEC
+            const tecRegex = /^[a-zA-Z0-9._%+-]+@(itcr\.ac\.cr|estudiantec\.cr)$/;
+            if (!tecRegex.test(email)) {
+              setError("El correo debe ser institucional (@itcr.ac.cr o @estudiantec.cr)");
+              return;
+            }
+            setError("");
+            // Sección de llamada a la API de login con el metodo POST y los parametros email, password y rememberMe.
+            // Y que devuelva tambien si es un usuario administrador o no para redirigirlo a la página correspondiente.
+          }}
+        >
           <span className="w-[371px] h-[32px] mt-[32px] mb-4 text-[24px] font-semibold leading-[100%] font-exo text-center">
             Inicie sesión con sus credenciales
           </span>
@@ -29,7 +53,13 @@ const Login: React.FC = () => {
             <label className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
               Correo
             </label>
-            <Input type="email" placeholder="Correo electrónico" className="w-full h-[37px]" />
+            <Input
+              type="email"
+              placeholder="Correo electrónico"
+              className={`w-full h-[37px] ${error && (!email || (email && !/^[a-zA-Z0-9._%+-]+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(email))) ? 'border border-red-500 focus:border-red-500' : ''}`}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="flex flex-col w-full max-w-[440px] mb-4">
@@ -40,7 +70,9 @@ const Login: React.FC = () => {
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="Contraseña"
-                className="w-full h-[37px] pr-10"
+                className={`w-full h-[37px] pr-10 ${error && (!password) ? 'border border-red-500 focus:border-red-500' : ''}`}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
               />
               <button
                 type="button"
@@ -67,12 +99,16 @@ const Login: React.FC = () => {
           </div>
             
           <div className="flex items-center w-full max-w-[440px] mb-4">
-            <Checkbox id="rememberMe" className="mr-2" />
+            <Checkbox id="rememberMe" className="mr-2" checked={rememberMe} onChange={e => setRememberMe((e.target as HTMLInputElement).checked)} />
             <label htmlFor="rememberMe" className="text-sm font-medium text-gray-700 select-none">
               Guardar los datos de acceso
             </label>
           </div>
             
+          {error && (
+            <span className="text-red-600 text-sm mb-2 w-full text-center">{error}</span>
+          )}
+
           <Button type="submit" className="w-full max-w-[166px] h-[48px] text-[18px] bg-[#7875F8] ">
             Iniciar sesión
           </Button>
