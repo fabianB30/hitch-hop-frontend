@@ -384,7 +384,7 @@ export default function Register() {
 											Al continuar, usted acepta los
 											<AlertDialog>
 												<AlertDialogTrigger asChild>
-													<button type="button" className="font-semibold underline text-[#7875F8] hover:text-[#5e5bcf] ml-1">Términos y Condiciones </button>
+													<button type="button" className="font-semibold underline text-[#7875F8] hover:text-[#5e5bcf] ml-1 mr-1">Términos y Condiciones </button>
 												</AlertDialogTrigger>
 												<AlertDialogContent className="min-w-[900px] p-8">
 													<AlertDialogHeader>
@@ -394,10 +394,27 @@ export default function Register() {
 														<div className="max-h-[70vh] overflow-y-auto text-gray-700 text-[15px] font-normal leading-relaxed">
 															<p className="mb-2 font-semibold">HitchHop - Comparte tu viaje, conecta tu camino</p>
 															<p className="mb-2">Última actualización: 10/4/2025</p>
-															<p className="mb-4">Este documento establece los Términos y Condiciones de Uso (en adelante, "Términos") aplicables al uso de la plataforma móvil y web HitchHop, un sistema exclusivo para compartir transporte entre miembros de una misma institución. El uso de esta aplicación implica la aceptación plena de estos Términos por parte de todos sus usuarios, ya sea como conductor, pasajero o administrador.</p>
+															<p className="mb-4">Este documento establece los Términos y Condiciones de Uso (en adelante, “Términos”) aplicables al uso de la plataforma móvil y web HitchHop, un sistema exclusivo para compartir transporte entre miembros de una misma institución. El uso de esta aplicación implica la aceptación plena de estos Términos por parte de todos sus usuarios, ya sea como conductor, pasajero o administrador.</p>
 															<p className="mb-2 font-semibold">1. Descripción general del servicio</p>
 															<p className="mb-4">HitchHop es una aplicación móvil disponible exclusivamente para dispositivos Android que permite a miembros de una misma institución (educativa o laboral) organizar viajes compartidos. El objetivo principal es facilitar la movilidad interna mediante la publicación y solicitud de rutas de transporte, promoviendo la sostenibilidad, la economía y la colaboración.</p>
 															<p className="mb-4">Además, HitchHop cuenta con una plataforma web dirigida a administradores autorizados de la institución para realizar consultas, visualizar estadísticas y monitorear el uso general del sistema.</p>
+															<p className="mb-2 font-semibold">2. Registro y acceso a la plataforma</p>
+															<p className="mb-1">2.1 El registro de usuarios está limitado exclusivamente a miembros verificados de la institución, mediante el uso de credenciales institucionales válidas.</p>
+															<p className="mb-1">2.2 El acceso y uso de la app requiere aceptar expresamente estos Términos y Condiciones.</p>
+															<p className="mb-4">2.3 El usuario es responsable de mantener la confidencialidad de sus credenciales y de cualquier actividad realizada desde su cuenta.</p>
+															<p className="mb-2 font-semibold">3. Gestión de perfiles</p>
+															<p className="mb-4">Al completar el registro, los usuarios deben proporcionar cierta información personal, como:</p>
+															<p className="mb-1">3.1 Nombre completo</p>
+															<p className="mb-1">3.2 Correo electrónico institucional</p>
+															<p className="mb-1">3.3 Teléfono de contacto</p>
+															<p className="mb-1">3.4 Rol (conductor o pasajero)</p>
+															<p className="mb-1">3.5 Género y edad (opcional, con fines estadísticos)</p>
+															<p className="mb-4">Esta información se utilizará exclusivamente para la correcta operación de la plataforma y no será compartida con terceros sin consentimiento.</p>
+															<p className="mb-2 font-semibold">4. Publicación y solicitud de viajes</p>
+															<p className="mb-2">Para conductores:</p>
+															<p className="mb-1">4.1.1 Origen y destino del viaje</p>
+															<p className="mb-1">4.1.2 Horario de salida y llegada estimado</p>
+															<p className="mb-1">4.1.3 Capacidad máxima de pasajeros</p>
 														</div>
 													</AlertDialogDescription>
 													<div className="flex justify-end mt-6">
