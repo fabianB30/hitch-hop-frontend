@@ -59,3 +59,35 @@ Para ejecutar el proyecto movil:
     npx expo start 
 
 
+# Estructura
+Dentro de la carpeta src se agregaron varias carpetas más. La idea es que estas sean utilizadas para mantener un orden conforme trabajamos el proyecto. A continuación un listado de las carpetas y sus propósitos. Tratemos de mantener este orden para evitar problemas a futuro. 
+
+## assets
+Como suele ser el caso, esta se usa para contener archivos como imágenes, logos, iconos, etc. **Si van a agregar cosas como estas, NO se ponen en la carpeta public.** Esta carpeta es la que recibe el navegador y poner cosas ahí puede afectar el rendimiento de la app. 
+
+## components
+Bastante self explanatory, acá se ponen todos los componentes que se ocupen para la construcción de la app. Vamos a manejar las carpetas por módulo. 
+
+### consultas, login, stats
+Son módulos que ya se agregaron, si hacen falta más los pueden agregar acá. 
+
+
+### ui
+**Acá no se ponen componentes custom.** En esta carpeta se agregan los componentes de ShadCN de manera automática, por lo que mejor evitar agregar cosas que no sean directamente relacionadas a estas. 
+
+### shared 
+Utilizada para aquellos componentes que son utilizados a través de todo el app, como por ejemplo el Sidebar. 
+
+## context 
+Para agregar contexts de react. Puede que en el futuro se ocupe un coontext handler, lo más probable que no, pero en caso de ser necesario lo pueden mencionar y lo vemos. Mientras tanto, sientanse libres de manejarlos anidados y todo debería estar bien :) 
+
+## pages 
+Para agregar las páginas del flujo de navegación (que también son componentes de react). 
+**Importante:** todas las páginas acá agregadas deben ser integradas con el Router para que puedan ser accesables en la navegación del app. 
+
+https://www.geeksforgeeks.org/what-is-react-router-dom/
+
+Usen el componente de *Link*, es lo más fácil de usar y con buen rendimiento. 
+
+## router
+solo cosas relacionadas al Router previamente mencionado. De nuevo, si llega a ser necesario se pueden manejar las rutas de manera separada pero no debería ser necesario. Si llega a serlo lo mencionan. 
