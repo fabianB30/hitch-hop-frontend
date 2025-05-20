@@ -59,7 +59,7 @@ Para ejecutar el proyecto movil:
     npx expo start 
 
 
-# Estructura
+# Estructura Web
 Dentro de la carpeta src se agregaron varias carpetas más. La idea es que estas sean utilizadas para mantener un orden conforme trabajamos el proyecto. A continuación un listado de las carpetas y sus propósitos. Tratemos de mantener este orden para evitar problemas a futuro. 
 
 ## assets
