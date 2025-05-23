@@ -1,75 +1,162 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { ImageBackground, Platform, StyleSheet, Text } from 'react-native';
+import { Box } from "@/components/ui/box"; 
+import { Pressable } from "@/components/ui/pressable";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
+export default function Index() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Test</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ImageBackground
+      source={require('@/assets/images/fondoDefault.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <Image
+        source={require('@/assets/images/backArrow.png')}
+        style={styles.backArrow}
+      />
+
+      <Text style={styles.hitchhopText}>HitchHop</Text>
+
+      <Box
+        style={{ width: '100%', gap: 71, flexDirection: 'column', alignItems: "center", justifyContent: "flex-start", marginTop: 70 }}
+      >
+        {/* Card 1 */}
+        <Pressable onPress={() => { console.log('Card 1 Pressed'); }}>
+          <Box
+            style={{
+              height: 240,
+              width: 340,
+              maxWidth: '90%',
+              borderRadius: 8,
+              overflow: 'hidden',
+              backgroundColor: '#B8B7FB',
+              alignSelf: "center"
+            }}
+          >
+            <ImageBackground
+              source={require('@/assets/images/buttonCardBackground.png')}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+              }}
+              imageStyle={{
+                borderRadius: 8,
+                width: '260%',   
+                height: '260%',
+                alignSelf: 'center',
+              }}
+              resizeMode="cover"
+            >
+              <Image
+                source={require('@/assets/images/image18.png')}
+                style={{ width: 220, height: 220 }} 
+              />
+              <Text
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  textAlign: 'center',
+                  color: '#FEFEFF',
+                  fontSize: 30,
+                  fontFamily: 'Exo',
+                  fontWeight: '700',
+                  letterSpacing: 0.2,
+                  textShadowColor: 'rgba(0,0,0,0.2)',
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
+                  marginTop: 120,
+                }}
+              >
+                Viajes Programados Aprobados
+              </Text>
+            </ImageBackground>
+          </Box>
+         </Pressable> 
+
+        {/* Card 2 */}
+        <Pressable onPress={() => { console.log('Card 2 Pressed'); }}>
+          <Box
+            style={{
+              height: 240,
+              width: 340,
+              maxWidth: '90%',
+              borderRadius: 8,
+              overflow: 'hidden',
+              backgroundColor: '#B8B7FB',
+              alignSelf: "center"
+            }}
+          >
+            <ImageBackground
+              source={require('@/assets/images/buttonCardBackground.png')}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+              }}
+              imageStyle={{
+                borderRadius: 8,
+                width: '260%',   
+                height: '260%',
+                alignSelf: 'center',
+              }}
+              resizeMode="cover"
+            >
+              <Image
+                source={require('@/assets/images/image19.png')}
+                style={{ width: 260, height: 260, marginTop: -20 }}
+                contentFit="contain" 
+              />
+              <Text
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  textAlign: 'center',
+                  color: '#FEFEFF',
+                  fontSize: 30,
+                  fontFamily: 'Exo',
+                  fontWeight: '700',
+                  letterSpacing: 0.2,
+                  textShadowColor: 'rgba(0,0,0,0.2)',
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 2,
+                  marginTop: 120,
+                }}
+              >
+                Viajes Pendientes de Aprobación
+              </Text>
+            </ImageBackground>
+          </Box>
+        </Pressable>
+      </Box>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  backArrow: {
     position: 'absolute',
+    top: 60,
+    left: 24,
+    width: 30,
+    height: 30,
+    zIndex: 11,
   },
+  hitchhopText: {
+    position: 'absolute',
+    top: 40,
+    right: 24,
+    color: 'black',
+    fontSize: 20,
+    fontFamily: 'Montserrat',
+    fontWeight: '800',
+    textAlign: 'right',
+    zIndex: 10,
+  }
 });
