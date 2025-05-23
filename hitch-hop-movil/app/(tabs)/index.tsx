@@ -1,9 +1,11 @@
 import { Image } from 'expo-image';
-import { ImageBackground, Platform, StyleSheet, Text } from 'react-native';
+import { ImageBackground, StyleSheet, Text } from 'react-native';
 import { Box } from "@/components/ui/box"; 
 import { Pressable } from "@/components/ui/pressable";
+import { useRouter } from 'expo-router';
 
 export default function Index() {
+  const router = useRouter();
   return (
     <ImageBackground
       source={require('@/assets/images/fondoDefault.png')}
@@ -21,7 +23,7 @@ export default function Index() {
         style={{ width: '100%', gap: 71, flexDirection: 'column', alignItems: "center", justifyContent: "flex-start", marginTop: 70 }}
       >
         {/* Card 1 */}
-        <Pressable onPress={() => { console.log('Card 1 Pressed'); }}>
+        <Pressable onPress={() => router.push('/(tabs)/ViajesPasajero/verDetallesViajesAceptados')}>
           <Box
             style={{
               height: 240,
