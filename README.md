@@ -56,6 +56,7 @@ Para ejecutar el proyecto web:
 Para ejecutar el proyecto movil: 
     cd hitch-hop-movil
     npm i 
+    npm install lucide-react-native
     npx expo start 
 
 

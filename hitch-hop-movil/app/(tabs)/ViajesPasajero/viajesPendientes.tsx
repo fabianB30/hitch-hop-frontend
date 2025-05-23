@@ -4,6 +4,8 @@ import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from 'expo-router';
 import { RideCard } from "@/components/RideCard";
+import { Clock } from "lucide-react-native";
+import React from 'react';
 
 export default function VerDetallesViajesAceptados() {
 
@@ -16,7 +18,7 @@ export default function VerDetallesViajesAceptados() {
     name: "Adrián Zamora",
     car: "Toyota Camry",
     price: "₡1500",
-    date: "11 de Abr, 2025.",
+    date: "12 de Abr, 2025.",
     time: "11:55 AM",
     start: "Alianza Francesa, San José Av. 7.",
     end: "Tecnológico de Costa Rica, Cartago.",
@@ -26,11 +28,23 @@ export default function VerDetallesViajesAceptados() {
     id: 2,
     avatar: require('@/assets/images/avatar1.png'),
     name: "Juan Pérez",
-    car: "Chevrolet Spark",
-    price: "₡2000",
-    date: "14 de Abr, 2025.",
-    time: "11:50 AM",
-    start: "INS, San José Av. 7.",
+    car: "Kia Río",
+    price: "₡1500",
+    date: "20 de Abr, 2025.",
+    time: "11:55 AM",
+    start: "Alianza Francesa, San José Av. 7.",
+    end: "Tecnológico de Costa Rica, Cartago.",
+  },
+
+  {
+    id:3,
+    avatar: require('@/assets/images/avatar1.png'),
+    name: "Julián Soto",
+    car: "Hyundai Accent",
+    price: "₡1500",
+    date: "11 de Abr, 2025.",
+    time: "11:55 AM",
+    start: "Alianza Francesa, San José Av. 7.",
     end: "Tecnológico de Costa Rica, Cartago.",
   }
 ];
@@ -56,13 +70,13 @@ export default function VerDetallesViajesAceptados() {
       <Text style={styles.title}>Viajes Programados</Text>
 
       <Box style={styles.buttonsContainer}>
-        <Pressable style={styles.aprobadosButton}>
+        <Pressable 
+            onPress={() => router.push('/(tabs)/ViajesPasajero/verDetallesViajesAceptados')}
+            style={styles.aprobadosButton}
+        >
           <Text style={styles.buttonText}>Aprobados</Text>
         </Pressable>
-        <Pressable 
-          onPress={() => router.push('/(tabs)/ViajesPasajero/viajesPendientes')} 
-          style={styles.pendientesButton}
-        >
+        <Pressable style={styles.pendientesButton}>
           <Text style={styles.buttonText}>Pendientes</Text>
         </Pressable>
       </Box>
@@ -72,12 +86,25 @@ export default function VerDetallesViajesAceptados() {
         showsVerticalScrollIndicator={false}
       >
         {rides.map((ride) => (
-          <RideCard
-            key={ride.id}
-            {...ride}
-            onCancel={() => {/* lo que hace el boton cancel */}}
-            onDetails={() => {/* lo que hace el boton detalles */}}
-          />
+          <React.Fragment key={ride.id}>
+            <Box
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                    width: '100%',
+                }}
+            >
+                <Clock size={18} color="black" style={{ marginRight: 8 }} />
+                <Text style={styles.esperandoAprobacion}>Esperando Aprobación</Text>
+            </Box>
+            <RideCard
+                {...ride}
+                startLabel="Parada solicitada"
+                onCancel={() => {/* lo que hace el boton cancel */}}
+                onDetails={() => {/* lo que hace el boton detalles */}}
+            />
+            </React.Fragment>
         ))}
       </ScrollView>
     </ImageBackground>
@@ -133,7 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 14,
     paddingRight: 14,
-    backgroundColor: '#7875F8',
+    backgroundColor: '#ADA7FF',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -144,7 +171,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 14,
     paddingRight: 14,
-    backgroundColor: '#ADA7FF',
+    backgroundColor: '#7875F8',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -169,4 +196,12 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     paddingTop: 8,
   },
+  esperandoAprobacion: {
+    color: 'black',
+    fontSize: 16,
+    fontFamily: 'Exo',
+    fontWeight: '500',
+    flexWrap: 'wrap',
+    },
 });
+

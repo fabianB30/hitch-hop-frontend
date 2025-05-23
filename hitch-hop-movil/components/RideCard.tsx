@@ -2,6 +2,7 @@ import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Image } from "expo-image";
 import { ImageSourcePropType, Text } from "react-native";
+import { MapPinCheck, MapPin } from "lucide-react-native";
 
 type RideCardProps = {
   avatar: ImageSourcePropType;
@@ -11,6 +12,7 @@ type RideCardProps = {
   date: string;
   time: string;
   start: string;
+  startLabel?: string;
   end: string;
   onCancel: () => void;
   onDetails: () => void;
@@ -24,6 +26,7 @@ export function RideCard({
   date,
   time,
   start,
+  startLabel = 'Punto de Inicio',
   end,
   onCancel,
   onDetails,
@@ -138,10 +141,7 @@ export function RideCard({
       </Text>
       {/* Start Icon & Text */}
       <Box style={{ position: 'absolute', left: 27, top: 132, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
-        <Image
-          source={require('@/assets/icons/mapPinCheck.svg')}
-          style={{ width: 16, height: 16, marginRight: 4 }}
-        />
+        <MapPinCheck size={16} color="black" strokeWidth={3} style={{ marginRight: 4 }} />
       </Box>
       <Text
         style={{
@@ -154,14 +154,11 @@ export function RideCard({
           fontWeight: '400',
         }}
       >
-        Punto de Inicio: {start}
+        {startLabel}: {start}
       </Text>
       {/* End Icon & Text */}
       <Box style={{ position: 'absolute', left: 27, top: 155, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
-        <Image
-          source={require('@/assets/icons/mapPin.svg')}
-          style={{ width: 16, height: 16, marginRight: 4 }}
-        />
+        <MapPin size={16} color="black" strokeWidth={3} style={{ marginRight: 4 }} />
       </Box>
       <Text
         style={{

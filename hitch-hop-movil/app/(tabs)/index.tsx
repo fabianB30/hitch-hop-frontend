@@ -76,7 +76,7 @@ export default function Index() {
          </Pressable> 
 
         {/* Card 2 */}
-        <Pressable onPress={() => { console.log('Card 2 Pressed'); }}>
+        <Pressable onPress={() => router.push('/(tabs)/ViajesPasajero/viajesPendientes')}>
           <Box
             style={{
               height: 240,
