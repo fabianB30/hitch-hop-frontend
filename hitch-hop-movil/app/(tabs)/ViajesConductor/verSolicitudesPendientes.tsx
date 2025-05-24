@@ -3,45 +3,42 @@ import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
-import { PassengerCard } from "@/components/PassengerCard";
+import { PendingRequestCard } from "@/components/PendingRequestCard";
 import { HStack } from "@/components/ui/hstack";
 import { MoveRight, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 
-export default function VerDetallesViajeProgramado() {
+export default function VerSolicitudesPendientes() {
   const router = useRouter();
 
   // boolean if ride is full
   var isFull = false;
 
-  const handlePendingRequests = () => {
-    router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
-  };
-
-  const passengers = [
+  const requests = [
     {
       id: 1,
       name: "Robert Schumann",
       price: "₡1500",
-      phone: "8888-8888",
       location: "INS, San José Av. 7.",
+      time: "10:00 AM",
+      capacity: "2",
     },
-
     {
       id: 2,
       name: "Johannes Brahms",
       price: "₡1500",
-      phone: "8888-8888",
       location: "INS, San José Av. 7.",
+      time: "10:00 AM",
+      capacity: "2",
     },
-
     {
       id: 3,
       name: "Jan Sibelius",
       price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7. Calle 2",
+      location: "INS, San José Av. 7.",
+      time: "10:00 AM",
+      capacity: "2",
     },
   ];
 
@@ -76,39 +73,7 @@ export default function VerDetallesViajeProgramado() {
         <Box style={{ gap: 10, paddingBottom: 10 }}>
           <HStack
             style={{
-              alignItems: "stretch",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={styles.title}>Detalles del viaje programado</Text>
-            <Box
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                alignSelf: "center",
-                marginRight: 10,
-              }}
-            >
-              <Users size={24} color="black" />
-              <Text
-                style={{
-                  fontFamily: "Exo",
-                  fontSize: 16,
-                  fontWeight: "400",
-                  color: "#171717",
-                  textAlign: "right",
-                  marginLeft: 2,
-                }}
-              >
-                3/4
-              </Text>
-            </Box>
-          </HStack>
-
-          <HStack
-            style={{
               alignItems: "flex-start",
-              alignContent: "flex-start",
               width: "100%",
               paddingHorizontal: 25,
               zIndex: 10,
@@ -132,11 +97,12 @@ export default function VerDetallesViajeProgramado() {
               <Text
                 style={{
                   fontFamily: "Exo",
-                  fontSize: 12,
+                  fontSize: 14,
                   fontStyle: "normal",
-                  fontWeight: "400",
+                  fontWeight: "600",
                   color: "#171717",
                   textAlign: "right",
+                  maxWidth: "90%",
                 }}
               >
                 Tecnológico de Costa Rica, Cartago
@@ -144,7 +110,7 @@ export default function VerDetallesViajeProgramado() {
             </Box>
           </HStack>
         </Box>
-
+        <Text style={styles.disponibles}>Espacios disponibles: 1</Text>
         <Box
           style={{ height: "100%", paddingHorizontal: 20, marginBottom: 100 }}
         >
@@ -152,60 +118,9 @@ export default function VerDetallesViajeProgramado() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.cardsContainer}
           >
-            {passengers.map((passenger) => (
-              <PassengerCard key={passenger.id} {...passenger} />
+            {requests.map((request) => (
+              <PendingRequestCard key={request.id} {...request} />
             ))}
-            {!isFull && (
-              <Button
-                size="md"
-                variant="solid"
-                action="primary"
-                style={{
-                  backgroundColor: "#7875F8",
-                  width: 320,
-                  marginTop: 0,
-                  zIndex: 10,
-                  alignSelf: "center",
-                  height: 48,
-                  marginVertical: 15,
-                }}
-              >
-                <ButtonText
-                  style={{ color: "#FEFEFF" }}
-                  onPress={handlePendingRequests}
-                >
-                  Solicitudes Pendientes
-                </ButtonText>
-              </Button>
-            )}
-            <Box
-              style={{
-                width: 320,
-                marginTop: 24,
-                marginBottom: 18, // Slightly less to fit button closer
-                alignSelf: "center",
-              }}
-            >
-              <Image
-                source={require("@/assets/images/MapaRepresentacion.png")}
-                style={{ width: 320, height: 180, borderRadius: 16 }}
-                resizeMode="cover"
-              />
-            </Box>
-            <Button
-              size="md"
-              variant="solid"
-              action="primary"
-              style={{
-                backgroundColor: "#F87171",
-                width: 320,
-                marginTop: 0,
-                zIndex: 10,
-                alignSelf: "center",
-              }}
-            >
-              <ButtonText style={{ color: "#FEFEFF" }}>Cancelar</ButtonText>
-            </Button>
           </ScrollView>
         </Box>
       </Box>
@@ -310,11 +225,20 @@ const styles = StyleSheet.create({
   },
   start: {
     fontFamily: "Exo",
-    fontSize: 12,
+    fontSize: 14,
     fontStyle: "normal",
-    fontWeight: "400",
+    fontWeight: "600",
     color: "#171717",
     textAlign: "left",
+  },
+  disponibles: {
+    left: 25,
+    color: "#171717",
+    fontSize: 18,
+    fontFamily: "Exo",
+    fontWeight: "600",
+    textAlign: "left",
+    zIndex: 10,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
