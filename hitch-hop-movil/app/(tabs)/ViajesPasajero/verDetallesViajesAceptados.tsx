@@ -1,17 +1,44 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ImageBackground, View, ScrollView, StyleSheet, Text } from "react-native";
 import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
 import { RideCard } from "@/components/RideCard";
+import CancelPopup from '@/components/cancelPopUp';
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
+  const [showPopup, setShowPopup] = useState(false);
+    const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  
+    const handleCancelPress = (rideId: number) => {
+      setRideToCancel(rideId);
+      setShowPopup(true);
+    };
+  
+    const handleConfirmCancel = () => {
+      // Aquí va la lógica para cancelar el viaje
+      setShowPopup(false);
+      setRideToCancel(null);
+    };
+  
+    const handleClosePopup = () => {
+      setShowPopup(false);
+      setRideToCancel(null);
+    };
 
+  // La interfaz tiene las mismas propiedades que RideCardProps(RideCard.tsx)
   interface Ride {
     id: number;
-    [key: string]: any;
+    avatar: any;
+    name: string;
+    car: string;
+    price: string;
+    date: string;
+    time: string;
+    start: string;
+    end: string;
   }
 
   const rides: Ride[] = [
@@ -82,6 +109,11 @@ export default function VerDetallesViajesAceptados() {
           <Text style={styles.buttonText}>Pendientes</Text>
         </Pressable>
       </Box>
+      <CancelPopup
+        visible={showPopup}
+        onConfirm={handleConfirmCancel}
+        onCancel={handleClosePopup}
+      />
       <ScrollView
         style={styles.cardsScroll}
         contentContainerStyle={styles.cardsContainer}
@@ -91,9 +123,7 @@ export default function VerDetallesViajesAceptados() {
           <RideCard
             key={ride.id}
             {...ride}
-            onCancel={() => {
-              /* lo que hace el boton cancel */
-            }}
+            onCancel={() => handleCancelPress(ride.id)}
             onDetails={() => {
               router.push("/(tabs)/ViajesPasajero/verDetalleViajeProgramado");
             }}

@@ -5,15 +5,42 @@ import { Box } from "@/components/ui/box";
 import { useRouter } from 'expo-router';
 import { RideCard } from "@/components/RideCard";
 import { Clock } from "lucide-react-native";
-import React, { useEffect } from 'react';
+import CancelPopup from '@/components/cancelPopUp';
+import React, { useEffect, useState } from 'react';
 
 export default function viajesPendientes() {
 
   const router = useRouter();
+  const [showPopup, setShowPopup] = useState(false);
+  const [rideToCancel, setRideToCancel] = useState<number | null>(null);
 
+  const handleCancelPress = (rideId: number) => {
+    setRideToCancel(rideId);
+    setShowPopup(true);
+  };
+
+  const handleConfirmCancel = () => {
+    // Aquí va la lógica para cancelar el viaje
+    setShowPopup(false);
+    setRideToCancel(null);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setRideToCancel(null);
+  };
+
+  // La interfaz tiene las mismas propiedades que RideCardProps(RideCard.tsx)
   interface Ride {
     id: number;
-    [key: string]: any;
+    avatar: any;
+    name: string;
+    car: string;
+    price: string;
+    date: string;
+    time: string;
+    start: string;
+    end: string;
   }
 
   const rides: Ride[] =[
@@ -96,6 +123,11 @@ export default function viajesPendientes() {
           <Text style={styles.buttonText}>Pendientes</Text>
         </Pressable>
       </Box>
+      <CancelPopup
+        visible={showPopup}
+        onConfirm={handleConfirmCancel}
+        onCancel={handleClosePopup}
+      />
       <ScrollView
         style={styles.cardsScroll}
         contentContainerStyle={styles.cardsContainer}
@@ -117,7 +149,7 @@ export default function viajesPendientes() {
             <RideCard
                 {...ride}
                 startLabel="Parada solicitada"
-                onCancel={() => {/* lo que hace el boton cancel */}}
+                onCancel={() => handleCancelPress(ride.id)}
                 onDetails={() => {/* lo que hace el boton detalles */}}
             />
             </React.Fragment>
