@@ -6,7 +6,11 @@ export default function ViajesPasajeroLayout() {
       <Stack.Screen name="index" options={{ title: 'Viajes' }} />
       <Stack.Screen
         name="verDetallesViajesAceptados"
-        options={{ title: 'Detalles del Viaje' }}
+        options={{ title: 'Detalles del Viaje', animation: "none" }}
+      />
+      <Stack.Screen
+        name="viajesPendientes"
+        options={{ animation: "none" }}
       />
     </Stack>
   );

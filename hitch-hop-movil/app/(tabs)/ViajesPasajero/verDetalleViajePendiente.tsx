@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CancelPopup from "@/components/cancelPopUp";
 import React, { useState } from "react";
 
-export default function VerDetalleViajeProgramado() {
+export default function verDetalleViajePendiente() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [showPopup, setShowPopup] = useState(false);
@@ -59,7 +59,7 @@ export default function VerDetalleViajeProgramado() {
               alignSelf: "center",
             }}
           >
-            <Text style={styles.title}>Detalles de Viaje Programado</Text>
+            <Text style={styles.title}>Detalles de Viaje Pendiente</Text>
           </Box>
           <HStack
             style={{

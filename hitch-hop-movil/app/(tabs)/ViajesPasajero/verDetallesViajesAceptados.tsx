@@ -7,12 +7,14 @@ import { useRouter } from "expo-router";
 import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const insets = useSafeAreaInsets();
 
     const handleCancelPress = (rideId: number) => {
       setRideToCancel(rideId);
@@ -124,7 +126,10 @@ export default function VerDetallesViajesAceptados() {
       />
       <ScrollView
         style={styles.cardsScroll}
-        contentContainerStyle={styles.cardsContainer}
+        contentContainerStyle={[
+          styles.cardsContainer,
+          { paddingBottom: insets.bottom + 50 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {rides.map((ride) => (

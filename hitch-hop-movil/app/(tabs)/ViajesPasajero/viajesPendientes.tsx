@@ -8,6 +8,7 @@ import { Clock } from "lucide-react-native";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from '@/components/CancelSuccessPopUp';
 import React, { useEffect, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function viajesPendientes() {
 
@@ -15,6 +16,7 @@ export default function viajesPendientes() {
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleCancelPress = (rideId: number) => {
     setRideToCancel(rideId);
@@ -114,7 +116,7 @@ export default function viajesPendientes() {
 
       <View style={styles.overlay} />
 
-      <Text style={styles.title}>Viajes Programados</Text>
+      <Text style={styles.title}>Viajes Pendientes</Text>
 
       <Box style={styles.buttonsContainer}>
         <Pressable 
@@ -138,7 +140,10 @@ export default function viajesPendientes() {
       />
       <ScrollView
         style={styles.cardsScroll}
-        contentContainerStyle={styles.cardsContainer}
+        contentContainerStyle={[
+          styles.cardsContainer,
+          { paddingBottom: insets.bottom + 50 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {rides.map((ride) => (
@@ -158,7 +163,9 @@ export default function viajesPendientes() {
                 {...ride}
                 startLabel="Parada solicitada"
                 onCancel={() => handleCancelPress(ride.id)}
-                onDetails={() => {/* lo que hace el boton detalles */}}
+                onDetails={() => {
+                  router.push("/(tabs)/ViajesPasajero/verDetalleViajePendiente");
+                }}
             />
             </React.Fragment>
         ))}
