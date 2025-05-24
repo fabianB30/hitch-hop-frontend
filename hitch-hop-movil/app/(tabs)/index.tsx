@@ -35,7 +35,7 @@ export default function Index() {
         {/* Card 1 */}
         <Pressable
           onPress={() =>
-            router.push("/(tabs)/ViajesPasajero/verDetallesViajesAceptados")
+            router.push("/(tabs)/ViajesConductor/verViajesAceptados")
           }
         >
           <Box
@@ -63,12 +63,14 @@ export default function Index() {
               }}
               resizeMode="cover"
             >
-              <View style={{
-                ...StyleSheet.absoluteFillObject,
-                backgroundColor: 'rgba(255,255,255,0.4)',
-                borderRadius: 8,
-                zIndex: 1,
-              }} />
+              <View
+                style={{
+                  ...StyleSheet.absoluteFillObject,
+                  backgroundColor: "rgba(255,255,255,0.4)",
+                  borderRadius: 8,
+                  zIndex: 1,
+                }}
+              />
               <Image
                 source={require("@/assets/images/image18.png")}
                 style={{ width: 220, height: 220, zIndex: 2 }}
@@ -87,7 +89,7 @@ export default function Index() {
                   textShadowOffset: { width: 1, height: 1 },
                   textShadowRadius: 10,
                   marginTop: 120,
-                  zIndex: 2
+                  zIndex: 2,
                 }}
               >
                 Viajes Programados Aprobados
@@ -125,15 +127,17 @@ export default function Index() {
               }}
               resizeMode="cover"
             >
-              <View style={{
-                ...StyleSheet.absoluteFillObject,
-                backgroundColor: 'rgba(255,255,255,0.4)',
-                borderRadius: 8,
-                zIndex: 1,
-              }} />
+              <View
+                style={{
+                  ...StyleSheet.absoluteFillObject,
+                  backgroundColor: "rgba(255,255,255,0.4)",
+                  borderRadius: 8,
+                  zIndex: 1,
+                }}
+              />
               <Image
                 source={require("@/assets/images/image19.png")}
-                style={{ width: 260, height: 260, marginTop: -20, zIndex: 2}}
+                style={{ width: 260, height: 260, marginTop: -20, zIndex: 2 }}
                 contentFit="contain"
               />
               <Text
@@ -150,7 +154,7 @@ export default function Index() {
                   textShadowOffset: { width: 1, height: 1 },
                   textShadowRadius: 10,
                   marginTop: 120,
-                  zIndex: 2
+                  zIndex: 2,
                 }}
               >
                 Viajes Pendientes de Aprobación
@@ -192,7 +196,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.8)', 
+    backgroundColor: "rgba(255,255,255,0.8)",
     zIndex: 1,
   },
 });

@@ -72,7 +72,9 @@ export default function VerViajesAceptados() {
             onCancel={() => {
               /* lo que hace el boton cancel */
             }}
-            onDetails={() => {}}
+            onDetails={() =>
+              router.push("/(tabs)/ViajesConductor/verDetallesViajeProgramado")
+            }
           />
         ))}
       </ScrollView>

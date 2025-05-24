@@ -38,7 +38,6 @@ export function RideCardDriver({
     <Box
       style={{
         width: "100%",
-        minHeight: 230,
         marginBottom: 24,
         backgroundColor: "#ECECFF",
         borderRadius: 12,
@@ -48,20 +47,19 @@ export function RideCardDriver({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
-        padding: 16,
+        padding: 10,
         position: "relative",
       }}
     >
       <HStack
         style={{
           alignItems: "center",
-          justifyContent: "space-evenly",
           marginBottom: 24,
           width: "100%",
         }}
       >
-        <Box style={{ flex: 1, alignItems: "flex-start" }}>
-          <Text style={styles.smallFont}>{start}</Text>
+        <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
+          <Text style={styles.start}>{start}</Text>
         </Box>
         <Box
           style={{
@@ -72,24 +70,11 @@ export function RideCardDriver({
         >
           <MoveRight size={24} color="black" />
         </Box>
-        <Box style={{ flex: 1, alignItems: "flex-end", marginLeft: 20 }}>
-          <Text style={styles.smallFont}>{end}</Text>
+        <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
+          <Text style={styles.end}>{end}</Text>
         </Box>
       </HStack>
-      <Box
-        style={{
-          flexDirection: "row",
-          alignItems: "flex-end",
-          gap: 4,
-          marginRight: 10,
-          alignSelf: "flex-end", // Add this line to push the box to the right
-        }}
-      >
-        <Users size={24} color="black" />
-        <Text style={styles.mediumFont}>
-          {users}/{userLimit}
-        </Text>
-      </Box>
+
       <HStack
         style={{
           alignItems: "stretch",
@@ -99,11 +84,35 @@ export function RideCardDriver({
           marginTop: 10,
         }}
       >
-        <VStack>
+        <VStack
+          style={{
+            gap: 7,
+          }}
+        >
           <Text style={styles.mediumFont}>{date}</Text>
           <Text style={styles.BigFont}>{time}</Text>
         </VStack>
-        <Text style={styles.BigFont}>{price}</Text>
+        <VStack
+          style={{
+            gap: 7,
+          }}
+        >
+          <Box
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-end",
+              gap: 4,
+              marginRight: 10,
+              alignSelf: "flex-end", // Add this line to push the box to the right
+            }}
+          >
+            <Users size={24} color="black" />
+            <Text style={styles.mediumFont}>
+              {users}/{userLimit}
+            </Text>
+          </Box>
+          <Text style={styles.BigFont}>{price}</Text>
+        </VStack>
       </HStack>
       <HStack
         style={{
@@ -124,7 +133,9 @@ export function RideCardDriver({
             marginTop: 0,
           }}
         >
-          <ButtonText style={{ color: "#FEFEFF" }}>Cancelar</ButtonText>
+          <ButtonText style={{ color: "#FEFEFF" }} onPress={onCancel}>
+            Cancelar
+          </ButtonText>
         </Button>
         <Button
           size="md"
@@ -136,7 +147,9 @@ export function RideCardDriver({
             marginTop: 0,
           }}
         >
-          <ButtonText style={{ color: "#FEFEFF" }}>Detalles {">"}</ButtonText>
+          <ButtonText style={{ color: "#FEFEFF" }} onPress={onDetails}>
+            Detalles {">"}
+          </ButtonText>
         </Button>
       </HStack>
     </Box>
@@ -144,17 +157,25 @@ export function RideCardDriver({
 }
 
 const styles = StyleSheet.create({
-  smallFont: {
+  start: {
     fontFamily: "Exo",
     fontSize: 12,
     fontStyle: "normal",
-    fontWeight: "100",
+    fontWeight: "400",
     color: "#171717",
     textAlign: "left",
   },
+  end: {
+    fontFamily: "Exo",
+    fontSize: 12,
+    fontStyle: "normal",
+    fontWeight: "400",
+    color: "#171717",
+    textAlign: "right",
+  },
   mediumFont: {
     fontFamily: "Exo",
-    fontSize: 18,
+    fontSize: 16,
     fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
@@ -162,9 +183,9 @@ const styles = StyleSheet.create({
   },
   BigFont: {
     fontFamily: "Exo",
-    fontSize: 25,
+    fontSize: 24,
     fontStyle: "normal",
-    fontWeight: "700",
+    fontWeight: "500",
     color: "#171717",
     textAlign: "left",
     paddingTop: 5,
