@@ -1,17 +1,22 @@
-import {ImageBackground, ScrollView, StyleSheet, Text } from 'react-native';
+import {ImageBackground, View, ScrollView, StyleSheet, Text } from 'react-native';
 import { Image } from 'expo-image';
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from 'expo-router';
 import { RideCard } from "@/components/RideCard";
 import { Clock } from "lucide-react-native";
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function viajesPendientes() {
 
   const router = useRouter();
 
-  const rides = [
+  interface Ride {
+    id: number;
+    [key: string]: any;
+  }
+
+  const rides: Ride[] =[
   {
     id: 1,
     avatar: require('@/assets/images/avatar1.png'),
@@ -48,6 +53,15 @@ export default function viajesPendientes() {
     end: "Tecnológico de Costa Rica, Cartago.",
   }
 ];
+  useEffect(() => {
+    if (rides.length == 0) {
+      router.replace("/(tabs)/ViajesPasajero/sinViajes");
+    }
+  }, [rides, router]);
+
+  if (rides.length === 0) {
+    return null;
+  }
 
    return (
     <ImageBackground
@@ -66,6 +80,8 @@ export default function viajesPendientes() {
       </Pressable>
       
       <Text style={styles.hitchhopText}>HitchHop</Text>
+
+      <View style={styles.overlay} />
 
       <Text style={styles.title}>Viajes Programados</Text>
 
@@ -138,6 +154,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     zIndex: 10,
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    zIndex: 1,
+  },
   title: {
     position: 'absolute',
     top: 140,     
@@ -147,6 +168,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Exo',
     fontWeight: '600',
     textAlign: 'left',
+    zIndex: 2,
   },
   buttonsContainer: {
     position: 'absolute',
@@ -155,6 +177,7 @@ const styles = StyleSheet.create({
     right: 24,
     flexDirection: 'row',
     gap: 16,
+    zIndex: 2,
   },
   aprobadosButton: {
     flex: 1,
@@ -191,6 +214,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     paddingHorizontal: 24,
+    zIndex: 2,
   },
   cardsContainer: {
     paddingBottom: 32,
@@ -202,6 +226,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Exo',
     fontWeight: '500',
     flexWrap: 'wrap',
+    zIndex: 2,
     },
 });
 

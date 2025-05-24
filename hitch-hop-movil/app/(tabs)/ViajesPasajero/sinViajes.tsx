@@ -1,10 +1,11 @@
-import {ImageBackground, StyleSheet, Text, View, Image } from 'react-native';
+import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image } from 'react-native';
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
 
 export default function sinViajes() {
 
   const router = useRouter();
+  const { width } = Dimensions.get('window');
 
    return (
     <ImageBackground
@@ -13,7 +14,6 @@ export default function sinViajes() {
       resizeMode="cover"
     >
       <View style={styles.overlay} />
-      
       <Pressable
         onPress={() => router.push('/(tabs)')}
         style={styles.backArrow}
@@ -25,11 +25,11 @@ export default function sinViajes() {
       </Pressable>
       
       <Text style={styles.hitchhopText}>HitchHop</Text>
-      
-      <View style={styles.container}>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Image
             source={require('@/assets/images/image9.png')}
-            style={{ width: '70%', height: '70%' }} 
+            style={{ width: width * 1, height: width * 0.7,  marginBottom: 20 }} 
             resizeMode="contain"
         />
         <View style={styles.textContainer}>
@@ -42,8 +42,7 @@ export default function sinViajes() {
         >
           <Text style={styles.buttonText}>Buscar Viajes</Text>
         </Pressable>
-      </View>
-
+      </ScrollView>
     </ImageBackground>
   );
 }
@@ -78,21 +77,22 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(255,255,255,0.8)', 
-    zIndex: 1,
+    zIndex: 0,
   },
-  container: {
-    width: '100%',
+  scrollContent: {
+    flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    gap: 0,
-    marginTop: 50,
-    zIndex: 3,
+    justifyContent: 'center',
+    paddingTop: 120,
+    paddingBottom: 40,
+    width: '100%',
+    zIndex: 1,
   },
   textContainer: {
     width: 361,
     alignItems: 'center',
     gap: 15,
-    marginBottom: 40,
+    marginBottom: 60,
     zIndex: 3,
   },
   title: {

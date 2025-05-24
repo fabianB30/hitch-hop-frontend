@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { ImageBackground, StyleSheet, Text } from "react-native";
+import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from "expo-router";
@@ -19,6 +19,8 @@ export default function Index() {
 
       <Text style={styles.hitchhopText}>HitchHop</Text>
 
+      <View style={styles.overlay} />
+
       <Box
         style={{
           width: "100%",
@@ -27,6 +29,7 @@ export default function Index() {
           alignItems: "center",
           justifyContent: "flex-start",
           marginTop: 70,
+          zIndex: 3,
         }}
       >
         {/* Card 1 */}
@@ -60,9 +63,15 @@ export default function Index() {
               }}
               resizeMode="cover"
             >
+              <View style={{
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: 'rgba(255,255,255,0.4)',
+                borderRadius: 8,
+                zIndex: 1,
+              }} />
               <Image
                 source={require("@/assets/images/image18.png")}
-                style={{ width: 220, height: 220 }}
+                style={{ width: 220, height: 220, zIndex: 2 }}
               />
               <Text
                 style={{
@@ -74,10 +83,11 @@ export default function Index() {
                   fontFamily: "Exo",
                   fontWeight: "700",
                   letterSpacing: 0.2,
-                  textShadowColor: "rgba(0,0,0,0.2)",
+                  textShadowColor: "#6C63FF",
                   textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 2,
+                  textShadowRadius: 10,
                   marginTop: 120,
+                  zIndex: 2
                 }}
               >
                 Viajes Programados Aprobados
@@ -115,9 +125,15 @@ export default function Index() {
               }}
               resizeMode="cover"
             >
+              <View style={{
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: 'rgba(255,255,255,0.4)',
+                borderRadius: 8,
+                zIndex: 1,
+              }} />
               <Image
                 source={require("@/assets/images/image19.png")}
-                style={{ width: 260, height: 260, marginTop: -20 }}
+                style={{ width: 260, height: 260, marginTop: -20, zIndex: 2}}
                 contentFit="contain"
               />
               <Text
@@ -130,10 +146,11 @@ export default function Index() {
                   fontFamily: "Exo",
                   fontWeight: "700",
                   letterSpacing: 0.2,
-                  textShadowColor: "rgba(0,0,0,0.2)",
+                  textShadowColor: "#6C63FF",
                   textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 2,
+                  textShadowRadius: 10,
                   marginTop: 120,
+                  zIndex: 2
                 }}
               >
                 Viajes Pendientes de Aprobación
@@ -172,5 +189,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     textAlign: "right",
     zIndex: 10,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)', 
+    zIndex: 1,
   },
 });

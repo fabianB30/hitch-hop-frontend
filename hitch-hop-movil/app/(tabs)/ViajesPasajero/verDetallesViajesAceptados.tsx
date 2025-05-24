@@ -1,4 +1,5 @@
-import { ImageBackground, ScrollView, StyleSheet, Text } from "react-native";
+import React, { useEffect } from "react";
+import { ImageBackground, View, ScrollView, StyleSheet, Text } from "react-native";
 import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
@@ -8,7 +9,12 @@ import { RideCard } from "@/components/RideCard";
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
 
-  const rides = [
+  interface Ride {
+    id: number;
+    [key: string]: any;
+  }
+
+  const rides: Ride[] = [
     {
       id: 1,
       avatar: require("@/assets/images/avatar1.png"),
@@ -34,6 +40,15 @@ export default function VerDetallesViajesAceptados() {
     },
   ];
 
+  useEffect(() => {
+    if (rides.length == 0) {
+      router.replace("/(tabs)/ViajesPasajero/sinViajes");
+    }
+  }, [rides, router]);
+
+  if (rides.length === 0) {
+    return null;
+  }
   return (
     <ImageBackground
       source={require("@/assets/images/fondoDefault.png")}
@@ -53,6 +68,8 @@ export default function VerDetallesViajesAceptados() {
       <Text style={styles.hitchhopText}>HitchHop</Text>
 
       <Text style={styles.title}>Viajes Programados</Text>
+
+      <View style={styles.overlay} />
 
       <Box style={styles.buttonsContainer}>
         <Pressable style={styles.aprobadosButton}>
@@ -114,6 +131,11 @@ const styles = StyleSheet.create({
     textAlign: "right",
     zIndex: 10,
   },
+    overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)', 
+    zIndex: 1,
+  },
   title: {
     position: "absolute",
     top: 140,
@@ -123,6 +145,7 @@ const styles = StyleSheet.create({
     fontFamily: "Exo",
     fontWeight: "600",
     textAlign: "left",
+    zIndex: 2,
   },
   buttonsContainer: {
     position: "absolute",
@@ -131,6 +154,7 @@ const styles = StyleSheet.create({
     right: 24,
     flexDirection: "row",
     gap: 16,
+    zIndex: 2,
   },
   aprobadosButton: {
     flex: 1,
@@ -167,6 +191,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     paddingHorizontal: 24,
+    zIndex: 2,
   },
   cardsContainer: {
     paddingBottom: 32,
