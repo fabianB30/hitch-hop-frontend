@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
 import { Users, Phone, Clock, MapPinCheck } from "lucide-react-native";
 import {
   Avatar,
@@ -99,9 +100,9 @@ export default function VerDetalleViajeProgramado() {
           </HStack>
           <HStack
             style={{
-              justifyContent: "flex-end", // Align children to the right
+              justifyContent: "flex-start", // Align children to the right
               marginBottom: 24,
-              alignItems: "flex-end",
+              alignItems: "flex-start",
               marginTop: 24,
               marginRight: 20,
               gap: 32, // Optional: space between the two elements
@@ -141,6 +142,7 @@ export default function VerDetalleViajeProgramado() {
             </Box>
             <Text style={styles.capacity}>11:55 AM</Text>
           </HStack>
+          <Divider className="my-0.5" />
           <HStack
             style={{
               gap: 16,
