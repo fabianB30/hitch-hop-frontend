@@ -7,7 +7,7 @@ import { RideCard } from "@/components/RideCard";
 import { Clock } from "lucide-react-native";
 import React from 'react';
 
-export default function VerDetallesViajesAceptados() {
+export default function viajesPendientes() {
 
   const router = useRouter();
 

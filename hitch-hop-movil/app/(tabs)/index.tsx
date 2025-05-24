@@ -16,7 +16,7 @@ export default function Index() {
         source={require('@/assets/images/backArrow.png')}
         style={styles.backArrow}
       />
-
+      
       <Text style={styles.hitchhopText}>HitchHop</Text>
 
       <Box
