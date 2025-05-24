@@ -5,22 +5,26 @@ import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
 import { RideCard } from "@/components/RideCard";
-import CancelPopup from '@/components/cancelPopUp';
+import CancelPopup from '@/components/CancelPopUp';
+import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
-    const [rideToCancel, setRideToCancel] = useState<number | null>(null);
-  
+  const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
     const handleCancelPress = (rideId: number) => {
       setRideToCancel(rideId);
       setShowPopup(true);
     };
   
     const handleConfirmCancel = () => {
-      // Aquí va la lógica para cancelar el viaje
+      // Pendiente la lógica para cancelar el viaje
       setShowPopup(false);
       setRideToCancel(null);
+      // Debería ir un if para validar si se canceló correctamente
+      setShowSuccessPopup(true);
     };
   
     const handleClosePopup = () => {
@@ -113,6 +117,10 @@ export default function VerDetallesViajesAceptados() {
         visible={showPopup}
         onConfirm={handleConfirmCancel}
         onCancel={handleClosePopup}
+      />
+      <CancelSuccessPopup
+        visible={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
       />
       <ScrollView
         style={styles.cardsScroll}

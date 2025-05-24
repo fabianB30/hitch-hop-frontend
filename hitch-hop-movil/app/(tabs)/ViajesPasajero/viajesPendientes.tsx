@@ -5,7 +5,8 @@ import { Box } from "@/components/ui/box";
 import { useRouter } from 'expo-router';
 import { RideCard } from "@/components/RideCard";
 import { Clock } from "lucide-react-native";
-import CancelPopup from '@/components/cancelPopUp';
+import CancelPopup from '@/components/CancelPopUp';
+import CancelSuccessPopup from '@/components/CancelSuccessPopUp';
 import React, { useEffect, useState } from 'react';
 
 export default function viajesPendientes() {
@@ -13,6 +14,7 @@ export default function viajesPendientes() {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleCancelPress = (rideId: number) => {
     setRideToCancel(rideId);
@@ -20,9 +22,11 @@ export default function viajesPendientes() {
   };
 
   const handleConfirmCancel = () => {
-    // Aquí va la lógica para cancelar el viaje
+    // Pendiente la lógica para cancelar el viaje
     setShowPopup(false);
     setRideToCancel(null);
+    //Debería ir un if para validar si se canceló correctamente
+    setShowSuccessPopup(true);
   };
 
   const handleClosePopup = () => {
@@ -127,6 +131,10 @@ export default function viajesPendientes() {
         visible={showPopup}
         onConfirm={handleConfirmCancel}
         onCancel={handleClosePopup}
+      />
+      <CancelSuccessPopup
+        visible={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
       />
       <ScrollView
         style={styles.cardsScroll}
