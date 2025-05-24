@@ -42,8 +42,8 @@ export default function VerDetalleViajeProgramado() {
             justifyContent: "flex-start",
             marginLeft: 30,
             alignSelf: "stretch",
-            marginTop: 150,
-            paddingBottom: 50,
+            marginTop: 130,
+            marginBottom: 200,
             zIndex: 10,
           }}
         >
