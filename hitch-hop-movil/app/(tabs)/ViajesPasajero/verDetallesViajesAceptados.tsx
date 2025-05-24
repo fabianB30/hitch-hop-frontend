@@ -5,7 +5,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
 import { RideCard } from "@/components/RideCard";
-import CancelPopup from '@/components/CancelPopUp';
+import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 
 export default function VerDetallesViajesAceptados() {

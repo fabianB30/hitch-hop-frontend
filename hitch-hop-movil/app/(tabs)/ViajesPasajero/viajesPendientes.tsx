@@ -5,7 +5,7 @@ import { Box } from "@/components/ui/box";
 import { useRouter } from 'expo-router';
 import { RideCard } from "@/components/RideCard";
 import { Clock } from "lucide-react-native";
-import CancelPopup from '@/components/CancelPopUp';
+import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from '@/components/CancelSuccessPopUp';
 import React, { useEffect, useState } from 'react';
 
