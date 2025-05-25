@@ -1,5 +1,5 @@
-import { StyleSheet, Image, View, ScrollView } from 'react-native'
-import React from 'react'
+import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import RideStopDetail from '@/components/RideStopDetail'
@@ -11,8 +11,9 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 
 const informacionViaje = () => {
-
   const router = useRouter()
+
+  const [imageHeight, setImageHeight] = useState(0)
 
   const rideInfo = {
     carModel: "Toyota Camry Blanco",
@@ -22,7 +23,7 @@ const informacionViaje = () => {
     time: "11:55 AM",
     startingPoint: "Tecnológico de Costa Rica, San José Av. 9.",
     finishPoint: "Tecnológico de Costa Rica, Cartago",
-    stops: ["Barrio Otoya, San José, Calle 15", "Universidad de Costa Rica, San Pedro"],
+    stops: ["Barrio Otoya, San José, Calle 15", "Universidad de Costa Rica, San Pedro", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"],
     capacity: 4,
     price: 1500
   }
@@ -35,8 +36,9 @@ const informacionViaje = () => {
         source={require("@/assets/images/buttonCardBackground.png")}
         style={styles.container}
         imageStyle={styles.containerImage}
+        onLayout={(e) => {setImageHeight(e.nativeEvent.layout.height)}}
       >
-        <View style={styles.card}>
+        <View style={[styles.card, {maxHeight: imageHeight * 0.6}]}>
           <HStack style={{gap: 10}}>
             <Image 
               source={rideInfo.avatar}
@@ -132,9 +134,9 @@ const styles = StyleSheet.create({
   },
   verticalLine: {
     position: 'absolute',
-    left: 11.57,
+    left: 11.5,
     top: 12,
-    bottom: 32,
+    bottom: 30,
     width: 1,
     backgroundColor: '#171717',
   },

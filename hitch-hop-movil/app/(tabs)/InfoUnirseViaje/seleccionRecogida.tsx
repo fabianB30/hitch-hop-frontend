@@ -1,5 +1,5 @@
-import { StyleSheet, Image, View, ScrollView, ImageSourcePropType } from 'react-native'
-import React from 'react'
+import { StyleSheet, Image, View, ScrollView } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import { ImageBackground } from 'expo-image'
@@ -9,10 +9,46 @@ import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/radio'
-import { useState } from 'react'
 
 const seleccionRecogida = () => {
   const router = useRouter()
+
+  const [scrollHeight, setScrollHeight] = useState(0)
+  const [cardY, setCardY] = useState<number | null>(null)
+  const [buttonY, setButtonY] = useState<number | null>(null)
+  const [headerHeight, setHeaderHeight] = useState<number | null>(null)
+  const [detailHeight, setDetailHeight] = useState<number | null>(null)
+  const [footerHeight, setFooterHeight] = useState<number | null>(null)
+  const layoutTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const calculateScrollHeigth = () => {
+    if (cardY != null && buttonY != null && headerHeight != null && detailHeight != null && footerHeight != null) {
+      const availableHeight = buttonY - cardY - 50
+      const usedSpace = headerHeight + detailHeight + footerHeight + 50
+      const scrollSpace = availableHeight - usedSpace
+      setScrollHeight(scrollSpace > 0 ? scrollSpace : 0)
+    }
+  }
+
+  const scheduleLayoutCalculation = () => {
+    if (layoutTimeout.current) {
+      clearTimeout(layoutTimeout.current)
+    }
+
+    layoutTimeout.current = setTimeout(() => {
+      if (cardY != null && buttonY != null && headerHeight != null && detailHeight != null && footerHeight != null) {
+        calculateScrollHeigth()
+      }
+    }, 50)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (layoutTimeout.current) {
+        clearTimeout(layoutTimeout.current)
+      }
+    }
+  }, [])
 
   const [selectedStop, setStop] = useState("")
   const { rideInfo } = useLocalSearchParams()
@@ -42,8 +78,8 @@ const seleccionRecogida = () => {
         >
           <Text style={styles.title}>Seleccione una parada</Text>
 
-          <View style={styles.card}>
-            <HStack style={{gap: 10}}>
+          <View style={styles.card} onLayout={(e) => {setCardY(e.nativeEvent.layout.y); scheduleLayoutCalculation()}}>
+            <HStack style={{gap: 10}} onLayout={(e) => {setHeaderHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
               <Image 
                 source={parsedData.avatar}
                 style={styles.profilePic}
@@ -55,12 +91,12 @@ const seleccionRecogida = () => {
               </View>
             </HStack>
 
-            <View style={styles.rideDetails}>
+            <View style={styles.rideDetails} onLayout={(e) => {setDetailHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
               <Text style={{ color: '#171717'}}>{parsedData.date}</Text>
               <Text style={{ color: '#171717'}}>{parsedData.time}</Text>
             </View>
 
-            <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
+            <ScrollView style={[styles.stops, {height: scrollHeight}]} showsVerticalScrollIndicator={false}>
               <RadioGroup value={selectedStop} onChange={setStop}>
                 {stops.map((stop: string, index: number) => {
                   return (
@@ -79,7 +115,7 @@ const seleccionRecogida = () => {
               </RadioGroup>
             </ScrollView>
 
-            <HStack style={{marginTop: 20}}>
+            <HStack style={{marginTop: 20}} onLayout={(e) => {setFooterHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
               <View style={styles.rideDetails}>
                 <HStack style={{gap: 4}}>
                   <Users size={16} color='black' />
@@ -91,7 +127,7 @@ const seleccionRecogida = () => {
             {/* End of Card View */}
           </View>
 
-          <View style={styles.buttons}>
+          <View style={styles.buttons} onLayout={(e) => {setButtonY(e.nativeEvent.layout.y); scheduleLayoutCalculation()}}>
             <Button style={[styles.button, styles.confirmButton]}
 
             >
@@ -159,7 +195,6 @@ const styles = StyleSheet.create({
   },
   stops: {
     marginTop: 15,
-    maxHeight: 120,
     marginLeft: 10,
   },
   buttons: {
