@@ -64,19 +64,24 @@ const informacionViaje = () => {
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4}}>
-                <Users size={16} color='#171717' />
+                <Users size={16} color='black' />
                 <Text style={{ color: '#171717'}}>{rideInfo.capacity}</Text>
               </HStack>
               <Text style={{ color: '#171717'}}>&#8353;{rideInfo.price}</Text>
             </View>
 
             <Button style={styles.button}
-              onPress={() => {router.push("/(tabs)/UnirseViaje/seleccionRecogida")}}
+              onPress={() => {router.push({
+                pathname: "/(tabs)/InfoUnirseViaje/seleccionRecogida",
+                params: {
+                  rideInfo: JSON.stringify(rideInfo)
+                }
+              })}}
             >
               <ButtonText style={styles.buttonText}>Unirse</ButtonText>
             </Button>
           </HStack>
-          {/* End of Card View*/}
+          {/* End of Card View */}
         </View>
       </ImageBackground>
     </SafeAreaView>

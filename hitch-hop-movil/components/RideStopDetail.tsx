@@ -23,11 +23,11 @@ const RideStopDetail = (props: RideDetailProp) => {
 
   return (
     <HStack>
-        <VStack>
+        <VStack style={{ width: 24, alignItems: 'center' }}>
             <Dot size={24} color='black'/>
         </VStack>
 
-        <VStack>
+        <VStack style={{ flex: 1}}>
             <Text style={styles.stopName} numberOfLines={1} ellipsizeMode="tail">{props.stopType}</Text>
             <Text style={styles.stopDetail} numberOfLines={1} ellipsizeMode="tail">{props.detail}</Text>
         </VStack>
@@ -40,13 +40,15 @@ const styleEnds = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'semibold',
         color: '#171717',
-        fontFamily: 'Exo'
+        fontFamily: 'Exo',
+        flex: 1
     },
     stopDetail: {
         fontSize: 14,
         fontWeight: 'normal',
         color: '#262627',
-        fontFamily: 'Exo'
+        fontFamily: 'Exo',
+        flex: 1
     },
 })
 
@@ -55,14 +57,16 @@ const styleMid = StyleSheet.create({
         fontSize: 12,
         fontWeight: 'semibold',
         color: '#171717',
-        fontFamily: 'Exo'
+        fontFamily: 'Exo',
+        flex: 1
     },
     stopDetail: {
         marginTop: -4,
         fontSize: 10,
         fontWeight: 'semibold',
         color: '#171717',
-        fontFamily: 'Exo'
+        fontFamily: 'Exo',
+        flex: 1
     },
 })
 
