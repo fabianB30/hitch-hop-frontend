@@ -1,8 +1,9 @@
 import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'expo-router'
+import { useRouter, useLocalSearchParams } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import RideStopDetail from '@/components/RideStopDetail'
+import RideStopDetailIcon from '@/components/RideStopDetailIcon'
 import { ImageBackground } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Users } from 'lucide-react-native'
@@ -10,23 +11,39 @@ import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 
-const informacionViaje = () => {
-  const router = useRouter()
+const checkoutViaje = () => {
+    const router = useRouter()
 
-  const [imageHeight, setImageHeight] = useState(0)
+    const [imageHeight, setImageHeight] = useState(0)
 
-  const rideInfo = {
-    carModel: "Toyota Camry Blanco",
-    driver: "Adrián Zamora",
-    avatar: require("@/assets/images/avatar1.png"),
-    date: "11/4/25",
-    time: "11:55 AM",
-    startingPoint: "Tecnológico de Costa Rica, San José Av. 9.",
-    finishPoint: "Tecnológico de Costa Rica, Cartago",
-    stops: ["Barrio Otoya, San José, Calle 15", "Universidad de Costa Rica, San Pedro", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"],
-    capacity: 4,
-    price: 1500
-  }
+    const { rideInfo } = useLocalSearchParams()
+    const { selectedStop } = useLocalSearchParams()
+    let parsedData
+  
+    if (typeof rideInfo === 'string') {
+      parsedData = JSON.parse(rideInfo)
+    } else {
+      parsedData = null
+    }
+  
+    if (!parsedData) {
+      return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
+    }
+
+    let parsedStop
+    if (typeof selectedStop === 'string') {
+      if (selectedStop == '0') {
+        parsedStop = parsedData.startingPoint
+      } else {
+        parsedStop = parsedData.stops[parseInt(selectedStop) - 1]
+      }
+    } else {
+      parsedStop = null
+    }
+  
+    if (!parsedStop) {
+      return <Text style={{marginVertical: 'auto'}}>Error: No selected stop or param is invalid.</Text>
+    }
 
   return (
     <SafeAreaView style={{flex: 1, marginBottom: 50}}>
@@ -41,45 +58,38 @@ const informacionViaje = () => {
         <View style={[styles.card, {maxHeight: imageHeight * 0.6}]}>
           <HStack style={{gap: 10}}>
             <Image 
-              source={rideInfo.avatar}
+              source={parsedData.avatar}
               style={styles.profilePic}
             />
             
             <View>
-              <Text style={styles.carInfo}>{rideInfo.carModel}</Text>
-              <Text style={styles.driverInfo}>{rideInfo.driver}</Text>
+              <Text style={styles.carInfo}>{parsedData.carModel}</Text>
+              <Text style={styles.driverInfo}>{parsedData.driver}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={{ color: '#171717'}}>{rideInfo.date}</Text>
-            <Text style={{ color: '#171717'}}>{rideInfo.time}</Text>
+            <Text style={{ color: '#171717'}}>{parsedData.date}</Text>
+            <Text style={{ color: '#171717'}}>{parsedData.time}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={rideInfo.startingPoint} isAtEnd={true}/>
-            {rideInfo.stops.map((stop, index) => <RideStopDetail key={index} stopType="Parada" detail={stop} isAtEnd={false}/>)}
-            <RideStopDetail stopType="Destino" detail={rideInfo.finishPoint} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={parsedData.startingPoint} isAtEnd={true}/>
+            <RideStopDetailIcon stopType="Parada de recogida" detail={parsedStop} isAtEnd={false}/>
+            <RideStopDetail stopType="Destino" detail={parsedData.finishPoint} isAtEnd={true}/>
           </ScrollView>
 
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4}}>
                 <Users size={16} color='black' />
-                <Text style={{ color: '#171717'}}>{rideInfo.capacity}</Text>
+                <Text style={{ color: '#171717'}}>{parsedData.capacity}</Text>
               </HStack>
-              <Text style={{ color: '#171717'}}>&#8353;{rideInfo.price}</Text>
+              <Text style={{ color: '#171717'}}>&#8353;{parsedData.price}</Text>
             </View>
 
-            <Button style={styles.button}
-              onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/seleccionRecogida",
-                params: {
-                  rideInfo: JSON.stringify(rideInfo)
-                }
-              })}}
-            >
+            <Button style={styles.button}>
               <ButtonText style={styles.buttonText}>Unirse</ButtonText>
             </Button>
           </HStack>
@@ -158,4 +168,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default informacionViaje
+export default checkoutViaje

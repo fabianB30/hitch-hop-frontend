@@ -129,7 +129,13 @@ const seleccionRecogida = () => {
 
           <View style={styles.buttons} onLayout={(e) => {setButtonY(e.nativeEvent.layout.y); scheduleLayoutCalculation()}}>
             <Button style={[styles.button, styles.confirmButton]}
-
+              onPress={() => {router.push({
+                pathname: "/(tabs)/InfoUnirseViaje/checkoutViaje",
+                params: {
+                  rideInfo: rideInfo,
+                  selectedStop: selectedStop
+                }
+              })}}
             >
               <ButtonText style={[styles.confirmText, styles.text]}>Confirmar</ButtonText>
             </Button>

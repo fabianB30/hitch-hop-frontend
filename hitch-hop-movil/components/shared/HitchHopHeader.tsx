@@ -14,7 +14,10 @@ const HitchHopHeader = () => {
             />
             </Pressable>
 
-            <Text style={styles.hitchhopText}>HitchHop</Text>
+            
+            <Pressable /*TODO: Add route to home screen once that exists*/>
+                <Text style={styles.hitchhopText}>HitchHop</Text>
+            </Pressable>
         </View>
         
     )
