@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Users } from 'lucide-react-native'
 import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
-import { Button } from '@/components/ui/button'
+import { Button, ButtonText } from '@/components/ui/button'
 
 const informacionViaje = () => {
 
@@ -70,8 +70,10 @@ const informacionViaje = () => {
               <Text style={{ color: '#171717'}}>&#8353;{rideInfo.price}</Text>
             </View>
 
-            <Button style={styles.button}>
-              <Text style={styles.buttonText}>Unirse</Text>
+            <Button style={styles.button}
+              onPress={() => {router.push("/(tabs)/UnirseViaje/seleccionRecogida")}}
+            >
+              <ButtonText style={styles.buttonText}>Unirse</ButtonText>
             </Button>
           </HStack>
           {/* End of Card View*/}
