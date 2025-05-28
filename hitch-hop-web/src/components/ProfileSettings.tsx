@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Imagen1 from "../assets/1.6-DefaultPFP.png";
 import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,11 +39,15 @@ const ProfileSettings: React.FC = () => {
   const [userData, setUserData] = useState(initialUser);
   const [backupData, setBackupData] = useState(initialUser); // copia de respaldo
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const toggleEdit = () => {
+  const toggleEdit = () => { // cambios del perfil
     if (!editable) {
       // Guarda un respaldo de los datos por si el usuario cancela
       setBackupData(userData);
@@ -66,7 +70,6 @@ const ProfileSettings: React.FC = () => {
   const handleChangePassword = () => {
     // validaciones
 
-
     if (newPassword !== confirmPassword) {
       alert("Las contraseñas no coinciden");
       return;
@@ -77,6 +80,26 @@ const ProfileSettings: React.FC = () => {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+  };
+
+  // Handler para abrir el navegador de archivos
+  const handleEditPhoto = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handler para actualizar la imagen de perfil
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setUserData((prev) => ({
+          ...prev,
+          foto: ev.target?.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
 
@@ -116,24 +139,32 @@ const ProfileSettings: React.FC = () => {
               alt="Foto de perfil"
               className="w-40 h-40 rounded-full object-cover border-4 border-[#ECECFF] shadow mb-2"
             />
+            {/* Input oculto para seleccionar imagen */}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handlePhotoChange}
+            />
             {editable && (
-            <>
-              <Button
-                type="button"
-                className="mt-4 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
-                // onClick={handleEditPhoto}
-              >
-                Editar foto de perfil
-              </Button>
-              <Button
-                type="button"
-                className="mt-16 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
-                onClick={() => setShowPasswordModal(true)}
-              >
-                Cambiar contraseña
-              </Button>
-            </>
-          )}
+              <>
+                <Button
+                  type="button"
+                  className="mt-4 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
+                  onClick={handleEditPhoto}
+                >
+                  Editar foto de perfil
+                </Button>
+                <Button
+                  type="button"
+                  className="mt-16 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
+                  onClick={() => setShowPasswordModal(true)}
+                >
+                  Cambiar contraseña
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Formulario de información */}
@@ -186,31 +217,64 @@ const ProfileSettings: React.FC = () => {
                   <Label>
                     Contraseña actual <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    type="password"
-                    value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                      onClick={() => setShowCurrentPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showCurrentPassword ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-y-3">
                   <Label>
                     Contraseña nueva <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    type="password"
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                      onClick={() => setShowNewPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showNewPassword ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-y-3">
                   <Label>
                     Confirmar contraseña <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="bg-gray-100 text-sm text-gray-600 p-2 rounded">
