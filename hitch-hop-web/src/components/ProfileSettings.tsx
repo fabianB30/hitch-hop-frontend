@@ -4,7 +4,13 @@ import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Datos iniciales del usuario
 const initialUser = {
@@ -29,9 +35,13 @@ const generos = ["Masculino", "Femenino", "Otro"];
 const tiposUsuario = ["Administrador", "Usuario"];
 
 const ProfileSettings: React.FC = () => {
-   const [editable, setEditable] = useState(false);
+  const [editable, setEditable] = useState(false);
   const [userData, setUserData] = useState(initialUser);
   const [backupData, setBackupData] = useState(initialUser); // copia de respaldo
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const toggleEdit = () => {
     if (!editable) {
@@ -52,6 +62,23 @@ const ProfileSettings: React.FC = () => {
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData({ ...userData, [key]: value });
   };
+
+  const handleChangePassword = () => {
+    // validaciones
+
+
+    if (newPassword !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+    // Logica para guardar la nueva contraseña
+    
+    setShowPasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
 
   return (
     <div className="min-h-screen w-full bg-white flex">
@@ -89,6 +116,24 @@ const ProfileSettings: React.FC = () => {
               alt="Foto de perfil"
               className="w-40 h-40 rounded-full object-cover border-4 border-[#ECECFF] shadow mb-2"
             />
+            {editable && (
+            <>
+              <Button
+                type="button"
+                className="mt-4 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
+                // onClick={handleEditPhoto}
+              >
+                Editar foto de perfil
+              </Button>
+              <Button
+                type="button"
+                className="mt-16 bg-[#FFAB00] text-white font-semibold rounded-lg px-6 py-2"
+                onClick={() => setShowPasswordModal(true)}
+              >
+                Cambiar contraseña
+              </Button>
+            </>
+          )}
           </div>
 
           {/* Formulario de información */}
@@ -128,6 +173,70 @@ const ProfileSettings: React.FC = () => {
               </Button>
             </div>
           </form>
+
+           {/* Dialog para cambiar contraseña */}
+          <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-4">
+                <div className="flex flex-col gap-y-3">
+                  <Label>
+                    Contraseña actual <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="password"
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-y-3">
+                  <Label>
+                    Contraseña nueva <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col gap-y-3">
+                  <Label>
+                    Confirmar contraseña <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="bg-gray-100 text-sm text-gray-600 p-2 rounded">
+                  <span> Mínimo 8 caracteres, con al menos 1 letra mayúscula, 1 letra minúscula y 1 número.</span>
+                </div>
+
+                <p className="text-xs text-red-500">* Información obligatoria</p>
+              </div>
+
+              <DialogFooter className="flex justify-between mt-6">
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowPasswordModal(false)}
+                  className="text-blue-600"
+                >
+                  Volver
+                </Button>
+                <Button
+                  className="bg-[#7875F8] text-white"
+                  onClick={handleChangePassword}
+                >
+                  Confirmar cambios
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
     </div>
