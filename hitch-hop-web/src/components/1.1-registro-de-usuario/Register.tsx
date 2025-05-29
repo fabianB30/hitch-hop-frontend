@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { Card } from './ui/card';
+import { Card } from '@/components/ui/card';
 import ImageBackground from '@/assets/1.1-Image-1-bg.png';
 import Logo from '@/assets/1.1-Image-1-Logo.png';
 import ImagePerfil from '@/assets/1.1-Image-Perfil.png';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogTrigger, AlertDialogCancel } from './ui/alert-dialog';
-import { Input } from './ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Info, Calendar as CalendarIcon } from 'lucide-react';
-import { Calendar } from './ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from '@/components//ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
