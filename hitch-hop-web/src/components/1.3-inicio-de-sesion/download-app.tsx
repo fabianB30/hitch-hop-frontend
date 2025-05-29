@@ -1,8 +1,8 @@
 import React from 'react';
-import logo from '../assets/1.3-Imagen-2.png';
-import Imagen1 from '../assets/1.3-Imagen-3.png';
-import GooglePlayImage from '../assets/1.3-GooglePlay.png';
-import AppStoreImage from '../assets/1.3-AppStore.png';
+import logo from '@/assets/1.3-Imagen-2.png';
+import Imagen1 from '@/assets/1.3-Imagen-3.png';
+import GooglePlayImage from '@/assets/1.3-GooglePlay.png';
+import AppStoreImage from '@/assets/1.3-AppStore.png';
 
 const DownloadApp: React.FC = () => {
   return (

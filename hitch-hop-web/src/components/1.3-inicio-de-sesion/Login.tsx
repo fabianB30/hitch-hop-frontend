@@ -1,9 +1,9 @@
 import React from 'react';
-import Imagen1 from '../assets/1.3-Imagen-1.png';
-import logo from '../assets/1.3-Imagen-2.png';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { Checkbox } from './ui/checkbox';
+import Imagen1 from '@/assets/1.3-Imagen-1.png';
+import logo from '@/assets/1.3-Imagen-2.png';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 
 const Login: React.FC = () => {
@@ -30,7 +30,6 @@ const Login: React.FC = () => {
       return;
     }
     
-    // Y que devuelva tambien si es un usuario administrador o no para redirigirlo a la página correspondiente.
     console.log("Login attempt:", { email, password, rememberMe });
   };
 
