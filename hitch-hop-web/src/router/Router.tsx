@@ -8,19 +8,27 @@ import GestionTemp from "@/components/shared/temp/GestionTemp";
 import PerfilTemp from "@/components/shared/temp/PerfilTemp";
 import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
 import StatsTemp from "@/components/shared/temp/StatsTemp";
+import Login from "@/components/1.3-inicio-de-sesion/Login";
+import DownloadApp from "@/components/1.3-inicio-de-sesion/download-app";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <Route path="/" element={<SidebarAdmin />}>
-            <Route index element={<Home />} />
-            {/* rutas temporales para el sidebar, acá se cambian por las suyas :) */}
-            {/* si su seccion tiene varias pantallas, hacerlas anidadas please */}
-            <Route path="inicio" element={<InicioTemp />} />
-            <Route path="gestion" element={<GestionTemp />} />
-            <Route path="perfil" element={<PerfilTemp />} />
-            <Route path="consultas" element={<ConsultasTemp />} />
-            <Route path="estadistica" element={<StatsTemp />} />
-        </Route>
+        <>
+            {/* Rutas públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/download" element={<DownloadApp />} />
+
+            <Route path="/" element={<SidebarAdmin />}>
+                <Route index element={<Home />} />
+                {/* rutas temporales para el sidebar, acá se cambian por las suyas :) */}
+                {/* si su seccion tiene varias pantallas, hacerlas anidadas please */}
+                <Route path="inicio" element={<InicioTemp />} />
+                <Route path="gestion" element={<GestionTemp />} />
+                <Route path="perfil" element={<PerfilTemp />} />
+                <Route path="consultas" element={<ConsultasTemp />} />
+                <Route path="estadistica" element={<StatsTemp />} />
+            </Route>
+        </>
     )
     
 )
