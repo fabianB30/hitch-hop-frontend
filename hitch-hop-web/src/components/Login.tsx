@@ -4,17 +4,40 @@ import logo from '../assets/1.3-Imagen-2.png';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
-
-
-
 import { useState } from 'react';
 
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    
+    // Validar campos vacíos
+    if (!email || !password) {
+      setError("Debe completar todos los campos.");
+      return;
+    }
+    
+    // Validar correo institucional TEC
+    const tecRegex = /^[a-zA-Z0-9._%+-]+@(itcr\.ac\.cr|estudiantec\.cr)$/;
+    if (!tecRegex.test(email)) {
+      setError("El correo debe ser institucional (@itcr.ac.cr o @estudiantec.cr)");
+      return;
+    }
+    
+    // Y que devuelva tambien si es un usuario administrador o no para redirigirlo a la página correspondiente.
+    console.log("Login attempt:", { email, password, rememberMe });
+  };
+
+  // Manejador para el cambio del checkbox
+  const handleCheckboxChange = (checked: boolean) => {
+    setRememberMe(checked);
+  };
 
   return (
     <div className="fixed inset-0 flex flex-row items-start justify-between bg-white shadow-md overflow-hidden min-h-screen w-full">
@@ -23,53 +46,39 @@ const Login: React.FC = () => {
         <div className="flex items-center">
           <img src={logo} alt="Logo" className="w-[127px] h-[103px] -mt-4" />
           <span className="ml-[1px] text-[60px] font-extrabold text-black font-montserrat leading-tight">HitchHop</span>
-        </div>
-
-        <form
+        </div>        <form
           className="flex flex-col items-center justify-center w-full mt-8"
-          onSubmit={e => {
-            e.preventDefault();
-            // Validar campos vacíos
-            if (!email || !password) {
-              setError("Debe completar todos los campos.");
-              return;
-            }
-            // Validar correo institucional TEC
-            const tecRegex = /^[a-zA-Z0-9._%+-]+@(itcr\.ac\.cr|estudiantec\.cr)$/;
-            if (!tecRegex.test(email)) {
-              setError("El correo debe ser institucional (@itcr.ac.cr o @estudiantec.cr)");
-              return;
-            }
-            setError("");
-            // Sección de llamada a la API de login con el metodo POST y los parametros email, password y rememberMe.
-            // Y que devuelva tambien si es un usuario administrador o no para redirigirlo a la página correspondiente.
-          }}
+          noValidate
+          onSubmit={handleSubmit}
         >
           <span className="w-[371px] h-[32px] mt-[32px] mb-4 text-[24px] font-semibold leading-[100%] font-exo text-center">
             Inicie sesión con sus credenciales
           </span>
-            
-          <div className="flex flex-col w-full max-w-[440px] mb-4">
-            <label className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
+              <div className="flex flex-col w-full max-w-[440px] mb-4">
+            <label htmlFor="email" className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
               Correo
             </label>
             <Input
+              id="email"
+              name="email"
               type="email"
               placeholder="Correo electrónico"
+              autoComplete="email"
               className={`w-full h-[37px] ${error && (!email || (email && !/^[a-zA-Z0-9._%+-]+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(email))) ? 'border border-red-500 focus:border-red-500' : ''}`}
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-          </div>
-
-          <div className="flex flex-col w-full max-w-[440px] mb-4">
-            <label className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
+          </div>          <div className="flex flex-col w-full max-w-[440px] mb-4">
+            <label htmlFor="password" className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
               Contraseña
             </label>
             <div className="relative">
               <Input
+                id="password"
+                name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Contraseña"
+                autoComplete="current-password"
                 className={`w-full h-[37px] pr-10 ${error && (!password) ? 'border border-red-500 focus:border-red-500' : ''}`}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -79,6 +88,7 @@ const Login: React.FC = () => {
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
                 onClick={() => setShowPassword((prev) => !prev)}
                 tabIndex={-1}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -99,7 +109,7 @@ const Login: React.FC = () => {
           </div>
             
           <div className="flex items-center w-full max-w-[440px] mb-4">
-            <Checkbox id="rememberMe" className="mr-2" checked={rememberMe} onChange={e => setRememberMe((e.target as HTMLInputElement).checked)} />
+            <Checkbox id="rememberMe" className="mr-2" checked={rememberMe} onCheckedChange={handleCheckboxChange}/>
             <label htmlFor="rememberMe" className="text-sm font-medium text-gray-700 select-none">
               Guardar los datos de acceso
             </label>
