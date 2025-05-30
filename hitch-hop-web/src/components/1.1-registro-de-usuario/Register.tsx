@@ -4,7 +4,7 @@ import ImageBackground from '@/assets/1.1-Image-1-bg.png';
 import Logo from '@/assets/1.1-Image-1-Logo.png';
 import ImagePerfil from '@/assets/1.1-Image-Perfil.png';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogTrigger, AlertDialogCancel } from './ui/alert-dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogTrigger, AlertDialogCancel } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Info, Calendar as CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components//ui/calendar';
+import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -156,8 +156,7 @@ export default function Register() {
 											render={({ field }) => {
 												const showAsterisk = !field.value || firstStepForm.formState.errors.institution;
 												return (
-													<FormItem>
-														<FormLabel className="text-[20px] font-normal">
+													<FormItem>														<FormLabel className="text-[20px] font-normal">
 															Institución {showAsterisk && <span className="text-red-500">*</span>}
 														</FormLabel>
 														<Select
@@ -165,7 +164,7 @@ export default function Register() {
 															defaultValue={field.value}
 														>
 															<FormControl>
-																<SelectTrigger className="w-full">
+																<SelectTrigger className="w-full bg-[#FFFFFF] border-[#A5A3A3]">
 																	<SelectValue placeholder="Seleccionar" />
 																</SelectTrigger>
 															</FormControl>
@@ -277,9 +276,8 @@ export default function Register() {
 														<Select
 															onValueChange={field.onChange}
 															defaultValue={field.value}
-														>
-															<FormControl>
-																<SelectTrigger className="w-full">
+														>															<FormControl>
+																<SelectTrigger className="w-full bg-[#FFFFFF] border-[#A5A3A3]">
 																	<SelectValue placeholder="Seleccionar" />
 																</SelectTrigger>
 															</FormControl>
@@ -534,18 +532,18 @@ export default function Register() {
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-auto p-0" align="start">
-                                                                    <Calendar
-                                                                        mode="single"
-                                                                        selected={field.value}
-                                                                        onSelect={field.onChange}
-                                                                        disabled={(date) =>
-                                                                            date > new Date() || date < new Date("1900-01-01")
-                                                                        }
-                                                                        initialFocus
-                                                                        locale={es}
-                                                                    />
-                                                                </PopoverContent>
+																<PopoverContent className="w-auto p-0" align="start">
+																	<Calendar
+																		mode="single"
+																		selected={field.value}
+																		onSelect={field.onChange}
+																		disabled={(date: Date) =>
+																			date > new Date() || date < new Date("1900-01-01")
+																		}
+																		initialFocus
+																		locale={es}
+																	/>
+																</PopoverContent>
                                                             </Popover>
                                                             <FormMessage />
                                                         </FormItem>
@@ -589,9 +587,8 @@ export default function Register() {
                                                                     <Select
                                                                         onValueChange={field.onChange}
                                                                         defaultValue={field.value}
-                                                                    >
-                                                                        <FormControl>
-                                                                            <SelectTrigger className="w-[200px]">
+                                                                    >                                                                        <FormControl>
+                                                                            <SelectTrigger className="w-[200px] bg-[#FFFFFF] border-[#A5A3A3]">
                                                                                 <SelectValue placeholder="Seleccionar" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
@@ -623,9 +620,8 @@ export default function Register() {
                                                                     <Select
                                                                         onValueChange={field.onChange}
                                                                         defaultValue={field.value}
-                                                                    >
-                                                                        <FormControl>
-                                                                            <SelectTrigger className="w-[250px]">
+                                                                    >                                                                        <FormControl>
+                                                                            <SelectTrigger className="w-[250px] bg-[#FFFFFF] border-[#A5A3A3]">
                                                                                 <SelectValue placeholder="Seleccionar" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
