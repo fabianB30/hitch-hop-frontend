@@ -1,0 +1,125 @@
+import { Box } from "@/components/ui/box";
+import { Image } from "react-native";
+import { Button, ButtonText } from "@/components/ui/button";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
+import { Dimensions } from "react-native";
+import { Text } from "@/components/ui/text";
+import { Platform, StyleSheet } from 'react-native';
+
+const windowHeight = Dimensions.get("window").height;
+const windowWidth = Dimensions.get("window").width;
+const imageWidth = windowWidth + 62;
+const boxWidth = windowWidth * 0.72;
+const boxHeight = windowHeight * 0.5;
+const headerHeight = windowHeight * 0.15;
+
+export default function GestionPerfil(){
+    return(
+<Box style={{ flex: 1, backgroundColor: "#fff" }}>
+      <Box
+          style={{
+              height: windowHeight*0.11,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              paddingHorizontal: 10,
+              paddingVertical: 16,
+              position: "relative",
+              zIndex: 2
+          }}
+        >
+          
+          <Box
+            style={{
+              position: "absolute",
+              left: windowWidth / 2 - 48,
+              top: 20,
+              width: 96,
+              height: 96,
+              alignContent: "center",
+              backgroundColor: "#ECECFF",
+              borderRadius: 9999,
+              overflow: "hidden"
+            }}
+          >
+            <Image
+              source={require("@/assets/images/iconPrimary.png")}
+              style={{
+                left: -30.5,
+                top: -10,
+                width: 157,
+                height: 157
+              }}
+            />
+          </Box>
+
+          <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
+            <Text style={{ fontSize: 24, height: 24, top: 0, fontFamily: "Montserrat_800ExtraBold", color: "#000" }}>
+              HitchHop
+            </Text>  
+          </Box>
+      </Box>
+
+      <Box style={{flex: 1, top: 0, left: 0, zIndex: 1}}>
+        <Image style={styles.fondo} source={require("@/assets/images/gestionPerfilFondo.png")} resizeMode="contain"/>
+        <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
+          <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
+          <Box style={styles.boxHitch}>
+            <VStack space="4xl" style={{alignItems: "center", marginTop: 80}}>
+              <Button style={styles.buttonHitch}>
+                <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
+              </Button>
+              <Button style={styles.buttonHitch}>
+                <ButtonText style={styles.buttonTextHitch}>Información de la cuenta</ButtonText>
+              </Button>
+              <Button style={styles.buttonHitch}>
+                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
+              </Button>
+              <Button style={styles.buttonHitch}>
+                <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
+              </Button>
+            </VStack>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+    );
+}
+
+const styles = StyleSheet.create({
+  buttonHitch: {
+    width: boxWidth - 65,
+    height: 48,
+    backgroundColor: "#716EFF",
+    borderRadius: 8,
+  },
+  buttonTextHitch: {
+    fontFamily: "Exo_600SemiBold",
+    fontSize: 17
+  },
+  boxHitch: {
+    backgroundColor: "#A49DFF",
+    borderRadius: 30,
+    padding: 20,
+    justifyContent: "center",
+    width: boxWidth,
+    height: boxHeight,
+    zIndex: 2
+  },
+  fondo: {
+    zIndex:0,
+    position: "absolute",
+    width: windowWidth+62,
+    height: undefined,
+    aspectRatio: 460/775,
+    top: 0,
+    left: -31
+  },
+  boxTopIcon: {
+    width: 231,
+    height: 231,
+    position: "absolute",
+    top: -136,
+    zIndex: 3
+  }
+});
