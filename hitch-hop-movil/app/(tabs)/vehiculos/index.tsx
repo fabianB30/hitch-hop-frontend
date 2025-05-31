@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, Image, Pressable, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const mockVehiculos = [
   {
-    id: '1',
     marca: 'Hyundai',
     modelo: 'Santa Fe',
     placa: 'BTR-932',
@@ -12,54 +11,17 @@ const mockVehiculos = [
     anio: '2019',
     foto: '...\assets\images\santafe.png',
   },
-  // Puedes agregar más vehículos de ejemplo aquí
 ];
 
 export default function VehiculosIndex() {
   const router = useRouter();
-  const [vehiculos, setVehiculos] = useState(mockVehiculos);
   const [showModal, setShowModal] = useState(false);
-  const [vehiculoAEliminar, setVehiculoAEliminar] = useState(null);
-  const [successMsg, setSuccessMsg] = useState('');
-
-  const handleEliminar = (vehiculo: React.SetStateAction<null>) => {
-    setVehiculoAEliminar(vehiculo);
-    setShowModal(true);
-  };
-
-  const confirmarEliminar = () => {
-    setVehiculos((prev) => prev.filter((v) => v.id !== confirmarEliminar.id));
-    setShowModal(false);
-    setSuccessMsg('Se ha eliminado el vehículo con éxito');
-    setTimeout(() => setSuccessMsg(''), 2500);
-  };
-
-  if (vehiculos.length === 0) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-        {/* Ilustración */}
-        <Image source={require('../../../assets/empty-vehiculo.png')} style={{ width: 160, height: 160, marginBottom: 16 }} />
-        {successMsg ? (
-          <View style={{ backgroundColor: '#E6F4EA', borderRadius: 8, padding: 8, marginBottom: 8 }}>
-            <Text style={{ color: '#2E7D32' }}>✓ {successMsg}</Text>
-          </View>
-        ) : null}
-        <Text style={{ marginBottom: 16 }}>No tiene vehículos registrados</Text>
-        <Button title="Agregar Vehiculo" color="#7B61FF" onPress={() => router.push('/agregarVehiculo')} />
-      </View>
-    );
-  }
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      {successMsg ? (
-        <View style={{ backgroundColor: '#E6F4EA', borderRadius: 8, padding: 8, marginBottom: 8 }}>
-          <Text style={{ color: '#2E7D32' }}>✓ {successMsg}</Text>
-        </View>
-      ) : null}
       <FlatList
-        data={vehiculos}
-        keyExtractor={(item) => item.id}
+        data={mockVehiculos}
+        keyExtractor={(_, idx) => idx.toString()}
         renderItem={({ item }) => (
           <View style={{
             margin: 10,
@@ -75,13 +37,13 @@ export default function VehiculosIndex() {
               <View style={{ flexDirection: 'row', marginTop: 8 }}>
                 <TouchableOpacity
                   style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 8, marginRight: 8 }}
-                  onPress={() => router.push({ pathname: 'informacionVehiculo', params: { id: item.id } })}
+                  onPress={() => router.push('informacionVehiculo')}
                 >
                   <Text style={{ color: '#fff' }}>Información</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ backgroundColor: '#E0D7FF', borderRadius: 8, padding: 8 }}
-                  onPress={() => handleEliminar(item)}
+                  onPress={() => setShowModal(true)}
                 >
                   <Text style={{ color: '#7B61FF' }}>Eliminar</Text>
                 </TouchableOpacity>
@@ -94,7 +56,7 @@ export default function VehiculosIndex() {
         }
       />
 
-      {/* Modal de confirmación */}
+      {/* Modal de confirmación solo para navegación visual */}
       <Modal
         visible={showModal}
         transparent
@@ -108,7 +70,7 @@ export default function VehiculosIndex() {
             backgroundColor: '#fff', borderRadius: 16, padding: 24, width: 300, alignItems: 'center'
           }}>
             <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>
-              ¿Estás seguro que quieres eliminar el vehículo {vehiculoAEliminar?.marca} {vehiculoAEliminar?.modelo}?
+              ¿Estás seguro que quieres eliminar el vehículo Hyundai Santa Fe?
             </Text>
             <Text style={{ color: '#888', marginBottom: 24 }}>Todos los datos del vehículo serán eliminados</Text>
             <View style={{ flexDirection: 'row' }}>
@@ -120,7 +82,10 @@ export default function VehiculosIndex() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 10 }}
-                onPress={confirmarEliminar}
+                onPress={() => {
+                  setShowModal(false);
+                  router.push('sinVehiculos');
+                }}
               >
                 <Text style={{ color: '#fff' }}>Aceptar</Text>
               </TouchableOpacity>

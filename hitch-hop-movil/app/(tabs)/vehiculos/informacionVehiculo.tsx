@@ -1,25 +1,19 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-const mockVehiculos = [
-  {
-    id: '1',
-    marca: 'Hyundai',
-    modelo: 'Santa Fe',
-    placa: 'BTR-932',
-    color: 'Gris',
-    anio: '2019',
-    foto: 'C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\assets\images\santafe.png',
-  },
-];
+const mockVehiculo = {
+  marca: 'Hyundai',
+  modelo: 'Santa Fe',
+  placa: 'BTR-932',
+  color: 'Gris',
+  anio: '2019',
+  foto: '...\assets\images\santafe.png',
+};
 
 export default function InformacionVehiculo() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const vehiculo = mockVehiculos.find(v => v.id === id);
-
-  if (!vehiculo) return <Text>Vehículo no encontrado</Text>;
+  const vehiculo = mockVehiculo;
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
@@ -35,7 +29,10 @@ export default function InformacionVehiculo() {
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.color}</Text>
       <Text>Año</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo.anio}</Text>
-      <TouchableOpacity style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }} onPress={() => router.push({pathname: 'editarVehiculo', params: { id: vehiculo.id } })}>
+      <TouchableOpacity
+        style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
+        onPress={() => router.push('editarVehiculo')}
+      >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar Información</Text>
       </TouchableOpacity>
     </View>
