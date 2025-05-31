@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select,SelectTrigger,SelectContent,SelectItem,SelectValue,} from "@/components/ui/select";
+import { Dialog,DialogTrigger,DialogContent,DialogHeader,DialogFooter,DialogTitle,DialogDescription,DialogClose,} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -56,10 +51,14 @@ const UsersManagement: React.FC = () => {
     type: user.type || "",
   });
 
-  // Opciones para selects
+  // Estado de la cuenta y dialog de desactivación
+  const [accountActive, setAccountActive] = useState(user.accountActive ?? true);
+  const [showDialog, setShowDialog] = useState(false);
+
+  // Selects
   const institutionOptions = ["ITCR"];
   const typeOptions = ["Conductor", "Pasajero", "Administrador"];
-
+  
   // Actualiza los campos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -89,6 +88,27 @@ const UsersManagement: React.FC = () => {
   const handleSave = () => {
     // logic de guardar en base de datos
     setEditMode(false);
+  };
+  
+  // Handler para el switch
+  const handleSwitchClick = () => {
+  if (accountActive) {
+    // Si está activo, pide confirmación para desactivar
+    setShowDialog(true);
+  } else {
+    // Si está desactivado, actívalo directamente sin dialog
+    setAccountActive(true);
+  }
+};
+
+  const handleConfirmDeactivate = () => {
+    setAccountActive(false);
+    setShowDialog(false);
+    // Aquí podrías agregar lógica para actualizar en backend
+  };
+
+  const handleCancelDeactivate = () => {
+    setShowDialog(false);
   };
 
   return (
@@ -255,20 +275,41 @@ const UsersManagement: React.FC = () => {
           </div>
           {/* Account status */}
           <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
-            <h2 className="text-[30px] font-bold mb-4">Estado de Cuenta</h2>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-md font-semibold">Estado de Cuenta</Label>
-              <Switch checked={user.accountActive ?? true} />
-            </div>
-            <p className="text-sm text-[#525252] mb-1">
-              Esta cuenta está actualmente activa
-            </p>
-            <p className="text-xs text-[#525252]">
-              Desactivar esta cuenta prevendrá el ingreso del usuario al sistema pero no eliminará sus datos.
-            </p>
+          <h2 className="text-[30px] font-bold mb-4">Estado de Cuenta</h2>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-md font-semibold">Estado de Cuenta</Label>
+            <Switch checked={accountActive} onCheckedChange={handleSwitchClick} />
           </div>
+          <p className="text-sm text-[#525252] mb-1">
+            {accountActive
+              ? "Esta cuenta está actualmente activa"
+              : "Esta cuenta está actualmente desactivada"}
+          </p>
+          <p className="text-xs text-[#525252]">
+            Desactivar esta cuenta prevendrá el ingreso del usuario al sistema pero no eliminará sus datos.
+          </p>
         </div>
+        {/* Dialog de confirmación */}
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Desactivar cuenta</DialogTitle>
+              <DialogDescription>
+                ¿Está seguro de que desea desactivar la cuenta de este usuario? El usuario no podrá ingresar al sistema.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCancelDeactivate}>
+                Cancelar
+              </Button>
+              <Button className="bg-[#7875F8] text-white" onClick={handleConfirmDeactivate}>
+                Aceptar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
+     </div>
     </div>
   );
 }
