@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ProfileSettings from './components/ProfileSettings';
+import ProfileSettings from './pages/main/ProfileSettings';
 import './App.css';
 
 

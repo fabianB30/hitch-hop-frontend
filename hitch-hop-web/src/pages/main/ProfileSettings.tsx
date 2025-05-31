@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
-import Imagen1 from "../assets/1.6-DefaultPFP.png";
-import { Button } from "./ui/button";
+import Imagen1 from "../../assets/1.6-DefaultPFP.png";
+import { Button } from "../../components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
@@ -47,15 +48,47 @@ const ProfileSettings: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  const validateUserData = (data: typeof initialUser) => {
+    const errors: string[] = [];
+
+    // Solo letras (incluye acentos y ñ)
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    if (!nameRegex.test(data.nombre)) errors.push("El nombre solo puede contener letras.");
+    if (!nameRegex.test(data.primerApellido)) errors.push("El primer apellido solo puede contener letras.");
+    if (!nameRegex.test(data.segundoApellido)) errors.push("El segundo apellido solo puede contener letras.");
+
+    // Número de ID: 9 dígitos
+    if (!/^\d{9}$/.test(data.numeroId)) errors.push("El número de ID debe tener 9 dígitos.");
+
+    // Teléfono: 8 dígitos
+    if (!/^\d{8}$/.test(data.telefono)) errors.push("El teléfono debe tener 8 dígitos.");
+
+    // Correo institucional
+    if (
+      !/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.correo)
+    ) {
+      errors.push("El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.");
+    }
+
+    return errors;
+  };
+
   const toggleEdit = () => { // cambios del perfil
     if (!editable) {
-      // Guarda un respaldo de los datos por si el usuario cancela
       setBackupData(userData);
+      setEditable(true);
     } else {
+      // Validar antes de guardar
+      const errors = validateUserData(userData);
+      if (errors.length > 0) {
+        alert(errors.join("\n"));
+        return;
+      }
       // Guardar cambios
       console.log("Datos guardados:", userData);
+      setEditable(false);
     }
-    setEditable((prev) => !prev);
   };
 
   const cancelEdit = () => {
@@ -105,23 +138,6 @@ const ProfileSettings: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-white flex">
-      {/* Sidebar */}
-      <aside className="bg-[#7875F8] text-white flex flex-col rounded-3xl shadow-md w-64 min-h-[90vh] m-6 p-6 relative">
-        <div className="text-4xl font-extrabold font-montserrat mb-2">HitchHop</div>
-        <div className="text-lg font-semibold mb-8">{userData.tipoUsuario}</div>
-        <nav className="flex flex-col gap-2">
-          <SidebarItem active icon="🏠" label="Inicio" />
-          <SidebarItem icon="👥" label="Gestión de Usuarios" />
-          <SidebarItem activeLight icon="👤" label="Gestión de Perfil" />
-          <SidebarItem icon="❓" label="Consultas" />
-          <SidebarItem icon="📊" label="Estadísticas" />
-        </nav>
-        <Button className="mt-auto bg-white text-[#2D29D2] font-semibold rounded-lg py-3 px-6 flex items-center gap-2">
-          <span>⏻</span>
-          Cerrar Sesión
-        </Button>
-      </aside>
-
        {/* Main Content */}
       <main className="flex-1 flex flex-col px-12 py-8">
         <span className="w-[369px] h-[64px] mt-[64px] mb-4 text-[48px] font-semibold leading-[100%] font-exo text-center">
@@ -134,11 +150,13 @@ const ProfileSettings: React.FC = () => {
             <span className="text-lg font-medium font-exo mb-3 text-gray-700">
               Foto de perfil
             </span>
-            <img
-              src={userData.foto}
-              alt="Foto de perfil"
-              className="w-40 h-40 rounded-full object-cover border-4 border-[#ECECFF] shadow mb-2"
-            />
+            <Avatar className="w-40 h-40 mb-2 border-4 border-[#ECECFF] shadow">
+              <AvatarImage src={userData.foto} alt="Foto de perfil" className="object-cover" />
+              <AvatarFallback>
+                {userData.nombre[0]}
+                {userData.primerApellido[0]}
+              </AvatarFallback>
+            </Avatar>
             {/* Input oculto para seleccionar imagen */}
             <input
               type="file"
@@ -306,31 +324,6 @@ const ProfileSettings: React.FC = () => {
     </div>
   );
 };
-
-function SidebarItem({
-  icon,
-  label,
-  active,
-  activeLight,
-}: {
-  icon: string;
-  label: string;
-  active?: boolean;
-  activeLight?: boolean;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer font-exo text-base font-medium
-        ${active ? "bg-[#7875F8] text-white" : ""}
-        ${activeLight ? "bg-white text-[#7875F8]" : ""}
-        ${!active && !activeLight ? "hover:bg-[#6a67e6] hover:text-white transition" : ""}
-      `}
-    >
-      <span className="text-xl">{icon}</span>
-      <span>{label}</span>
-    </div>
-  );
-}
 
 function ProfileInput({
   label,
