@@ -30,6 +30,7 @@ const UsersManagement: React.FC = () => {
   const [searchEmail, setSearchEmail] = useState("");
   const [filterType, setFilterType] = useState("Todos");
   const [filterInstitution, setFilterInstitution] = useState("Todas");
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
   const filteredUsers = users.filter((user) => {
     const matchUsername = !searchUsername || user.username.toLowerCase().includes(searchUsername.toLowerCase());
@@ -101,20 +102,28 @@ const UsersManagement: React.FC = () => {
         <div className="relative">
           <div className="absolute w-full h-[644px] bg-[#ECECFF] rounded-[30px] z-0" />
           <div className="relative z-10 px-8 pt-8 pb-4">
-            <div className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr] gap-2 h-14 items-center">
+            <div className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr_60px] gap-2 h-14 items-center">
               <div className="text-[#8886D7] font-exo font-semibold text-base">ID</div>
               <div className="text-black font-exo font-semibold text-base">Username</div>
               <div className="text-black font-exo font-semibold text-base">Email</div>
               <div className="text-black font-exo font-semibold text-base">Tipo de Usuario</div>
               <div className="text-black font-exo font-semibold text-base">Fecha de Registro</div>
               <div className="text-black font-exo font-semibold text-base text-center">Institución</div>
+              <div></div>
             </div>
 
-            <div>
+            {/* Contenedor scrollable para las filas */}
+            <div
+              style={{
+                maxHeight: "500px",
+                overflowY: "auto",
+                paddingRight: "24px", // Agrega espacio a la derecha para separar el scrollbar
+              }}
+            >
               {filteredUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr] gap-2 h-14 items-center border-t border-[#ADA7FF] relative"
+                  className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr_60px] gap-2 h-14 items-center border-t border-[#ADA7FF] relative"
                 >
                   <div className="text-[#8886D7] font-exo font-medium text-base">{user.id}</div>
                   <div className="text-black font-exo font-medium text-base">{user.username}</div>
@@ -126,6 +135,11 @@ const UsersManagement: React.FC = () => {
                   </div>
                   <div className="text-[#8886D7] font-exo text-base">{user.date}</div>
                   <div className="text-black font-exo font-medium text-base text-center">{user.institution}</div>
+                  <button
+                    className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-3 py-1 text-xs font-exo font-semibold"
+                  >
+                    Ver
+                  </button>
                 </div>
               ))}
             </div>
