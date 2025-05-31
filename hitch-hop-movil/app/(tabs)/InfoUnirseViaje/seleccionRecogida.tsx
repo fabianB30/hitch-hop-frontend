@@ -1,5 +1,5 @@
-import { StyleSheet, Image, View, ScrollView } from 'react-native'
-import React, { useState, useEffect, useRef } from 'react'
+import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
+import React, { useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import { ImageBackground } from 'expo-image'
@@ -10,49 +10,16 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/radio'
 
+const wh = Dimensions.get("window").height
+
 const seleccionRecogida = () => {
   const router = useRouter()
 
-  const [scrollHeight, setScrollHeight] = useState(0)
-  const [cardY, setCardY] = useState<number | null>(null)
-  const [buttonY, setButtonY] = useState<number | null>(null)
-  const [headerHeight, setHeaderHeight] = useState<number | null>(null)
-  const [detailHeight, setDetailHeight] = useState<number | null>(null)
-  const [footerHeight, setFooterHeight] = useState<number | null>(null)
-  const layoutTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const calculateScrollHeigth = () => {
-    if (cardY != null && buttonY != null && headerHeight != null && detailHeight != null && footerHeight != null) {
-      const availableHeight = buttonY - cardY - 50
-      const usedSpace = headerHeight + detailHeight + footerHeight + 50
-      const scrollSpace = availableHeight - usedSpace
-      setScrollHeight(scrollSpace > 0 ? scrollSpace : 0)
-    }
-  }
-
-  const scheduleLayoutCalculation = () => {
-    if (layoutTimeout.current) {
-      clearTimeout(layoutTimeout.current)
-    }
-
-    layoutTimeout.current = setTimeout(() => {
-      if (cardY != null && buttonY != null && headerHeight != null && detailHeight != null && footerHeight != null) {
-        calculateScrollHeigth()
-      }
-    }, 50)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (layoutTimeout.current) {
-        clearTimeout(layoutTimeout.current)
-      }
-    }
-  }, [])
-
   const [selectedStop, setStop] = useState("")
   const { rideInfo } = useLocalSearchParams()
+  const { additionalInfo } = useLocalSearchParams()
   let parsedData
+  let additionalParsed
 
   if (typeof rideInfo === 'string') {
     parsedData = JSON.parse(rideInfo)
@@ -60,12 +27,18 @@ const seleccionRecogida = () => {
     parsedData = null
   }
 
-  if (!parsedData) {
+  if (typeof additionalInfo === 'string') {
+    additionalParsed = JSON.parse(additionalInfo)
+  } else {
+    additionalParsed = null
+  }
+
+  if (!parsedData || !additionalParsed) {
     return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
   }
 
-  const stops = parsedData.stops
-  stops.splice(0, 0, parsedData.startingPoint)
+  const stops = additionalParsed.stops
+  stops.splice(0, 0, additionalParsed.start)
   
   return (
     <SafeAreaView style={{flex: 1, marginBottom: 50}}>
@@ -78,25 +51,25 @@ const seleccionRecogida = () => {
         >
           <Text style={styles.title}>Seleccione una parada</Text>
 
-          <View style={styles.card} onLayout={(e) => {setCardY(e.nativeEvent.layout.y); scheduleLayoutCalculation()}}>
-            <HStack style={{gap: 10}} onLayout={(e) => {setHeaderHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
+          <View style={styles.card}>
+            <HStack style={{gap: 10}}>
               <Image 
-                source={parsedData.avatar}
+                source={additionalParsed.avatar}
                 style={styles.profilePic}
               />
 
               <View>
-                <Text style={styles.carInfo}>{parsedData.carModel}</Text>
+                <Text style={styles.carInfo}>{additionalParsed.carBrand + " " + additionalParsed.carModel + " " + additionalParsed.carColor}</Text>
                 <Text style={styles.driverInfo}>{parsedData.driver}</Text>
               </View>
             </HStack>
 
-            <View style={styles.rideDetails} onLayout={(e) => {setDetailHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
-              <Text style={{ color: '#171717'}}>{parsedData.date}</Text>
-              <Text style={{ color: '#171717'}}>{parsedData.time}</Text>
+            <View style={styles.rideDetails}>
+              <Text style={{ color: '#171717'}}>{additionalParsed.date}</Text>
+              <Text style={{ color: '#171717'}}>{additionalParsed.time}</Text>
             </View>
 
-            <ScrollView style={[styles.stops, {height: scrollHeight}]} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
               <RadioGroup value={selectedStop} onChange={setStop}>
                 {stops.map((stop: string, index: number) => {
                   return (
@@ -115,24 +88,25 @@ const seleccionRecogida = () => {
               </RadioGroup>
             </ScrollView>
 
-            <HStack style={{marginTop: 20}} onLayout={(e) => {setFooterHeight(e.nativeEvent.layout.height); scheduleLayoutCalculation()}}>
+            <HStack style={{marginTop: 20}}>
               <View style={styles.rideDetails}>
                 <HStack style={{gap: 4}}>
                   <Users size={16} color='black' />
-                  <Text style={{ color: '#171717'}}>{parsedData.capacity}</Text>
+                  <Text style={{ color: '#171717'}}>{parsedData.passengers.length}</Text>
                 </HStack>
-                <Text style={{ color: '#171717'}}>&#8353;{parsedData.price}</Text>
+                <Text style={{ color: '#171717'}}>&#8353;{parsedData.costPerPerson}</Text>
               </View>
             </HStack>
             {/* End of Card View */}
           </View>
 
-          <View style={styles.buttons} onLayout={(e) => {setButtonY(e.nativeEvent.layout.y); scheduleLayoutCalculation()}}>
+          <View style={styles.buttons}>
             <Button style={[styles.button, styles.confirmButton]}
               onPress={() => {router.push({
                 pathname: "/(tabs)/InfoUnirseViaje/checkoutViaje",
                 params: {
                   rideInfo: rideInfo,
+                  additionalInfo: additionalInfo,
                   selectedStop: selectedStop
                 }
               })}}
@@ -169,6 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: 'white',
     padding: 10,
+    maxHeight: wh * 0.42
   },
   profilePic: {
     width: 72,

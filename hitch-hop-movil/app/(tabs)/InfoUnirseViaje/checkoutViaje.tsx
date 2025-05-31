@@ -1,5 +1,4 @@
 import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import RideStopDetail from '@/components/RideStopDetail'
@@ -11,31 +10,38 @@ import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 
+const wh = Dimensions.get("window").height
+
 const checkoutViaje = () => {
     const router = useRouter()
 
-    const [imageHeight, setImageHeight] = useState(0)
-
     const { rideInfo } = useLocalSearchParams()
+    const { additionalInfo } = useLocalSearchParams()
     const { selectedStop } = useLocalSearchParams()
     let parsedData
+    let additionalParsed
+    let parsedStop
   
     if (typeof rideInfo === 'string') {
       parsedData = JSON.parse(rideInfo)
     } else {
       parsedData = null
     }
+    if (typeof additionalInfo === 'string') {
+      additionalParsed = JSON.parse(additionalInfo)
+    } else {
+      additionalParsed = null
+    }
   
-    if (!parsedData) {
+    if (!parsedData || !additionalParsed) {
       return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
     }
 
-    let parsedStop
     if (typeof selectedStop === 'string') {
       if (selectedStop == '0') {
-        parsedStop = parsedData.startingPoint
+        parsedStop = additionalParsed.start
       } else {
-        parsedStop = parsedData.stops[parseInt(selectedStop) - 1]
+        parsedStop = additionalParsed.stops[parseInt(selectedStop) - 1]
       }
     } else {
       parsedStop = null
@@ -53,40 +59,39 @@ const checkoutViaje = () => {
         source={require("@/assets/images/buttonCardBackground.png")}
         style={styles.container}
         imageStyle={styles.containerImage}
-        onLayout={(e) => {setImageHeight(e.nativeEvent.layout.height)}}
       >
-        <View style={[styles.card, {maxHeight: imageHeight * 0.6}]}>
+        <View style={styles.card}>
           <HStack style={{gap: 10}}>
             <Image 
-              source={parsedData.avatar}
+              source={additionalParsed.avatar}
               style={styles.profilePic}
             />
             
             <View>
-              <Text style={styles.carInfo}>{parsedData.carModel}</Text>
+              <Text style={styles.carInfo}>{additionalParsed.carBrand + " " + additionalParsed.carModel + " " + additionalParsed.carColor}</Text>
               <Text style={styles.driverInfo}>{parsedData.driver}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={{ color: '#171717'}}>{parsedData.date}</Text>
-            <Text style={{ color: '#171717'}}>{parsedData.time}</Text>
+            <Text style={{ color: '#171717'}}>{additionalParsed.date}</Text>
+            <Text style={{ color: '#171717'}}>{additionalParsed.time}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={parsedData.startingPoint} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={additionalParsed.start} isAtEnd={true}/>
             <RideStopDetailIcon stopType="Parada de recogida" detail={parsedStop} isAtEnd={false}/>
-            <RideStopDetail stopType="Destino" detail={parsedData.finishPoint} isAtEnd={true}/>
+            <RideStopDetail stopType="Destino" detail={additionalParsed.end} isAtEnd={true}/>
           </ScrollView>
 
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4}}>
                 <Users size={16} color='black' />
-                <Text style={{ color: '#171717'}}>{parsedData.capacity}</Text>
+                <Text style={{ color: '#171717'}}>{parsedData.passengers.length}</Text>
               </HStack>
-              <Text style={{ color: '#171717'}}>&#8353;{parsedData.price}</Text>
+              <Text style={{ color: '#171717'}}>&#8353;{parsedData.costPerPerson}</Text>
             </View>
 
             <Button style={styles.button}>
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: 'white',
     padding: 10,
+    maxHeight: wh * 0.6
   },
   profilePic: {
     width: 72,
@@ -144,9 +150,9 @@ const styles = StyleSheet.create({
   },
   verticalLine: {
     position: 'absolute',
-    left: 11.5,
-    top: 12,
-    bottom: 30,
+    left: 11.57,
+    top: 20,
+    bottom: 20,
     width: 1,
     backgroundColor: '#171717',
   },
