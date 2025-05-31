@@ -10,7 +10,7 @@ const mockVehiculos = [
     placa: 'BTR-932',
     color: 'Gris',
     anio: '2019',
-    foto: 'https://i.imgur.com/4A7IjQk.jpg',
+    foto: '...\assets\images\santafe.png',
   },
   // Puedes agregar más vehículos de ejemplo aquí
 ];
@@ -22,13 +22,13 @@ export default function VehiculosIndex() {
   const [vehiculoAEliminar, setVehiculoAEliminar] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
-  const handleEliminar = (vehiculo) => {
+  const handleEliminar = (vehiculo: React.SetStateAction<null>) => {
     setVehiculoAEliminar(vehiculo);
     setShowModal(true);
   };
 
   const confirmarEliminar = () => {
-    setVehiculos((prev) => prev.filter((v) => v.id !== vehiculoAEliminar.id));
+    setVehiculos((prev) => prev.filter((v) => v.id !== confirmarEliminar.id));
     setShowModal(false);
     setSuccessMsg('Se ha eliminado el vehículo con éxito');
     setTimeout(() => setSuccessMsg(''), 2500);
@@ -45,7 +45,7 @@ export default function VehiculosIndex() {
           </View>
         ) : null}
         <Text style={{ marginBottom: 16 }}>No tiene vehículos registrados</Text>
-        <Button title="Agregar Vehiculo" color="#7B61FF" onPress={() => router.push('agregarVehiculo')} />
+        <Button title="Agregar Vehiculo" color="#7B61FF" onPress={() => router.push('/agregarVehiculo')} />
       </View>
     );
   }
