@@ -8,6 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 const users = [
   { id: 123, username: "fabianB30", email: "frojas@estudiantec.cr", type: "Conductor", date: "Dec 5", institution: "ITCR" },
@@ -39,6 +41,247 @@ const UsersManagement: React.FC = () => {
     const matchInst = filterInstitution === "Todas" || user.institution === filterInstitution;
     return matchUsername && matchEmail && matchType && matchInst;
   });
+
+   // Vista de informacion de un usuario especifico
+  function UserDetailsView({ user, onBack }: { user: any; onBack: () => void }) {
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState({
+    username: user.username || "",
+    email: user.email || "",
+    name: user.name || "",
+    firstLastName: user.firstLastName || "",
+    secondLastName: user.secondLastName || "",
+    phone: user.phone || "",
+    institution: user.institution || "",
+    type: user.type || "",
+  });
+
+  // Opciones para selects
+  const institutionOptions = ["ITCR"];
+  const typeOptions = ["Conductor", "Pasajero", "Administrador"];
+
+  // Actualiza los campos del formulario
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Para selects personalizados
+  const handleSelectChange = (name: string, value: string) => {
+    setForm({ ...form, [name]: value });
+  };
+
+  // Cancelar
+  const handleCancel = () => {
+    setForm({
+      username: user.username || "",
+      email: user.email || "",
+      name: user.name || "",
+      firstLastName: user.firstLastName || "",
+      secondLastName: user.secondLastName || "",
+      phone: user.phone || "",
+      institution: user.institution || "",
+      type: user.type || "",
+    });
+    setEditMode(false);
+  };
+
+  // Guardar cambios
+  const handleSave = () => {
+    // logic de guardar en base de datos
+    setEditMode(false);
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-[#ECECFF] rounded-[30px] flex flex-col items-center p-10 font-exo">
+      <div className="flex items-center w-full max-w-[960px] mb-6">
+        <Button
+          className="ml-[6px] mr-6 bg-[#7875F8] hover:bg-[#5a57c7] text-white"
+          variant="outline"
+          onClick={onBack}
+        >
+          ◄
+        </Button>
+        <h1 className="text-[36px] font-bold text-[#171717] mb-0">Detalles de Usuario</h1>
+      </div>
+      <div className="flex gap-12">
+        {/* Left column - user info */}
+        <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
+          <h2 className="text-[30px] font-bold mb-6">Información de Usuario</h2>
+          <div className="flex flex-col gap-4">
+            <div>
+              <Label className="text-lg">ID de Usuario</Label>
+              <Input disabled value={`ID-${user.id}`} />
+            </div>
+            <div>
+              <Label className="text-lg">Fecha de Registro</Label>
+              <Input disabled value={user.date} />
+            </div>
+            <div>
+              <Label className="text-lg">Username</Label>
+              <Input
+                name="username"
+                disabled={!editMode}
+                value={form.username}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label className="text-lg">Correo Electrónico</Label>
+              <Input
+                name="email"
+                disabled={!editMode}
+                value={form.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Label className="text-lg">Nombre</Label>
+                <Input
+                  name="name"
+                  disabled={!editMode}
+                  value={form.name}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="flex-1">
+                <Label className="text-lg">1° Apellido</Label>
+                <Input
+                  name="firstLastName"
+                  disabled={!editMode}
+                  value={form.firstLastName}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="flex-1">
+                <Label className="text-lg">2° Apellido</Label>
+                <Input
+                  name="secondLastName"
+                  disabled={!editMode}
+                  value={form.secondLastName}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-lg">Teléfono</Label>
+              <Input
+                name="phone"
+                disabled={!editMode}
+                value={form.phone}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <Label className="text-lg">Institución</Label>
+              {editMode ? (
+                <select
+                  name="institution"
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={form.institution}
+                  onChange={(e) => handleSelectChange("institution", e.target.value)}
+                >
+                  {institutionOptions.map((inst) => (
+                    <option key={inst} value={inst}>{inst}</option>
+                  ))}
+                </select>
+              ) : (
+                <Input disabled value={form.institution} />
+              )}
+            </div>
+            
+           
+          </div>
+          {!editMode ? (
+            <Button
+              className="bg-[#7875F8] hover:bg-[#5a57c7] text-white mt-6"
+              onClick={() => setEditMode(true)}
+            >
+              Editar
+            </Button>
+          ) : (
+            <div className="flex gap-4 mt-6">
+              <Button
+                className="bg-[#7875F8] hover:bg-[#5a57c7] text-white"
+                onClick={handleSave}
+              >
+                Guardar Cambios
+              </Button>
+              <Button
+                className="bg-gray-300 hover:bg-gray-400 text-black"
+                variant="outline"
+                onClick={handleCancel}
+              >
+                Cancelar
+              </Button>
+            </div>
+          )}
+        </div>
+        {/* Right column - roles & permissions */}
+        <div className="flex flex-col gap-8">
+          <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
+            <h2 className="text-[30px] font-bold mb-6">Tipos y Permisos</h2>
+            <div className="flex flex-col gap-4">
+             <div>
+                <Label className="text-lg">Tipo de Usuario</Label>
+                {editMode ? (
+                  <select
+                    name="type"
+                    className="w-full border rounded-lg px-3 py-2"
+                    value={form.type}
+                    onChange={(e) => handleSelectChange("type", e.target.value)}
+                  >
+                    {typeOptions.map((type) => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <Input disabled value={form.type} />
+                )}
+              </div>
+              <div>
+                <Label className="text-base font-semibold">Tipo de Vehículo</Label>
+                <p className="text-sm text-[#525252]">{user.vehicle?.type || ""}</p>
+              </div>
+              <div>
+                <Label className="text-base font-semibold">Modelo</Label>
+                <p className="text-sm text-[#525252]">{user.vehicle?.model || ""}</p>
+              </div>
+              <div>
+                <Label className="text-base font-semibold">Año</Label>
+                <p className="text-sm text-[#525252]">{user.vehicle?.year || ""}</p>
+              </div>
+            </div>
+          </div>
+          {/* Account status */}
+          <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
+            <h2 className="text-[30px] font-bold mb-4">Estado de Cuenta</h2>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-md font-semibold">Estado de Cuenta</Label>
+              <Switch checked={user.accountActive ?? true} />
+            </div>
+            <p className="text-sm text-[#525252] mb-1">
+              Esta cuenta está actualmente activa
+            </p>
+            <p className="text-xs text-[#525252]">
+              Desactivar esta cuenta prevendrá el ingreso del usuario al sistema pero no eliminará sus datos.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+  // Si se selecciona un usuario, muestra sus detalles
+  if (selectedUser) {
+    return (
+      <UserDetailsView
+        user={selectedUser}
+        onBack={() => setSelectedUser(null)}
+      />
+    );
+  }
 
   return (
     <div className="relative w-full min-h-screen bg-white">
@@ -102,7 +345,7 @@ const UsersManagement: React.FC = () => {
         <div className="relative">
           <div className="absolute w-full h-[644px] bg-[#ECECFF] rounded-[30px] z-0" />
           <div className="relative z-10 px-8 pt-8 pb-4">
-            <div className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr_60px] gap-2 h-14 items-center">
+            <div className="grid grid-cols-[40px_1fr_2fr_1fr_1fr_1fr_102px] gap-2 h-14 items-center">
               <div className="text-[#8886D7] font-exo font-semibold text-base">ID</div>
               <div className="text-black font-exo font-semibold text-base">Username</div>
               <div className="text-black font-exo font-semibold text-base">Email</div>
@@ -111,13 +354,11 @@ const UsersManagement: React.FC = () => {
               <div className="text-black font-exo font-semibold text-base text-center">Institución</div>
               <div></div>
             </div>
-
-            {/* Contenedor scrollable para las filas */}
             <div
               style={{
                 maxHeight: "500px",
                 overflowY: "auto",
-                paddingRight: "24px", // Agrega espacio a la derecha para separar el scrollbar
+                paddingRight: "24px",
               }}
             >
               {filteredUsers.map((user) => (
@@ -137,6 +378,7 @@ const UsersManagement: React.FC = () => {
                   <div className="text-black font-exo font-medium text-base text-center">{user.institution}</div>
                   <button
                     className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-3 py-1 text-xs font-exo font-semibold"
+                    onClick={() => setSelectedUser(user)}
                   >
                     Ver
                   </button>
