@@ -167,6 +167,7 @@ if (carInfo == null || startInfo == null || endInfo == null || stopsInfo == null
   additionalInfo = {}
 } else {
   additionalInfo = {
+    // avatar info is here since API doesn't offer a way to obtain it yet
     avatar: require("@/assets/images/avatar1.png"),
     start: startInfo,
     end: endInfo,
