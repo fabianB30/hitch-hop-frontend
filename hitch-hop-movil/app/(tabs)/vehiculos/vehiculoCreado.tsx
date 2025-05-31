@@ -8,7 +8,7 @@ export default function VehiculoCreado() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       <Image
-        source={require('../../../assets/gatoautos.png')}
+        source={require('../../assets/gatoautos.png')}
         style={{ width: 140, height: 140, marginBottom: 24 }}
         resizeMode="contain"
       />
@@ -38,7 +38,7 @@ export default function VehiculoCreado() {
           paddingHorizontal: 32,
           width: 200,
         }}
-        onPress={() => router.push('/(tabs)/C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\confirmarEliminacion.tsx/confirmarEliminacion')}
+        onPress={() => router.push('C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\confirmarEliminacion.tsx/confirmarEliminacion')}
       >
         <Text style={{ color: '#7B61FF', textAlign: 'center', fontWeight: 'bold' }}>
           Eliminar vehículo
