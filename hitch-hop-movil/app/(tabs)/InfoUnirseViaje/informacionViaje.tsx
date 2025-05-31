@@ -136,7 +136,7 @@ const apiData = {
         "endpoint": "682e00bfb0a1ebb111c51a24", // Assuming this is an ID
         "departure": "2025-04-11T11:45:00.000Z",
         "arrival": "2020-07-03T06:00:00.000Z",
-        "stops": ["682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0", "682dfede7a73dff4edfa9bb0"], // Assuming this is an array of IDs
+        "stops": ["682dfede7a73dff4edfa9bb0"], // Assuming this is an array of IDs
         "passengers": ["Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4"], // Assuming array of strings since there's no get-user in api
         "driver": "Driver Name", // Assuming string since there's no get-user in api
         "costPerPerson": 1500,
