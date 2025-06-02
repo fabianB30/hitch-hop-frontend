@@ -2,7 +2,6 @@ import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 import { Dimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Platform, StyleSheet } from 'react-native';
@@ -17,44 +16,22 @@ const headerHeight = windowHeight * 0.15;
 export default function GestionPerfil(){
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Box
-          style={{
-              height: windowHeight*0.11,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-              paddingVertical: 16,
-              position: "relative",
-              zIndex: 2
-          }}
-        >
-          
-          <Box
-            style={{
-              position: "absolute",
-              left: windowWidth / 2 - 48,
-              top: 20,
-              width: 96,
-              height: 96,
-              alignContent: "center",
-              backgroundColor: "#ECECFF",
-              borderRadius: 9999,
-              overflow: "hidden"
-            }}
-          >
+      <Box style={{height: 30}}/>  {/* Espacio que toma en cuenta la barra de notificaciones */}
+
+      <Box style={styles.header}>
+          <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
+            <Image source={require("@/assets/images/backArrow.png")} style={styles.backArrow}/>
+          </Box>
+
+          <Box style={styles.fotoPerfilFondo}>
             <Image
               source={require("@/assets/images/iconPrimary.png")}
-              style={{
-                left: -30.5,
-                top: -10,
-                width: 157,
-                height: 157
-              }}
+              style={styles.iconPrimary}
             />
           </Box>
 
           <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
-            <Text style={{ fontSize: 24, height: 24, top: 0, fontFamily: "Montserrat_800ExtraBold", color: "#000" }}>
+            <Text style={styles.appTitulo}>
               HitchHop
             </Text>  
           </Box>
@@ -121,5 +98,42 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -136,
     zIndex: 3
+  },
+  iconPrimary: {
+    left: -30.5,
+    top: -10,
+    width: 157,
+    height: 157
+  },
+  header: {
+    height: windowHeight*0.11,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    paddingVertical: 16,
+    position: "relative",
+    zIndex: 2
+  },
+  fotoPerfilFondo:{
+    position: "absolute",
+    left: windowWidth / 2 - 48,
+    top: 20,
+    width: 96,
+    height: 96,
+    alignContent: "center",
+    backgroundColor: "#ECECFF",
+    borderRadius: 9999,
+    overflow: "hidden"
+  },
+  backArrow: {
+    width: 30,
+    height: 30
+  },
+  appTitulo:{
+    fontSize: 24,
+    height: 24,
+    top: 0,
+    fontFamily: "Montserrat_800ExtraBold",
+    color: "#000"
   }
 });
