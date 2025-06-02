@@ -37,7 +37,7 @@ const Home = () => {
       </div>
 
       {/* Cuadro naranja */}
-      <div className="fixed w-[200px] h-[200px] bg-[#FFAB00] rounded-[24px] left-[680px] top-[450px] z-10" />
+      <div className="fixed w-[200px] h-[200px] bg-[#FFAB00] rounded-[24px] left-[670px] top-[440px] z-10" />
 
       {/* Imagen del carro */}
       <img
