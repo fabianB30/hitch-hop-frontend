@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, Button } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 export default function SinVehiculos() {
   const router = useRouter();
@@ -8,9 +9,8 @@ export default function SinVehiculos() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       <Image
-        source={require('../../assets/gatoautos.png')}
+        source={require('@/assets/images/gatoautos.png')}
         style={{ width: 180, height: 180, marginBottom: 24 }}
-        resizeMode="contain"
       />
       <Text style={{ fontSize: 16, marginBottom: 16, color: '#222' }}>
         No hay vehículos registrados
@@ -18,7 +18,7 @@ export default function SinVehiculos() {
       <Button
         title="Agregar Vehículo"
         color="#7B61FF"
-        onPress={() => router.push("C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\agregarVehiculo.tsx")}
+        onPress={() => router.push("/(tabs)/vehiculos/agregarVehiculo")}
       />
     </View>
   );
