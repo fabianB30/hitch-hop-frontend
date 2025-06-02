@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "expo-router";
 
-//const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
+///const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
