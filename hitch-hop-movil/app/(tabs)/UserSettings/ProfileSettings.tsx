@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "expo-router";
 
-///const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
+const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
@@ -91,41 +91,57 @@ const handleEditPhoto = async () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Gestión de Perfil</Text>
-      <View style={styles.profileSection}>
-        {/* <Image
-          source={
-            userData.foto
-              ? { uri: userData.foto }
-              : require("@/assets/images/defaultPFP.png")
-          }
-          style={styles.avatar}
-        /> */}
-        {editable && (
-          <TouchableOpacity style={styles.editPhotoBtn} onPress={handleEditPhoto}>
-            <Text style={styles.editPhotoText}>Editar foto de perfil</Text>
-          </TouchableOpacity>
-        )}
-        {editable && (
-          <TouchableOpacity
-            style={styles.editPhotoBtn}
-            onPress={() => setShowPasswordModal(true)}
-          >
-            <Text style={styles.editPhotoText}>Cambiar contraseña</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {/* Imagen de fondo superior */}
+      <View style={styles.backgroundContainer}>  
+        <Image source={ImagenBG} style={styles.backgroundImage} resizeMode="cover" />
+        <Text style={styles.hitchHopText}>HitchHop</Text>
+     </View>
+      {/* Recuadro principal con la información */}
+      <View style={styles.profileCard}>
+        {/* Botón de regresar arriba*/}
+        <TouchableOpacity
+          style={styles.backBtnAbsolute}
+          onPress={() => {
+            // Navegar a pantalla principal
+          }}
+        >
+          <Text style={styles.backBtnText}>{"<"}</Text>
+        </TouchableOpacity>
+        {/* Avatar centrado */}
+        <View style={styles.avatarContainerCentered}>
+          <Image
+            source={
+              userData.foto
+                ? { uri: userData.foto }
+                : require("@/assets/images/1.5-DefaultPFP.png")
+            }
+            style={styles.avatar}
+          />
+          {editable && (
+            <TouchableOpacity style={styles.editPhotoBtn} onPress={handleEditPhoto}>
+              <Text style={styles.editPhotoText}>Editar foto de perfil</Text>
+            </TouchableOpacity>
+          )}
+          {editable && (
+            <TouchableOpacity
+              style={styles.editPhotoBtn}
+              onPress={() => setShowPasswordModal(true)}
+            >
+              <Text style={styles.editPhotoText}>Cambiar contraseña</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       <View style={styles.formSection}>
-        <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} />
-        <ProfileInput label="Correo institucional" value={userData.correo} editable={editable} onChange={v => handleChange("correo", v)} />
+        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
         <ProfileInput label="Nombre" value={userData.nombre} editable={editable} onChange={v => handleChange("nombre", v)} />
         <ProfileInput label="Primer Apellido" value={userData.primerApellido} editable={editable} onChange={v => handleChange("primerApellido", v)} />
-        <ProfileInput label="Tipo de ID" value={userData.tipoId} editable={editable} onChange={v => handleChange("tipoId", v)} options={tiposId} />
         <ProfileInput label="Segundo Apellido" value={userData.segundoApellido} editable={editable} onChange={v => handleChange("segundoApellido", v)} />
+        <ProfileInput label="Correo institucional" value={userData.correo} editable={editable} onChange={v => handleChange("correo", v)} />
+        <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} />
+        <ProfileInput label="Tipo de ID" value={userData.tipoId} editable={editable} onChange={v => handleChange("tipoId", v)} options={tiposId} />
         <ProfileInput label="Número de ID" value={userData.numeroId} editable={editable} onChange={v => handleChange("numeroId", v)} />
         <ProfileInput label="Fecha de nacimiento" value={userData.fechaNacimiento} editable={editable} onChange={v => handleChange("fechaNacimiento", v)} />
-        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} />
+        <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} />
         <ProfileInput label="Tipo de usuario" value={userData.tipoUsuario} editable={editable} onChange={v => handleChange("tipoUsuario", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
       </View>
@@ -139,6 +155,7 @@ const handleEditPhoto = async () => {
           <Text style={styles.saveBtnText}>{editable ? "Guardar" : "Editar información"}</Text>
         </TouchableOpacity>
       </View>
+    </View>
       {showPasswordModal && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -218,26 +235,78 @@ function ProfileInput({
 const styles = StyleSheet.create({
   container: {
     padding: 24,
+    paddingBottom: 70,
     backgroundColor: "#fff",
     flexGrow: 1,
     alignItems: "center",
   },
-  background: {
-    width: 399,
-    height: 373,
-    position: 'absolute',
-    left: -3,
-    top: -251,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginVertical: 24,
-    fontFamily: Platform.OS === "ios" ? "Exo" : undefined,
-  },
-  profileSection: {
+  backgroundContainer: {
+    width: "100%",
+    height: 170,
+    position: "relative",
     alignItems: "center",
+    justifyContent: "flex-end",
+    overflow: "hidden",
+  },
+  hitchHopText: {
+    position: "absolute",
+    top: 60,
+    right: 7,
+    zIndex: 3,
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "white",
+    letterSpacing: 1,
+    fontFamily: "Exo",
+    textShadowColor: "#7875F8", // Color del borde
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  backgroundImage: {
+    width: "100%",
+    height: 350,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    zIndex: 1,
+  },
+  backBtnAbsolute: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 2,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#ECECFF",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 40,
+    width: 40,
+  },
+  avatarContainerCentered: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
     marginBottom: 24,
+    marginTop: 8,
+  },
+  backBtnText: {
+    fontSize: 22,
+    color: "#7875F8",
+    fontWeight: "bold",
+  },
+  profileCard: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    marginTop: -60, // Para que suba sobre la imagen
+    padding: 24,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    alignItems: "center",
   },
   avatar: {
     width: 120,
@@ -256,6 +325,7 @@ const styles = StyleSheet.create({
   editPhotoText: {
     color: "#fff",
     fontWeight: "bold",
+    fontFamily: "Exo",
   },
   formSection: {
     width: "100%",
@@ -268,6 +338,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
+    fontFamily: "Exo",
   },
   input: {
     borderWidth: 1,
