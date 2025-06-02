@@ -19,7 +19,7 @@ export default function InformacionVehiculo() {
   return (
     <View style={{ flex: 1, padding: 24 }}>
       <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Información</Text>
-      <Image source={{ uri: vehiculo.foto }} style={{ width: 160, height: 120, borderRadius: 12, marginBottom: 16 }} />
+      <Image source={require('@/assets/images/santafe.png')} style={{ width: 160, height: 120, borderRadius: 12, marginBottom: 16 }} />
       <Text>Marca</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.marca}</Text>
       <Text>Modelo</Text>
