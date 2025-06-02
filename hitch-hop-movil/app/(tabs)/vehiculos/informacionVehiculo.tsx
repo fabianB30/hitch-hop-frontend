@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image as ExpoImage } from 'expo-image';
 
 const mockVehiculo = {
   marca: 'Hyundai',
@@ -8,7 +9,7 @@ const mockVehiculo = {
   placa: 'BTR-932',
   color: 'Gris',
   anio: '2019',
-  foto: '...\assets\images\santafe.png',
+  foto: require('@/assets/images/santafe.png'),
 };
 
 export default function InformacionVehiculo() {
@@ -31,7 +32,7 @@ export default function InformacionVehiculo() {
       <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo.anio}</Text>
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => router.push("C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\editarVehiculo.tsx")}
+        onPress={() => router.push("/(tabs)/vehiculos/editarVehiculo")}
       >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar Información</Text>
       </TouchableOpacity>

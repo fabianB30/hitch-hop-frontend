@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Image as ExpoImage } from 'expo-image';
 
 const mockVehiculos = [
   {
@@ -10,7 +11,7 @@ const mockVehiculos = [
     placa: 'BTR-932',
     color: 'Gris',
     anio: '2019',
-    foto: 'https://i.imgur.com/4A7IjQk.jpg',
+    foto: require('@/assets/images/santafe.png'),
   },
 ];
 

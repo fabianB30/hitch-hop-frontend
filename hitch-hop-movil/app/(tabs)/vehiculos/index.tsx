@@ -9,7 +9,7 @@ const mockVehiculos = [
     placa: 'BTR-932',
     color: 'Gris',
     anio: '2019',
-    foto: '...\assets\images\santafe.png',
+    foto: require('@/assets/images/santafe.png'),
   },
 ];
 
@@ -37,7 +37,7 @@ export default function VehiculosIndex() {
               <View style={{ flexDirection: 'row', marginTop: 8 }}>
                 <TouchableOpacity
                   style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 8, marginRight: 8 }}
-                  onPress={() => router.push("C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\informacionVehiculo.tsx")}
+                  onPress={() => router.push("/(tabs)/vehiculos/informacionVehiculo")}
                 >
                   <Text style={{ color: '#fff' }}>Información</Text>
                 </TouchableOpacity>
@@ -52,7 +52,7 @@ export default function VehiculosIndex() {
           </View>
         )}
         ListFooterComponent={
-          <Button title="Agregar Vehiculo" color="#7B61FF" onPress={() => router.push('C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\agregarVehiculo.tsx')} />
+          <Button title="Agregar Vehiculo" color="#7B61FF" onPress={() => router.push('/(tabs)/vehiculos/agregarVehiculo')} />
         }
       />
 
@@ -84,7 +84,7 @@ export default function VehiculosIndex() {
                 style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 10 }}
                 onPress={() => {
                   setShowModal(false);
-                  router.push('C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\sinVehiculos.tsx');
+                  router.push('/(tabs)/vehiculos/sinVehiculos');
                 }}
               >
                 <Text style={{ color: '#fff' }}>Aceptar</Text>
