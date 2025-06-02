@@ -1,0 +1,167 @@
+import React, { useState } from 'react';
+import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { router } from 'expo-router';
+import { Input, InputField, InputSlot } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { Ionicons } from '@expo/vector-icons';
+import { FormControl } from '@/components/ui/form-control';
+
+
+
+export default function LoginScreen() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+
+    const handleLogin = async () => {
+        if (!email || !password) {
+        Alert.alert('Error', 'Por favor completa todos los campos');
+        return;
+        }
+
+        setLoading(true);
+        
+        try {
+        // Aquí irá tu lógica de autenticación
+        console.log('Login attempt:', { email, password });
+        
+        // Simular una petición
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Si el login es exitoso, mostrar mensaje
+        Alert.alert('Éxito', 'Inicio de sesión exitoso');
+            // Navegar a la pantalla principal (puedes cambiar la ruta)
+        router.push('/(tabs)');
+        
+        } catch (error) {
+        Alert.alert('Error', 'Credenciales incorrectas');
+        } finally {
+        setLoading(false);
+        }
+    };    const toggleShowPassword = () => {
+        setShowPassword(prev => !prev);
+    };
+
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1"
+    >
+      <View className="flex-1 items-center">
+        <StatusBar style="light" />
+        <ImageBackground
+          source={require('@/assets/images/fondo-HitchHop.png')}
+          className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
+          resizeMode="contain"
+        />
+        {/* Login Card */}
+        <View className="top-[200px] w-[360px] h-[622px] items-center bg-white rounded-[30px] ">
+          <Text className="text-2xl font-semibold text-gray-800 text-center mb-8">
+            Iniciar Sesión
+          </Text>
+          <FormControl>
+            {/* Email Field */}
+            <View className="mb-5">
+              <Text className="text-sm font-me</View>dium text-gray-700 mb-2">
+                Email*
+              </Text>
+              <Input className="border border-gray-300 rounded-lg bg-gray-50">
+                <InputField
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder=""
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="text-base text-gray-800 px-3 py-3"
+                />
+              </Input>
+            </View>
+
+            {/* Password Field */}
+            <View className="mb-5">
+              <Text className="text-sm</View> font-medium text-gray-700 mb-2">
+                Contraseña
+              </Text>
+              <Input className="border border-gray-300 rounded-lg bg-gray-50">
+                <InputField
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder=""
+                  secureTextEntry={!showPassword}
+                  className="text-base text-gray-800 px-3 py-3"
+                />
+                <InputSlot className="pr-3">
+                  <TouchableOpacity onPress={toggleShowPassword}>
+                    <Ionicons 
+                      name={showPassword ? "eye" : "eye-off"} 
+                      size={20} 
+                      color="#9CA3AF"
+                    />
+                  </TouchableOpacity>
+                </InputSlot>
+              </Input>
+            </View>
+
+            {/* Remember me checkbox */}
+            <View className="flex-row items-center mb-6">
+              <TouchableOpacity 
+                className="mr-2"
+                onPress={() => setRememberMe(!rememberMe)}
+              >
+                <View className={`w-4 h-4 border border-gray-300 rounded items-center justify-center ${
+                  rememberMe ? 'bg-purple-600 border-purple-600' : 'bg-white'
+                }`}>
+                  {rememberMe && (
+                    <Ionicons name="checkmark" size={12} color="white" />
+                  )}
+                </View>
+              </TouchableOpacity>
+              <Text className="text-sm text-gray-600">
+                Guardar los datos de acceso
+              </Text>
+            </View>
+
+            {/* Buttons */}
+            <View className="flex-row justify-between mb-6">
+              <TouchableOpacity 
+                className="flex-1 py-3 px-6 rounded-lg mr-2 items-center"
+                onPress={() => router.back()}
+              >
+                <Text className="text-base text-gray-600 font-medium">
+                  Volver
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                className={`flex-1 bg-purple-600 py-3 px-6 rounded-lg ml-2 item</Text>s-center ${
+                  loading ? 'opacity-70' : ''
+                }`}
+                onPress={handleLogin}
+                disabled={loading}
+              >
+                <Text className="text-base text-white fon</View>t-semibold">
+                  {loading ? 'Cargando...' : 'Siguiente'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </FormControl>          
+          {/* Register link */}
+          <View className="items-center">
+            <Text className="text-sm text-gray-600">
+              ¿No tienes cuenta?{' '}
+              <Text 
+                className="text-blue-600 font-medium"
+                onPress={() => Alert.alert('Info', 'Función de registro próximamente')}
+              >
+                ¡Crea una aquí!
+              </Text>
+            </Text>
+          </View>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
