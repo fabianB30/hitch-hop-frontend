@@ -3,11 +3,12 @@ import Home from "@/pages/main/Home";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
 
 // imports de paginas temporales, reemplazan por los suyos
-import InicioTemp from "@/components/shared/temp/InicioTemp";
-import GestionTemp from "@/components/shared/temp/GestionTemp";
-import PerfilTemp from "@/components/shared/temp/PerfilTemp";
-import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
-import StatsTemp from "@/components/shared/temp/StatsTemp";
+import InicioTemp from "../components/shared/temp/InicioTemp";
+import GestionTemp from "../components/shared/temp/GestionTemp";
+import PerfilTemp from "../components/shared/temp/PerfilTemp";
+import ConsultasTemp from "../components/shared/temp/ConsultasTemp";
+import StatisticsPage from "../pages/statistics/StatisticsPage";
+
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -19,7 +20,7 @@ const router = createBrowserRouter(
             <Route path="gestion" element={<GestionTemp />} />
             <Route path="perfil" element={<PerfilTemp />} />
             <Route path="consultas" element={<ConsultasTemp />} />
-            <Route path="estadistica" element={<StatsTemp />} />
+            <Route path="estadistica" element={<StatisticsPage />} />
         </Route>
     )
     
