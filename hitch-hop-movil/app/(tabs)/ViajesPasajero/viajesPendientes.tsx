@@ -103,7 +103,7 @@ export default function viajesPendientes() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push('/(tabs)')}
+        onPress={() => router.push('/(tabs)/ViajesPasajero')}
         style={styles.backArrow}
       >
         <Image

@@ -15,7 +15,7 @@ export default function sinViajes() {
     >
       <View style={styles.overlay} />
       <Pressable
-        onPress={() => router.push('/(tabs)/ViajesPasajero')}
+        onPress={() => router.push('/(tabs)/ViajesConductor')}
         style={styles.backArrow}
       >
         <Image
@@ -33,14 +33,14 @@ export default function sinViajes() {
             resizeMode="contain"
         />
         <View style={styles.textContainer}>
-          <Text style={styles.title}>¡No se encontraron viajes solicitados!</Text>
-          <Text style={styles.subtitle}>¡Encuentre su próximo viaje con nosotros!</Text>
+          <Text style={styles.title}>¡No se encontraron viajes programados!</Text>
+          <Text style={styles.subtitle}>¡Programe su próximo viaje con nosotros!</Text>
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => console.log('Buscar Viajes')}
+          onPress={() => console.log('Programar Viaje')}
         >
-          <Text style={styles.buttonText}>Buscar Viajes</Text>
+          <Text style={styles.buttonText}>Programar Viaje</Text>
         </Pressable>
       </ScrollView>
     </ImageBackground>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
-    width: 141,
+    width: 180,
     height: 36,
     backgroundColor: '#7875F8',
     borderRadius: 8,
@@ -123,5 +123,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'Exo',
     fontWeight: '500',
+    textAlign: 'center',
   },
 });

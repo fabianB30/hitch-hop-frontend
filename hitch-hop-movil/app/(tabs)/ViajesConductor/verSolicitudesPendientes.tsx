@@ -2,45 +2,52 @@ import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { PendingRequestCard } from "@/components/PendingRequestCard";
 import { HStack } from "@/components/ui/hstack";
 import { MoveRight, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
+import { useEffect } from "react";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
 
+  const { users, userLimit, actualPassengerNumber } = useLocalSearchParams();
+  const usersList = users ? JSON.parse(users as string) : [];
+  const userLimitNumber = userLimit ? Number(userLimit) : 0;
+  const passengerCount = actualPassengerNumber ? Number(actualPassengerNumber) : 0;
+  const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
-  var isFull = false;
+  const isFull = capacity <= 0;
 
-  const requests = [
-    {
-      id: 1,
-      name: "Robert Schumann",
-      price: "₡1500",
-      location: "INS, San José Av. 7.",
-      time: "10:00 AM",
-      capacity: "2",
-    },
-    {
-      id: 2,
-      name: "Johannes Brahms",
-      price: "₡1500",
-      location: "INS, San José Av. 7.",
-      time: "10:00 AM",
-      capacity: "2",
-    },
-    {
-      id: 3,
-      name: "Jan Sibelius",
-      price: "₡1500",
-      location: "INS, San José Av. 7.",
-      time: "10:00 AM",
-      capacity: "2",
-    },
-  ];
+  interface Requests {
+    id: number;
+    name: string;
+    price: string;
+    location: string;
+    time: string;
+    capacity: string;
+  }
+
+  const requests: Requests[] = usersList.map((user: any, idx: number) => ({
+    id: idx + 1,
+    name: user.name,
+    price: user.price,
+    location: user.location,
+    time: user.time,
+    capacity: String(capacity),
+  }));
+
+  useEffect(() => {
+    if (requests.length == 0) {
+      router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    }
+  }, [requests, router]);
+  
+  if (requests.length === 0) {
+    return null;
+  }
 
   return (
     <ImageBackground
@@ -110,7 +117,19 @@ export default function VerSolicitudesPendientes() {
             </Box>
           </HStack>
         </Box>
-        <Text style={styles.disponibles}>Espacios disponibles: 1</Text>
+        <Text style={
+          isFull
+            ? {
+                color: "#EF4444",
+                fontSize: 18,
+                fontFamily: "Exo",
+                fontWeight: "600",
+                textAlign: "left",
+                left: 25,
+                zIndex: 10,
+              }
+            : styles.disponibles
+        }> {isFull ? "Sin espacios disponibles" : `Espacios disponibles: ${capacity} `} </Text>
         <Box
           style={{ height: "100%", paddingHorizontal: 20, marginBottom: 100 }}
         >

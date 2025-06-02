@@ -15,6 +15,7 @@ export default function VerDetallesViajeProgramado() {
   // boolean if ride is full
   var isFull = false;
 
+  //Esto no funciona, la página recibe parámetros para crear las cards
   const handlePendingRequests = () => {
     router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
   };

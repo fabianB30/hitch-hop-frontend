@@ -1,9 +1,9 @@
-import { ImageBackground, View, ScrollView, StyleSheet, Text } from "react-native";
+import { ImageBackground, ScrollView, View, StyleSheet, Text } from "react-native";
 import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
-import { RideCardDriver } from "@/components/RideCardDriver";
+import { RideCardDriver2 } from "@/components/RideCardDriver2";
 import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
@@ -15,10 +15,19 @@ export default function VerViajesAceptados() {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [successVisible, setSuccessVisible] = useState(false);
 
+  type PendingRequestCard = {
+    id: number;
+    name: string;
+    price: string;
+    location: string;
+    time: string;
+};
+
   interface Requests {
     id: number;
-    users: number;
+    users: PendingRequestCard[];
     userLimit: number;
+    actualPassengerNumber: number;
     price: string;
     date: string;
     time: string;
@@ -29,8 +38,24 @@ export default function VerViajesAceptados() {
   const requests: Requests[] = [
     {
       id: 1,
-      users: 2,
+      users: [
+        {
+            id: 1,
+            name: "Tatiana Lobo",
+            price: "₡1500",
+            location: "Estación del Atlántico",
+            time: "11:55 am",
+        },
+        {
+            id: 2,
+            name: "Ana Gómez",
+            price: "₡1500",
+            location: "Cartago",
+            time: "11:35 AM",
+        },
+    ],
       userLimit: 4,
+      actualPassengerNumber: 4,
       price: "₡1500",
       date: "11 de Abr, 2025.",
       time: "11:55 AM",
@@ -40,12 +65,47 @@ export default function VerViajesAceptados() {
 
     {
       id: 2,
-      users: 3,
+      users: [
+        {
+            id: 1,
+            name: "Carlos Ruiz",
+            price: "₡2000",
+            location: "Tres Ríos",
+            time: "12:00 PM",
+        },
+        {
+            id: 2,
+            name: "María López",
+            price: "₡2000",
+            location: "San Pedro",
+            time: "12:10 PM",
+        },
+        {
+            id: 3,
+            name: "Luis Fernández",
+            price: "₡2000",
+            location: "Curridabat",
+            time: "12:15 PM",
+        },
+      ],
       userLimit: 4,
+      actualPassengerNumber: 2,
       price: "₡2000",
       date: "14 de Abr, 2025.",
       time: "11:50 AM",
       start: "INS, San José Av. 7.",
+      end: "Tecnológico de Costa Rica, Cartago.",
+    },
+
+    {
+      id: 3,
+      users: [],
+      userLimit: 4,
+      actualPassengerNumber: 0,
+      price: "₡2200",
+      date: "07 de Abr, 2025.",
+      time: "7:55 AM",
+      start: "Cristo de Sabanilla.",
       end: "Tecnológico de Costa Rica, Cartago.",
     },
   ];
@@ -99,10 +159,10 @@ export default function VerViajesAceptados() {
       <Text style={styles.title}>Viajes Programados</Text>
 
       <Box style={styles.buttonsContainer}>
-        <Pressable style={styles.aprobadosButton}>
+        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
-        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesPendientes')} style={styles.pendientesButton}>
+        <Pressable style={styles.pendientesButton}>
           <Text style={styles.buttonText}>Por aprobar</Text>
         </Pressable>
       </Box>
@@ -124,13 +184,20 @@ export default function VerViajesAceptados() {
         showsVerticalScrollIndicator={false}
       >
         {requests.map((request) => (
-          <RideCardDriver
+          <RideCardDriver2
             key={request.id}
             {...request}
             onCancel={() => handleCancel(request.id)}
-            onDetails={() =>
-              router.push("/(tabs)/ViajesConductor/verDetallesViajeProgramado")
-            }
+            onDetails={(users) => {
+              if (!users || users.length === 0) return;
+              router.push({
+                pathname: "/(tabs)/ViajesConductor/verSolicitudesPendientes",
+                params: { users: JSON.stringify(users),
+                    userLimit: String(request.userLimit),
+                    actualPassengerNumber: String(request.actualPassengerNumber),
+                 },
+              })
+            }}
           />
         ))}
       </ScrollView>
@@ -194,7 +261,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 14,
     paddingRight: 14,
-    backgroundColor: "#7875F8",
+    backgroundColor: "#ADA7FF",
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
@@ -205,7 +272,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 14,
     paddingRight: 14,
-    backgroundColor: "#ADA7FF",
+    backgroundColor: "#7875F8",
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",

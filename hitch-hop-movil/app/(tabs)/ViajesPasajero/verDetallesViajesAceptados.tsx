@@ -89,7 +89,7 @@ export default function VerDetallesViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)")}
+        onPress={() => router.push("/(tabs)/ViajesPasajero")}
         style={styles.backArrow}
       >
         <Image

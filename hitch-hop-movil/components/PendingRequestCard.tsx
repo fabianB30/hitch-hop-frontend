@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/avatar";
 
 type RideCardProps = {
+  id: number;
   name: string;
   price: string;
   location: string;
@@ -34,6 +35,7 @@ export function PendingRequestCard({
   time,
   capacity,
 }: RideCardProps) {
+  const isFull = Number(capacity) <= 0;
   return (
     <Box
       style={{
@@ -175,7 +177,7 @@ export function PendingRequestCard({
                 numberOfLines={2}
                 ellipsizeMode="tail"
               >
-                4
+                {capacity}
               </Text>
             </Box>
           </HStack>
@@ -215,7 +217,15 @@ export function PendingRequestCard({
             marginTop: 0,
           }}
         >
-          <ButtonText style={{ color: "#FEFEFF" }} onPress={() => {}}>
+          <ButtonText 
+            style={{ 
+              color: "#FEFEFF",
+              fontWeight: "500",
+              fontSize: 20,
+              wordWrap: 'break-word' 
+            }} 
+            onPress={() => {}}
+          >
             Rechazar
           </ButtonText>
         </Button>
@@ -226,9 +236,24 @@ export function PendingRequestCard({
           style={{
             backgroundColor: "#7875F8",
             marginTop: 0,
+            opacity: isFull ? 0.5 : 1, 
           }}
+          onPress={() => {
+            if (!isFull) {
+              () => console.log("Accepted request");
+              // handleAccept();
+            }
+          }}
+          disabled={isFull}
         >
-          <ButtonText style={{ color: "#FEFEFF" }} onPress={() => {}}>
+          <ButtonText 
+            style={{
+              color: "#FEFEFF",
+              fontWeight: "500",
+              fontSize: 20,
+              wordWrap: 'break-word'
+            }}
+          >
             Aceptar
           </ButtonText>
         </Button>

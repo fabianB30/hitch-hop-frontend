@@ -9,9 +9,17 @@ import { MoveRight, Users } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 
+type PendingRequestCardProps = {
+  name: string;
+  price: string;
+  location: string;
+  time: string;
+};
+
 type RideCardProps = {
-  users: number;
+  users: PendingRequestCardProps[];
   userLimit: number;
+  actualPassengerNumber: number;
   price: string;
   date: string;
   time: string;
@@ -19,10 +27,10 @@ type RideCardProps = {
   startLabel?: string;
   end: string;
   onCancel: () => void;
-  onDetails: () => void;
+  onDetails: (users: PendingRequestCardProps[]) => void;
 };
 
-export function RideCardDriver({
+export function RideCardDriver2({
   users,
   userLimit,
   price,
@@ -58,7 +66,7 @@ export function RideCardDriver({
           width: "100%",
         }}
       >
-        <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
+        <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5}}>
           <Text style={styles.start}>{start}</Text>
         </Box>
         <Box
@@ -103,12 +111,12 @@ export function RideCardDriver({
               alignItems: "flex-end",
               gap: 4,
               marginRight: 10,
-              alignSelf: "flex-end", // Add this line to push the box to the right
+              alignSelf: "flex-end",
             }}
           >
             <Users size={24} color="black" />
-            <Text style={styles.mediumFont}>
-              {users}/{userLimit}
+            <Text style={styles.mediumFont2}>
+              Solicitudes pendientes: {users.length}
             </Text>
           </Box>
           <Text style={styles.BigFont}>{price}</Text>
@@ -131,9 +139,9 @@ export function RideCardDriver({
             backgroundColor: "#F87171",
             width: 115,
             marginTop: 0,
+            borderRadius: 8,
             paddingLeft: 14, 
             paddingRight: 14, 
-            borderRadius: 8, 
             justifyContent: 'center', 
             alignItems: 'center', 
             gap: 8
@@ -145,7 +153,7 @@ export function RideCardDriver({
               fontSize: 20, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
-              wordWrap: 'break-word' 
+              wordWrap: 'break-word'
             }} 
             onPress={onCancel}
           >
@@ -174,9 +182,9 @@ export function RideCardDriver({
               fontSize: 20, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
-              wordWrap: 'break-word' 
+              wordWrap: 'break-word'
             }} 
-            onPress={onDetails}
+            onPress={() => onDetails(users)}
           >
             Detalles {">"}
           </ButtonText>
@@ -209,8 +217,15 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
-    textAlign: "left",
-    wordWrap: 'break-word'
+    textAlign: "center",
+  },
+  mediumFont2: {
+    fontFamily: "Exo",
+    fontSize: 12,
+    fontStyle: "normal",
+    fontWeight: "400",
+    color: "#171717",
+    textAlign: "center",
   },
   BigFont: {
     fontFamily: "Exo",
@@ -218,8 +233,7 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
-    textAlign: "left",
+    textAlign: "center",
     paddingTop: 5,
-    wordWrap: 'break-word'
   },
 });

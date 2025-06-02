@@ -180,13 +180,13 @@ export function RideCard({
             right: 30,
             top: 191,
             flexDirection: 'row',
-            gap: 8,
+            gap: 20,
         }}
         >
         <Pressable
             style={{
-            width: 92,
-            height: 28,
+            width: 100,
+            height: 30,
             backgroundColor: '#F87171',
             borderRadius: 8,
             justifyContent: 'center',
@@ -197,7 +197,7 @@ export function RideCard({
             <Text
             style={{
                 color: '#FEFEFF',
-                fontSize: 18,
+                fontSize: 20,
                 fontFamily: 'Exo',
                 fontWeight: '500',
             }}
@@ -208,7 +208,7 @@ export function RideCard({
         <Pressable
             style={{
             flex: 1,
-            height: 28,
+            height: 30,
             backgroundColor: '#7875F8',
             borderRadius: 8,
             justifyContent: 'center',
@@ -221,7 +221,7 @@ export function RideCard({
             <Text
             style={{
                 color: '#FEFEFF',
-                fontSize: 18,
+                fontSize: 20,
                 fontFamily: 'Exo',
                 fontWeight: '500',
             }}

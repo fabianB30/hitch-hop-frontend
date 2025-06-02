@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 
 export default function Index() {
   const router = useRouter();
+
   return (
     <ImageBackground
       source={require("@/assets/images/fondoDefault.png")}
@@ -32,135 +33,17 @@ export default function Index() {
           zIndex: 3,
         }}
       >
-        {/* Card 1 */}
         <Pressable
-          onPress={() =>
-            router.push("/(tabs)/ViajesConductor/verViajesAceptados")
-          }
+          style={{ padding: 16, backgroundColor: "#007AFF", borderRadius: 8 }}
+          onPress={() => router.push("/(tabs)/ViajesPasajero")}
         >
-          <Box
-            style={{
-              height: 240,
-              width: 340,
-              maxWidth: "90%",
-              borderRadius: 8,
-              overflow: "hidden",
-              backgroundColor: "#B8B7FB",
-              alignSelf: "center",
-            }}
-          >
-            <ImageBackground
-              source={require("@/assets/images/buttonCardBackground.png")}
-              style={{
-                flex: 1,
-                alignItems: "center",
-              }}
-              imageStyle={{
-                borderRadius: 8,
-                width: "260%",
-                height: "260%",
-                alignSelf: "center",
-              }}
-              resizeMode="cover"
-            >
-              <View
-                style={{
-                  ...StyleSheet.absoluteFillObject,
-                  backgroundColor: "rgba(255,255,255,0.4)",
-                  borderRadius: 8,
-                  zIndex: 1,
-                }}
-              />
-              <Image
-                source={require("@/assets/images/image18.png")}
-                style={{ width: 220, height: 220, zIndex: 2 }}
-              />
-              <Text
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  textAlign: "center",
-                  color: "#FEFEFF",
-                  fontSize: 30,
-                  fontFamily: "Exo",
-                  fontWeight: "700",
-                  letterSpacing: 0.2,
-                  textShadowColor: "#6C63FF",
-                  textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 10,
-                  marginTop: 120,
-                  zIndex: 2,
-                }}
-              >
-                Viajes Programados Aprobados
-              </Text>
-            </ImageBackground>
-          </Box>
+          <Text style={{ color: "#fff" }}>Ver viajes como pasajero</Text>
         </Pressable>
-
-        {/* Card 2 */}
         <Pressable
-          onPress={() => router.push("/(tabs)/ViajesPasajero/viajesPendientes")}
+          style={{ padding: 16, backgroundColor: "#007AFF", borderRadius: 8 }}
+          onPress={() => router.push("/(tabs)/ViajesConductor")}
         >
-          <Box
-            style={{
-              height: 240,
-              width: 340,
-              maxWidth: "90%",
-              borderRadius: 8,
-              overflow: "hidden",
-              backgroundColor: "#B8B7FB",
-              alignSelf: "center",
-            }}
-          >
-            <ImageBackground
-              source={require("@/assets/images/buttonCardBackground.png")}
-              style={{
-                flex: 1,
-                alignItems: "center",
-              }}
-              imageStyle={{
-                borderRadius: 8,
-                width: "260%",
-                height: "260%",
-                alignSelf: "center",
-              }}
-              resizeMode="cover"
-            >
-              <View
-                style={{
-                  ...StyleSheet.absoluteFillObject,
-                  backgroundColor: "rgba(255,255,255,0.4)",
-                  borderRadius: 8,
-                  zIndex: 1,
-                }}
-              />
-              <Image
-                source={require("@/assets/images/image19.png")}
-                style={{ width: 260, height: 260, marginTop: -20, zIndex: 2 }}
-                contentFit="contain"
-              />
-              <Text
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  textAlign: "center",
-                  color: "#FEFEFF",
-                  fontSize: 30,
-                  fontFamily: "Exo",
-                  fontWeight: "700",
-                  letterSpacing: 0.2,
-                  textShadowColor: "#6C63FF",
-                  textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 10,
-                  marginTop: 120,
-                  zIndex: 2,
-                }}
-              >
-                Viajes Pendientes de Aprobación
-              </Text>
-            </ImageBackground>
-          </Box>
+          <Text style={{ color: "#fff" }}>Ver viajes como conductor</Text>
         </Pressable>
       </Box>
     </ImageBackground>
