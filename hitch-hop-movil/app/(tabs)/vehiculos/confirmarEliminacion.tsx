@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Image } from 'expo-image';
 
 export default function ConfirmarEliminacion() {
   const router = useRouter();
@@ -8,8 +9,7 @@ export default function ConfirmarEliminacion() {
 
   const handleCancelar = () => router.back();
   const handleAceptar = () => {
-    // Aquí deberías eliminar el vehículo y luego regresar
-    router.back();
+    router.push('/(tabs)/vehiculos/sinVehiculos');
   };
 
   return (
@@ -20,7 +20,7 @@ export default function ConfirmarEliminacion() {
         backgroundColor: '#fff', borderRadius: 16, padding: 24, width: 300, alignItems: 'center'
       }}>
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8, textAlign: 'center' }}>
-          ¿Estás seguro que quieres eliminar el vehículo {marca} {modelo}?
+          ¿Estás seguro que quieres eliminar el vehículo Hyundai Santa Fe?
         </Text>
         <Text style={{ color: '#888', marginBottom: 24, textAlign: 'center' }}>
           Todos los datos del vehículo serán eliminados
