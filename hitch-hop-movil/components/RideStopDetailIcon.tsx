@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router'
 type RideDetailProp = {
     stopType: string,
     detail: string,
-    isAtEnd: boolean
+    isAtEnd: boolean,
 }
 
 const RideStopDetail = (props: RideDetailProp) => {
@@ -39,7 +39,7 @@ const RideStopDetail = (props: RideDetailProp) => {
             <Text style={styles.stopDetail} numberOfLines={1} ellipsizeMode="tail">{props.detail}</Text>
         </VStack>
 
-        <Pressable onPress={goBack} style={{marginVertical: 'auto'}}>
+        <Pressable onPress={goBack} style={{marginVertical: 'auto', marginRight: 30}}>
             <SquarePen size={24} color='black'/>
         </Pressable>
     </HStack>
@@ -49,12 +49,15 @@ const RideStopDetail = (props: RideDetailProp) => {
 const styleEnds = StyleSheet.create({
     stopName: {
         fontSize: 16,
-        fontWeight: 'semibold',
+        //Originalmente estaba en semibold, pero no en teléfono se ve distinto al Figma :/
+        //fontWeight: 'semibold'
+        fontWeight: 'bold',
         color: '#171717',
         fontFamily: 'Exo',
         flex: 1
     },
     stopDetail: {
+        marginBottom: 10,
         fontSize: 14,
         fontWeight: 'normal',
         color: '#262627',

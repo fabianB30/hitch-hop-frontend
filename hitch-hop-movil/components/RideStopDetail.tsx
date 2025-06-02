@@ -7,7 +7,7 @@ import { Dot } from 'lucide-react-native'
 
 type RideDetailProp = {
     stopType: string,
-    detail: string,
+    detail: string | undefined,
     isAtEnd: boolean,
 }
 
@@ -37,12 +37,15 @@ const RideStopDetail = (props: RideDetailProp) => {
 const styleEnds = StyleSheet.create({
     stopName: {
         fontSize: 16,
-        fontWeight: 'semibold',
+        //Originalmente estaba en semibold, pero no en teléfono se ve distinto al Figma :/
+        //fontWeight: 'semibold'
+        fontWeight: 'bold',
         color: '#171717',
         fontFamily: 'Exo',
         flex: 1
     },
     stopDetail: {
+        marginBottom: 10,
         fontSize: 14,
         fontWeight: 'normal',
         color: '#262627',

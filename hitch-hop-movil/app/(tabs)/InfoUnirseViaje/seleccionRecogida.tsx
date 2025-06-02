@@ -15,7 +15,7 @@ const wh = Dimensions.get("window").height
 const seleccionRecogida = () => {
   const router = useRouter()
 
-  const [selectedStop, setStop] = useState("")
+  const [selectedStop, setStop] = useState("0")
   const { rideInfo } = useLocalSearchParams()
   const { additionalInfo } = useLocalSearchParams()
   let parsedData
@@ -173,6 +173,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
     marginHorizontal: 'auto',
     marginTop: 15,
+    textShadowColor: '#7875F8',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
   stops: {
     marginTop: 15,
