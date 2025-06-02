@@ -11,20 +11,22 @@ import StatisticsPage from "../pages/statistics/StatisticsPage";
 
 
 const router = createBrowserRouter(
-    createRoutesFromElements(
-        <Route path="/" element={<SidebarAdmin />}>
-            <Route index element={<Home />} />
-            {/* rutas temporales para el sidebar, acá se cambian por las suyas :) */}
-            {/* si su seccion tiene varias pantallas, hacerlas anidadas please */}
-            <Route path="inicio" element={<InicioTemp />} />
-            <Route path="gestion" element={<GestionTemp />} />
-            <Route path="perfil" element={<PerfilTemp />} />
-            <Route path="consultas" element={<ConsultasTemp />} />
-            <Route path="estadistica" element={<StatisticsPage />} />
-        </Route>
-    )
-    
-)
+  createRoutesFromElements(
+    <>
+      {/* Página de inicio sin sidebar */}
+      <Route path="/" element={<Home />} />
+
+      {/* Rutas con SidebarAdmin */}
+      <Route path="/" element={<SidebarAdmin />}>
+        <Route path="inicio" element={<InicioTemp />} />
+        <Route path="gestion" element={<GestionTemp />} />
+        <Route path="perfil" element={<PerfilTemp />} />
+        <Route path="consultas" element={<ConsultasTemp />} />
+        <Route path="estadistica" element={<StatisticsPage />} />
+      </Route>
+    </>
+  )
+);
 
 const Router = () => <RouterProvider router={router}/>
 
