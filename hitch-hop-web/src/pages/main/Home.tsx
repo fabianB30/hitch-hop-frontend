@@ -1,5 +1,5 @@
 import logo from "@/assets/logo.png";
-import carImage from "@/assets/landing-car.png";
+import carImage from "@/assets/landing-car.svg";
 
 const Home = () => {
   return (
