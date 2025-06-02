@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
-import Imagen1 from "../../assets/1.6-DefaultPFP.png";
-import { Button } from "../../components/ui/button";
+import Imagen1 from "../assets/1.6-DefaultPFP.png";
+import { Button } from "../components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
@@ -140,7 +140,7 @@ const ProfileSettings: React.FC = () => {
     <div className="min-h-screen w-full bg-white flex">
        {/* Main Content */}
       <main className="flex-1 flex flex-col px-12 py-8">
-        <span className="w-[369px] h-[64px] mt-[64px] mb-4 text-[48px] font-semibold leading-[100%] font-exo text-center">
+        <span className="mt-16 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
           Gestión de Perfil
         </span>
 

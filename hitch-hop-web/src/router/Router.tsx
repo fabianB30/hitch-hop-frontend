@@ -8,8 +8,8 @@ import GestionTemp from "@/components/shared/temp/GestionTemp";
 import PerfilTemp from "@/components/shared/temp/PerfilTemp";
 import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
 import StatsTemp from "@/components/shared/temp/StatsTemp";
-import ProfileSettings from "@/pages/main/ProfileSettings";
-import UsersManagement from "@/pages/main/UsersManagement";
+import ProfileSettings from "@/pages/ProfileSettings";
+import UsersManagement from "@/pages/UsersManagement";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
