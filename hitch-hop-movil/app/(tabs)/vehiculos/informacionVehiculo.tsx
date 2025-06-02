@@ -31,7 +31,7 @@ export default function InformacionVehiculo() {
       <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo.anio}</Text>
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => router.push('editarVehiculo')}
+        onPress={() => router.push("C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\editarVehiculo.tsx")}
       >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar Información</Text>
       </TouchableOpacity>

@@ -8,7 +8,7 @@ export default function SinVehiculos() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       <Image
-        source={require('../../../assets/gatoautos.png')}
+        source={require('../../assets/gatoautos.png')}
         style={{ width: 180, height: 180, marginBottom: 24 }}
         resizeMode="contain"
       />
@@ -18,7 +18,7 @@ export default function SinVehiculos() {
       <Button
         title="Agregar Vehículo"
         color="#7B61FF"
-        onPress={() => router.push('agregarVehiculo')}
+        onPress={() => router.push("C:\Users\Mayorga\OneDrive\Documents\gitAP\hitch-hop-frontend\hitch-hop-movil\app\(tabs)\vehiculos\agregarVehiculo.tsx")}
       />
     </View>
   );
