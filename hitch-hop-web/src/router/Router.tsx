@@ -8,6 +8,8 @@ import GestionTemp from "@/components/shared/temp/GestionTemp";
 import PerfilTemp from "@/components/shared/temp/PerfilTemp";
 import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
 import StatsTemp from "@/components/shared/temp/StatsTemp";
+import ProfileSettings from "@/pages/main/ProfileSettings";
+import UsersManagement from "@/pages/main/UsersManagement";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -20,6 +22,8 @@ const router = createBrowserRouter(
             <Route path="perfil" element={<PerfilTemp />} />
             <Route path="consultas" element={<ConsultasTemp />} />
             <Route path="estadistica" element={<StatsTemp />} />
+            <Route path="/profile-settings" element={<ProfileSettings />} />
+            <Route path="/users-management" element={<UsersManagement />} />
         </Route>
     )
     
