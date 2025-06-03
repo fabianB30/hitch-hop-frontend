@@ -17,6 +17,10 @@ export default function ConfirmarEliminacion() {
     <View style={{
       flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)'
     }}>
+      <Image
+        source={require('@/assets/images/hitchhop-logo.png')}
+        style={{ width: '100%', height: 60, resizeMode: 'cover', marginBottom: -10, position: 'absolute', top: 0 }}
+      />
       <View style={{
         backgroundColor: '#fff', borderRadius: 16, padding: 24, width: 300, alignItems: 'center'
       }}>

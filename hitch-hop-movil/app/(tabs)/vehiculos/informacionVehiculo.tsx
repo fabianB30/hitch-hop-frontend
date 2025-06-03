@@ -17,6 +17,10 @@ export default function InformacionVehiculo() {
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
+      <Image
+              source={require('@/assets/images/hitchhop-logo.png')}
+              style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginLeft: -25, marginTop: -24 }}
+            />
       <TouchableOpacity onPress={() => router.push('/vehiculos/vehiculoCreado')}>
         <Image
           source={require('@/assets/images/flechaback.png')}

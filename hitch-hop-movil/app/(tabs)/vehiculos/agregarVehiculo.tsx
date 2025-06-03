@@ -19,6 +19,10 @@ export default function AgregarVehiculo() {
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1, padding: 24 }}>
+      <Image
+              source={require('@/assets/images/hitchhop-logo.png')} 
+              style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginTop: -24, marginLeft: -25 }}
+            />
       <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Agregar Vehículo</Text>
       <Text>Marca*</Text>
       <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={marca} onChangeText={setMarca} />

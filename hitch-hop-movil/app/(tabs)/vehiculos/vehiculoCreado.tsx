@@ -21,10 +21,13 @@ export default function VehiculoCreado() {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       {/* Encabezado */}
-      <View style={{ backgroundColor: '#B9A4FF', paddingTop: 48, paddingBottom: 24, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>Vehículos</Text>
+      <Image
+        source={require('@/assets/images/hitchhop-logo.png')}
+        style={{ width: '100%', height: 100, resizeMode: 'cover', marginBottom: 8 }}
+      />
+      <View style={{ paddingTop: 32, paddingBottom: 16 }}>
+        <Text style={{ color: '#222', fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>Vehículos</Text>
       </View>
-
       {/* Popup Modal */}
       <Modal
         visible={showModal}
