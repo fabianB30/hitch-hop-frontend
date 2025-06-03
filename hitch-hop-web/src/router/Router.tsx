@@ -1,6 +1,7 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";   
 import Home from "@/pages/main/Home";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
+import Bienvenida from "@/pages/main/Bienvenida";
 
 // imports de paginas temporales, reemplazan por los suyos
 import InicioTemp from "../components/shared/temp/InicioTemp";
@@ -15,6 +16,7 @@ const router = createBrowserRouter(
     <>
       {/* Página de inicio sin sidebar */}
       <Route path="/" element={<Home />} />
+      <Route path="/bienvenida" element={<Bienvenida />} />
 
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
