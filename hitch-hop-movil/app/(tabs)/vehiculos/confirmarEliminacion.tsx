@@ -7,7 +7,8 @@ export default function ConfirmarEliminacion() {
   const router = useRouter();
   const { marca, modelo } = useLocalSearchParams();
 
-  const handleCancelar = () => router.back();
+  const handleCancelar = () => 
+    router.push('/(tabs)/vehiculos/vehiculoCreado');
   const handleAceptar = () => {
     router.push('/(tabs)/vehiculos/sinVehiculos');
   };

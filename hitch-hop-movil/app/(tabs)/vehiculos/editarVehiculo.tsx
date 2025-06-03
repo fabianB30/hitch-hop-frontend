@@ -1,42 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
+import { useRouter } from 'expo-router';
 
-const mockVehiculos = [
-  {
-    id: '1',
-    marca: 'Hyundai',
-    modelo: 'Santa Fe',
-    placa: 'BTR-932',
-    color: 'Gris',
-    anio: '2019',
-    foto: require('@/assets/images/santafe.png'),
-  },
-];
-
-export default function EditarVehiculo() {
+export default function AgregarVehiculo() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const vehiculo = mockVehiculos.find(v => v.id === id);
+  const [marca, setMarca] = useState('Hyundai');
+  const [modelo, setModelo] = useState('Santa Fe');
+  const [placa, setPlaca] = useState('BTR-932');
+  const [color, setColor] = useState('Gris');
+  const [anio, setAnio] = useState('2019');
+  const [foto, setFoto] = useState(null);
 
-  const [marca, setMarca] = useState(vehiculo?.marca || '');
-  const [modelo, setModelo] = useState(vehiculo?.modelo || '');
-  const [placa, setPlaca] = useState(vehiculo?.placa || '');
-  const [color, setColor] = useState(vehiculo?.color || '');
-  const [anio, setAnio] = useState(vehiculo?.anio || '');
-  const [foto, setFoto] = useState(vehiculo?.foto || '');
-
-  const handleGuardar = () => {
-    // Aquí iría la lógica para guardar los cambios
+  const handleAgregar = () => {
+    // Aquí iría la lógica para guardar el vehículo
     router.back();
   };
 
-  if (!vehiculo) return <Text>Vehículo no encontrado</Text>;
-
   return (
-    <View style={{ flex: 1, padding: 24 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Editar Información</Text>
+    <ScrollView contentContainerStyle={{ flex: 1, padding: 24 }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Editar Vehículo</Text>
       <Text>Marca*</Text>
       <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={marca} onChangeText={setMarca} />
       <Text>Modelo*</Text>
@@ -48,10 +31,20 @@ export default function EditarVehiculo() {
       <Text>Año*</Text>
       <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={anio} onChangeText={setAnio} keyboardType="numeric" />
       <Text style={{ marginTop: 8 }}>Fotografía del vehículo</Text>
-      <Image source={{ uri: foto }} style={{ width: 120, height: 80, borderRadius: 8, marginVertical: 8 }} />
-      <TouchableOpacity style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }} onPress={handleGuardar}>
-        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Guardar Datos</Text>
+      {foto ? (
+        <Image source={{ uri: foto }} style={{ width: 120, height: 80, borderRadius: 8, marginVertical: 8 }} />
+      ) : (
+        <View style={{ borderWidth: 1, borderRadius: 8, height: 100, justifyContent: 'center', alignItems: 'center', marginVertical: 8 }}>
+          <Text>Sube una foto</Text>
+        </View>
+      )}
+      <TouchableOpacity
+        style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
+        onPress={() => router.push('/vehiculos/vehiculoCreado')}
+      >
+        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Agregar</Text>
       </TouchableOpacity>
-    </View>
+      
+    </ScrollView>
   );
 }

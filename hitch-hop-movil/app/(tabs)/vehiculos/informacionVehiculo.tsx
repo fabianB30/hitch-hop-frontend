@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image as ExpoImage } from 'expo-image';
 
 const mockVehiculo = {
   marca: 'Hyundai',
@@ -18,8 +17,19 @@ export default function InformacionVehiculo() {
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
+      <TouchableOpacity onPress={() => router.push('/vehiculos/vehiculoCreado')}>
+        <Image
+          source={require('@/assets/images/flechaback.png')}
+          style={{ width: 32, height: 32, marginBottom: 16 }}
+        />
+      </TouchableOpacity>
+
+      <Image
+        source={require('@/assets/images/santafe.png')}
+        style={{ width: 160, height: 120, borderRadius: 12, marginBottom: 16 }}
+      />
+
       <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Información</Text>
-      <Image source={require('@/assets/images/santafe.png')} style={{ width: 160, height: 120, borderRadius: 12, marginBottom: 16 }} />
       <Text>Marca</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.marca}</Text>
       <Text>Modelo</Text>
