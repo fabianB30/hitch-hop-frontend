@@ -19,7 +19,7 @@ export default function ConfirmarEliminacion() {
     }}>
       <Image
         source={require('@/assets/images/hitchhop-logo.png')}
-        style={{ width: '100%', height: 60, resizeMode: 'cover', marginBottom: -10, position: 'absolute', top: 0 }}
+        style={{ width: '100%', height: 60, resizeMode: 'cover', marginBottom: -15, position: 'absolute', top: 0 }}
       />
       <View style={{
         backgroundColor: '#fff', borderRadius: 16, padding: 24, width: 300, alignItems: 'center'
