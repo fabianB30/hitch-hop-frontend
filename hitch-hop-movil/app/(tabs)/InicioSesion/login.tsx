@@ -28,7 +28,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setErrorMessage('Asegúrese de que el correo y contraseña que ingresasó sean correctos.');
+      setErrorMessage('Asegúrese de que el correo y contraseña que ingresó sean correctos.');
       setShowAlertDialog(true);
       return;
     }
