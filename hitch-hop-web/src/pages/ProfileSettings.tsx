@@ -13,6 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import TestCalendar from "@/components/shared/mondongo/TestCalendar";
+
 // Datos iniciales del usuario
 const initialUser = {
   nombre: "Juan",
@@ -143,6 +145,8 @@ const ProfileSettings: React.FC = () => {
         <span className="mt-16 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
           Gestión de Perfil
         </span>
+
+        <TestCalendar/>
 
         <div className="flex flex-row gap-12 mt-4">
           {/* Imagen de perfil */}
