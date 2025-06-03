@@ -6,49 +6,64 @@ import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
-import { useFonts, Exo_400Regular, Exo_500Medium, Exo_700Bold } from '@expo-google-fonts/exo';
+import {AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
+import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 
 
 export default function LoginScreen() {
-    const [fontsLoaded] = useFonts({
-      Exo_400Regular,
-      Exo_700Bold,
-      Exo_500Medium,
-    });
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
+  const [fontsLoaded] = useFonts({
+    Exo_400Regular,
+    Exo_700Bold,
+    Exo_500Medium,
+    Exo_600SemiBold,
+  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showAlertDialog, setShowAlertDialog] = React.useState(false)
+  const [errorMessage, setErrorMessage] = useState('');
+  const handleClose = () => setShowAlertDialog(false)
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-        Alert.alert('Error', 'Por favor completa todos los campos');
-        return;
-        }
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setErrorMessage('Asegúrese de que el correo y contraseña que ingresasó sean correctos.');
+      setShowAlertDialog(true);
+      return;
+    }
+    // Validación email intitucional (estudiantec.cr/itcr.ac.cr)
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(estudiantec\.cr|itcr\.ac\.cr)$/;
+    if (!emailPattern.test(email)) {
+      setErrorMessage('El correo electrónico debe ser institucional (estudiantec.cr/itcr.ac.cr)');
+      setShowAlertDialog(true);
+      return;
+    }
 
-        setLoading(true);
-        
-        try {
-        // Aquí irá tu lógica de autenticación
-        console.log('Login attempt:', { email, password });
-        
-        // Simular una petición
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Si el login es exitoso, mostrar mensaje
-        Alert.alert('Éxito', 'Inicio de sesión exitoso');
-            // Navegar a la pantalla principal (puedes cambiar la ruta)
-        router.push('/(tabs)');
-        
-        } catch (error) {
-        Alert.alert('Error', 'Credenciales incorrectas');
-        } finally {
-        setLoading(false);
-        }
-    };    const toggleShowPassword = () => {
-        setShowPassword(prev => !prev);
-    };
+    setLoading(true);
+    
+    try {
+    // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
+    console.log('Iniciando sesión:', { email, password, rememberMe });
+    
+    // Simular una petición
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Navegar a la pantalla principal
+    router.push('/(tabs)');
+    
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
+      setShowAlertDialog(true);
+    } finally {
+      setLoading(false);
+    }
+  };    
+  
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   return (
     <KeyboardAvoidingView 
@@ -73,9 +88,27 @@ export default function LoginScreen() {
 
         {/* Login Card */}
         <View className="top-[200px] w-[360px] h-[622px] items-center bg-white rounded-[30px] ">
-            <Text className="text-[30px] text-gray-800 text-center mb-8 top-[27px]" style={{ fontFamily: 'Exo_700Bold' }}>
-              Iniciar Sesión
-            </Text>
+          <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
+            <AlertDialogBackdrop className="bg-black/80" />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <Text className="text-[18px] text-black" style={{ fontFamily: 'Exo_600SemiBold' }}>Datos Inválidos</Text>
+              </AlertDialogHeader>
+              <AlertDialogBody className="mb-5 top-5">
+                <Text className="text-[16px] text-gray-700" style={{ fontFamily: 'Exo_400Regular' }}>
+                  {errorMessage}
+                </Text>
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <TouchableOpacity onPress={handleClose} className="px-4 py-2 rounded-lg bg-[#7875F8]">
+                  <Text className="text-white" style={{ fontFamily: 'Exo_400Regular' }}>Aceptar</Text>
+                </TouchableOpacity>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Text className="text-[30px] text-gray-800 text-center mb-8 top-[27px]" style={{ fontFamily: 'Exo_700Bold' }}>
+            Iniciar Sesión
+          </Text>
           <FormControl className='top-[62px]'>
             {/* Email Field */}
             <View className="mb-5">
@@ -140,10 +173,10 @@ export default function LoginScreen() {
                 onPress={() => setRememberMe(!rememberMe)}
               >
                 <View className={`w-4 h-4 border-2 border-gray-400 rounded items-center justify-center ${
-                  rememberMe ? 'bg-purple-600 border-purple-600' : 'bg-white'
+                  rememberMe ? 'bg-[#7875F8] border-gray-500' : 'bg-white'
                 }`}>
                   {rememberMe && (
-                    <Ionicons name="checkmark" size={16} color="white" />
+                    <Ionicons name="checkmark" size={10} color="white" />
                   )}
                 </View>
               </TouchableOpacity>
