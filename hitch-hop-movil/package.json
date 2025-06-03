@@ -11,6 +11,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo-google-fonts/exo": "^0.4.0",
     "@expo/vector-icons": "^14.1.0",
     "@gluestack-ui/alert-dialog": "^0.1.38",
     "@gluestack-ui/button": "^1.0.14",

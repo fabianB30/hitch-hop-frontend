@@ -6,10 +6,16 @@ import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
+import { useFonts, Exo_400Regular, Exo_500Medium, Exo_700Bold } from '@expo-google-fonts/exo';
 
 
 
 export default function LoginScreen() {
+    const [fontsLoaded] = useFonts({
+      Exo_400Regular,
+      Exo_700Bold,
+      Exo_500Medium,
+    });
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -59,16 +65,23 @@ export default function LoginScreen() {
         />
         {/* Login Card */}
         <View className="top-[200px] w-[360px] h-[622px] items-center bg-white rounded-[30px] ">
-          <Text className="text-2xl font-semibold text-gray-800 text-center mb-8">
-            Iniciar Sesión
-          </Text>
-          <FormControl>
+            <Text className="text-[30px] text-gray-800 text-center mb-8 top-[27px]" style={{ fontFamily: 'Exo_700Bold' }}>
+              Iniciar Sesión
+            </Text>
+          <FormControl className='top-[62px]'>
             {/* Email Field */}
             <View className="mb-5">
-              <Text className="text-sm font-me</View>dium text-gray-700 mb-2">
-                Email*
-              </Text>
-              <Input className="border border-gray-300 rounded-lg bg-gray-50">
+              <View className="flex-row mb-2">
+                <Text className="text-[20px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
+                  Email
+                </Text>
+                {email === '' && (
+                  <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
+                    *
+                  </Text>
+                )}
+              </View>
+              <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
                 <InputField
                   value={email}
                   onChangeText={setEmail}
@@ -81,11 +94,18 @@ export default function LoginScreen() {
             </View>
 
             {/* Password Field */}
-            <View className="mb-5">
-              <Text className="text-sm</View> font-medium text-gray-700 mb-2">
-                Contraseña
-              </Text>
-              <Input className="border border-gray-300 rounded-lg bg-gray-50">
+            <View className="mb-3">
+              <View className="flex-row mb-2">
+                <Text className="text-[20px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
+                  Contraseña
+                </Text>
+                {password === '' && (
+                  <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
+                    *
+                  </Text>
+                )}
+              </View>
+              <Input className="border border-gray-300 rounded-lg bg-gray-50  h-[44px] w-[264px]">
                 <InputField
                   value={password}
                   onChangeText={setPassword}
@@ -106,54 +126,55 @@ export default function LoginScreen() {
             </View>
 
             {/* Remember me checkbox */}
-            <View className="flex-row items-center mb-6">
+            <View className="flex-row items-center mb-3 ml-2">
               <TouchableOpacity 
                 className="mr-2"
                 onPress={() => setRememberMe(!rememberMe)}
               >
-                <View className={`w-4 h-4 border border-gray-300 rounded items-center justify-center ${
+                <View className={`w-4 h-4 border-2 border-gray-400 rounded items-center justify-center ${
                   rememberMe ? 'bg-purple-600 border-purple-600' : 'bg-white'
                 }`}>
                   {rememberMe && (
-                    <Ionicons name="checkmark" size={12} color="white" />
+                    <Ionicons name="checkmark" size={16} color="white" />
                   )}
                 </View>
               </TouchableOpacity>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-[14px] text-gray-600 " style={{ fontFamily: 'Exo_400Regular' }}>
                 Guardar los datos de acceso
               </Text>
             </View>
 
             {/* Buttons */}
-            <View className="flex-row justify-between mb-6">
+            <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-3">
               <TouchableOpacity 
-                className="flex-1 py-3 px-6 rounded-lg mr-2 items-center"
+                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
                 onPress={() => router.back()}
               >
-                <Text className="text-base text-gray-600 font-medium">
+                <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
                   Volver
                 </Text>
               </TouchableOpacity>
-              
+                
               <TouchableOpacity 
-                className={`flex-1 bg-purple-600 py-3 px-6 rounded-lg ml-2 item</Text>s-center ${
+                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${
                   loading ? 'opacity-70' : ''
                 }`}
                 onPress={handleLogin}
                 disabled={loading}
               >
-                <Text className="text-base text-white fon</View>t-semibold">
+                <Text className="text-[16px] text-white" style={{ fontFamily: 'Exo_500Medium' }}>
                   {loading ? 'Cargando...' : 'Siguiente'}
                 </Text>
               </TouchableOpacity>
             </View>
           </FormControl>          
           {/* Register link */}
-          <View className="items-center">
-            <Text className="text-sm text-gray-600">
+          <View className="items-center top-[210px]">
+            <Text className="text-[16px] text-black" style={{ fontFamily: 'Exo_500Medium' }}>
               ¿No tienes cuenta?{' '}
               <Text 
-                className="text-blue-600 font-medium"
+                className="text-[16px] text-[#7875F8]"
+                style={{ fontFamily: 'Exo_500Medium' }}
                 onPress={() => Alert.alert('Info', 'Función de registro próximamente')}
               >
                 ¡Crea una aquí!
