@@ -9,7 +9,6 @@ import { FormControl } from '@/components/ui/form-control';
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_700Bold } from '@expo-google-fonts/exo';
 
 
-
 export default function LoginScreen() {
     const [fontsLoaded] = useFonts({
       Exo_400Regular,
@@ -63,6 +62,15 @@ export default function LoginScreen() {
           className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
           resizeMode="contain"
         />
+        {/* Logo*/}
+        <View className="absolute justify-center items-center h-[80px] w-[270px] top-[80px]">
+          <ImageBackground
+            source={require('@/assets/images/logo-HitchHop.png')}
+            className="w-[270px] h-[80px]"
+            resizeMode="contain"
+          />
+        </View>
+
         {/* Login Card */}
         <View className="top-[200px] w-[360px] h-[622px] items-center bg-white rounded-[30px] ">
             <Text className="text-[30px] text-gray-800 text-center mb-8 top-[27px]" style={{ fontFamily: 'Exo_700Bold' }}>
