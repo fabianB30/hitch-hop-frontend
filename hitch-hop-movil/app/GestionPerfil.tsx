@@ -20,12 +20,12 @@ export default function GestionPerfil(){
 
       <Box style={styles.header}>
           <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-            <Image source={require("@/assets/images/backArrow.png")} style={styles.backArrow}/>
+            <Image style={styles.backArrow}/>
           </Box>
 
           <Box style={styles.fotoPerfilFondo}>
             <Image
-              source={require("@/assets/images/iconPrimary.png")}
+              
               style={styles.iconPrimary}
             />
           </Box>
@@ -38,9 +38,9 @@ export default function GestionPerfil(){
       </Box>
 
       <Box style={{flex: 1, top: 0, left: 0, zIndex: 1}}>
-        <Image style={styles.fondo} source={require("@/assets/images/gestionPerfilFondo.png")} resizeMode="contain"/>
+        <Image style={styles.fondo} resizeMode="contain"/>
         <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
-          <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
+          <Image style={styles.boxTopIcon}/>
           <Box style={styles.boxHitch}>
             <VStack space="4xl" style={{alignItems: "center", marginTop: 80}}>
               <Button style={styles.buttonHitch}>

@@ -15,8 +15,8 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     Exo_400Regular,
     Exo_500Medium,
-    Exo_700Bold,
     Exo_600SemiBold,
+    Exo_700Bold,
     Montserrat_400Regular,
     Montserrat_700Bold,
     Montserrat_800ExtraBold
@@ -30,7 +30,7 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="GestionPerfil" options={{ headerShown: false }} />
+          <Stack.Screen name="NotificacionesConductor" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found"/>
         </Stack>
         <StatusBar style="auto" />

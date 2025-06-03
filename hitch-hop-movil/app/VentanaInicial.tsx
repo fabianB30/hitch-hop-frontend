@@ -21,7 +21,6 @@ export default function VentanaIncial() {
 
       <Box style={{alignItems:"center", position: "absolute", zIndex: 0, top: 0, left: 0, right: 0}}>
         <Image style={{position: "absolute",  height: imageHeight, width: imageWidth, top: 0, left: -11}}
-          source={require("@/assets/images/fondoHitchHop.png")}
           alt="HitchHop Fondo"
           resizeMode="contain"
         />
