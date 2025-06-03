@@ -10,9 +10,9 @@ export default function SinVehiculos() {
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       <Image
         source={require('@/assets/images/gatoautos.png')}
-        style={{ width: 180, height: 180, marginBottom: 24 }}
+        style={{ width: 400, height: 400, marginBottom: 24, marginLeft: -50 }}
       />
-      <Text style={{ fontSize: 16, marginBottom: 16, color: '#222' }}>
+      <Text style={{ fontSize: 20, marginBottom: 16, color: '#222' }}>
         No hay vehículos registrados
       </Text>
       <Button
