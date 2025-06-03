@@ -42,7 +42,7 @@ export default function AgregarVehiculo() {
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
         onPress={() => router.push('/vehiculos/vehiculoCreado')}
       >
-        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Agregar</Text>
+        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar</Text>
       </TouchableOpacity>
       
     </ScrollView>
