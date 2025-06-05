@@ -9,7 +9,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { Heading } from "@/components/ui/heading";
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin } from "lucide-react-native"
+import { MapPin, Calendar, ChevronLeft, SignalZero } from "lucide-react-native"
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -44,7 +44,7 @@ export default function NotificacionesConductor (){
 
             <Box style={styles.header}>
                 <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-                    <Image source={require("@/assets/images/backArrow.png")} style={styles.backArrow}/>
+                    <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
                 </Box>
     
                 <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
@@ -61,61 +61,41 @@ export default function NotificacionesConductor (){
                     </Text>
                 </Box>
                 <VStack space="lg" style={styles.notifBox}>
-                    <Card size="sm" variant="filled" style={styles.cards}>
+                    <Card variant="filled" style={styles.cards}>
                         <Heading style={styles.cardHeadSize}>
                             <Text style={styles.cardHeadFont}>
                                 Viaje cancelado
                             </Text>
                         </Heading>
-                        <HStack space="sm" style={{marginLeft: 6, alignContent: "center", marginBottom: 10}}>
+                        <HStack space="sm" style={styles.hstackStyle}>
                             <Icon color="#404040" as={MapPin} size="md"/>
-                            <Text size="sm" style={styles.lugarFont}>
+                            <Text size="sm" style={styles.lugarFechaFont}>
                                 Estación del Pacífico
                             </Text>
                         </HStack>
-                        <HStack space="sm" style={{marginLeft: 6, alignContent: "center"}}>
+                        <HStack space="sm" style={styles.hstackStyle}>
                             <Icon color="#404040" as={ClockIcon} size="md"/>
                             <Text size="sm" style={styles.horaFont}>
                                 11:55am
                             </Text>
                         </HStack>
                     </Card>
-                    <Card size="sm" variant="filled" style={styles.cards}>
+                    <Card variant="filled" style={styles.cards}>
                         <Heading style={styles.cardHeadSize}>
                             <Text style={styles.cardHeadFont}>
                                 Solicitud pendiente
                             </Text>
                         </Heading>
-                        <HStack space="sm" style={{marginLeft: 6, alignContent: "center"}}>
-                            <Icon as={ClockIcon} size="md"/>
-                            <Text size="sm" style={styles.lugarFont}>
-                                Estación del Pacífico
+                        <HStack space="sm" style={styles.hstackStyle}>
+                            <Icon as={Calendar} size="md"/>
+                            <Text size="sm" style={styles.lugarFechaFont}>
+                                Lun. 14 de abril, 2025.
                             </Text>
                         </HStack>
-                    </Card>
-                    <Card size="sm" variant="filled" style={styles.cards}>
-                        <Heading style={styles.cardHeadSize}>
-                            <Text style={styles.cardHeadFont}>
-                                Viaje cancelado
-                            </Text>
-                        </Heading>
-                        <HStack space="sm" style={{marginLeft: 6, alignContent: "center"}}>
-                            <Icon as={ClockIcon} size="md"/>
-                            <Text size="sm" style={styles.lugarFont}>
-                                Estación del Pacífico
-                            </Text>
-                        </HStack>
-                    </Card>
-                    <Card size="sm" variant="filled" style={styles.cards}>
-                        <Heading style={styles.cardHeadSize}>
-                            <Text style={styles.cardHeadFont}>
-                                Viaje cancelado
-                            </Text>
-                        </Heading>
-                        <HStack space="sm" style={{marginLeft: 6, alignContent: "center"}}>
-                            <Icon as={ClockIcon} size="md"/>
-                            <Text size="sm" style={styles.lugarFont}>
-                                Estación del Pacífico
+                        <HStack space="sm" style={styles.hstackStyle}>
+                            <Icon color="#404040" as={ClockIcon} size="md"/>
+                            <Text size="sm" style={styles.horaFont}>
+                                11:55am
                             </Text>
                         </HStack>
                     </Card>
@@ -184,20 +164,20 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     cards: {
-        width: 336,
+        width: 345,
         height: 107,
         backgroundColor: "#ECECFF",
         borderRadius: 8
     },
     cardHeadSize: {
-        height: 25
+        height: 22
     },
     cardHeadFont: {
         fontSize: 24,
         fontFamily: "Exo_700Bold",
         color: "black"
     },
-    lugarFont: {
+    lugarFechaFont: {
         fontSize: 18,
         fontFamily: "Exo_500Medium",
         color: "#404040"
@@ -206,5 +186,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: "Exo_500Medium",
         color: "#404040"
+    },
+    hstackStyle: {
+        marginLeft: 6,
+        alignContent: "center",
+        marginTop: 8
     }
 })
