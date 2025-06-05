@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "expo-router";
+import { Camera } from "lucide-react-native";
+import { ChevronLeft } from "lucide-react-native";
 
 const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
@@ -105,23 +107,29 @@ const handleEditPhoto = async () => {
             // Navegar a pantalla principal
           }}
         >
-          <Text style={styles.backBtnText}>{"<"}</Text>
+          <ChevronLeft color="black" size={35} />
         </TouchableOpacity>
         {/* Avatar centrado */}
         <View style={styles.avatarContainerCentered}>
-          <Image
-            source={
-              userData.foto
-                ? { uri: userData.foto }
-                : require("@/assets/images/1.5-DefaultPFP.png")
-            }
-            style={styles.avatar}
-          />
-          {editable && (
-            <TouchableOpacity style={styles.editPhotoBtn} onPress={handleEditPhoto}>
-              <Text style={styles.editPhotoText}>Editar foto de perfil</Text>
-            </TouchableOpacity>
-          )}
+          <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
+            <Image
+              source={
+                userData.foto
+                  ? { uri: userData.foto }
+                  : require("@/assets/images/1.5-DefaultPFP.png")
+              }
+              style={styles.avatar}
+            />
+            {editable && (
+              <TouchableOpacity
+                style={styles.editPhotoIconBtn}
+                onPress={handleEditPhoto}
+                activeOpacity={0.7}
+              >
+                <Camera color="black" size={22} />
+              </TouchableOpacity>
+            )}
+          </View>
           {editable && (
             <TouchableOpacity
               style={styles.editPhotoBtn}
@@ -131,6 +139,24 @@ const handleEditPhoto = async () => {
             </TouchableOpacity>
           )}
         </View>
+        {/* Botón de editar/guardar y cancelar*/}
+        {editable ? (
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.cancelBtn} onPress={cancelEdit}>
+              <Text style={styles.cancelBtnText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
+              <Text style={styles.saveBtnText}>Guardar</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.buttonRowCenter}>
+            <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
+              <Text style={styles.saveBtnText}>Editar información</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
       <View style={styles.formSection}>
         <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
         <ProfileInput label="Nombre" value={userData.nombre} editable={editable} onChange={v => handleChange("nombre", v)} />
@@ -144,16 +170,6 @@ const handleEditPhoto = async () => {
         <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} />
         <ProfileInput label="Tipo de usuario" value={userData.tipoUsuario} editable={editable} onChange={v => handleChange("tipoUsuario", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
-      </View>
-      <View style={styles.buttonRow}>
-        {editable && (
-          <TouchableOpacity style={styles.cancelBtn} onPress={cancelEdit}>
-            <Text style={styles.cancelBtnText}>Cancelar</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
-          <Text style={styles.saveBtnText}>{editable ? "Guardar" : "Editar información"}</Text>
-        </TouchableOpacity>
       </View>
     </View>
       {showPasswordModal && (
@@ -242,7 +258,7 @@ const styles = StyleSheet.create({
   },
   backgroundContainer: {
     width: "100%",
-    height: 170,
+    height: 120,
     position: "relative",
     alignItems: "center",
     justifyContent: "flex-end",
@@ -250,7 +266,7 @@ const styles = StyleSheet.create({
   },
   hitchHopText: {
     position: "absolute",
-    top: 60,
+    top: 15,
     right: 7,
     zIndex: 3,
     fontSize: 22,
@@ -272,12 +288,12 @@ const styles = StyleSheet.create({
   },
   backBtnAbsolute: {
     position: "absolute",
-    top: 16,
-    left: 16,
+    top: 5,
+    left: 5,
     zIndex: 2,
     padding: 8,
     borderRadius: 20,
-    backgroundColor: "#ECECFF",
+    backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
     height: 40,
@@ -288,7 +304,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     marginBottom: 24,
-    marginTop: 8,
+    marginTop: -70,
+  },
+    editPhotoIconBtn: {
+    position: "absolute",
+    bottom: 8,
+    right: -5,
+    backgroundColor: "#FFAB00",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+    zIndex: 10,
   },
   backBtnText: {
     fontSize: 22,
@@ -359,9 +389,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#ECECFF",
     padding: 10,
   },
+  buttonRowCenter: {
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 24,
+    marginTop: -15,
+  },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     width: "100%",
     gap: 12,
     marginBottom: 24,
