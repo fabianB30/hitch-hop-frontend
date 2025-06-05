@@ -4,7 +4,9 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Text } from "@/components/ui/text";
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { ChevronLeft } from "lucide-react-native";
+import { Icon } from "@/components/ui/icon";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -19,8 +21,8 @@ export default function GestionPerfil(){
       <Box style={{height: 30}}/>  {/* Espacio que toma en cuenta la barra de notificaciones */}
 
       <Box style={styles.header}>
-          <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-            <Image source={require("@/assets/images/backArrow.png")} style={styles.backArrow}/>
+          <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.06}}>
+            <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
           </Box>
 
           <Box style={styles.fotoPerfilFondo}>
@@ -42,15 +44,15 @@ export default function GestionPerfil(){
         <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
-            <VStack space="4xl" style={{alignItems: "center", marginTop: 80}}>
+            <VStack space="4xl" style={{alignItems: "center", marginTop: 60}}>
               <Button style={styles.buttonHitch}>
                 <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
               </Button>
               <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Información de la cuenta</ButtonText>
+                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
               </Button>
               <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
+                <ButtonText style={styles.buttonTextHitch}>Vehículos</ButtonText>
               </Button>
               <Button style={styles.buttonHitch}>
                 <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
@@ -124,10 +126,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ECECFF",
     borderRadius: 9999,
     overflow: "hidden"
-  },
-  backArrow: {
-    width: 30,
-    height: 30
   },
   appTitulo:{
     fontSize: 24,
