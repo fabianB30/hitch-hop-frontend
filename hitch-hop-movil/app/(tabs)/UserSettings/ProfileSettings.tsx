@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
+import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { useRouter } from "expo-router";
 import { Camera } from "lucide-react-native";
 import { ChevronLeft } from "lucide-react-native";
+import { Info } from "lucide-react-native";
 
 const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
@@ -36,6 +39,9 @@ export default function ProfileSettings() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [currentPasswordError, setCurrentPasswordError] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
@@ -80,16 +86,32 @@ const handleEditPhoto = async () => {
 
 };
 
-  const handleChangePassword = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-    setShowPasswordModal(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  };
+const handleChangePassword = () => {
+  let hasError = false;
+  setCurrentPasswordError(false);
+  setNewPasswordError(false);
+  setConfirmPasswordError(false);
+
+  // Ejemplo de validación simple
+  if (newPassword.length < 8) {
+    setNewPasswordError(true);
+    hasError = true;
+  }
+  if (newPassword !== confirmPassword) {
+    setConfirmPasswordError(true);
+    hasError = true;
+  }
+  if (!currentPassword) {
+    setCurrentPasswordError(true);
+    hasError = true;
+  }
+  if (hasError) return;
+
+  setShowPasswordModal(false);
+  setCurrentPassword("");
+  setNewPassword("");
+  setConfirmPassword("");
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -172,45 +194,86 @@ const handleEditPhoto = async () => {
         <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
       </View>
     </View>
-      {showPasswordModal && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Cambiar Contraseña</Text>
-            <TextInput
-              style={styles.input}
+    {/* Modal para cambiar contraseña */}
+    <Modal
+      isOpen={showPasswordModal}
+      onClose={() => setShowPasswordModal(false)}
+    >
+      <ModalBackdrop />
+      <ModalContent>
+        <ModalHeader>
+          <Text style={styles.modalTitle}>Cambiar Contraseña</Text>
+          <ModalCloseButton onPress={() => setShowPasswordModal(false)} />
+        </ModalHeader>
+        <ModalBody>
+          <Input isInvalid={currentPasswordError} style={{ marginBottom: 4 }}>
+            <InputField
               placeholder="Contraseña actual"
               secureTextEntry
               value={currentPassword}
               onChangeText={setCurrentPassword}
             />
-            <TextInput
-              style={styles.input}
+          </Input>
+          {currentPasswordError && (
+            <InputError>Debes ingresar tu contraseña actual.</InputError>
+          )}
+
+          <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
+            <InputField
               placeholder="Contraseña nueva"
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
             />
-            <TextInput
-              style={styles.input}
+          </Input>
+          {newPasswordError && (
+            <InputError>La contraseña debe tener al menos 8 caracteres.</InputError>
+          )}
+
+          <Input isInvalid={confirmPasswordError} style={{ marginBottom: 0 }}>
+            <InputField
               placeholder="Confirmar contraseña"
               secureTextEntry
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowPasswordModal(false)}>
-                <Text style={styles.cancelBtnText}>Volver</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={handleChangePassword}>
-                <Text style={styles.saveBtnText}>Confirmar cambios</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </Input>
+          {confirmPasswordError && (
+            <InputError>Las contraseñas no coinciden.</InputError>
+          )}
+
+          {/* Formato esperado de la contraseña */}
+          <View
+            style={{
+              backgroundColor: "#F5F5F5",
+              borderRadius: 8,
+              padding: 12,
+              marginTop: 16,
+              flexDirection: "row",
+              alignItems: "flex-start",
+              gap: 8,
+            }}
+          >
+          <Info color="#787878" size={20} style={{ marginTop: 2 }} />
+          <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
+            Mínimo 8 caracteres, con al menos{"\n"}
+            1 letra mayúscula, 1 letra minúscula, y 1 número.
+          </Text>
         </View>
-      )}
-    </ScrollView>
-  );
-}
+        </ModalBody>
+        <ModalFooter>
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowPasswordModal(false)}>
+            <Text style={styles.cancelBtnText}>Volver</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveBtn} onPress={handleChangePassword}>
+            <Text style={styles.saveBtnText}>Confirmar</Text>
+          </TouchableOpacity>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+        </ScrollView>
+      );
+    }
 
 function ProfileInput({
   label,
