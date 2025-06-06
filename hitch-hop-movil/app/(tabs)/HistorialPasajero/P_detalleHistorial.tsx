@@ -16,7 +16,7 @@ export default function P_detalleHistorial() {
           resizeMode="cover"              
         />
         <Image
-          source={require('@/assets/images/HHlogo.pngg')}
+          source={require('@/assets/images/HHlogo.png')}
           style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
           resizeMode="contain"          
         />
