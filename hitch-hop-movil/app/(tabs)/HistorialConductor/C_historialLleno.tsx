@@ -19,11 +19,6 @@ export default function C_HistorialLleno() {
           style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}             
           resizeMode="cover"              
         />
-        <Image
-          source={require('@/assets/images/HHlogo.png')}
-          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"          
-        />
       </View>
 
       {/* Contenido principal */}
@@ -38,7 +33,7 @@ export default function C_HistorialLleno() {
       }}>
         {/* Flecha back y título */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/home')}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}

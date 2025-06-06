@@ -15,11 +15,6 @@ export default function Home() {
           style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
           resizeMode="cover"
         />
-        <Image
-          source={require('@/assets/images/hitchhop-logo.png')}
-          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"
-        />
       </View>
 
       {/* Contenido principal */}
@@ -61,7 +56,7 @@ export default function Home() {
           onPress={() => router.push('/(tabs)/HistorialConductor/C_historialLleno')}
         >
           <Image
-            source={require('@/assets/images/conductor-historial.png')}
+            source={require('@/assets/images/conductorFlor.png')}
             style={{ width: 200, height: 120, marginBottom: 8 }}
             resizeMode="contain"
           />
@@ -80,7 +75,7 @@ export default function Home() {
           onPress={() => router.push('/(tabs)/HistorialPasajero/P_historialLleno')}
         >
           <Image
-            source={require('@/assets/images/pasajero-historial.png')}
+            source={require('@/assets/images/pasajeroEstrella.png')}
             style={{ width: 200, height: 120, marginBottom: 8 }}
             resizeMode="contain"
           />
