@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { Camera } from "lucide-react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { Info } from "lucide-react-native";
+import { Select, SelectError } from "@/components/ui/select";
 
 const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
@@ -31,6 +32,7 @@ const initialUser = {
 const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
 const generos = ["Masculino", "Femenino", "Otro"];
 const tiposUsuario = ["Administrador", "Usuario"];
+const instituciones = ["Tecnológico de Costa Rica"];
 
 export default function ProfileSettings() {
   const [editable, setEditable] = useState(false);
@@ -43,35 +45,39 @@ export default function ProfileSettings() {
   const [newPasswordError, setNewPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
 
   const validateUserData = (data: typeof initialUser) => {
-    const errors: string[] = [];
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    if (!nameRegex.test(data.nombre)) errors.push("El nombre solo puede contener letras.");
-    if (!nameRegex.test(data.primerApellido)) errors.push("El primer apellido solo puede contener letras.");
-    if (!nameRegex.test(data.segundoApellido)) errors.push("El segundo apellido solo puede contener letras.");
-    if (!/^\d{9}$/.test(data.numeroId)) errors.push("El número de ID debe tener 9 dígitos.");
-    if (!/^\d{8}$/.test(data.telefono)) errors.push("El teléfono debe tener 8 dígitos.");
-    if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.correo)) {
-      errors.push("El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.");
-    }
-    return errors;
-  };
+  const errors: Record<string, string> = {};
+  const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+  if (!nameRegex.test(data.nombre)) errors.nombre = "El nombre solo puede contener letras.";
+  if (!nameRegex.test(data.primerApellido)) errors.primerApellido = "El primer apellido solo puede contener letras.";
+  if (!nameRegex.test(data.segundoApellido)) errors.segundoApellido = "El segundo apellido solo puede contener letras.";
+  if (!/^\d{9}$/.test(data.numeroId)) errors.numeroId = "El número de ID debe tener 9 dígitos.";
+  if (!/^\d{8}$/.test(data.telefono)) errors.telefono = "El teléfono debe tener 8 dígitos.";
+  if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.correo)) {
+    errors.correo = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+  }
+
+  setFieldErrors(errors);
+  return Object.keys(errors).length === 0;
+};
 
   const toggleEdit = () => {
-    if (!editable) {
-      setBackupData(userData);
-      setEditable(true);
-    } else {
-      const errors = validateUserData(userData);
-      if (errors.length > 0) {
-        alert(errors.join("\n"));
-        return;
-      }
-      setEditable(false);
+  if (!editable) {
+    setBackupData(userData);
+    setEditable(true);
+  } else {
+    const isValid = validateUserData(userData);
+    if (!isValid) {
+      return;
     }
-  };
+    setEditable(false);
+    setFieldErrors({});
+  }
+};
 
   const cancelEdit = () => {
     setUserData(backupData);
@@ -181,15 +187,15 @@ const handleChangePassword = () => {
 
       <View style={styles.formSection}>
         <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="Nombre" value={userData.nombre} editable={editable} onChange={v => handleChange("nombre", v)} />
-        <ProfileInput label="Primer Apellido" value={userData.primerApellido} editable={editable} onChange={v => handleChange("primerApellido", v)} />
-        <ProfileInput label="Segundo Apellido" value={userData.segundoApellido} editable={editable} onChange={v => handleChange("segundoApellido", v)} />
-        <ProfileInput label="Correo institucional" value={userData.correo} editable={editable} onChange={v => handleChange("correo", v)} />
-        <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} />
+        <ProfileInput label="Nombre" value={userData.nombre} editable={editable} onChange={v => handleChange("nombre", v)} error={fieldErrors.nombre} />
+        <ProfileInput label="Primer Apellido" value={userData.primerApellido} editable={editable} onChange={v => handleChange("primerApellido", v)} error={fieldErrors.primerApellido} />
+        <ProfileInput label="Segundo Apellido" value={userData.segundoApellido} editable={editable} onChange={v => handleChange("segundoApellido", v)} error={fieldErrors.segundoApellido} />
+        <ProfileInput label="Correo institucional" value={userData.correo} editable={editable} onChange={v => handleChange("correo", v)} error={fieldErrors.correo} />
+        <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} error={fieldErrors.telefono} />
         <ProfileInput label="Tipo de ID" value={userData.tipoId} editable={editable} onChange={v => handleChange("tipoId", v)} options={tiposId} />
-        <ProfileInput label="Número de ID" value={userData.numeroId} editable={editable} onChange={v => handleChange("numeroId", v)} />
-        <ProfileInput label="Fecha de nacimiento" value={userData.fechaNacimiento} editable={editable} onChange={v => handleChange("fechaNacimiento", v)} />
-        <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} />
+        <ProfileInput label="Número de ID" value={userData.numeroId} editable={editable} onChange={v => handleChange("numeroId", v)} error={fieldErrors.numeroId} />
+        <ProfileInput label="Fecha de nacimiento" value={userData.fechaNacimiento} editable={editable} onChange={v => handleChange("fechaNacimiento", v)} error={fieldErrors.fechaNacimiento} />
+        <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} options={instituciones} />
         <ProfileInput label="Tipo de usuario" value={userData.tipoUsuario} editable={editable} onChange={v => handleChange("tipoUsuario", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
       </View>
@@ -281,31 +287,42 @@ function ProfileInput({
   editable,
   onChange,
   options,
+  error,
 }: {
   label: string;
   value: string;
   editable?: boolean;
   onChange?: (value: string) => void;
   options?: string[];
+  error?: string;
 }) {
+
   return (
     <View style={styles.inputGroup}>
       <Text style={styles.inputLabel}>{label}</Text>
+
       {options ? (
-        <View style={styles.pickerContainer}>
-          <TextInput
-            style={[styles.input, !editable && styles.inputDisabled]}
-            value={value}
-            editable={false}
+        <>
+          <Select
+            selectedValue={value}
+            onValueChange={onChange!}
+            options={options}
+            isDisabled={!editable}
+            isInvalid={!!error}
           />
-        </View>
+          {error && <SelectError>{error}</SelectError>}
+        </>
       ) : (
-        <TextInput
-          style={[styles.input, !editable && styles.inputDisabled]}
-          value={value}
-          editable={editable}
-          onChangeText={onChange}
-        />
+        <>
+          <Input isInvalid={!!error} isDisabled={!editable}>
+            <InputField
+              value={value}
+              onChangeText={onChange}
+              editable={editable}
+            />
+          </Input>
+          {error && <InputError>{error}</InputError>}
+        </>
       )}
     </View>
   );
