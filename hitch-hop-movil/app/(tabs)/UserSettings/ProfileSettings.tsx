@@ -8,12 +8,31 @@ import { Camera } from "lucide-react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { Info } from "lucide-react-native";
 import { Select, SelectError } from "@/components/ui/select";
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Eye, EyeOff } from "lucide-react-native";
 
 const ImagenBG = require("../../../assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
-const initialUser = {
+type User = {
+  nombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  correo: string;
+  institucion: string;
+  tipoId: string;
+  numeroId: string;
+  fechaNacimiento: string;
+  telefono: string;
+  genero: string;
+  username: string;
+  tipoUsuario: string;
+  foto: string | null;
+};
+
+const initialUser: User = {
   nombre: "Juan",
   primerApellido: "Rodríguez",
   segundoApellido: "Chaves",
@@ -45,7 +64,11 @@ export default function ProfileSettings() {
   const [newPasswordError, setNewPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const router = useRouter();
 
   const validateUserData = (data: typeof initialUser) => {
@@ -63,7 +86,7 @@ export default function ProfileSettings() {
 
   setFieldErrors(errors);
   return Object.keys(errors).length === 0;
-};
+ };
 
   const toggleEdit = () => {
   if (!editable) {
@@ -82,15 +105,47 @@ export default function ProfileSettings() {
   const cancelEdit = () => {
     setUserData(backupData);
     setEditable(false);
+    setFieldErrors({});
   };
 
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData({ ...userData, [key]: value });
   };
 
-const handleEditPhoto = async () => {
+  const handleEditPhoto = async () => {
+  // Pide permisos si es necesario
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Se requieren permisos para acceder a tus fotos.');
+    return;
+  }
 
+  // Abre la galería
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.7,
+  });
+
+  if (!result.canceled && result.assets && result.assets.length > 0) {
+    setUserData({ ...userData, foto: result.assets[0].uri });
+  }
 };
+ // Convierte la fecha de nacimiento a objeto Date
+  const getDateFromString = (dateStr: string) => {
+    const [day, month, year] = dateStr.split(" / ").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const formatted = `${selectedDate.getDate().toString().padStart(2, "0")} / ${(selectedDate.getMonth() + 1).toString().padStart(2, "0")} / ${selectedDate.getFullYear()}`;
+      setUserData({ ...userData, fechaNacimiento: formatted });
+    }
+  };
+
 
 const handleChangePassword = () => {
   let hasError = false;
@@ -98,17 +153,19 @@ const handleChangePassword = () => {
   setNewPasswordError(false);
   setConfirmPasswordError(false);
 
-  // Ejemplo de validación simple
-  if (newPassword.length < 8) {
+  // mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula y 1 número
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+  if (!currentPassword) {
+    setCurrentPasswordError(true);
+    hasError = true;
+  }
+  if (!passwordRegex.test(newPassword)) {
     setNewPasswordError(true);
     hasError = true;
   }
   if (newPassword !== confirmPassword) {
     setConfirmPasswordError(true);
-    hasError = true;
-  }
-  if (!currentPassword) {
-    setCurrentPasswordError(true);
     hasError = true;
   }
   if (hasError) return;
@@ -194,7 +251,41 @@ const handleChangePassword = () => {
         <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} error={fieldErrors.telefono} />
         <ProfileInput label="Tipo de ID" value={userData.tipoId} editable={editable} onChange={v => handleChange("tipoId", v)} options={tiposId} />
         <ProfileInput label="Número de ID" value={userData.numeroId} editable={editable} onChange={v => handleChange("numeroId", v)} error={fieldErrors.numeroId} />
-        <ProfileInput label="Fecha de nacimiento" value={userData.fechaNacimiento} editable={editable} onChange={v => handleChange("fechaNacimiento", v)} error={fieldErrors.fechaNacimiento} />
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Fecha de nacimiento</Text>
+          <TouchableOpacity
+            onPress={() => editable && setShowDatePicker(true)}
+            disabled={!editable}
+            activeOpacity={editable ? 0.7 : 1}
+          >
+            <Input
+              isDisabled={!editable}
+              isInvalid={!!fieldErrors.fechaNacimiento}
+              style={{ backgroundColor: "#fff" }}
+              pointerEvents="none"
+            >
+              <InputField
+                value={userData.fechaNacimiento || ""}
+                placeholder="Selecciona una fecha"
+                editable={false} // No editable, solo abre el picker
+                pointerEvents="none"
+                style={{ color: userData.fechaNacimiento ? "#222" : "#888" }}
+              />
+            </Input>
+          </TouchableOpacity>
+          {fieldErrors.fechaNacimiento && (
+            <InputError>{fieldErrors.fechaNacimiento}</InputError>
+          )}
+          {showDatePicker && (
+            <DateTimePicker
+              value={getDateFromString(userData.fechaNacimiento)}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+            />
+          )}
+        </View>
         <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} options={instituciones} />
         <ProfileInput label="Tipo de usuario" value={userData.tipoUsuario} editable={editable} onChange={v => handleChange("tipoUsuario", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
@@ -215,10 +306,22 @@ const handleChangePassword = () => {
           <Input isInvalid={currentPasswordError} style={{ marginBottom: 4 }}>
             <InputField
               placeholder="Contraseña actual"
-              secureTextEntry
+              secureTextEntry={!showCurrentPassword}
               value={currentPassword}
               onChangeText={setCurrentPassword}
+              style={{ paddingRight: 36 }}
             />
+            <TouchableOpacity
+              style={{ position: "absolute", right: 10, top: 8 }}
+              onPress={() => setShowCurrentPassword((v) => !v)}
+              hitSlop={10}
+            >
+              {showCurrentPassword ? (
+                <EyeOff size={20} color="#888" />
+              ) : (
+                <Eye size={20} color="#888" />
+              )}
+            </TouchableOpacity>
           </Input>
           {currentPasswordError && (
             <InputError>Debes ingresar tu contraseña actual.</InputError>
@@ -227,22 +330,46 @@ const handleChangePassword = () => {
           <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
             <InputField
               placeholder="Contraseña nueva"
-              secureTextEntry
+              secureTextEntry={!showNewPassword}
               value={newPassword}
               onChangeText={setNewPassword}
+              style={{ paddingRight: 36 }}
             />
+            <TouchableOpacity
+              style={{ position: "absolute", right: 10, top: 8 }}
+              onPress={() => setShowNewPassword((v) => !v)}
+              hitSlop={10}
+            >
+              {showNewPassword ? (
+                <EyeOff size={20} color="#888" />
+              ) : (
+                <Eye size={20} color="#888" />
+              )}
+            </TouchableOpacity>
           </Input>
           {newPasswordError && (
-            <InputError>La contraseña debe tener al menos 8 caracteres.</InputError>
+            <InputError>La contraseña no cumple los requisitos</InputError>
           )}
 
           <Input isInvalid={confirmPasswordError} style={{ marginBottom: 0 }}>
             <InputField
               placeholder="Confirmar contraseña"
-              secureTextEntry
+              secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
+              style={{ paddingRight: 36 }}
             />
+            <TouchableOpacity
+              style={{ position: "absolute", right: 10, top: 8 }}
+              onPress={() => setShowConfirmPassword((v) => !v)}
+              hitSlop={10}
+            >
+              {showConfirmPassword ? (
+                <EyeOff size={20} color="#888" />
+              ) : (
+                <Eye size={20} color="#888" />
+              )}
+            </TouchableOpacity>
           </Input>
           {confirmPasswordError && (
             <InputError>Las contraseñas no coinciden.</InputError>
@@ -268,10 +395,26 @@ const handleChangePassword = () => {
         </View>
         </ModalBody>
         <ModalFooter>
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowPasswordModal(false)}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+              setShowPasswordModal(false);
+              setCurrentPassword("");
+              setNewPassword("");
+              setConfirmPassword("");
+              setCurrentPasswordError(false);
+              setNewPasswordError(false);
+              setConfirmPasswordError(false);
+              setShowCurrentPassword(false);
+              setShowNewPassword(false);          
+              setShowConfirmPassword(false);
+            }}>
             <Text style={styles.cancelBtnText}>Volver</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.saveBtn} onPress={handleChangePassword}>
+          <TouchableOpacity style={styles.saveBtn} onPress={() => {
+              handleChangePassword();
+              setShowCurrentPassword(false);   
+              setShowNewPassword(false);          
+              setShowConfirmPassword(false);     
+            }}>
             <Text style={styles.saveBtnText}>Confirmar</Text>
           </TouchableOpacity>
         </ModalFooter>
@@ -456,7 +599,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
-    backgroundColor: "#F9F9FF",
+    backgroundColor: "#white",
   },
   inputDisabled: {
     backgroundColor: "#ECECFF",
