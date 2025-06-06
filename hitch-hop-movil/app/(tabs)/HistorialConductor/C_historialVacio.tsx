@@ -16,7 +16,7 @@ export default function C_historialVacio() {
           resizeMode="cover"
         />
         <Image
-          source={require('@/assets/images/hitchhop-logo.png')}
+          source={require('@/assets/images/HHlogo.pngg')}
           style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
           resizeMode="contain"
         />
@@ -50,7 +50,7 @@ export default function C_historialVacio() {
 
         {/* Gato imagen */}
         <Image
-          source={require('@/assets/images/gatohistorial.png')}
+          source={require('@/assets/images/gatoautosConductor.png')}
           style={{ width: 180, height: 260, marginVertical: 16 }}
           resizeMode="contain"
         />
