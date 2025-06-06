@@ -186,7 +186,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Buttons */}
-            <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-3">
+            <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-2">
               <TouchableOpacity 
                 className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
                 onPress={() => router.back()}
@@ -214,7 +214,7 @@ export default function LoginScreen() {
             <Text className="text-[16px] text-black" style={{ fontFamily: 'Exo_500Medium' }}>
               ¿No tienes cuenta?{' '}
               <Text 
-                className="text-[16px] text-[#7875F8]"
+                className="text-[15px] text-[#7875F8]"
                 style={{ fontFamily: 'Exo_500Medium' }}
                 onPress={() => Alert.alert('Info', 'Función de registro próximamente')}
               >
