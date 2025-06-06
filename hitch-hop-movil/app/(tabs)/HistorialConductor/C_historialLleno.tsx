@@ -16,8 +16,13 @@ export default function C_HistorialLleno() {
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
         <Image
           source={require('@/assets/images/HHlogo.png')}
-          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
-          resizeMode="cover"
+          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}             
+          resizeMode="cover"              
+        />
+        <Image
+          source={require('@/assets/images/HHlogo.pngg')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"          
         />
       </View>
 
@@ -93,7 +98,7 @@ export default function C_HistorialLleno() {
                   paddingHorizontal: 14,
                   marginLeft: 8,
                 }}
-                onPress={() => router.push()}
+                onPress={() => router.push("/(tabs)/HistorialConductor/C_detHistorial")}
               >
                 <Text style={{ color: '#FFB800', fontWeight: 'bold', fontSize: 15 }}>Detalles</Text>
               </TouchableOpacity>

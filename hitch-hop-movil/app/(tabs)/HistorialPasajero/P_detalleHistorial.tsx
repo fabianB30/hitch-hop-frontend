@@ -12,13 +12,13 @@ export default function P_detalleHistorial() {
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
         <Image
           source={require('@/assets/images/HHlogo.png')}
-          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
-          resizeMode="cover"
+          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}             
+          resizeMode="cover"              
         />
         <Image
-          source={require('@/assets/images/hitchhop-logo.png')}
+          source={require('@/assets/images/HHlogo.pngg')}
           style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"
+          resizeMode="contain"          
         />
       </View>
 
@@ -49,12 +49,6 @@ export default function P_detalleHistorial() {
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
-          {/* Imagen de mapa */}
-          <Image
-            source={"asset"}
-            style={{ width: '100%', height: 120, borderRadius: 16, marginBottom: 16 }}
-            resizeMode="cover"
-          />
 
           {/* Conductor */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
