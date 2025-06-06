@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 
 export default function C_detHistorial() {
+  const router = useRouter();
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
       {/* Fondo superior con logo */}
@@ -26,7 +29,7 @@ export default function C_detHistorial() {
       }}>
         {/* Flecha back y título */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/HistorialConductor/C_historialLleno')}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
