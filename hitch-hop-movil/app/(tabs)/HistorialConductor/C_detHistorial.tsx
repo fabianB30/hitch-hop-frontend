@@ -12,13 +12,20 @@ export default function C_detHistorial() {
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
         <Image
           source={require('@/assets/images/HHlogo.png')}
-          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}             
-          resizeMode="cover"              
+          style={{
+            width: '160%',
+            height: '100%',
+            position: 'absolute',
+            top: -20,
+            left: '-10%',
+          }}
+          resizeMode="cover"
         />
+        {/* Logo encima del fondo */}
         <Image
-          source={require('@/assets/images/HHlogo.png')}
+          source={require('@/assets/images/HHLogoDisplay.png')}
           style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"          
+          resizeMode="contain"
         />
       </View>
 

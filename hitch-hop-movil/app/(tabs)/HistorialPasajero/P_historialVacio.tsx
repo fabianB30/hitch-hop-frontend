@@ -8,19 +8,25 @@ export default function P_historialVacio() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
-      {/* Fondo superior con logo */}
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-        <Image
-          source={require('@/assets/images/HHlogo.png')}
-          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}             
-          resizeMode="cover"              
-        />
-        <Image
-          source={require('@/assets/images/HHlogo.png')}
-          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"          
-        />
-      </View>
+                    <Image
+                      source={require('@/assets/images/HHlogo.png')}
+                      style={{
+                        width: '160%',
+                        height: '100%',
+                        position: 'absolute',
+                        top: -20,
+                        left: '-10%',
+                      }}
+                      resizeMode="cover"
+                    />
+                    {/* Logo encima del fondo */}
+                    <Image
+                      source={require('@/assets/images/HHLogoDisplay.png')}
+                      style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+                      resizeMode="contain"
+                    />
+                  </View>
 
       {/* Contenido principal */}
       <View style={{

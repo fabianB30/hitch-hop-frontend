@@ -8,14 +8,25 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
-      {/* Fondo superior con logo */}
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-        <Image
-          source={require('@/assets/images/HHlogo.png')}
-          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
-          resizeMode="cover"
-        />
-      </View>
+                    <Image
+                      source={require('@/assets/images/HHlogo.png')}
+                      style={{
+                        width: '160%',
+                        height: '100%',
+                        position: 'absolute',
+                        top: -20,
+                        left: '-10%',
+                      }}
+                      resizeMode="cover"
+                    />
+                    {/* Logo encima del fondo */}
+                    <Image
+                      source={require('@/assets/images/HHLogoDisplay.png')}
+                      style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+                      resizeMode="contain"
+                    />
+                  </View>
 
       {/* Contenido principal */}
       <View style={{
@@ -57,10 +68,10 @@ export default function Home() {
         >
           <Image
             source={require('@/assets/images/conductorFlor.png')}
-            style={{ width: 200, height: 120, marginBottom: 8 }}
+            style={{ width: 350, height: 250, marginBottom: 8 }}
             resizeMode="contain"
           />
-          <Text style={{ color: '#7B61FF', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>Conductor</Text>
+          <Text style={{ color: '#7B61FF', fontWeight: 'bold', fontSize: 18, marginBottom: 8, marginTop: -80 }}>Conductor</Text>
         </TouchableOpacity>
 
         {/* Opción Pasajero */}
@@ -76,10 +87,10 @@ export default function Home() {
         >
           <Image
             source={require('@/assets/images/pasajeroEstrella.png')}
-            style={{ width: 200, height: 120, marginBottom: 8 }}
+            style={{ width: 350, height: 250, marginBottom: 8 }}
             resizeMode="contain"
           />
-          <Text style={{ color: '#7B61FF', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }}>Pasajero</Text>
+          <Text style={{ color: '#7B61FF', fontWeight: 'bold', fontSize: 18, marginBottom: 8, marginTop: -80 }}>Pasajero</Text>
         </TouchableOpacity>
       </View>
 
