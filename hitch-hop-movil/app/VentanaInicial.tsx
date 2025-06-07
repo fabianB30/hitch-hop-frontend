@@ -24,6 +24,7 @@ export default function VentanaIncial() {
           alt="HitchHop Fondo"
           resizeMode="contain"
         />
+        
       </Box>
       <Box
         style={{
