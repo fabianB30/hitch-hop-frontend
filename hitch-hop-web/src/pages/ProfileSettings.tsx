@@ -242,81 +242,114 @@ const ProfileSettings: React.FC = () => {
           </form>
 
 
-          {/* Dialogo para cambiar password */}
-          <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
-              </DialogHeader>
+         {/* Dialogo para cambiar password */}
+        <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
+            </DialogHeader>
 
-              <div className="space-y-6 mt-4">
-                {/* Contraseña actual */}
-                <div className="flex flex-col gap-y-3">
-                  <Label>Contraseña actual <span className="text-red-500">*</span></Label>
+            <div className="space-y-6 mt-4">
+              {/* Contraseña actual */}
+              <div className="flex flex-col gap-y-3">
+                <Label>Contraseña actual <span className="text-red-500">*</span></Label>
+                <div className="relative">
                   <Input
-                    type="password"
+                    type={showCurrentPassword ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="pr-12"
                   />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowCurrentPassword((v) => !v)}
+                    tabIndex={-1}
+                  >
+                    {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
-
-                {/* Contraseña nueva */}
-                <div className="flex flex-col gap-y-3">
-                  <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
-                  <Input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                  {newPassword && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) && (
-                    <p className="text-red-500 text-sm mt-1">
-                      Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
-                    </p>
-                  )}
-                </div>
-
-                {/* Confirmar contraseña */}
-                <div className="flex flex-col gap-y-3">
-                  <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
-                  <Input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                  {confirmPassword && newPassword !== confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
-                  )}
-                </div>
-
-                <p className="text-xs text-red-500">* Información obligatoria</p>
               </div>
 
-              <DialogFooter className="flex justify-between mt-6">
-                <Button variant="ghost" onClick={() => setShowPasswordModal(false)} className="text-blue-600">
-                  Volver
-                </Button>
-                <Button
-                  className="bg-[#7875F8] text-white"
-                  disabled={
-                    !currentPassword ||
-                    !newPassword ||
-                    !confirmPassword ||
-                    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
-                    newPassword !== confirmPassword
-                  }
-                  onClick={() => {
-                    // Aquí iría la lógica real para guardar contraseña
-                    setShowPasswordModal(false);
-                    setCurrentPassword("");
-                    setNewPassword("");
-                    setConfirmPassword("");
-                  }}
-                >
-                  Confirmar cambios
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              {/* Contraseña nueva */}
+              <div className="flex flex-col gap-y-3">
+                <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
+                <div className="relative">
+                  <Input
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="pr-12"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowNewPassword((v) => !v)}
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                {newPassword && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
+                  </p>
+                )}
+              </div>
+
+              {/* Confirmar contraseña */}
+              <div className="flex flex-col gap-y-3">
+                <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pr-12"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
+                )}
+              </div>
+
+              <p className="text-xs text-red-500">* Información obligatoria</p>
+            </div>
+
+            <DialogFooter className="flex justify-between mt-6">
+              <Button variant="ghost" onClick={() => setShowPasswordModal(false)} className="text-blue-600">
+                Volver
+              </Button>
+              <Button
+                className="bg-[#7875F8] text-white"
+                disabled={
+                  !currentPassword ||
+                  !newPassword ||
+                  !confirmPassword ||
+                  !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
+                  newPassword !== confirmPassword
+                }
+                onClick={() => {
+                  // Aquí iría la lógica real para guardar contraseña
+                  setShowPasswordModal(false);
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                }}
+              >
+                Confirmar cambios
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
 
 
