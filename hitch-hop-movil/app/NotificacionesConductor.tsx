@@ -86,7 +86,7 @@ export default function NotificacionesConductor (){
                 <Image style={styles.fondo} source={require("@/assets/images/fondoNotificaciones.png")} resizeMode="cover"/>
             </Box>
         
-            <Box style={{height: 30}}/>  {/* Espacio de barra de notificaciones */}
+            <Box style={{height: 30}}/>  
 
             <Box style={styles.header}>
                 <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
@@ -257,8 +257,9 @@ const styles = StyleSheet.create({
     cardHeadSize: {
     },
     cardHeadFont: {
-        height: 22,
-        fontSize: 24,
+        height: 25,
+        maxHeight: 70, 
+        fontSize: 20,
         fontFamily: "Exo_700Bold",
         color: "black"
     },
