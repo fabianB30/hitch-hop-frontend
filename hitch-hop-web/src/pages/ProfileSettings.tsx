@@ -325,7 +325,16 @@ const ProfileSettings: React.FC = () => {
             </div>
 
             <DialogFooter className="flex justify-between mt-6">
-              <Button variant="ghost" onClick={() => setShowPasswordModal(false)} className="text-blue-600">
+              <Button variant="ghost" onClick={() => {
+                    setShowPasswordModal(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setShowCurrentPassword(false);
+                    setShowNewPassword(false);
+                    setShowConfirmPassword(false);
+                    setPasswordsMatch(true);
+                  }} className="text-blue-600">
                 Volver
               </Button>
               <Button
