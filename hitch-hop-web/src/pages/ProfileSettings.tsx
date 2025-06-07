@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
 import { format } from "date-fns";
 
 const initialUser = {
@@ -43,6 +43,7 @@ const ProfileSettings: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,6 +110,22 @@ const ProfileSettings: React.FC = () => {
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
+
+  const handleChangePassword = (key: keyof typeof userData, value: string) => {
+    // validaciones
+
+    if (newPassword !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+    // Logica para guardar la nueva contraseña
+    
+    setShowPasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setUserData((prev) => ({ ...prev, [key]: value })); 
+  }
 
   const handleEditPhoto = () => {
     fileInputRef.current?.click();
@@ -223,6 +240,87 @@ const ProfileSettings: React.FC = () => {
               </Button>
             </div>
           </form>
+
+
+          {/* Dialogo para cambiar password */}
+          <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-4">
+                {/* Contraseña actual */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Contraseña actual <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+
+                {/* Contraseña nueva */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  {newPassword && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirmar contraseña */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  {confirmPassword && newPassword !== confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
+                  )}
+                </div>
+
+                <p className="text-xs text-red-500">* Información obligatoria</p>
+              </div>
+
+              <DialogFooter className="flex justify-between mt-6">
+                <Button variant="ghost" onClick={() => setShowPasswordModal(false)} className="text-blue-600">
+                  Volver
+                </Button>
+                <Button
+                  className="bg-[#7875F8] text-white"
+                  disabled={
+                    !currentPassword ||
+                    !newPassword ||
+                    !confirmPassword ||
+                    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
+                    newPassword !== confirmPassword
+                  }
+                  onClick={() => {
+                    // Aquí iría la lógica real para guardar contraseña
+                    setShowPasswordModal(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }}
+                >
+                  Confirmar cambios
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+
+
+
         </div>
       </main>
     </div>
