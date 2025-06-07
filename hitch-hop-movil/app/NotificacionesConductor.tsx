@@ -5,31 +5,77 @@ import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { Platform, StyleSheet } from 'react-native';
-import { Heading } from "@/components/ui/heading";
+import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, Calendar, ChevronLeft, SignalZero } from "lucide-react-native"
+import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
+import { ScrollView } from "react-native";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-const imageWidth = windowWidth + 62;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
-const headerHeight = windowHeight * 0.15;
 
-const notificaciones = [
+const notificaciones: any[] = [
     {
         id: 0,
         tipo: "SP",
-        fecha: "01/04/2004",
-        hora: "00:11:30HH"
+        fecha: "Lun. 14 de abril, 2025.",
+        hora: "11:55am"
     },
     {
         id: 1,
         tipo: "VC",
         lugar: "Estación del Pacífico",
-        hora: "00:12:30HH"
+        hora: "02:00pm"
+    },
+    {
+        id: 2,
+        tipo: "VC",
+        lugar: "Estación del Pacífico",
+        hora: "12:50pm"
+    },
+    {
+        id: 3,
+        tipo: "SP",
+        fecha: "Vie. 11 de abril, 2025.",
+        hora: "02:10pm"
+    },
+    {
+        id: 4,
+        tipo: "VC",
+        lugar: "Estación del Pacífico",
+        hora: "12:50pm"
+    },
+    {
+        id: 5,
+        tipo: "SP",
+        fecha: "Vie. 11 de abril, 2025.",
+        hora: "02:10pm"
+    },
+    {
+        id: 6,
+        tipo: "SP",
+        fecha: "Vie. 11 de abril, 2025.",
+        hora: "02:10pm"
+    },
+    {
+        id: 7,
+        tipo: "VC",
+        lugar: "Estación del Pacífico",
+        hora: "12:50pm"
+    },
+    {
+        id: 8,
+        tipo: "VC",
+        lugar: "Estación del Pacífico",
+        hora: "12:50pm"
+    },
+    {
+        id: 9,
+        tipo: "SP",
+        fecha: "Vie. 11 de abril, 2025.",
+        hora: "02:10pm"
     }
 ]
 
@@ -54,52 +100,77 @@ export default function NotificacionesConductor (){
                 </Box>
             </Box>
             
-            <Box>
-                <Box style={{left: windowWidth*0.04, marginTop: 15}}>
-                    <Text style={styles.tituloNotif}>
-                        Notificaciones
-                    </Text>
-                </Box>
-                <VStack space="lg" style={styles.notifBox}>
-                    <Card variant="filled" style={styles.cards}>
-                        <Heading style={styles.cardHeadSize}>
-                            <Text style={styles.cardHeadFont}>
-                                Viaje cancelado
-                            </Text>
-                        </Heading>
-                        <HStack space="sm" style={styles.hstackStyle}>
-                            <Icon color="#404040" as={MapPin} size="md"/>
-                            <Text size="sm" style={styles.lugarFechaFont}>
-                                Estación del Pacífico
-                            </Text>
-                        </HStack>
-                        <HStack space="sm" style={styles.hstackStyle}>
-                            <Icon color="#404040" as={ClockIcon} size="md"/>
-                            <Text size="sm" style={styles.horaFont}>
-                                11:55am
-                            </Text>
-                        </HStack>
-                    </Card>
-                    <Card variant="filled" style={styles.cards}>
-                        <Heading style={styles.cardHeadSize}>
-                            <Text style={styles.cardHeadFont}>
-                                Solicitud pendiente
-                            </Text>
-                        </Heading>
-                        <HStack space="sm" style={styles.hstackStyle}>
-                            <Icon as={Calendar} size="md"/>
-                            <Text size="sm" style={styles.lugarFechaFont}>
-                                Lun. 14 de abril, 2025.
-                            </Text>
-                        </HStack>
-                        <HStack space="sm" style={styles.hstackStyle}>
-                            <Icon color="#404040" as={ClockIcon} size="md"/>
-                            <Text size="sm" style={styles.horaFont}>
-                                11:55am
-                            </Text>
-                        </HStack>
-                    </Card>
-                </VStack>
+            <Box style={{left: windowWidth*0.04, marginTop: 15}}>
+                <Text style={styles.tituloNotif}>
+                    Notificaciones
+                </Text>
+            </Box>
+            <Box style={{width: windowWidth, height: windowHeight*0.86, alignContent: "center", alignItems: "center"}}>
+                {notificaciones.length === 0 ? (
+                    <Box style={styles.noNotifs}>
+                        <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain"/>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 24, marginTop: 12, color: "black"}}>
+                            ¡No hay notificaciones!
+                        </Text>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 18, marginTop: 12, color: "black"}}>
+                            Las notificaciones aparecen aquí.
+                        </Text>
+                    </Box>
+                ) : (
+                <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 40}} horizontal={false} style={styles.scroll}>
+                    <VStack space="lg" style={styles.notifBox}>
+                        
+                        {notificaciones.map((notif) => {
+                            return (
+                            <Card key={notif.id} variant="filled" style={styles.cards}>
+
+                                    <Text style={styles.cardHeadFont}>
+                                        {notif.tipo === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}
+                                    </Text>
+
+
+                                {notif.tipo === "SP" ? (
+                                <>
+                                    <HStack space="sm" style={styles.hstackStyle}>
+                                        <Icon as={Calendar} size="md" />
+                                        <Text size="sm" style={styles.lugarFechaFont}>
+                                            {notif.fecha}
+                                        </Text>
+                                    </HStack>
+                                    <HStack space="sm" style={styles.hstackStyle}>
+                                        <Icon color="#404040" as={ClockIcon} size="md" />
+                                        <Text size="sm" style={styles.horaFont}>
+                                            {notif.hora}
+                                        </Text>
+                                    </HStack>
+                                    <Box style={styles.spButtonBox}>
+                                        <Button  style={styles.spButton}>
+                                            <ButtonText style={styles.spButtonText}>Ver</ButtonText>
+                                        </Button>
+                                    </Box>
+                                </>
+                                ) : (
+                                <>
+                                    <HStack space="sm" style={styles.hstackStyle}>
+                                        <Icon as={MapPin} size="md" />
+                                        <Text size="sm" style={styles.lugarFechaFont}>
+                                            {notif.lugar}
+                                        </Text>
+                                    </HStack>
+                                    <HStack space="sm" style={styles.hstackStyle}>
+                                        <Icon color="#404040" as={ClockIcon} size="md" />
+                                        <Text size="sm" style={styles.horaFont}>
+                                            {notif.hora}
+                                        </Text>
+                                    </HStack>
+                                </>
+                                )}
+                            </Card>
+                            );
+                        })}
+                    </VStack>
+                </ScrollView>
+                )}
             </Box>
         </Box>
     )
@@ -158,8 +229,21 @@ const styles = StyleSheet.create({
         fontFamily: "Exo_600SemiBold",
         color: "black"
     },
+    imagenNoNotis: {
+        height: windowHeight*0.3,
+        transform: [{ scale: 2.6 }, { translateX: 0 }, { translateY: -10 }]
+    },
+    noNotifs: {
+        flex: 1,
+        position: "fixed",
+        justifyContent: "center",
+        alignContent: "center",
+        marginTop: 28
+    },
+    scroll: {
+        marginTop: 28
+    },
     notifBox: {
-        marginTop: 28,
         justifyContent: "center",
         alignItems: "center"
     },
@@ -167,12 +251,13 @@ const styles = StyleSheet.create({
         width: 345,
         height: 107,
         backgroundColor: "#ECECFF",
-        borderRadius: 8
+        borderRadius: 8,
+        position: "relative"
     },
     cardHeadSize: {
-        height: 22
     },
     cardHeadFont: {
+        height: 22,
         fontSize: 24,
         fontFamily: "Exo_700Bold",
         color: "black"
@@ -180,12 +265,36 @@ const styles = StyleSheet.create({
     lugarFechaFont: {
         fontSize: 18,
         fontFamily: "Exo_500Medium",
-        color: "#404040"
+        color: "#404040",
+        top: 2
     },
     horaFont: {
         fontSize: 14,
         fontFamily: "Exo_500Medium",
-        color: "#404040"
+        color: "#404040",
+        top: 2
+    },
+    spButtonBox: {
+        justifyContent: "flex-end",
+        flexDirection: "row",
+        alignContent: "center",
+        position: "absolute",
+        right: 15,
+        bottom: 15,
+        height: 27,
+        width: "auto"
+    },
+    spButton: {
+        backgroundColor: "#7875F8",
+        borderRadius: 8,
+        height: 27,
+        width: 61
+    },
+    spButtonText: {
+        width: 29,
+        fontFamily: "Exo_500Medium",
+        fontSize: 20,
+        color: "white"
     },
     hstackStyle: {
         marginLeft: 6,
