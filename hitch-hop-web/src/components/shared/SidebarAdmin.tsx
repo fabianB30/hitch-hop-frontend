@@ -11,18 +11,44 @@ import {
   SidebarProvider
 } from "@/components/ui/sidebar";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 // lista de dirs del sidebar
 const items = [
   { title: "Inicio", url: "/", icon: Home },
-  { title: "Gestión de Usuarios", url: "/gestion", icon: Users },
-  { title: "Gestión de Perfil", url: "/perfil", icon: User },
-  { title: "Consultas", url: "/consultas", icon: Search },
+  { title: "Gestión de Usuarios", url: "/users-management", icon: Users },
+  { title: "Gestión de Perfil", url: "/profile-settings", icon: User },
+  {
+    title: "Consultas",
+    icon: Search,
+    children: [
+      { title: "Viajes", url: "/consultas/total-viajes" },
+      { title: "Promedio de cobros", url: "/consultas/promedio-monto" },
+      { title: "Conductores con más viajes", url: "/consultas/top-conductores" },
+      { title: "Usuarios con más viajes", url: "/consultas/top-usuarios" },
+      { title: "Puntos recurrentes", url: "/consultas/puntos-recurrentes" },
+      { title: "Nuevos usuarios", url: "/consultas/usuarios-nuevos" },
+      { title: "Cancelaciones", url: "/consultas/top-cancelaciones" },
+      { title: "Viajes gratuitos", url: "/consultas/top-gratis" },
+      { title: "Viajes más caros", url: "/consultas/top-viajes-caros" },
+      { title: "Pasajeros únicos", url: "/consultas/pasajeros-unicos" }
+    ],
+  },
   { title: "Estadísticas", url: "/estadistica", icon: ChartNoAxesColumnIncreasing },
 ];
 
+
 export default function SidebarAdmin() {
   const location = useLocation();
+
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  const toggleMenu = (title: string) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
 
   return (
     <SidebarProvider>
@@ -30,8 +56,12 @@ export default function SidebarAdmin() {
         <SidebarHeader className="bg-[color:var(--primary-300)]">
           <div className="flex items-center gap-2 px-4 py-2">
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="text-[36px] font-black text-[color:var(--text-50)]">HitchHop</span>
-              <span className="text-2xl font-logo text-[color:var(--text-50)]">Administrador</span>
+              <span className="text-[36px] font-black text-[color:var(--text-50)]">
+                HitchHop
+              </span>
+              <span className="text-2xl font-logo text-[color:var(--text-50)]">
+                Administrador
+              </span>
             </div>
           </div>
         </SidebarHeader>
@@ -41,22 +71,84 @@ export default function SidebarAdmin() {
               <SidebarMenu>
                 {items.map((item) => {
                   const isActive = location.pathname === item.url;
+                  const isOpen = openMenus[item.title] || false;
 
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton
+                        asChild
+                        onClick={() => {
+                          if (item.children) {
+                            toggleMenu(item.title);
+                          }
+                        }}
+                      >
                         <NavLink
-                          to={item.url}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors ${
+                          to={item.url ?? "#"}
+                          className={`flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-[16px] ${
                             isActive
-                              ? "bg-background text-[color:var(--primary-300)] border-[color:var(--primary-900)]"
+                              ? "bg-background text-[color:var(--Primary-primary300)] border-[color:var(--primary-900)]"
                               : "text-[color:var(--text-50)] hover:bg-[color:var(--primary-100)] hover:text-[color:var(--primary-900)]"
                           }`}
                         >
-                          <item.icon className="size-4" />
+                          {item.icon && <item.icon className="size-4" />}
                           <span>{item.title}</span>
                         </NavLink>
                       </SidebarMenuButton>
+
+                      {item.children && isOpen && (
+                        <div className="ml-2 mt-1 flex flex-col gap-1">
+                          <div
+                            className="flex flex-col gap-1 rounded-lg"
+                            style={{
+                              backgroundColor: "var(--Primary-primary0, #ECECFF)",
+                              alignSelf: "stretch",
+                              padding: "0px 16px 0px 8px",
+                            }}
+                          >
+                            {item.children.map((child) => {
+                              const isChildActive = location.pathname === child.url;
+                              return (
+                                <SidebarMenuButton key={child.title} asChild>
+                                  <NavLink
+                                    to={child.url ?? "#"}
+                                    className={`flex items-center gap-[14px] h-[26px] rounded-lg transition-colors ${
+                                      isChildActive
+                                        ? "bg-[color:var(--Primary-primary0,#ECECFF)] border border-[color:var(--Primary-primary0,#ECECFF)]"
+                                        : "hover:bg-[color:var(--primary-100)]"
+                                    }`}
+                                    style={{
+                                      padding: "0px 16px 0px 8px",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        display: "flex",
+                                        height: "52px",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        flex: "1 0 0",
+                                        overflow: "hidden",
+                                        color: "var(--Primary-primary300, #7875F8)",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                        fontFamily: "Exo",
+                                        fontSize: "14px",
+                                        fontStyle: "normal",
+                                        fontWeight: 500,
+                                        lineHeight: "normal",
+                                      }}
+                                    >
+                                      {child.title}
+                                    </span>
+                                  </NavLink>
+                                </SidebarMenuButton>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                     </SidebarMenuItem>
                   );
                 })}

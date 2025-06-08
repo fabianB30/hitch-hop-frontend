@@ -1,38 +1,67 @@
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";   
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 import Home from "@/pages/main/Home";
+import TopConductores from "@/pages/consultas/TopConductores";
+import PuntosRecurrentes from "@/pages/consultas/PuntosRecurrentes";
+import TopUsuarios from "@/pages/consultas/TopUsuarios";
+import NuevosUsuarios from "@/pages/consultas/NuevosUsuarios";
+import TopCancelaciones from "@/pages/consultas/TopCancelaciones";
+import TopGratis from "@/pages/consultas/TopGratis";
+import TopViajesCaros from "@/pages/consultas/TopViajesCaros";
+import PasajerosUnicos from "@/pages/consultas/PasajerosUnicos";
+import TotalViajes from "@/pages/consultas/TotalViajes";
+import PromedioMonto from "@/pages/consultas/PromedioMonto";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
+import Bienvenida from "@/pages/main/Bienvenida";
 
-// imports de paginas temporales, reemplazan por los suyos
-import InicioTemp from "@/components/shared/temp/InicioTemp";
-import GestionTemp from "@/components/shared/temp/GestionTemp";
-import PerfilTemp from "@/components/shared/temp/PerfilTemp";
-import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
-import StatsTemp from "@/components/shared/temp/StatsTemp";
-import Login from "@/pages/1.3-inicio-de-sesion/Login";
-import DownloadApp from "@/pages/1.3-inicio-de-sesion/download-app";
+import InicioTemp from "../components/shared/temp/InicioTemp";
+import GestionTemp from "../components/shared/temp/GestionTemp";
+import PerfilTemp from "../components/shared/temp/PerfilTemp";
+import ConsultasTemp from "../components/shared/temp/ConsultasTemp";
+import StatisticsPage from "../pages/statistics/StatisticsPage";
+import ProfileSettings from "@/pages/ProfileSettings";
+import UsersManagement from "@/pages/UsersManagement";
+import Register from "@/pages/1.1-registro-de-usuario/Register";
 
 const router = createBrowserRouter(
-    createRoutesFromElements(
-        <>
-            {/* Rutas públicas */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/download" element={<DownloadApp />} />
+  createRoutesFromElements(
+    <>
+      {/* Página de inicio sin sidebar */}
+      <Route path="/" element={<Home />} />
+      <Route path="/bienvenida" element={<Bienvenida />} />
+      <Route path="/registro" element={<Register />}/>
+      <Route path="/login" element={<Login />} />
+      <Route path="/download" element={<DownloadApp />} />
+      {/* Rutas con SidebarAdmin */}
+      <Route path="/" element={<SidebarAdmin />}>
+        <Route path="inicio" element={<InicioTemp />} />
+        <Route path="gestion" element={<GestionTemp />} />
+        <Route path="perfil" element={<PerfilTemp />} />
+        <Route path="consultas" element={<ConsultasTemp />} />
+        <Route path="estadistica" element={<StatisticsPage />} />
+        <Route path="/profile-settings" element={<ProfileSettings />} />
+        <Route path="/users-management" element={<UsersManagement />} />
+        <Route path="consultas" element={<ConsultasTemp />}>
+          <Route path="top-conductores" element={<TopConductores />} />
+          <Route path="puntos-recurrentes" element={<PuntosRecurrentes />} />
+          <Route path="top-usuarios" element={<TopUsuarios />} />
+          <Route path="usuarios-nuevos" element={<NuevosUsuarios />} />
+          <Route path="top-cancelaciones" element={<TopCancelaciones />} />
+          <Route path="top-gratis" element={<TopGratis />} />
+          <Route path="top-viajes-caros" element={<TopViajesCaros />} />
+          <Route path="pasajeros-unicos" element={<PasajerosUnicos />} />
+          <Route path="total-viajes" element={<TotalViajes />} />
+          <Route path="promedio-monto" element={<PromedioMonto />} />
+        </Route>
+      </Route>
+    </>
+  )
+);
 
-            <Route path="/" element={<SidebarAdmin />}>
-                <Route index element={<Home />} />
-                {/* rutas temporales para el sidebar, acá se cambian por las suyas :) */}
-                {/* si su seccion tiene varias pantallas, hacerlas anidadas please */}
-                <Route path="inicio" element={<InicioTemp />} />
-                <Route path="gestion" element={<GestionTemp />} />
-                <Route path="perfil" element={<PerfilTemp />} />
-                <Route path="consultas" element={<ConsultasTemp />} />
-                <Route path="estadistica" element={<StatsTemp />} />
-            </Route>
-        </>
-    )
-    
-)
+const Router = () => <RouterProvider router={router} />;
 
-const Router = () => <RouterProvider router={router}/>
-
-export default Router; 
+export default Router;
