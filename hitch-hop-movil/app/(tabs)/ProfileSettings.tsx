@@ -11,7 +11,7 @@ import { Select, SelectError } from "@/components/ui/select";
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Eye, EyeOff } from "lucide-react-native";
-
+//import { Request } from '../../../interconnection/user';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
@@ -90,8 +90,12 @@ export default function ProfileSettings() {
 
   const toggleEdit = () => {
   if (!editable) {
+
+
+
     setBackupData(userData);
     setEditable(true);
+  
   } else {
     const isValid = validateUserData(userData);
     if (!isValid) {
