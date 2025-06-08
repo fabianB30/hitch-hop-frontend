@@ -15,8 +15,8 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 // lista de dirs del sidebar
 const items = [
   { title: "Inicio", url: "/", icon: Home },
-  { title: "Gestión de Usuarios", url: "/gestion", icon: Users },
-  { title: "Gestión de Perfil", url: "/perfil", icon: User },
+  { title: "Gestión de Usuarios", url: "/users-management", icon: Users },
+  { title: "Gestión de Perfil", url: "/profile-settings", icon: User },
   { title: "Consultas", url: "/consultas", icon: Search },
   { title: "Estadísticas", url: "/estadistica", icon: ChartNoAxesColumnIncreasing },
 ];
