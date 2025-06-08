@@ -35,13 +35,13 @@ export default function Index() {
       >
         <Pressable
           style={{ padding: 16, backgroundColor: "#007AFF", borderRadius: 8 }}
-          onPress={() => router.push("/(tabs)/ViajesPasajero")}
+          onPress={() => router.replace("/(tabs)/ViajesPasajero")}
         >
           <Text style={{ color: "#fff" }}>Ver viajes como pasajero</Text>
         </Pressable>
         <Pressable
           style={{ padding: 16, backgroundColor: "#007AFF", borderRadius: 8 }}
-          onPress={() => router.push("/(tabs)/ViajesConductor")}
+          onPress={() => router.replace("/(tabs)/ViajesConductor")}
         >
           <Text style={{ color: "#fff" }}>Ver viajes como conductor</Text>
         </Pressable>
