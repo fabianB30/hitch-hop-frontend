@@ -50,12 +50,12 @@ Node es requisito para correr los proyectos.
 ## Comandos 
 Para ejecutar el proyecto web: 
     cd hitch-hop-web
-    npm i 
+    npm install --legacy-peer-deps
     npm run dev
 
 Para ejecutar el proyecto movil: 
     cd hitch-hop-movil
-    npm i 
+    npm install --legacy-peer-deps
     npx expo start 
 
 
