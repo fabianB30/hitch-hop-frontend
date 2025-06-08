@@ -11,7 +11,14 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'SpaceMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'Exo': require('../assets/fonts/static/Exo-Regular.ttf'),
+    'Exo-Bold': require('../assets/fonts/static/Exo-Bold.ttf'),
+    'Exo-Italic': require('../assets/fonts/static/Exo-Italic.ttf'),
+    'Exo-BoldItalic': require('../assets/fonts/static/Exo-BoldItalic.ttf'),
+    'Exo-ExtraBold': require('../assets/fonts/static/Exo-ExtraBold.ttf'),
+    'Exo-ExtraBoldItalic': require('../assets/fonts/static/Exo-ExtraBoldItalic.ttf'),
+    'Exo-Light': require('../assets/fonts/static/Exo-Light.ttf'),
   });
 
   if (!loaded) {
