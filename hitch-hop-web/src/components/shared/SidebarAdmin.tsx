@@ -22,13 +22,16 @@ const items = [
     title: "Consultas",
     icon: Search,
     children: [
+      { title: "Viajes", url: "/consultas/total-viajes" },
+      { title: "Promedio de cobros", url: "/consultas/promedio-monto" },
       { title: "Conductores con más viajes", url: "/consultas/top-conductores" },
       { title: "Usuarios con más viajes", url: "/consultas/top-usuarios" },
       { title: "Puntos recurrentes", url: "/consultas/puntos-recurrentes" },
       { title: "Nuevos usuarios", url: "/consultas/usuarios-nuevos" },
       { title: "Cancelaciones", url: "/consultas/top-cancelaciones" },
       { title: "Viajes gratuitos", url: "/consultas/top-gratis" },
-      { title: "Viajes más caros", url: "/consultas/top-viajes-caros" }
+      { title: "Viajes más caros", url: "/consultas/top-viajes-caros" },
+      { title: "Pasajeros únicos", url: "/consultas/pasajeros-unicos" }
     ],
   },
   { title: "Estadísticas", url: "/estadistica", icon: ChartNoAxesColumnIncreasing },
