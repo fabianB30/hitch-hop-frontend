@@ -5,7 +5,7 @@ import { Dialog,DialogTrigger,DialogContent,DialogHeader,DialogFooter,DialogTitl
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-
+import { ChevronLeft } from "lucide-react";
 const users = [
   { id: 123, username: "fabianB30", email: "frojas@estudiantec.cr", type: "Conductor", date: "Dec 5", institution: "ITCR" },
   { id: 124, username: "gerardo510", email: "gcorrales@estudiantec.cr", type: "Pasajero", date: "Nov 29", institution: "ITCR" },
@@ -119,7 +119,7 @@ const UsersManagement: React.FC = () => {
           variant="outline"
           onClick={onBack}
         >
-          ◄
+          <ChevronLeft />
         </Button>
         <h1 className="text-[36px] font-bold text-[#171717] mb-0">Detalles de Usuario</h1>
       </div>
