@@ -56,7 +56,7 @@ const busquedaMain = () => {
                 </VStack>
 
                 <Image 
-                source={require("@/assets/images/conductorFlor.png")}
+                source={require("@/assets/images/conductorFlorSquare.png")}
                 style={styles.charaImage}/>
                 
                 <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
