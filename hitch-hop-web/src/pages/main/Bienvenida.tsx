@@ -66,7 +66,7 @@ export default function Bienvenida() {
 
           {/* no tienen el punto ese blanco en el centro pero ni se nota y lo hace menos usable :P */}
 
-            <Link to={"/gestion"}>
+            <Link to={"/users-management"}>
               <img
                 src={Boton1}
                 alt="Gestión de Usuarios"
@@ -75,7 +75,7 @@ export default function Bienvenida() {
             </Link>
 
 
-            <Link to={"/perfil"}>
+            <Link to={"/profile-settings"}>
               <img
                 src={Boton2}
                 alt="Gestión de Perfil"
