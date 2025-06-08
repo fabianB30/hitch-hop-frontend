@@ -18,7 +18,6 @@ import PromedioMonto from "@/pages/consultas/PromedioMonto";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
 import Bienvenida from "@/pages/main/Bienvenida";
 
-// imports de paginas temporales, reemplazan por los suyos
 import InicioTemp from "../components/shared/temp/InicioTemp";
 import GestionTemp from "../components/shared/temp/GestionTemp";
 import PerfilTemp from "../components/shared/temp/PerfilTemp";
@@ -33,6 +32,7 @@ const router = createBrowserRouter(
       {/* Página de inicio sin sidebar */}
       <Route path="/" element={<Home />} />
       <Route path="/bienvenida" element={<Bienvenida />} />
+      <Route path="/registro" element={<Register />}/>
 
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
