@@ -18,7 +18,7 @@ const headerHeight = windowHeight * 0.15;
 export default function GestionPerfil(){
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
-      <Box style={{height: 30}}/>  {/* Espacio que toma en cuenta la barra de notificaciones */}
+      <Box style={{height: 30}}/>  
 
       <Box style={styles.header}>
           <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.06}}>
