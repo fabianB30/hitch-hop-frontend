@@ -6,7 +6,7 @@ import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
-import {AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 
 
@@ -41,17 +41,17 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    
+
     try {
-    // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
-    console.log('Iniciando sesión:', { email, password, rememberMe });
-    
-    // Simular una petición
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Navegar a la pantalla principal
-    router.push('/(tabs)');
-    
+      // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
+      console.log('Iniciando sesión:', { email, password, rememberMe });
+
+      // Simular una petición
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Navegar a la pantalla principal
+      router.push('/(tabs)');
+
     } catch (error) {
       console.error('Login error:', error);
       setErrorMessage('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
@@ -59,14 +59,14 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
-  };    
-  
+  };
+
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       className="flex-1"
     >
@@ -156,9 +156,9 @@ export default function LoginScreen() {
                 />
                 <InputSlot className="pr-3">
                   <TouchableOpacity onPress={toggleShowPassword}>
-                    <Ionicons 
-                      name={showPassword ? "eye" : "eye-off"} 
-                      size={20} 
+                    <Ionicons
+                      name={showPassword ? "eye" : "eye-off"}
+                      size={20}
                       color="#9CA3AF"
                     />
                   </TouchableOpacity>
@@ -168,13 +168,12 @@ export default function LoginScreen() {
 
             {/* Remember me checkbox */}
             <View className="flex-row items-center mb-3 ml-2">
-              <TouchableOpacity 
+              <TouchableOpacity
                 className="mr-2"
                 onPress={() => setRememberMe(!rememberMe)}
               >
-                <View className={`w-4 h-4 border-2 border-gray-400 rounded items-center justify-center ${
-                  rememberMe ? 'bg-[#7875F8] border-gray-500' : 'bg-white'
-                }`}>
+                <View className={`w-4 h-4 border-2 border-gray-400 rounded items-center justify-center ${rememberMe ? 'bg-[#7875F8] border-gray-500' : 'bg-white'
+                  }`}>
                   {rememberMe && (
                     <Ionicons name="checkmark" size={10} color="white" />
                   )}
@@ -187,19 +186,20 @@ export default function LoginScreen() {
 
             {/* Buttons */}
             <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-2">
-              <TouchableOpacity 
+              <TouchableOpacity
                 className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
                 onPress={() => router.back()}
               >
-                <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
-                  Volver
-                </Text>
+                <View className="h-10 justify-center">
+                  <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
+                    Volver
+                  </Text>
+                </View>
               </TouchableOpacity>
-                
-              <TouchableOpacity 
-                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${
-                  loading ? 'opacity-70' : ''
-                }`}
+
+              <TouchableOpacity
+                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${loading ? 'opacity-70' : ''
+                  }`}
                 onPress={handleLogin}
                 disabled={loading}
               >
@@ -208,12 +208,12 @@ export default function LoginScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </FormControl>          
+          </FormControl>
           {/* Register link */}
           <View className="items-center top-[210px]">
             <Text className="text-[16px] text-black" style={{ fontFamily: 'Exo_500Medium' }}>
               ¿No tienes cuenta?{' '}
-              <Text 
+              <Text
                 className="text-[15px] text-[#7875F8]"
                 style={{ fontFamily: 'Exo_500Medium' }}
                 onPress={() => Alert.alert('Info', 'Función de registro próximamente')}
