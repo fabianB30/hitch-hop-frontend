@@ -5,7 +5,7 @@ export default function IndexRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('./home/Pasajero');
+    router.replace('/(tabs)/home');
   }, [router]);
 
   return null;
