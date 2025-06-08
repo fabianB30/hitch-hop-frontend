@@ -8,8 +8,8 @@ import GestionTemp from "@/components/shared/temp/GestionTemp";
 import PerfilTemp from "@/components/shared/temp/PerfilTemp";
 import ConsultasTemp from "@/components/shared/temp/ConsultasTemp";
 import StatsTemp from "@/components/shared/temp/StatsTemp";
-import Login from "@/components/1.3-inicio-de-sesion/Login";
-import DownloadApp from "@/components/1.3-inicio-de-sesion/download-app";
+import Login from "@/pages/1.3-inicio-de-sesion/Login";
+import DownloadApp from "@/pages/1.3-inicio-de-sesion/download-app";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
