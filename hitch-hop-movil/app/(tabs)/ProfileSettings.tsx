@@ -12,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Eye, EyeOff } from "lucide-react-native";
 
-const ImagenBG = require("../assets/images/1.5-BG_ProfileSettings.png");
+const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
