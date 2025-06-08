@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
-
+import { loginRequest } from '../../../interconnection/user';
 
 export default function LoginScreen() {
   const [fontsLoaded] = useFonts({
@@ -43,14 +43,12 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
-      console.log('Iniciando sesión:', { email, password, rememberMe });
-
-      // Simular una petición
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      const user = await loginRequest({ email: email, password: password});
       // Navegar a la pantalla principal
-      router.push('/(tabs)');
+      if (user){
+        console.log(user.name);
+        router.push('/(tabs)');
+      }
 
     } catch (error) {
       console.error('Login error:', error);
