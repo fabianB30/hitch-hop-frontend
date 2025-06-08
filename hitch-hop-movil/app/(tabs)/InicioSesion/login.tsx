@@ -74,8 +74,8 @@ export default function LoginScreen() {
         <StatusBar style="light" />
         <ImageBackground
           source={require('@/assets/images/fondo-HitchHop.png')}
-          className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
-          resizeMode="contain"
+          className="absolute inset-0 w-full h-full"
+          resizeMode="cover"
         />
         {/* Logo*/}
         <View className="absolute justify-center items-center h-[80px] w-[270px] top-[80px]">
@@ -190,11 +190,9 @@ export default function LoginScreen() {
                 className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
                 onPress={() => router.back()}
               >
-                <View className="h-10 justify-center">
-                  <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
-                    Volver
-                  </Text>
-                </View>
+                <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
+                  Volver
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
