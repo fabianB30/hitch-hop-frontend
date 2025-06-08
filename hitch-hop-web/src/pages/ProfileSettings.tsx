@@ -145,7 +145,7 @@ const ProfileSettings: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-white flex">
       <main className="flex-1 flex flex-col px-12 py-8">
-        <span className="mt-16 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
+        <span className="mt-2 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
           Gestión de Perfil
         </span>
 
