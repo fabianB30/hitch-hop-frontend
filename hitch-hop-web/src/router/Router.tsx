@@ -25,6 +25,7 @@ import ConsultasTemp from "../components/shared/temp/ConsultasTemp";
 import StatisticsPage from "../pages/statistics/StatisticsPage";
 import ProfileSettings from "@/pages/ProfileSettings";
 import UsersManagement from "@/pages/UsersManagement";
+import Register from "@/pages/1.1-registro-de-usuario/Register";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
