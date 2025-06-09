@@ -6,6 +6,7 @@ import * as Font from 'expo-font';
 
 export default function HomePasajero() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     Font.loadAsync({
@@ -26,17 +27,47 @@ export default function HomePasajero() {
       <Text style={styles.logo}>HitchHop</Text>
       <Text style={styles.title}>¿Qué hará hoy?</Text>
 
+      {/* Tarjeta: Buscar nueva ruta */}
       <View style={styles.firstCard}>
         <Text style={styles.firstCardText}>Buscar una</Text>
         <Text style={styles.firstCardText}>nueva ruta</Text>
       </View>
       <Image source={require('@/assets/images/search.png')} style={styles.firstCharacter} />
+      <Pressable
+        onPress={() => {}}
+        style={{
+          position: 'absolute',
+          top: 210,
+          left: 25.81,
+          width: 342,
+          height: 185,
+          borderRadius: 30,
+          zIndex: 10,
+        }}
+      >
+        <View />
+      </Pressable>
 
+      {/* Tarjeta: Ver viajes solicitados */}
       <View style={styles.secondCard}>
         <Text style={styles.secondCardText}>Ver viajes</Text>
         <Text style={styles.secondCardText}>solicitados</Text>
       </View>
       <Image source={require('@/assets/images/viewtrips.png')} style={styles.secondCharacter} />
+      <Pressable
+        onPress={() => router.push('/ViajesPasajero')}
+        style={{
+          position: 'absolute',
+          top: 460,
+          left: 25.81,
+          width: 342,
+          height: 185,
+          borderRadius: 30,
+          zIndex: 10,
+        }}
+      >
+        <View />
+      </Pressable>
     </ImageBackground>
   );
 }
@@ -65,7 +96,7 @@ const styles = StyleSheet.create({
     left: 65,
     fontSize: 36,
     fontFamily: 'Exo-Medium',
-    fontWeight: 700,
+    fontWeight: '700',
     color: '#171717'
   },
   firstCard: {
@@ -108,7 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: 'Exo-Medium',
     paddingBottom: 10,
-    maxWidth: 160,      
+    maxWidth: 160,
     textAlign: 'left'
   },
   secondCharacter: {

@@ -32,7 +32,8 @@ export default function HomeConductor() {
         {/* Publicar ruta */}
         <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
           <View style={styles.firstCard}>
-            <Text style={styles.firstCardText}>Publicar una ruta</Text>
+            <Text style={styles.firstCardText}>Publicar</Text>
+            <Text style={styles.firstCardText}>una ruta</Text>
           </View>
           <Image source={require('@/assets/images/car.png')} style={styles.firstCharacter} />
           <Pressable
@@ -77,7 +78,8 @@ export default function HomeConductor() {
         {/* Buscar nueva ruta */}
         <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
           <View style={styles.firstCard}>
-            <Text style={styles.firstCardText}>Buscar una nueva ruta</Text>
+            <Text style={styles.firstCardText}>Buscar una</Text>
+            <Text style={styles.firstCardText}>nueva ruta</Text>
           </View>
           <Image source={require('@/assets/images/search.png')} style={styles.thirdCharacter} />
           <Pressable
@@ -98,7 +100,8 @@ export default function HomeConductor() {
         {/* Ver viajes solicitados */}
         <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
           <View style={styles.finalCard}>
-            <Text style={styles.secondCardText}>Ver viajes solicitados</Text>
+            <Text style={styles.secondCardText}>Ver viajes</Text>
+            <Text style={styles.secondCardText}>solicitados</Text>
           </View>
           <Image source={require('@/assets/images/viewtrips.png')} style={styles.fourthCharacter} />
           <Pressable
