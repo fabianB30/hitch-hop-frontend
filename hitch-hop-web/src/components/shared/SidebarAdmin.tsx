@@ -15,7 +15,7 @@ import { useState } from "react";
 
 // lista de dirs del sidebar
 const items = [
-  { title: "Inicio", url: "/", icon: Home },
+  { title: "Inicio", url: "/bienvenida", icon: Home },
   { title: "Gestión de Usuarios", url: "/users-management", icon: Users },
   { title: "Gestión de Perfil", url: "/profile-settings", icon: User },
   {

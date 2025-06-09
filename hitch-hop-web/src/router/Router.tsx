@@ -18,9 +18,6 @@ import PromedioMonto from "@/pages/consultas/PromedioMonto";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
 import Bienvenida from "@/pages/main/Bienvenida";
 
-import InicioTemp from "../components/shared/temp/InicioTemp";
-import GestionTemp from "../components/shared/temp/GestionTemp";
-import PerfilTemp from "../components/shared/temp/PerfilTemp";
 import ConsultasTemp from "../components/shared/temp/ConsultasTemp";
 import StatisticsPage from "../pages/statistics/StatisticsPage";
 import ProfileSettings from "@/pages/ProfileSettings";
@@ -34,6 +31,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home />} />
       <Route path="/bienvenida" element={<Bienvenida />} />
       <Route path="/registro" element={<Register />}/>
+
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
         <Route path="estadistica" element={<StatisticsPage />} />
