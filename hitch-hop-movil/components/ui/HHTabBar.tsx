@@ -23,6 +23,16 @@ export const HHTabBar = () => {
     { icon: 'menu-outline', route: '/GestionPerfilConductor' },
   ];
 
+    // Redireccion a Pasajero
+  /*
+  const tabs = [
+    { icon: 'home-outline', route: '/HomePasajero' },
+    { icon: 'notifications-outline', route: '/NotificacionesPasajero' },
+    { icon: 'search-outline', route: '/ViajesPasajero' },
+    { icon: 'menu-outline', route: '/GestionPerfilConductor' },
+  ];
+  /*
+
   /*
   const tabs = role === 'conductor'
     ? [
