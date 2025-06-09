@@ -31,7 +31,7 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{headerShown: false}}>
-          <Stack.Screen name="home" options={{ headerShown: false }} />
+          <Stack.Screen name="GestionPerfilPasajero" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <HHTabBar />
