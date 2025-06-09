@@ -45,10 +45,17 @@ export default function LoginScreen() {
     try {
       const user = await loginRequest({ email: email, password: password});
       // Navegar a la pantalla principal
-      if (user){
-        console.log(user.name);
-        router.push('/(tabs)');
+      if (user) {
+        if (user.role === 'passenger'){
+          console.log(user.name);
+          router.push('../HomePasajero');
+        } else {
+          router.push('../HomeConductor');
+        }
+      } else {
+        console.log('Login error');
       }
+      
 
     } catch (error) {
       console.error('Login error:', error);
