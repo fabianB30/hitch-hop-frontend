@@ -7,7 +7,8 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
-import { router } from 'expo-router';
+import { useRouter } from "expo-router";
+
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const imageWidth = windowWidth + 62;
@@ -15,7 +16,10 @@ const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 const headerHeight = windowHeight * 0.15;
 
-export default function GestionPerfil(){
+
+
+export default function GestionPerfilConductor(){
+  const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
       <Box style={{height: 30}}/>  
@@ -44,18 +48,17 @@ export default function GestionPerfil(){
         <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
-            <VStack space="4xl" style={{alignItems: "center", marginTop: 60}}>
-              <Button style={styles.buttonHitch}
-                      onPress={()=> router.push('./ProfileSettings')}>
+            <VStack style={{gap: 15, alignItems: "center", marginTop: 40}}>
+              <Button style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
               </Button>
-              <Button style={styles.buttonHitch}>
+              <Button style={styles.buttonHitch} onPress={() => router.push("/home")}>
                 <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
               </Button>
-              <Button style={styles.buttonHitch}>
+              <Button style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
                 <ButtonText style={styles.buttonTextHitch}>Vehículos</ButtonText>
               </Button>
-              <Button style={styles.buttonHitch}>
+              <Button style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
                 <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
               </Button>
             </VStack>
@@ -69,13 +72,15 @@ export default function GestionPerfil(){
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,
-    height: 48,
+    height: 60,
     backgroundColor: "#716EFF",
     borderRadius: 8,
+    
   },
   buttonTextHitch: {
     fontFamily: "Exo_600SemiBold",
-    fontSize: 17
+    fontSize: 16,
+    textAlign: "center"
   },
   boxHitch: {
     backgroundColor: "#A49DFF",
