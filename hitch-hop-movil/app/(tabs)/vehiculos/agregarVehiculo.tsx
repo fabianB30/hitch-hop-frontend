@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
+//Importamos lo del las rutas para agregar el vehiculo
+import { registerVehicleRequest } from '@/interconnection/vehicle';
 
 export default function AgregarVehiculo() {
   const router = useRouter();
@@ -13,7 +15,17 @@ export default function AgregarVehiculo() {
   const [foto, setFoto] = useState(null);
 
   const handleAgregar = () => {
-    // Aquí iría la lógica para guardar el vehículo
+    // Lo unico que hacemos es:
+      // HAcer el vehiculo con los datos
+      // llamar a la funcion para registrarlo
+      const vehicleData = { 
+        model: modelo, 
+        brand: marca, 
+        color: color, 
+        plate: placa,
+        //year: anio,   ///Tenemos un p[roblemita, el carro de back no tiene ano
+      };
+    registerVehicleRequest(vehicleData);
     router.back();
   };
 

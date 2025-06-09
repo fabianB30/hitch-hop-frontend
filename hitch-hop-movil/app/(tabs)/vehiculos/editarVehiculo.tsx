@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { updateVehicleByIdRequest } from '@/interconnection/vehicle';
 
-export default function AgregarVehiculo() {
+export default function EditarVehiculo() {
   const router = useRouter();
+  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
+  const [id, setId] = useState('1');
   const [marca, setMarca] = useState('Hyundai');
   const [modelo, setModelo] = useState('Santa Fe');
   const [placa, setPlaca] = useState('BTR-932');
@@ -14,6 +17,14 @@ export default function AgregarVehiculo() {
 
   const handleAgregar = () => {
     // Aquí iría la lógica para guardar el vehículo
+    const vehicleData = { 
+      model: modelo, 
+      brand: marca, 
+      color: color, 
+      plate: placa,
+      //year: anio,   ///Tenemos un p[roblemita, el carro de back no tiene ano
+    };
+    updateVehicleByIdRequest(id, vehicleData);
     router.back();
   };
 

@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, Button, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
+
+// Tenemos un problema creo
+/*
+  Esto deberia funcionar trayyendose todos los vehiculos de un usuario supongo
+  Pero lo del back se trae todos los vehiculos de todos los usuarios
+  nada mas es cosa de filtrarlos en el back creo
+*/
 const mockVehiculos = [
   {
     marca: 'Hyundai',

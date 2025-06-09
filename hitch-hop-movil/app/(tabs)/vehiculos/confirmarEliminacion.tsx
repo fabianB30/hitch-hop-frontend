@@ -1,15 +1,21 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
+import { deleteVehicleByIdRequest } from '@/interconnection/vehicle';
 
 export default function ConfirmarEliminacion() {
   const router = useRouter();
+  const [id, setId] = useState('1');
   const { marca, modelo } = useLocalSearchParams();
 
   const handleCancelar = () => 
     router.push('/(tabs)/vehiculos/vehiculoCreado');
   const handleAceptar = () => {
+    //Esto x alguna razon no se trae el vehiculo entero,
+    // Se elimina con la id 
+    // por el momento hice que la variable id sea algo, luego hay que comunicar esto con todo
+    deleteVehicleByIdRequest(id);
     router.push('/(tabs)/vehiculos/sinVehiculos');
   };
 

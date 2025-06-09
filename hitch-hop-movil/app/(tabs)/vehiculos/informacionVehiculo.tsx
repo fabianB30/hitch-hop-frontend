@@ -1,6 +1,7 @@
-import React from 'react';
+import React,{ useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { getVehicleByIdRequest } from '@/interconnection/vehicle';
 
 const mockVehiculo = {
   marca: 'Hyundai',
@@ -13,7 +14,29 @@ const mockVehiculo = {
 
 export default function InformacionVehiculo() {
   const router = useRouter();
-  const vehiculo = mockVehiculo;
+  const [vehiculo, setVehiculo] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
+  const [id, setId] = useState('1');
+
+  useEffect(() => {
+    const fetchVehiculo = async () => {
+      try {
+        const data = await getVehicleByIdRequest(id);
+        if (data) {
+          setVehiculo(data);
+        } else {
+          console.error('No se encontró el vehículo con la ID:', id);
+          setVehiculo(mockVehiculo); //usamos el mock si no se encuentra x si acaso
+        }
+      } catch (error) {
+        console.error('Error al obtener el vehículo:', error);
+        setVehiculo(mockVehiculo);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [id]);
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
