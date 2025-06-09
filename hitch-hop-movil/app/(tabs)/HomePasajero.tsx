@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { Pressable } from 'react-native';
 import { View, Text, Image, StyleSheet, ImageBackground } from 'react-native';
 import * as Font from 'expo-font';
 
