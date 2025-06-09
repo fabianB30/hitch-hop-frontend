@@ -8,9 +8,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
-import { loginRequest } from '../../../interconnection/user';
+import { useAuth } from '../Context/auth-context';
+
 
 export default function LoginScreen() {
+  const { signIn, errors } = useAuth();
+
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -43,7 +46,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const user = await loginRequest({ email: email, password: password});
+      const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
       if (user) {
         if (user.role === 'passenger'){
