@@ -29,7 +29,7 @@ export const HHTabBar = () => {
     { icon: 'home-outline', route: '/HomePasajero' },
     { icon: 'notifications-outline', route: '/NotificacionesPasajero' },
     { icon: 'search-outline', route: '/ViajesPasajero' },
-    { icon: 'menu-outline', route: '/GestionPerfilConductor' },
+    { icon: 'menu-outline', route: '/GestionPerfilPasajero' },
   ];
   /*
 
