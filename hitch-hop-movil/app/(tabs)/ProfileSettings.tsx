@@ -125,13 +125,13 @@ export default function ProfileSettings() {
   const errors: Record<string, string> = {};
   const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-  if (!nameRegex.test(data.name)) errors.name = "El name solo puede contener letras.";
+  if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
   if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
   if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
   if (!/^\d{9}$/.test(String(data.identificationNumber))) errors.identificationNumber = "El número de ID debe tener 9 dígitos.";
   if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
   if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
-    errors.email = "El email debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+    errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
   }
 
   setFieldErrors(errors);
