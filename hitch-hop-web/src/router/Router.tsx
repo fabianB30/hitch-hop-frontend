@@ -34,14 +34,8 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home />} />
       <Route path="/bienvenida" element={<Bienvenida />} />
       <Route path="/registro" element={<Register />}/>
-      <Route path="/login" element={<Login />} />
-      <Route path="/download" element={<DownloadApp />} />
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
-        <Route path="inicio" element={<InicioTemp />} />
-        <Route path="gestion" element={<GestionTemp />} />
-        <Route path="perfil" element={<PerfilTemp />} />
-        <Route path="consultas" element={<ConsultasTemp />} />
         <Route path="estadistica" element={<StatisticsPage />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />
         <Route path="/users-management" element={<UsersManagement />} />
