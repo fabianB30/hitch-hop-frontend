@@ -8,21 +8,29 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerRequest, loginRequest } from "../../../interconnection/user";
 
-
-export type UserData = {
+export type User = {
   name: string;
+  firstSurname: string;
+  secondSurname: string;
+  username: string;
   email: string;
   password: string;
-  institutionId: string | number;
-  identificationTypeId: string | number;
-  identificationNumber: string;
+  institutionId: string;
+  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
+  identificationNumber?: number;
   birthDate: string;
-  genre: "Masculino" | "Femenino" | "Otro";
+  genre?: "Masculino" | "Femenino" | "Otro";
   photoKey?: string;
   photoUrl?: string;
-  type: "Usuario" | "Administrador";
-  role: "Pasajero" | "Conductor";
-  vehicles: [];
+  phone?: number;
+  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
+  role: "Conductor" | "Pasajero";
+  vehicles: string[]; // array id
+  notifications: {
+    title: string;
+    subtitle: string;
+    timestamp?: string;
+  }[];
 };
 
 interface AuthContextType {

@@ -1,9 +1,22 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { TouchableOpacity, View, Text, Image, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import * as Font from 'expo-font';
+import {registerTripRequest} from '../../interconnection/trip';
 
 export default function HomeConductor() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  const dataPrueba = {
+    startpoint: "68462f9accc5871f7e93839b",  // Usando el mismo ID para prueba
+    endpoint: "68462f9accc5871f7e93839b",
+    departure: "2025-07-01T10:00:00.000Z",
+    arrival: "2025-07-01T14:00:00.000Z",
+    stops: [],
+    passengers: [],
+    driver: "68462f9accc5871f7e93839b",
+    paymethod: "Gratuito",
+    costPerPerson: 0,
+  };
 
   useEffect(() => {
     Font.loadAsync({
@@ -28,9 +41,9 @@ export default function HomeConductor() {
         <Text style={styles.sectionTitle}>Conductor</Text>
 
         {/* Tarjeta: Publicar ruta */}
-        <View style={styles.firstCard}>
+        <TouchableOpacity style={styles.firstCard} onPress={() => console.log('Ruta creada')}>
           <Text style={styles.firstCardText}>Publicar una ruta</Text>
-        </View>
+        </TouchableOpacity>
         <Image source={require('@/assets/images/car.png')} style={styles.firstCharacter} />
 
         {/* Tarjeta: Ver viajes programados */}

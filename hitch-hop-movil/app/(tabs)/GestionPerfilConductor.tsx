@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
-
+import { router } from 'expo-router';
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const imageWidth = windowWidth + 62;
@@ -45,7 +45,8 @@ export default function GestionPerfil(){
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
             <VStack space="4xl" style={{alignItems: "center", marginTop: 60}}>
-              <Button style={styles.buttonHitch}>
+              <Button style={styles.buttonHitch}
+                      onPress={()=> router.push('./ProfileSettings')}>
                 <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
               </Button>
               <Button style={styles.buttonHitch}>
