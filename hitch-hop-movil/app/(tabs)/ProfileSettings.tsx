@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
@@ -11,9 +11,12 @@ import { Select, SelectError } from "@/components/ui/select";
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Eye, EyeOff } from "lucide-react-native";
-//import { Request } from '../../../interconnection/user';
+import { updateUserRequest } from '../../interconnection/user';
+import { getParameterByNameRequest } from '../../interconnection/paremeter';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
+
+
 
 
 type User = {
@@ -48,12 +51,27 @@ const initialUser: User = {
   foto: null,
 };
 
-const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
+//const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
+
 const generos = ["Masculino", "Femenino", "Otro"];
 const tiposUsuario = ["Administrador", "Usuario"];
 const instituciones = ["Tecnológico de Costa Rica"];
 
 export default function ProfileSettings() {
+  const [tiposId, setTiposId] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchTiposId() {
+      try {
+        const param = await getParameterByNameRequest("Tipo de identificación");
+        if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
+      } catch (error) {
+        console.error("Error al obtener tipos de identificación:", error);
+      }
+    }
+
+    fetchTiposId();
+  }, []);
   const [editable, setEditable] = useState(false);
   const [userData, setUserData] = useState(initialUser);
   const [backupData, setBackupData] = useState(initialUser);
@@ -91,8 +109,10 @@ export default function ProfileSettings() {
   const toggleEdit = () => {
   if (!editable) {
 
-
-
+/*{name, email, password, institutionId, 
+            identificationTypeId, identificationNumber, 
+            birthDate, genre, photoKey, photoUrl, type, role, vehicles}*/
+    //const userUpdate = await updateUserRequest(user.id, user);
     setBackupData(userData);
     setEditable(true);
   
