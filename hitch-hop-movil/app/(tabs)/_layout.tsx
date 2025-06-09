@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { HHTabBar } from '@/components/ui/HHTabBar';
 import { Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat'
 
@@ -30,9 +31,10 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="light"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{headerShown: false}}>
-          <Stack.Screen name="ProfileSettings" options={{ headerShown: false }} />
+          <Stack.Screen name="home" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
+        <HHTabBar />
         <StatusBar style="auto" />
       </ThemeProvider></GluestackUIProvider>
   );
