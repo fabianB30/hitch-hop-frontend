@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 
@@ -66,85 +66,34 @@ export default function P_historialVacio() {
           No hay viajes registrados{'\n'}como pasajero
         </Text>
       </View>
+
+      {/* Barra de navegación inferior */}
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        height: 64,
+        backgroundColor: '#7B61FF',
+        borderTopLeftRadius: 18,
+        borderTopRightRadius: 18,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+      }}>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
-const styles = StyleSheet.create({
-  background: {
-    width: 393,
-    height: 852,
-    position: 'relative',
-    backgroundColor: 'white'
-  },
-  backgroundImageStyle: {
-    opacity: 0.15,
-  },
-  logo: {
-    position: 'absolute',
-    top: 30,
-    right: 20,
-    fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000'
-  },
-  title: {
-    position: 'absolute',
-    top: 80,
-    left: 65,
-    fontSize: 36,
-    fontFamily: 'Exo-Medium',
-    fontWeight: '700',
-    color: '#171717'
-  },
-  firstCard: {
-    position: 'absolute',
-    top: 210,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(120, 117, 248, 0.72)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 180
-  },
-  firstCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium'
-  },
-  firstCharacter: {
-    position: 'absolute',
-    top: 135,
-    left: -39,
-    width: 262,
-    height: 262,
-    resizeMode: 'contain'
-  },
-  secondCard: {
-    position: 'absolute',
-    top: 460,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(255, 171, 0, 0.6)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 25
-  },
-  secondCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium',
-    paddingBottom: 10,
-    maxWidth: 160,
-    textAlign: 'left'
-  },
-  secondCharacter: {
-    position: 'absolute',
-    top: 385,
-    left: 133,
-    width: 292,
-    height: 292,
-    resizeMode: 'contain'
-  },
-});
