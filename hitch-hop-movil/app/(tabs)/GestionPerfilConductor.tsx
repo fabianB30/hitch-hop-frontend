@@ -73,7 +73,7 @@ export default function GestionPerfilConductor(){
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,
-    height: 60,
+    height: 55,
     backgroundColor: "#716EFF",
     borderRadius: 8,
     alignItems: "center",
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   buttonTextHitch: {
     fontFamily: "Exo_600SemiBold",
-    fontSize: 17,
+    fontSize: 16,
     textAlign: "center",
     color: "white"
   },
