@@ -1,12 +1,19 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Cell, ResponsiveContainer, PieChart, Pie, Legend, Tooltip } from "recharts";
 
 const GratuitosCobradosChart = () => {
-  const data = [
-    { name: "Ene", valor1: 20, valor2: 5 },
-    { name: "Feb", valor1: 30, valor2: 10 },
-    { name: "Mar", valor1: 25, valor2: 8 },
-    { name: "Abr", valor1: 35, valor2: 12 },
+  
+  // TODO: replace with BE value here
+  const data_pie = [
+    {
+      name: "Gratuitos",
+      value: 100,
+    },
+    {
+      name: "Cobrados",
+      value: 50,
+    },
   ];
+  const colores = ["#F765A3", "#7987FF"];
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">
@@ -16,14 +23,27 @@ const GratuitosCobradosChart = () => {
           <p className="text-sm text-gray-500">Comparativa de viajes</p>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <XAxis dataKey="name" />
-          <YAxis />
+      <ResponsiveContainer width="100%" height={350}>
+        <PieChart>
+          <Pie
+            data={data_pie}
+            dataKey="value"
+            nameKey="name"
+            cx={"50%"}
+            cy={"50%"}
+            outerRadius={120}
+            label
+          >
+            {data_pie.map((_entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colores[index % colores.length]}
+              />
+            ))}
+          </Pie>
           <Tooltip />
-          <Bar dataKey="valor1" stackId="a" fill="#7875F8" />
-          <Bar dataKey="valor2" stackId="a" fill="#FFBA2A" />
-        </BarChart>
+          <Legend verticalAlign="bottom" height={36}/>
+        </PieChart>
       </ResponsiveContainer>
     </div>
   );

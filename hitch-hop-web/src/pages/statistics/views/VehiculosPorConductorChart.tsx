@@ -1,27 +1,53 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Cell, ResponsiveContainer, PieChart, Pie, Legend, Tooltip } from "recharts";
 
 const VehiculosPorConductorChart = () => {
-  const data = [
-    { name: "1 vehículo", valor1: 40, valor2: 0 },
-    { name: "2 vehículos", valor1: 25, valor2: 0 },
-    { name: "3 o más", valor1: 10, valor2: 0 },
+  
+  // TODO: replace with BE value here
+  const data_pie = [
+    {
+      name: "1 Vehículo",
+      value: 100,
+    },
+    {
+      name: "2 Vehículos",
+      value: 50,
+    },
+    {
+      name: "3 Vehículos",
+      value: 100,
+    },
   ];
+  const colores = ["#F765A3", "#7987FF", "#A155B9"];
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">
       <div className="flex justify-between mb-2">
         <div>
-          <h2 className="text-xl font-bold">Vehículos Por Conductor</h2>
-          <p className="text-sm text-gray-500">Distribución de vehículos</p>
+          <h2 className="text-xl font-bold">Vehículos por Conductor</h2>
+          <p className="text-sm text-gray-500">Información de Vehículos por Conductor</p>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <XAxis dataKey="name" />
-          <YAxis />
+      <ResponsiveContainer width="100%" height={350}>
+        <PieChart>
+          <Pie
+            data={data_pie}
+            dataKey="value"
+            nameKey="name"
+            cx={"50%"}
+            cy={"50%"}
+            outerRadius={120}
+            label
+          >
+            {data_pie.map((_entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={colores[index % colores.length]}
+              />
+            ))}
+          </Pie>
           <Tooltip />
-          <Bar dataKey="valor1" fill="#7875F8" />
-        </BarChart>
+          <Legend verticalAlign="bottom" height={36}/>
+        </PieChart>
       </ResponsiveContainer>
     </div>
   );
