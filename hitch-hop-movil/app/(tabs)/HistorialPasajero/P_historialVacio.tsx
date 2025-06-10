@@ -2,31 +2,47 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import * as Font from 'expo-font';
+import { useEffect, useState } from 'react';
+
 
 export default function P_historialVacio() {
   const router = useRouter();
 
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) return null;
+
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-                    <Image
-                      source={require('@/assets/images/HHlogo.png')}
-                      style={{
-                        width: '160%',
-                        height: '100%',
-                        position: 'absolute',
-                        top: -20,
-                        left: '-10%',
-                      }}
-                      resizeMode="cover"
-                    />
-                    {/* Logo encima del fondo */}
-                    <Image
-                      source={require('@/assets/images/HHLogoDisplay.png')}
-                      style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-                      resizeMode="contain"
-                    />
-                  </View>
+        <Image
+          source={require('@/assets/images/HHlogo.png')}
+          style={{
+            width: '160%',
+            height: '100%',
+            position: 'absolute',
+            top: -20,
+            left: '-10%',
+          }}
+          resizeMode="cover"
+        />
+        {/* Logo encima del fondo */}
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* Contenido principal */}
       <View style={{

@@ -1,36 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import * as Font from 'expo-font';
 
 export default function C_HistorialLleno() {
   const router = useRouter();
-  // Example data for trips
+
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) return null;
+
   const viajes = [
     { fecha: '25 de febrero del 2025', hora: '20:43' },
+    { fecha: '4 de febrero del 2025', hora: '8:43' },
+    { fecha: '14 de enero del 2025', hora: '19:13' },
+    { fecha: '5 de enero del 2025', hora: '9:00' },
+    { fecha: '4 de enero del 2025', hora: '8:43' },
   ];
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
+      {/* Fondo superior con logo */}
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-              <Image
-                source={require('@/assets/images/HHlogo.png')}
-                style={{
-                  width: '160%',
-                  height: '100%',
-                  position: 'absolute',
-                  top: -20,
-                  left: '-10%',
-                }}
-                resizeMode="cover"
-              />
-              {/* Logo encima del fondo */}
-              <Image
-                source={require('@/assets/images/HHLogoDisplay.png')}
-                style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-                resizeMode="contain"
-              />
-            </View>
+        <Image
+          source={require('@/assets/images/HHlogo.png')}
+          style={{
+            width: '160%',
+            height: '100%',
+            position: 'absolute',
+            top: -20,
+            left: '-10%',
+          }}
+          resizeMode="cover"
+        />
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* Contenido principal */}
       <View style={{
@@ -39,12 +56,11 @@ export default function C_HistorialLleno() {
         backgroundColor: '#fff',
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        paddingHorizontal: 0,
         paddingTop: 24,
       }}>
-        {/* Flecha back y título */}
+        {/* Encabezado */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/home')}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
@@ -52,8 +68,8 @@ export default function C_HistorialLleno() {
             />
           </TouchableOpacity>
           <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#181718' }}>Historial</Text>
-            <Text style={{ fontSize: 18, color: '#181718', marginTop: -4 }}>Conductor</Text>
+            <Text style={styles.titulo}>Historial</Text>
+            <Text style={styles.subtitulo}>Conductor</Text>
           </View>
         </View>
 
@@ -77,7 +93,6 @@ export default function C_HistorialLleno() {
                 elevation: 1,
               }}
             >
-              {/* Icono circular */}
               <View style={{
                 width: 32,
                 height: 48,
@@ -88,13 +103,11 @@ export default function C_HistorialLleno() {
                 alignItems: 'center',
                 marginRight: 12,
               }} />
-              {/* Info del viaje */}
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, color: '#181718' }}>
+                <Text style={styles.viajeTexto}>
                   Viaje del {viaje.fecha} a las {viaje.hora}
                 </Text>
               </View>
-              {/* Botón Detalles */}
               <TouchableOpacity
                 style={{
                   borderWidth: 2,
@@ -106,7 +119,7 @@ export default function C_HistorialLleno() {
                 }}
                 onPress={() => router.push("/(tabs)/HistorialConductor/C_detHistorial")}
               >
-                <Text style={{ color: '#FFB800', fontWeight: 'bold', fontSize: 15 }}>Detalles</Text>
+                <Text style={styles.botonDetalles}>Detalles</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -115,82 +128,27 @@ export default function C_HistorialLleno() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  background: {
-    width: 393,
-    height: 852,
-    position: 'relative',
-    backgroundColor: 'white'
+  titulo: {
+    fontSize: 28,
+    color: '#181718',
+    fontFamily: 'Exo-Bold',
   },
-  backgroundImageStyle: {
-    opacity: 0.15,
+  subtitulo: {
+    fontSize: 18,
+    color: '#181718',
+    marginTop: -4,
+    fontFamily: 'Exo-SemiBold',
   },
-  logo: {
-    position: 'absolute',
-    top: 30,
-    right: 20,
-    fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000'
+  viajeTexto: {
+    fontSize: 15,
+    color: '#181718',
+    fontFamily: 'Exo-Regular',
   },
-  title: {
-    position: 'absolute',
-    top: 80,
-    left: 65,
-    fontSize: 36,
-    fontFamily: 'Exo-Medium',
-    fontWeight: '700',
-    color: '#171717'
-  },
-  firstCard: {
-    position: 'absolute',
-    top: 210,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(120, 117, 248, 0.72)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 180
-  },
-  firstCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium'
-  },
-  firstCharacter: {
-    position: 'absolute',
-    top: 135,
-    left: -39,
-    width: 262,
-    height: 262,
-    resizeMode: 'contain'
-  },
-  secondCard: {
-    position: 'absolute',
-    top: 460,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(255, 171, 0, 0.6)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 25
-  },
-  secondCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium',
-    paddingBottom: 10,
-    maxWidth: 160,
-    textAlign: 'left'
-  },
-  secondCharacter: {
-    position: 'absolute',
-    top: 385,
-    left: 133,
-    width: 292,
-    height: 292,
-    resizeMode: 'contain'
+  botonDetalles: {
+    color: '#FFB800',
+    fontSize: 15,
+    fontFamily: 'Exo-Bold',
   },
 });
