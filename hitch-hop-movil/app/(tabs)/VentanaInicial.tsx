@@ -7,7 +7,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Dimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Svg, Text as SvgText } from "react-native-svg";
-import { useRouter } from 'expo-router';
+
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -16,7 +16,6 @@ const imageWidth = windowWidth + 22;
 const titleSize = windowHeight * 0.067;
 
 export default function VentanaIncial() {
-  const router = useRouter();
   return (
     <Box style={{flex: 1, backgroundColor:"white"}}>
       <Box style={{alignItems:"center", position: "absolute", zIndex: 0, top: 0, left: 0, right: 0}}>
@@ -81,14 +80,13 @@ export default function VentanaIncial() {
 
           <HStack space="md" style={{justifyContent:"center", gap: 13, marginTop: 35}}>
             <Button variant="outline" action="secondary"
-                    style={{borderColor: "#7875F8", width: 164, height: 48, borderRadius: 8}}
-                    onPress={() => router.push('./InicioSesion/login')}>
+                    style={{borderColor: "#7875F8", width: 164, height: 48, borderRadius: 8}}>
               <ButtonText style={{color:"#7875F8", fontFamily: "Exo_500Medium", fontWeight: 500, fontSize: 18}}>
                 Iniciar sesión
               </ButtonText>
             </Button>
             <Button variant="solid" action="primary"
-              style={{backgroundColor:"#7875F8", width: 164, height: 48, borderRadius: 8}} onPress={() => router.push('./Register/register')}>
+              style={{backgroundColor:"#7875F8", width: 164, height: 48, borderRadius: 8}}>
               <ButtonText style={{fontFamily: "Exo_500Medium", fontWeight: 500, fontSize: 18}}>
                 Registrarse
               </ButtonText>

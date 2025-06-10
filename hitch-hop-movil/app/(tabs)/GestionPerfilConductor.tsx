@@ -9,6 +9,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
 import { useRouter } from "expo-router";
 
+
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const imageWidth = windowWidth + 62;

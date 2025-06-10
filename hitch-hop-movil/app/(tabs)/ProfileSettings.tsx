@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
@@ -11,102 +11,52 @@ import { Select, SelectError } from "@/components/ui/select";
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Eye, EyeOff } from "lucide-react-native";
-import { updateUserRequest, User } from '../../interconnection/user';
-import { useAuth } from './Context/auth-context';
-import { getParameterByNameRequest } from '../../interconnection/paremeter';
-import { getAllInstitutionsRequest } from '../../interconnection/institution';
+
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
-// Esquema real de la base de datos, se los dejo como referencia
-/*export type User = {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  institutionId: string;
-  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-  identificationNumber?: number;
-  birthDate: string;
-  genre?: "Masculino" | "Femenino" | "Otro";
-  photoKey?: string;
-  photoUrl?: string;
-  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-  role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
-  notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
-  }[];
-};*/
-
-// Esto era de ustedes, pueden eliminarlo
-/*type User = {
-  name: string;
-  firstSurname: string;
-  secondSurname: string;
-  email: string;
+type User = {
+  nombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  correo: string;
   institucion: string;
-  identificationTypeId: string;
-  identificationNumber: string;
-  birthDate: string;
-  phone: string;
-  genre: string;
+  tipoId: string;
+  numeroId: string;
+  fechaNacimiento: string;
+  telefono: string;
+  genero: string;
   username: string;
-  type: string;
-  photoKey: string | null;
-};*/
+  tipoUsuario: string;
+  foto: string | null;
+};
 
-/*const initialUser: User = {
-  name: "Juan",
-  firstSurname: "Rodríguez",
-  secondSurname: "Chaves",
-  email: "juan@estudiantec.cr",
+const initialUser: User = {
+  nombre: "Juan",
+  primerApellido: "Rodríguez",
+  segundoApellido: "Chaves",
+  correo: "juan@estudiantec.cr",
   institucion: "Tecnológico de Costa Rica",
-  identificationTypeId: "Cédula",
-  identificationNumber: "116032348",
-  birthDate: "27 / 02 / 2003",
-  phone: "83017776",
-  genre: "Masculino",
+  tipoId: "Cédula",
+  numeroId: "116032348",
+  fechaNacimiento: "27 / 02 / 2003",
+  telefono: "83017776",
+  genero: "Masculino",
   username: "juanRC02",
-  type: "Administrador",
-  photoKey: null,
-};*/
+  tipoUsuario: "Administrador",
+  foto: null,
+};
 
-//const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
-//const instituciones = ["Tecnológico de Costa Rica"];
-const genres = ["Masculino", "Femenino", "Otro"];
+const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
+const generos = ["Masculino", "Femenino", "Otro"];
 const tiposUsuario = ["Administrador", "Usuario"];
+const instituciones = ["Tecnológico de Costa Rica"];
 
 export default function ProfileSettings() {
-  const [tiposId, setTiposId] = useState<string[]>([]);
-  const [instituciones, setInstituciones] = useState([]);
-  const { user } = useAuth();
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const param = await getParameterByNameRequest("Tipo de identificación");
-        const resInstitutions = await getAllInstitutionsRequest();
-        if (param) setTiposId(param.parameterList);
-        if (resInstitutions) setInstituciones(resInstitutions);
-      } catch (error) {
-        console.error("Error al obtener opciones:", error);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  const institucionOptions = instituciones.map(inst => ({
-    label: inst.nombre,
-    value: inst._id
-  }));
-
   const [editable, setEditable] = useState(false);
-  const [userData, setUserData] = useState(user);
-  const [backupData, setBackupData] = useState(user);
+  const [userData, setUserData] = useState(initialUser);
+  const [backupData, setBackupData] = useState(initialUser);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -125,13 +75,13 @@ export default function ProfileSettings() {
   const errors: Record<string, string> = {};
   const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-  if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
-  if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
-  if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
-  if (!/^\d{9}$/.test(String(data.identificationNumber))) errors.identificationNumber = "El número de ID debe tener 9 dígitos.";
-  if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
-  if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
-    errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+  if (!nameRegex.test(data.nombre)) errors.nombre = "El nombre solo puede contener letras.";
+  if (!nameRegex.test(data.primerApellido)) errors.primerApellido = "El primer apellido solo puede contener letras.";
+  if (!nameRegex.test(data.segundoApellido)) errors.segundoApellido = "El segundo apellido solo puede contener letras.";
+  if (!/^\d{9}$/.test(data.numeroId)) errors.numeroId = "El número de ID debe tener 9 dígitos.";
+  if (!/^\d{8}$/.test(data.telefono)) errors.telefono = "El teléfono debe tener 8 dígitos.";
+  if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.correo)) {
+    errors.correo = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
   }
 
   setFieldErrors(errors);
@@ -140,10 +90,8 @@ export default function ProfileSettings() {
 
   const toggleEdit = () => {
   if (!editable) {
-    //const userUpdate = await updateUserRequest(user.id, user);
     setBackupData(userData);
     setEditable(true);
-  
   } else {
     const isValid = validateUserData(userData);
     if (!isValid) {
@@ -168,7 +116,7 @@ export default function ProfileSettings() {
   // Pide permisos si es necesario
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
-    alert('Se requieren permisos para acceder a tus photoKeys.');
+    alert('Se requieren permisos para acceder a tus fotos.');
     return;
   }
 
@@ -181,7 +129,7 @@ export default function ProfileSettings() {
   });
 
   if (!result.canceled && result.assets && result.assets.length > 0) {
-    setUserData({ ...userData, photoKey: result.assets[0].uri });
+    setUserData({ ...userData, foto: result.assets[0].uri });
   }
 };
  // Convierte la fecha de nacimiento a objeto Date
@@ -194,7 +142,7 @@ export default function ProfileSettings() {
     setShowDatePicker(false);
     if (selectedDate) {
       const formatted = `${selectedDate.getDate().toString().padStart(2, "0")} / ${(selectedDate.getMonth() + 1).toString().padStart(2, "0")} / ${selectedDate.getFullYear()}`;
-      setUserData({ ...userData, birthDate: formatted });
+      setUserData({ ...userData, fechaNacimiento: formatted });
     }
   };
 
@@ -251,8 +199,8 @@ const handleChangePassword = () => {
           <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
             <Image
               source={
-                userData.photoKey
-                  ? { uri: userData.photoKey }
+                userData.foto
+                  ? { uri: userData.foto }
                   : require("@/assets/images/iconPrimary.png")
               }
               style={styles.avatar}
@@ -295,14 +243,14 @@ const handleChangePassword = () => {
         )}
 
       <View style={styles.formSection}>
-        <ProfileInput label="name de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="name" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
-        <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
-        <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />
-        <ProfileInput label="email institucional" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
-        <ProfileInput label="Teléfono" value={String(userData.phone)} editable={editable} onChange={v => handleChange("phone", Number(v))} error={fieldErrors.phone} />
-        <ProfileInput label="Tipo de ID" value={userData.identificationTypeId} editable={editable} onChange={v => handleChange("identificationTypeId", v)} options={tiposId} />
-        <ProfileInput label="Número de ID" value={String(userData.identificationNumber)} editable={editable} onChange={v => handleChange("identificationNumber", Number(v))} error={fieldErrors.identificationNumber} />
+        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
+        <ProfileInput label="Nombre" value={userData.nombre} editable={editable} onChange={v => handleChange("nombre", v)} error={fieldErrors.nombre} />
+        <ProfileInput label="Primer Apellido" value={userData.primerApellido} editable={editable} onChange={v => handleChange("primerApellido", v)} error={fieldErrors.primerApellido} />
+        <ProfileInput label="Segundo Apellido" value={userData.segundoApellido} editable={editable} onChange={v => handleChange("segundoApellido", v)} error={fieldErrors.segundoApellido} />
+        <ProfileInput label="Correo institucional" value={userData.correo} editable={editable} onChange={v => handleChange("correo", v)} error={fieldErrors.correo} />
+        <ProfileInput label="Teléfono" value={userData.telefono} editable={editable} onChange={v => handleChange("telefono", v)} error={fieldErrors.telefono} />
+        <ProfileInput label="Tipo de ID" value={userData.tipoId} editable={editable} onChange={v => handleChange("tipoId", v)} options={tiposId} />
+        <ProfileInput label="Número de ID" value={userData.numeroId} editable={editable} onChange={v => handleChange("numeroId", v)} error={fieldErrors.numeroId} />
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Fecha de nacimiento</Text>
           <TouchableOpacity
@@ -312,25 +260,25 @@ const handleChangePassword = () => {
           >
             <Input
               isDisabled={!editable}
-              isInvalid={!!fieldErrors.birthDate}
+              isInvalid={!!fieldErrors.fechaNacimiento}
               style={{ backgroundColor: "#fff" }}
               pointerEvents="none"
             >
               <InputField
-                value={userData.birthDate || ""}
+                value={userData.fechaNacimiento || ""}
                 placeholder="Selecciona una fecha"
                 editable={false} // No editable, solo abre el picker
                 pointerEvents="none"
-                style={{ color: userData.birthDate ? "#222" : "#888" }}
+                style={{ color: userData.fechaNacimiento ? "#222" : "#888" }}
               />
             </Input>
           </TouchableOpacity>
-          {fieldErrors.birthDate && (
-            <InputError>{fieldErrors.birthDate}</InputError>
+          {fieldErrors.fechaNacimiento && (
+            <InputError>{fieldErrors.fechaNacimiento}</InputError>
           )}
           {showDatePicker && (
             <DateTimePicker
-              value={getDateFromString(userData.birthDate)}
+              value={getDateFromString(userData.fechaNacimiento)}
               mode="date"
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={handleDateChange}
@@ -338,9 +286,9 @@ const handleChangePassword = () => {
             />
           )}
         </View>
-        <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
-        <ProfileInput label="Tipo de usuario" value={userData.type} editable={editable} onChange={v => handleChange("type", v)} options={tiposUsuario} />
-        <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
+        <ProfileInput label="Institución" value={userData.institucion} editable={editable} onChange={v => handleChange("institucion", v)} options={instituciones} />
+        <ProfileInput label="Tipo de usuario" value={userData.tipoUsuario} editable={editable} onChange={v => handleChange("tipoUsuario", v)} options={tiposUsuario} />
+        <ProfileInput label="Género" value={userData.genero} editable={editable} onChange={v => handleChange("genero", v)} options={generos} />
       </View>
     </View>
     {/* Modal para cambiar contraseña */}

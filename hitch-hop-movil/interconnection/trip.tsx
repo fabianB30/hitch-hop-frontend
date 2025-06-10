@@ -1,28 +1,7 @@
 import axios from './axios';
 
-type Stop = {
-  place: string; // id object
-  status: 'Pendiente' | 'Aprobado' | 'Rechazado';
-};
-
-type Passenger = {
-  user: string; // id object
-  status: 'Pendiente' | 'Aprobado' | 'Rechazado' | 'Cancelado';
-};
-
-type Trip = {
-  startpoint: string; // id object
-  endpoint: string // id object
-  departure: Date;
-  arrival: Date;
-  stops: Stop[];
-  passengers: Passenger[];
-  driver: string; // id object
-  paymethod: 'Gratuito' | 'Sinpe' | 'Efectivo';
-  costPerPerson: number;
-};
-
-export const registerTripRequest = async (data : Trip): Promise<IJwtResponse | null> => {
+export const registerTripRequest = async (data : { 
+    startpoint, endpoint, departure, arrival, stops, passengers, drive}): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/trip/register`, data);
         const dataTrip = res.data.data;

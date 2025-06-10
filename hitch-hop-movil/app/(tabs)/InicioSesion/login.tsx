@@ -8,12 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
-import { useAuth } from '../Context/auth-context';
 
 
 export default function LoginScreen() {
-  const { signIn, errors } = useAuth();
-
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -46,19 +43,14 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const user = await signIn({ email: email, password: password});
+      // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
+      console.log('Iniciando sesión:', { email, password, rememberMe });
+
+      // Simular una petición
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       // Navegar a la pantalla principal
-      if (user) {
-        if (user.role === 'passenger'){
-          console.log(user.name);
-          router.push('../HomePasajero');
-        } else {
-          router.push('../HomeConductor');
-        }
-      } else {
-        console.log('Login error');
-      }
-      
+      router.push('/(tabs)');
 
     } catch (error) {
       console.error('Login error:', error);
