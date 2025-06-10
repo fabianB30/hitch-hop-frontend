@@ -13,7 +13,7 @@ const GratuitosCobradosChart = () => {
       value: 50,
     },
   ];
-  const colores = ["#F765A3", "#7987FF"];
+  const colores = ["#FFBA2A", "#7987FF"];
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">

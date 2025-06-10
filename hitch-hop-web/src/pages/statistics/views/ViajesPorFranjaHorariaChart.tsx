@@ -16,7 +16,7 @@ const ViajesPorFranjaHorariaChart = () => {
       value: 449,
     },
   ];
-  const colores = ["#F765A3", "#7987FF", "#A155B9"];
+  const colores = ["#FFBA2A", "#7987FF", "#A155B9"];
 
 
 
