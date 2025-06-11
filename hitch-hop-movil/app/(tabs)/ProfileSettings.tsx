@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView,
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop } from "@/components/ui/alert-dialog";
 import { useRouter } from "expo-router";
 import { Camera } from "lucide-react-native";
 import { ChevronLeft } from "lucide-react-native";
@@ -15,7 +16,9 @@ import { updateUserRequest, User } from '../../interconnection/user';
 import { useAuth } from './Context/auth-context';
 import { getParameterByNameRequest } from '../../interconnection/paremeter';
 import { getAllInstitutionsRequest } from '../../interconnection/institution';
+import { Pressable } from "@/components/ui/pressable";
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
+
 //const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
 
@@ -103,6 +106,7 @@ export default function ProfileSettings() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSavedDialog, setShowSavedDialog] = useState(false);
   const router = useRouter();
 
   const validateUserData = (data: typeof initialUser) => {
@@ -135,6 +139,7 @@ export default function ProfileSettings() {
     }
     setEditable(false);
     setFieldErrors({});
+    setShowSavedDialog(true);
   }
 };
 
@@ -207,13 +212,15 @@ const handleChangePassword = () => {
   if (hasError) return;
 
   setShowPasswordModal(false);
+  setShowSavedDialog(true);
   setCurrentPassword("");
   setNewPassword("");
   setConfirmPassword("");
 };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={{ flex: 1,  width: "100%" }}>
+    <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
       {/* Imagen de fondo superior */}
       <View style={styles.backgroundContainer}>  
         <Image source={ImagenBG} style={styles.backgroundImage} resizeMode="cover" />
@@ -224,9 +231,7 @@ const handleChangePassword = () => {
         {/* Botón de regresar arriba*/}
         <TouchableOpacity
           style={styles.backBtnAbsolute}
-          onPress={() => {
-            // Navegar a pantalla principal
-          }}
+          onPress={() => router.back()}
         >
           <ChevronLeft color="black" size={35} />
         </TouchableOpacity>
@@ -448,17 +453,42 @@ const handleChangePassword = () => {
           <TouchableOpacity style={styles.saveBtn} onPress={() => {
               handleChangePassword();
               setShowCurrentPassword(false);   
-              setShowNewPassword(false);          
-              setShowConfirmPassword(false);     
+              setShowNewPassword(false);
+              setShowConfirmPassword(false);
+              
             }}>
             <Text style={styles.saveBtnText}>Confirmar</Text>
           </TouchableOpacity>
         </ModalFooter>
       </ModalContent>
     </Modal>
-        </ScrollView>
-      );
-    }
+  </ScrollView>
+
+  {/* AlertDialog de confirmación de guardado */}
+  <AlertDialog isOpen={showSavedDialog} onClose={() => setShowSavedDialog(false)}>
+    <AlertDialogBackdrop />
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 12 }}>
+          ¡Cambios guardados!
+        </Text>
+      </AlertDialogHeader>
+      <AlertDialogBody>
+        <Text style={{ marginBottom: 24 }}>Tu información se guardó correctamente.</Text>
+      </AlertDialogBody>
+      <AlertDialogFooter>
+        <Pressable
+          onPress={() => setShowSavedDialog(false)}
+          style={{ padding: 8, backgroundColor: "#7875F8", borderRadius: 8, minWidth: 100, alignItems: "center"   }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>Aceptar</Text>
+        </Pressable>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+  </View>
+ );
+}
 
 function ProfileInput({
   label,
@@ -509,11 +539,12 @@ function ProfileInput({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    //paddingHorizontal: 0,padding: 24,
     paddingBottom: 70,
     backgroundColor: "#fff",
     flexGrow: 1,
-    alignItems: "center",
+    //alignItems: "center",
+    width: "100%",
   },
   backgroundContainer: {
     width: "100%",
