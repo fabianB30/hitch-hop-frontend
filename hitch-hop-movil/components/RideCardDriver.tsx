@@ -106,7 +106,7 @@ export function RideCardDriver({
               alignSelf: "flex-end", // Add this line to push the box to the right
             }}
           >
-            <Users size={24} color="black" />
+            <Users size={20} color="black" />
             <Text style={styles.mediumFont}>
               {users}/{userLimit}
             </Text>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   BigFont: {
     fontFamily: "Exo",
-    fontSize: 24,
+    fontSize: 22,
     fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",

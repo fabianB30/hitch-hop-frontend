@@ -108,13 +108,14 @@ export function RideCardDriver2({
           <Box
             style={{
               flexDirection: "row",
-              alignItems: "flex-end",
+              alignItems: "flex-start",
               gap: 4,
               marginRight: 10,
               alignSelf: "flex-end",
+              maxWidth: 180,
             }}
           >
-            <Users size={24} color="black" />
+            <Users size={20} color="black" />
             <Text style={styles.mediumFont2}>
               Solicitudes pendientes: {users.length}
             </Text>
@@ -150,7 +151,7 @@ export function RideCardDriver2({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
+              fontSize: 16, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
               wordWrap: 'break-word'
@@ -179,7 +180,7 @@ export function RideCardDriver2({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
+              fontSize: 16, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
               wordWrap: 'break-word'
@@ -226,10 +227,13 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
+    flexShrink: 1, 
+    flexWrap: "wrap",
+    maxWidth: 130,
   },
   BigFont: {
     fontFamily: "Exo",
-    fontSize: 24,
+    fontSize: 22,
     fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
