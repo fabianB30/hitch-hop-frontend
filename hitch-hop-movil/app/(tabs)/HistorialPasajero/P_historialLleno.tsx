@@ -1,27 +1,22 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
-import { useEffect, useState } from 'react';
-
 
 export default function P_HistorialLleno() {
   const router = useRouter();
-
   const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  useEffect(() => {
-    Font.loadAsync({
-      'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
-      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-    }).then(() => setFontsLoaded(true));
-  }, []);
-
-  if (!fontsLoaded) return null;
-
-  // Example data for trips
+  
+    useEffect(() => {
+      Font.loadAsync({
+        'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+      }).then(() => setFontsLoaded(true));
+    }, []);
+  
+    if (!fontsLoaded) return null;
   const viajes = [
     { fecha: '23 de febrero del 2025', hora: '12:43' },
   ];
@@ -29,24 +24,24 @@ export default function P_HistorialLleno() {
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-        <Image
-          source={require('@/assets/images/HHlogo.png')}
-          style={{
-            width: '160%',
-            height: '100%',
-            position: 'absolute',
-            top: -20,
-            left: '-10%',
-          }}
-          resizeMode="cover"
-        />
-        {/* Logo encima del fondo */}
-        <Image
-          source={require('@/assets/images/HHLogoDisplay.png')}
-          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"
-        />
-      </View>
+                    <Image
+                      source={require('@/assets/images/HHlogo.png')}
+                      style={{
+                        width: '160%',
+                        height: '100%',
+                        position: 'absolute',
+                        top: -20,
+                        left: '-10%',
+                      }}
+                      resizeMode="cover"
+                    />
+                    {/* Logo encima del fondo */}
+                    <Image
+                      source={require('@/assets/images/HHLogoDisplay.png')}
+                      style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+                      resizeMode="contain"
+                    />
+                  </View>
 
       {/* Contenido principal */}
       <View style={{
@@ -68,8 +63,8 @@ export default function P_HistorialLleno() {
             />
           </TouchableOpacity>
           <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#181718' }}>Historial</Text>
-            <Text style={{ fontSize: 18, color: '#181718', marginTop: -4 }}>Pasajero</Text>
+            <Text style={styles.titulo}>Historial</Text>
+            <Text style={styles.subtitulo}>Pasajero</Text>
           </View>
         </View>
 
@@ -106,7 +101,7 @@ export default function P_HistorialLleno() {
               }} />
               {/* Info del viaje */}
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, color: '#181718' }}>
+                <Text style={styles.viajeTexto}>
                   Viaje del {viaje.fecha} a las {viaje.hora}
                 </Text>
               </View>
@@ -128,34 +123,29 @@ export default function P_HistorialLleno() {
           ))}
         </ScrollView>
       </View>
-
-      {/* Barra de navegación inferior */}
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        height: 64,
-        backgroundColor: '#7B61FF',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-      }}>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  titulo: {
+    fontSize: 28,
+    color: '#181718',
+    fontFamily: 'Exo-Bold',
+  },
+  subtitulo: {
+    fontSize: 18,
+    color: '#181718',
+    marginTop: -4,
+    fontFamily: 'Exo-SemiBold',
+  },
+  viajeTexto: {
+    fontSize: 15,
+    color: '#181718',
+    fontFamily: 'Exo-Regular',
+  },
+  botonDetalles: {
+    color: '#FFB800',
+    fontSize: 15,
+    fontFamily: 'Exo-Bold',
+  },
+});

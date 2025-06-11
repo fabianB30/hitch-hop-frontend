@@ -60,7 +60,7 @@ export default function C_HistorialLleno() {
       }}>
         {/* Encabezado */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
