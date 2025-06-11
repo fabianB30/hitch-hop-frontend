@@ -2,7 +2,7 @@ import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
-import { Dimensions } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { Icon } from "@/components/ui/icon";
@@ -47,15 +47,15 @@ export default function GestionPerfil(){
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
             <VStack style={{gap: 20, alignItems: "center", marginTop: 40}}>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
-                <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/home")}>
-                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
-                <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
-              </Button>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
+                <Text style={styles.buttonTextHitch}>Información personal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/home")}>
+                <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
+                <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
+              </TouchableOpacity>
             </VStack>
           </Box>
         </Box>
@@ -67,14 +67,17 @@ export default function GestionPerfil(){
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,
-    height: 60,
+    height: 55,
     backgroundColor: "#716EFF",
     borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center"
   },
   buttonTextHitch: {
     fontFamily: "Exo_600SemiBold",
-    fontSize: 17,
-    textAlign: "center"
+    fontSize: 16,
+    textAlign: "center",
+    color: "white"
   },
   boxHitch: {
     backgroundColor: "#A49DFF",
