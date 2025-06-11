@@ -59,22 +59,6 @@ const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
   photoKey: string | null;
 };*/
 
-/*const initialUser: User = {
-  name: "Juan",
-  firstSurname: "Rodríguez",
-  secondSurname: "Chaves",
-  email: "juan@estudiantec.cr",
-  institucion: "Tecnológico de Costa Rica",
-  identificationTypeId: "Cédula",
-  identificationNumber: "116032348",
-  birthDate: "27 / 02 / 2003",
-  phone: "83017776",
-  genre: "Masculino",
-  username: "juanRC02",
-  type: "Administrador",
-  photoKey: null,
-};*/
-
 //const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
 //const instituciones = ["Tecnológico de Costa Rica"];
 const genres = ["Masculino", "Femenino", "Otro"];
