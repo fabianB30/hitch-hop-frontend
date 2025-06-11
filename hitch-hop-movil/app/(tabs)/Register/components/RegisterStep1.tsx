@@ -10,6 +10,8 @@ import { Select } from '@/components/ui/select';
 import {AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { useRouter } from "expo-router";
+import { getAllInstitutionsRequest } from '@/interconnection/institution';
+import { getParameterByNameRequest } from '@/interconnection/paremeter';
 
 interface RegisterStep1Props {
     onNext: (data: {
@@ -44,26 +46,21 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
     const handleClose = () => setShowAlertDialog(false)
 
     useEffect(() => {
-        fetchInstitutions();
-    }, []);
-
-    const fetchInstitutions = async () => {
+    async function loadSelects() {
         try {
-            const response = await fetch('http://192.168.1.2:3000/backend/institution/get-all');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await getAllInstitutionsRequest();
+            if (result && result.length > 0) {
+                setInstitutions(result);
+            } else {
+                setInstitutions([]);
             }
-            const result = await response.json();
             
-            if (result.data && result.data.length > 0) {
-                setInstitutions(result.data);
-                setInstitution(result.data[0].nombre);
-            }
         } catch (error) {
-            console.error('Error fetching institutions:', error);
+            console.error("Error al obtener tipos de identificación:", error);
         }
-    };
+        }
+        loadSelects();
+      }, []);
 
     const handleRegister = async () => {
         // Validación campos vacíos

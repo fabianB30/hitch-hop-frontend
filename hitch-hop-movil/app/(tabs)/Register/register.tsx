@@ -8,6 +8,7 @@ import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold }
 import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
 import { Avatar } from '@/components/ui/avatar';
+import { registerRequest } from '@/interconnection/user';
 
 
 export default function RegisterScreen() {
@@ -48,26 +49,53 @@ export default function RegisterScreen() {
         // Guardar los datos del segundo formulario antes de volver
         setSecondFormData(data);
         setCurrentStep(1);
-    };
-
-    const handleFinishRegistration = async (completeData: any) => {
+    };      const handleFinishRegistration = async (completeData: any) => {
         try {
-            // API de registro
-            
             console.log('Datos completos de registro:', completeData);
             
-            // Simular éxito
-            setSuccessMessage('¡Registro exitoso! Bienvenido a HitchHop.');
-            setShowAlertDialog(true);
+            // Preparar datos para el backend según el tipo User
+            const registrationData = {
+                name: completeData.name,
+                firstSurname: completeData.firstSurname,
+                secondSurname: completeData.secondSurname,
+                username: completeData.username,
+                email: completeData.email,
+                password: completeData.password,
+                institutionId: "default", // Esto puede necesitar ser dinámico
+                identificationTypeId: completeData.identificationType,
+                identificationNumber: parseInt(completeData.identificationNumber) || 0,
+                birthDate: completeData.birthDate,
+                genre: completeData.genre,
+                photoKey: completeData.avatar, // Usando el avatar como photoKey
+                photoUrl: "", // Por ahora vacío
+                phone: parseInt(completeData.phone) || 0,
+                type: "Usuario" as const,
+                role: completeData.userType === "Conductor" ? "Conductor" as const : "Pasajero" as const,
+                vehicles: [],
+                notifications: []
+            };
+
+            console.log('Datos preparados para el backend:', registrationData);
             
-            // Redirigir al login después de un tiempo
-            setTimeout(() => {
-                router.push('/InicioSesion/login');
-            }, 2000);
+            // Llamar a la API de registro
+            const result = await registerRequest(registrationData);
+            
+            if (result) {
+                setSuccessMessage('¡Registro exitoso! Bienvenido a HitchHop.');
+                setShowAlertDialog(true);
+                
+                // Redirigir al login después de un tiempo
+                setTimeout(() => {
+                    router.push('/InicioSesion/login');
+                }, 2000);
+            } else {
+                setSuccessMessage('Error al registrar usuario. Verifique que todos los campos estén completos y que el email no esté ya registrado.');
+                setShowAlertDialog(true);
+            }
 
         } catch (error) {
             console.error('Registration error:', error);
-            setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
+            setSuccessMessage('Error al registrar usuario. Por favor, verifique su conexión a internet e inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
     };

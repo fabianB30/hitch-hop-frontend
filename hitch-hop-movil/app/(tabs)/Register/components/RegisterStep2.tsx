@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, ImageBackground, Alert, ActionSheetIOS, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StatusBar } from 'expo-status-bar';
 import { Input, InputField } from '@/components/ui/input';
@@ -11,6 +11,10 @@ import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold }
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Avatar } from '@/components/ui/avatar';
 import { Camera } from 'lucide-react-native';
+
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { getAllParametersRequest } from '@/interconnection/paremeter';
 
 interface RegisterStep2Props {
     firstFormData: {
@@ -35,8 +39,7 @@ interface RegisterStep2Props {
     onFinish: (completeData: any) => void;
 }
 
-export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {
-    const [fontsLoaded] = useFonts({
+export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {    const [fontsLoaded] = useFonts({
         Exo_400Regular,
         Exo_700Bold,
         Exo_500Medium,
@@ -44,6 +47,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     });
 
     // Estados para el segundo formulario - inicializar con datos previos si existen
+    const [base64Image, setBase64Image] = useState('');
     const [avatar, setAvatar] = useState(secondFormData?.avatar || '');
     const [username, setUsername] = useState(secondFormData?.username || '');
     const [phone, setPhone] = useState(secondFormData?.phone || '');
@@ -57,42 +61,161 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [showAlertDialog, setShowAlertDialog] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    // Estados para datos dinámicos de la API
+    const [identificationTypes, setIdentificationTypes] = useState<string[]>([]);
+    const [generos, setGeneros] = useState<string[]>([]);
+    const [loadingParameters, setLoadingParameters] = useState(true);
+
     const handleClose = () => setShowAlertDialog(false);
 
-    const identificationTypes = [
-        'Cédula de identidad',
-        'Pasaporte',
-        'Cédula de residencia'
-    ];
+    // Cargar parámetros desde la API
+    useEffect(() => {
+        const loadParameters = async () => {
+            try {
+                const parameters = await getAllParametersRequest();
+                if (parameters) {
+                    // Buscar y cargar tipos de identificación
+                    const identificationParam = parameters.find(param => 
+                        param.parameterName === 'Tipo de identificación'
+                    );
+                    if (identificationParam) {
+                        setIdentificationTypes(identificationParam.parameterList);
+                    }
+
+                    // Buscar y cargar géneros
+                    const genderParam = parameters.find(param => 
+                        param.parameterName === 'Géneros'
+                    );
+                    if (genderParam) {
+                        setGeneros(genderParam.parameterList);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar parámetros:', error);
+            } finally {
+                setLoadingParameters(false);
+            }
+        };
+
+        loadParameters();
+    }, []);
+
+    if (!fontsLoaded || loadingParameters) {
+        return (
+            <View className="flex-1 justify-center items-center bg-white">
+                <Text>Cargando...</Text>
+            </View>
+        );
+    }
 
     const userTypes = [
-        'Estudiante',
-        'Profesor',
-        'Funcionario'
+        'Pasajero',
+        'Conductor',
     ];
 
-    const genres = [
-        'Masculino',
-        'Femenino',
-        'Prefiero no decir'
-    ];
+    // Función para mostrar opciones de imagen
+    const showImagePickerOptions = () => {
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: ['Cancelar', 'Tomar Foto', 'Elegir de Galería'],
+                    cancelButtonIndex: 0,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        openCamera();
+                    } else if (buttonIndex === 2) {
+                        openGallery();
+                    }
+                }
+            );
+        } else {
+            Alert.alert(
+                'Seleccionar Imagen',
+                'Elige una opción',
+                [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Cámara', onPress: openCamera },
+                    { text: 'Galería', onPress: openGallery },
+                ],
+                { cancelable: true }
+            );
+        }
+    };
 
-    const AvatarUploadComponent = () => {
-        return (
-            <TouchableOpacity 
-                className="w-[34px] h-[34px] rounded-full bg-yellow-500 justify-center items-center absolute"
-                style={{
-                    top: 150,
-                    left: 98,
-                }}
-                onPress={() => {
-                    // Función para abrir cámara/galería
-                    console.log('Abrir selector de imagen');
-                }}
-            >
-                <Camera size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-        );
+    // Función para abrir la cámara
+    const openCamera = async () => {
+        try {
+            const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+            
+            if (permissionResult.granted === false) {
+                setErrorMessage("Se requieren permisos de cámara para tomar fotos");
+                setShowAlertDialog(true);
+                return;
+            }
+
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+            });
+
+            if (!result.canceled) {
+                await processImage(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error('Error al abrir cámara:', error);
+            setErrorMessage('No se pudo abrir la cámara. Por favor, inténtelo de nuevo.');
+            setShowAlertDialog(true);
+        }
+    };
+
+    // Función para abrir la galería
+    const openGallery = async () => {
+        try {
+            const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            
+            if (permissionResult.granted === false) {
+                setErrorMessage("Se requieren permisos para acceder a la galería");
+                setShowAlertDialog(true);
+                return;
+            }
+
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 0.8,
+            });
+
+            if (!result.canceled) {
+                await processImage(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error('Error al abrir galería:', error);
+            setErrorMessage('No se pudo abrir la galería. Por favor, inténtelo de nuevo.');
+            setShowAlertDialog(true);
+        }
+    };    // Función para procesar la imagen y convertirla a base64
+    const processImage = async (imageUri: string) => {
+        try {
+            // Convertir imagen a base64
+            const base64 = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            // Guardar base64 para enviar al backend
+            const base64WithPrefix = `data:image/jpeg;base64,${base64}`;
+            setBase64Image(base64WithPrefix);
+            setAvatar(base64WithPrefix);
+            
+            console.log('Imagen procesada exitosamente');
+        } catch (error) {
+            console.error('Error al procesar imagen:', error);
+            setErrorMessage('Error al procesar la imagen. Por favor, inténtelo de nuevo.');
+            setShowAlertDialog(true);
+        }
     };
 
     const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -118,11 +241,9 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
         if (!phonePattern.test(phone)) {
             setErrorMessage('El número de teléfono debe tener 8 dígitos.');
             setShowAlertDialog(true);
-            return false;
+            return false;        
         }
-
-        // Validar cédula (9 dígitos si es cédula de identidad)
-        if (identificationType === 'Cédula de identidad') {
+        if (identificationType === 'Cédula') {
             const cedulaPattern = /^\d{9}$/;
             if (!cedulaPattern.test(identificationNumber)) {
                 setErrorMessage('La cédula debe tener 9 dígitos.');
@@ -176,8 +297,18 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setShowAlertDialog(true);
         } finally {
             setLoading(false);
-        }
-    };
+        }    };
+
+    // Mostrar pantalla de carga mientras se cargan los parámetros
+    if (loadingParameters) {
+        return (
+            <View className="flex-1 justify-center items-center bg-white">
+                <Text className="text-[16px] text-gray-600" style={{ fontFamily: 'Exo_400Regular' }}>
+                    Cargando formulario...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <KeyboardAwareScrollView 
@@ -227,7 +358,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                     </AlertDialog>
 
                     <View className="absolute -top-10 transform -translate-x-[105px] z-10">
-                        <View className="relative">
+                        <View className="relative">                            
                             <Avatar
                                 className="w-[96px] h-[96px] rounded-full bg-[#ECECFF] justify-center items-center overflow-hidden"
                                 style={{
@@ -241,12 +372,21 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     elevation: 8,
                                 }}
                             >
-                                <ImageBackground
-                                    source={require('@/assets/images/Meli2.png')}
-                                    className="w-full h-full rounded-full"
-                                    resizeMode="cover"
-                                    style={{ borderRadius: 48 }}
-                                />
+                                {avatar && avatar.startsWith('data:image') ? (
+                                    <ImageBackground
+                                        source={{ uri: avatar }}
+                                        className="w-full h-full rounded-full"
+                                        resizeMode="cover"
+                                        style={{ borderRadius: 48 }}
+                                    />
+                                ) : (
+                                    <ImageBackground
+                                        source={require('@/assets/images/Meli2.png')}
+                                        className="w-full h-full rounded-full"
+                                        resizeMode="cover"
+                                        style={{ borderRadius: 48 }}
+                                    />
+                                )}
                             </Avatar>
                             
                             {/* Botón de cámara en la esquina del avatar */}
@@ -263,10 +403,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     shadowOpacity: 0.25,
                                     shadowRadius: 3.84,
                                     elevation: 5,
-                                }}
-                                onPress={() => {
-                                    console.log('Abrir selector de imagen');
-                                }}
+                                }}                                
+                                onPress={showImagePickerOptions}
                             >
                                 <Camera size={20} color="#000000" />
                             </TouchableOpacity>
@@ -281,8 +419,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                 <View className="flex-row mb-2">
                                     <Text className="text-[19px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
                                         Nombre de usuario
-                                    </Text>
-                                    {secondFormData?.username === '' && (
+                                    </Text>                                    
+                                    {username === '' && (
                                         <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
                                             *
                                         </Text>
@@ -397,9 +535,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>
-                            <Select
-                                options={genres}
+                            </View>                            <Select
+                                options={generos}
                                 selectedValue={genre}
                                 onValueChange={setGenre}
                                 placeholder="Seleccionar"
