@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { View, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, TouchableOpacity, ImageBackground } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
 import { Input, InputField, InputSlot } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
-
+import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -66,9 +67,15 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1"
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, padding: 0 }}
+      enableOnAndroid={true}
+      enableAutomaticScroll={true}
+      extraHeight={120}
+      extraScrollHeight={120}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
       <View className="flex-1 items-center">
         <StatusBar style="light" />
@@ -188,7 +195,7 @@ export default function LoginScreen() {
             <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-2">
               <TouchableOpacity
                 className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
-                onPress={() => router.back()}
+                onPress={() => router.push("/VentanaInicial")}
               >
                 <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
                   Volver
@@ -214,7 +221,7 @@ export default function LoginScreen() {
               <Text
                 className="text-[15px] text-[#7875F8]"
                 style={{ fontFamily: 'Exo_500Medium' }}
-                onPress={() => Alert.alert('Info', 'Función de registro próximamente')}
+                onPress={() => router.push("/Register/register")}
               >
                 ¡Crea una aquí!
               </Text>
@@ -222,6 +229,6 @@ export default function LoginScreen() {
           </View>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
