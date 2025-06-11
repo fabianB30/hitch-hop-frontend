@@ -23,6 +23,7 @@ import StatisticsPage from "../pages/statistics/StatisticsPage";
 import ProfileSettings from "@/pages/ProfileSettings";
 import UsersManagement from "@/pages/UsersManagement";
 import Register from "@/pages/1.1-registro-de-usuario/Register";
+import Login from "@/pages/1.3-inicio-de-sesion/Login";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home />} />
       <Route path="/bienvenida" element={<Bienvenida />} />
       <Route path="/registro" element={<Register />}/>
+      <Route path="/login" element={<Login />}/>
 
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
