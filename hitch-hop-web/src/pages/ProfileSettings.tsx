@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog";
 //import { format } from "date-fns";
 
 const initialUser = {
@@ -46,6 +47,10 @@ const ProfileSettings: React.FC = () => {
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showSavedDialog, setShowSavedDialog] = useState(false);
+  const [instituciones, setInstituciones] = useState<string[]>([
+    "Tecnológico de Costa Rica"
+  ]);
 
   useEffect(() => {
     const validationErrors = validateUserData(userData);
@@ -99,6 +104,7 @@ const ProfileSettings: React.FC = () => {
       if (Object.keys(errors).length > 0) return;
       console.log("Datos guardados:", userData);
       setEditable(false);
+      setShowSavedDialog(true);
     }
   };
 
@@ -150,7 +156,7 @@ const ProfileSettings: React.FC = () => {
         </span>
 
         <div className="flex flex-row gap-12 mt-4">
-          <div className="flex flex-col items-center min-w-[260px] pt-6">
+          <div className="flex flex-col items-center min-w-[260px] pt-0">
             <span className="text-lg font-medium font-exo mb-3 text-gray-700">Foto de perfil</span>
             <Avatar className="w-40 h-40 mb-2 border-4 border-[#ECECFF] shadow">
               <AvatarImage src={userData.foto} alt="Foto de perfil" className="object-cover" />
@@ -191,8 +197,8 @@ const ProfileSettings: React.FC = () => {
                   editable={editable}
                   onChange={(v) => handleChange(key as keyof typeof userData, v)}
                   error={errors[key as keyof typeof userData]}
-                  as={key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
-                  options={key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
+                  as={key === "institucion" || key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
+                  options={ key === "institucion" ? instituciones : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
                 />
               ))}
               <div className="flex flex-col gap-1">
@@ -352,6 +358,7 @@ const ProfileSettings: React.FC = () => {
                   setCurrentPassword("");
                   setNewPassword("");
                   setConfirmPassword("");
+                  setShowSavedDialog(true);
                 }}
               >
                 Confirmar cambios
@@ -365,6 +372,23 @@ const ProfileSettings: React.FC = () => {
 
         </div>
       </main>
+      {/* AlertDialog de confirmación de guardado */}
+      <AlertDialog open={showSavedDialog} onOpenChange={setShowSavedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¡Cambios guardados!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tus cambios han sido guardados exitosamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowSavedDialog(false)}
+              className="bg-[#7875F8] text-white hover:bg-[#5f5be6]">
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
