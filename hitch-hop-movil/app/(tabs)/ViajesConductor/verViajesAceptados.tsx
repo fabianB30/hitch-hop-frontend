@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "Exo",
     fontWeight: "500",
   },

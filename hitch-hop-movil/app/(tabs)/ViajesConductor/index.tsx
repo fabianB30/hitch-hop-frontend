@@ -13,7 +13,7 @@ export default function Index() {
       style={styles.background}
       resizeMode="cover"
     >
-      <Pressable onPress={() => router.push("/(tabs)")} style={styles.backArrow}>
+      <Pressable onPress={() => router.push("/(tabs)/HomeConductor")} style={styles.backArrow}>
         <Image
           source={require("@/assets/images/backArrow.png")}
           style={{ width: 30, height: 30 }}

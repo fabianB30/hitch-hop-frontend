@@ -142,7 +142,7 @@ export function RideCardDriver({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
+              fontSize: 16, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
@@ -171,7 +171,7 @@ export function RideCardDriver({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
+              fontSize: 16, 
               fontFamily: 'Exo', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
