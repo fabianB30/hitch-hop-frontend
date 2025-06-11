@@ -6,39 +6,17 @@ import React, {
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { registerRequest, loginRequest } from "../../../interconnection/user";
+import { registerRequest, loginRequest, User as UserType, IJwtResponse } from "../../../interconnection/user";
 
-export type User = {
-  name: string;
-  firstSurname: string;
-  secondSurname: string;
-  username: string;
-  email: string;
-  password: string;
-  institutionId: string;
-  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-  identificationNumber?: number;
-  birthDate: string;
-  genre?: "Masculino" | "Femenino" | "Otro";
-  photoKey?: string;
-  photoUrl?: string;
-  phone?: number;
-  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-  role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
-  notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
-  }[];
-};
+// Tipo local renombrado para evitar conflictos
+export type User = UserType;
 
 interface AuthContextType {
-  signUp: (userData: UserData) => Promise<void>;
-  signIn: (userData: { username: string; password: string }) => Promise<void>;
+  signUp: (userData: User) => Promise<void>;
+  signIn: (userData: { email: string; password: string }) => Promise<User | undefined>;
   logout: () => Promise<void>;
   loading: boolean;
-  user: UserData | null;
+  user: User | null;
   isAuthenticated: boolean;
   errors: string[];
 }
@@ -59,7 +37,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<UserData | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const storedUser = await AsyncStorage.getItem("user");
         if (storedUser) {
-          const parsedUser: UserData = JSON.parse(storedUser);
+          const parsedUser: User = JSON.parse(storedUser);
           setUser(parsedUser);
           setIsAuthenticated(true);
         }
@@ -81,16 +59,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
     loadUser();
   }, []);
-
-  const signUp = async (userData: UserData) => {
+  const signUp = async (userData: User) => {
     setLoading(true);
     try {
       const res = await registerRequest(userData);
-      const newUser = res.data as UserData;
-      setUser(newUser);
-      setIsAuthenticated(true);
-      setErrors([]);
-      await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      if (res) {
+        const newUser = res.user as User;
+        setUser(newUser);
+        setIsAuthenticated(true);
+        setErrors([]);
+        await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      }
     } catch (error: any) {
       if (error.response?.data?.messages) {
         setErrors(error.response.data.messages);
@@ -100,24 +79,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
-
+  };  
   const signIn = async (credentials: { email: string; password: string }) => {
     setLoading(true);
     try {
       const res = await loginRequest(credentials);
-      const newUser: UserData = res;
-      setUser(newUser);
-      setIsAuthenticated(true);
-      setErrors([]);
-      await AsyncStorage.setItem("user", JSON.stringify(newUser));
-      return newUser;
+      if (res) {
+        const newUser: User = res.user;
+        setUser(newUser);
+        setIsAuthenticated(true);
+        setErrors([]);
+        await AsyncStorage.setItem("user", JSON.stringify(newUser));
+        return newUser;
+      } else {
+        throw new Error('No se recibió respuesta del servidor');
+      }
     } catch (error: any) {
+      console.log('Auth context error:', error);
       if (error.response?.data?.messages) {
         setErrors(error.response.data.messages);
       } else {
         setErrors(["Error inesperado. Inténtalo de nuevo."]);
       }
+      // Re-lanzar el error para que el componente lo pueda manejar
+      throw error;
     } finally {
       setLoading(false);
     }
