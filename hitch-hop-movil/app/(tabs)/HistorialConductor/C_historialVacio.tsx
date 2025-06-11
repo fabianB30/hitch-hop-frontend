@@ -2,11 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-
+import * as Font from 'expo-font';
 
 export default function C_historialVacio() {
   const router = useRouter();
-
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  
+    useEffect(() => {
+      Font.loadAsync({
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      }).then(() => setFontsLoaded(true));
+    }, []);
+  
+    if (!fontsLoaded) return null;
   return (
     <View style={styles.container}>
       {/* Fondo superior con logo */}
@@ -42,12 +51,12 @@ export default function C_historialVacio() {
         {/* Imagen del personaje */}
         <Image
           source={require('@/assets/images/gatoautosConductor.png')}
-          style={{ width: 180, height: 260, marginVertical: 16 }}
+          style={{ width: 350, height: 450, marginVertical: 16, marginTop: -20, marginLeft: -20 }}
           resizeMode="contain"
         />
 
         {/* Texto vacío */}
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, { marginTop: -40 }]}>
           No hay viajes registrados{'\n'}como conductor
         </Text>
       </View>
