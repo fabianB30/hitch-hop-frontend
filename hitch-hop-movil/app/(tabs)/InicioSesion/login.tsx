@@ -8,9 +8,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
-import { loginRequest } from '../../../interconnection/user';
+import { useAuth } from '../Context/auth-context';
+
 
 export default function LoginScreen() {
+  const { signIn, errors } = useAuth();
+
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -43,12 +46,19 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const user = await loginRequest({ email: email, password: password});
+      const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
-      if (user){
-        console.log(user.name);
-        router.push('/(tabs)');
+      if (user) {
+        if (user.role === 'passenger'){
+          console.log(user.name);
+          router.push('../HomePasajero');
+        } else {
+          router.push('../HomeConductor');
+        }
+      } else {
+        console.log('Login error');
       }
+      
 
     } catch (error) {
       console.error('Login error:', error);
@@ -72,8 +82,8 @@ export default function LoginScreen() {
         <StatusBar style="light" />
         <ImageBackground
           source={require('@/assets/images/fondo-HitchHop.png')}
-          className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
-          resizeMode="contain"
+          className="absolute inset-0 w-full h-full"
+          resizeMode="cover"
         />
         {/* Logo*/}
         <View className="absolute justify-center items-center h-[80px] w-[270px] top-[80px]">
@@ -188,11 +198,9 @@ export default function LoginScreen() {
                 className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
                 onPress={() => router.back()}
               >
-                <View className="h-10 justify-center">
-                  <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
-                    Volver
-                  </Text>
-                </View>
+                <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
+                  Volver
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity

@@ -1,9 +1,24 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, View, Text, Image, StyleSheet, ImageBackground, ScrollView } from 'react-native';
 import * as Font from 'expo-font';
+import {registerTripRequest} from '../../interconnection/trip';
 
 export default function HomeConductor() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const router = useRouter();
+
+  const dataPrueba = {
+    startpoint: "68462f9accc5871f7e93839b",  // Usando el mismo ID para prueba
+    endpoint: "68462f9accc5871f7e93839b",
+    departure: "2025-07-01T10:00:00.000Z",
+    arrival: "2025-07-01T14:00:00.000Z",
+    stops: [],
+    passengers: [],
+    driver: "68462f9accc5871f7e93839b",
+    paymethod: "Gratuito",
+    costPerPerson: 0,
+  };
 
   useEffect(() => {
     Font.loadAsync({
@@ -27,32 +42,95 @@ export default function HomeConductor() {
 
         <Text style={styles.sectionTitle}>Conductor</Text>
 
-        {/* Tarjeta: Publicar ruta */}
-        <View style={styles.firstCard}>
-          <Text style={styles.firstCardText}>Publicar una ruta</Text>
+        {/* Publicar ruta */}
+        <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
+          <View style={styles.firstCard}>
+            <Text style={styles.firstCardText}>Publicar</Text>
+            <Text style={styles.firstCardText}>una ruta</Text>
+          </View>
+          <Image source={require('@/assets/images/car.png')} style={styles.firstCharacter} />
+          <Pressable
+            onPress={() => { }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              width: 342,
+              height: 185,
+              borderRadius: 30,
+              zIndex: 10,
+            }}
+          >
+            <View />
+          </Pressable>
         </View>
-        <Image source={require('@/assets/images/car.png')} style={styles.firstCharacter} />
 
-        {/* Tarjeta: Ver viajes programados */}
-        <View style={styles.secondCard}>
-          <Text style={styles.secondCardText}>Ver viajes</Text>
-          <Text style={styles.secondCardText}>programados</Text>
+        {/* Ver viajes programados */}
+        <View style={{ position: 'relative', alignItems: 'center', marginBottom: 30, height: 185 }}>
+          <View style={styles.secondCard}>
+            <Text style={styles.secondCardText}>Ver viajes</Text>
+            <Text style={styles.secondCardText}>programados</Text>
+          </View>
+          <Image source={require('@/assets/images/trips.png')} style={styles.secondCharacter} />
+          <Pressable
+            onPress={() => router.push('/ViajesConductor')}
+            style={{
+              position: 'absolute',
+              top: 0,
+              width: 342,
+              height: 185,
+              borderRadius: 30,
+              zIndex: 10,
+            }}
+          >
+            <View />
+          </Pressable>
         </View>
-        <Image source={require('@/assets/images/trips.png')} style={styles.secondCharacter} />
 
         <Text style={styles.sectionTitle2}>Pasajero</Text>
 
-        {/* Tarjeta pasajero: Buscar nueva ruta */}
-        <View style={styles.firstCard}>
-          <Text style={styles.firstCardText}>Buscar una nueva ruta</Text>
+        {/* Buscar nueva ruta */}
+        <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
+          <View style={styles.firstCard}>
+            <Text style={styles.firstCardText}>Buscar una</Text>
+            <Text style={styles.firstCardText}>nueva ruta</Text>
+          </View>
+          <Image source={require('@/assets/images/search.png')} style={styles.thirdCharacter} />
+          <Pressable
+            onPress={() => { }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              width: 342,
+              height: 185,
+              borderRadius: 30,
+              zIndex: 10,
+            }}
+          >
+            <View />
+          </Pressable>
         </View>
-        <Image source={require('@/assets/images/search.png')} style={styles.thirdCharacter} />
 
-        {/* Tarjeta pasajero: Ver viajes solicitados */}
-        <View style={styles.finalCard}>
-          <Text style={styles.secondCardText}>Ver viajes solicitados</Text>
+        {/* Ver viajes solicitados */}
+        <View style={{ position: 'relative', alignItems: 'center', marginBottom: 50 }}>
+          <View style={styles.finalCard}>
+            <Text style={styles.secondCardText}>Ver viajes</Text>
+            <Text style={styles.secondCardText}>solicitados</Text>
+          </View>
+          <Image source={require('@/assets/images/viewtrips.png')} style={styles.fourthCharacter} />
+          <Pressable
+            onPress={() => router.push('/ViajesPasajero')}
+            style={{
+              position: 'absolute',
+              top: 0,
+              width: 342,
+              height: 185,
+              borderRadius: 30,
+              zIndex: 10,
+            }}
+          >
+            <View />
+          </Pressable>
         </View>
-        <Image source={require('@/assets/images/viewtrips.png')} style={styles.fourthCharacter} />
       </ScrollView>
     </ImageBackground>
   );
@@ -60,16 +138,14 @@ export default function HomeConductor() {
 
 const styles = StyleSheet.create({
   background: {
-    width: 393,
-    height: 852,
-    position: 'relative',
-    backgroundColor: 'white'
+    flex: 1,
+    backgroundColor: 'white',
   },
   backgroundImageStyle: {
     opacity: 0.15,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 0,
   },
   logo: {
     marginTop: 30,
@@ -85,8 +161,8 @@ const styles = StyleSheet.create({
     left: 65,
     fontSize: 36,
     fontFamily: 'Exo-Medium',
-    fontWeight: 700,
-    color: '#171717'
+    fontWeight: '700',
+    color: '#171717',
   },
   sectionTitle: {
     fontSize: 36,
@@ -113,7 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 180,
     alignSelf: 'center',
-    marginBottom: 50,
   },
   firstCardText: {
     color: 'white',
@@ -128,7 +203,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 25,
     alignSelf: 'center',
-    marginBottom: 30,
   },
   finalCard: {
     width: 342,
@@ -138,7 +212,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 25,
     alignSelf: 'center',
-    marginBottom: 50,
   },
   secondCardText: {
     color: 'white',
@@ -149,35 +222,35 @@ const styles = StyleSheet.create({
   },
   firstCharacter: {
     position: 'absolute',
-    top: 237.5,
-    left: 17,
+    top: 18,
+    left: 12,
     width: 197,
     height: 193,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   secondCharacter: {
     position: 'absolute',
-    top: 365,
+    top: -85,
     left: 180,
     width: 218,
     height: 277,
     resizeMode: 'contain',
-    transform: [{ scaleX: -1 }]
+    transform: [{ scaleX: -1 }],
   },
   thirdCharacter: {
     position: 'absolute',
-    top: 690,
+    top: -65,
     left: -39,
     width: 262,
     height: 262,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   fourthCharacter: {
     position: 'absolute',
-    top: 920,
+    top: -80,
     left: 133,
     width: 292,
     height: 292,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
 });

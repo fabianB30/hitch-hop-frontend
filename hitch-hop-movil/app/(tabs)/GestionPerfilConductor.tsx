@@ -1,5 +1,5 @@
 import { Box } from "@/components/ui/box";
-import { Image } from "react-native";
+import { Image, TouchableOpacity } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
+import { useRouter } from "expo-router";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -15,7 +16,10 @@ const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 const headerHeight = windowHeight * 0.15;
 
-export default function GestionPerfil(){
+
+
+export default function GestionPerfilConductor(){
+  const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
       <Box style={{height: 30}}/>  
@@ -44,19 +48,19 @@ export default function GestionPerfil(){
         <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
-            <VStack space="4xl" style={{alignItems: "center", marginTop: 60}}>
-              <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Vehículos</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch}>
-                <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
-              </Button>
+            <VStack style={{gap: 15, alignItems: "center", marginTop: 40}}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
+                <Text style={styles.buttonTextHitch}>Información personal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/home")}>
+                <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
+                <Text style={styles.buttonTextHitch}>Vehículos</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
+                <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
+              </TouchableOpacity>
             </VStack>
           </Box>
         </Box>
@@ -68,13 +72,17 @@ export default function GestionPerfil(){
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,
-    height: 48,
+    height: 55,
     backgroundColor: "#716EFF",
     borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center"
   },
   buttonTextHitch: {
     fontFamily: "Exo_600SemiBold",
-    fontSize: 17
+    fontSize: 16,
+    textAlign: "center",
+    color: "white"
   },
   boxHitch: {
     backgroundColor: "#A49DFF",
