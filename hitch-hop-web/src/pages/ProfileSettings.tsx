@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
-import { format } from "date-fns";
+//import { format } from "date-fns";
 
 const initialUser = {
   nombre: "Juan",
