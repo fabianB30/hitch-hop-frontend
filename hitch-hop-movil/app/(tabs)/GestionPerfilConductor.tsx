@@ -8,6 +8,7 @@ import { StyleSheet } from 'react-native';
 import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
 import { useRouter } from "expo-router";
+import { useAuth } from './Context/auth-context';
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -19,6 +20,7 @@ const headerHeight = windowHeight * 0.15;
 
 
 export default function GestionPerfilConductor(){
+  const { logout } = useAuth();
   const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -58,7 +60,7 @@ export default function GestionPerfilConductor(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
                 <Text style={styles.buttonTextHitch}>Vehículos</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => {logout(); router.push("/VentanaInicial");}}>
                 <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
               </TouchableOpacity>
             </VStack>
