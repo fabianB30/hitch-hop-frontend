@@ -1,150 +1,130 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import * as Font from 'expo-font';
 
 export default function P_historialVacio() {
   const router = useRouter();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) return null;
   return (
-    <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
+    <View style={styles.container}>
+      {/* Fondo superior con logo */}
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-                    <Image
-                      source={require('@/assets/images/HHlogo.png')}
-                      style={{
-                        width: '160%',
-                        height: '100%',
-                        position: 'absolute',
-                        top: -20,
-                        left: '-10%',
-                      }}
-                      resizeMode="cover"
-                    />
-                    {/* Logo encima del fondo */}
-                    <Image
-                      source={require('@/assets/images/HHLogoDisplay.png')}
-                      style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-                      resizeMode="contain"
-                    />
-                  </View>
+        <Image
+          source={require('@/assets/images/HHlogo.png')}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
+          resizeMode="cover"
+        />
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* Contenido principal */}
-      <View style={{
-        flex: 1,
-        marginTop: 100,
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-        paddingHorizontal: 0,
-        paddingTop: 24,
-        alignItems: 'center'
-      }}>
-        {/* Flecha back y título */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16, alignSelf: 'flex-start' }}>
-          <TouchableOpacity onPress={() => router.back()}>
+      <View style={styles.content}>
+        <View style={styles.titleContainer}>
+          <TouchableOpacity onPress={() => router.push('/HistorialMain')}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#181718' }}>Historial</Text>
-            <Text style={{ fontSize: 18, color: '#181718', marginTop: -4 }}>Pasajero</Text>
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>Historial</Text>
+            <Text style={styles.subtitle}>Pasajero</Text>
           </View>
         </View>
 
-        {/* Gato imagen */}
+        {/* Imagen del personaje */}
         <Image
           source={require('@/assets/images/gatoautosPasajero.png')}
-          style={{ width: 180, height: 260, marginVertical: 16 }}
+          style={{ width: 350, height: 450, marginVertical: 16, marginTop: -20, marginLeft: -20 }}
           resizeMode="contain"
         />
 
-        {/* Texto de vacío */}
-        <Text style={{ fontSize: 20, color: '#181718', textAlign: 'center', marginTop: 8 }}>
-          No hay viajes registrados{'\n'}como pasajero
+        {/* Texto vacío */}
+        <Text style={[styles.emptyText, { marginTop: -40, paddingHorizontal: 40 }]}>
+          No hay viajes registrados como pasajero
         </Text>
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  background: {
-    width: 393,
-    height: 852,
-    position: 'relative',
-    backgroundColor: 'white'
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f3ff',
   },
-  backgroundImageStyle: {
-    opacity: 0.15,
+  headerImage: {
+    width: '160%',
+    height: '100%',
+    position: 'absolute',
+    top: -20,
+    left: '-10%',
   },
   logo: {
+    width: 120,
+    height: 36,
     position: 'absolute',
-    top: 30,
-    right: 20,
-    fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000'
+    top: 16,
+    right: 16,
+  },
+  content: {
+    flex: 1,
+    marginTop: 100,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal: 0,
+    paddingTop: 24,
+    alignItems: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'flex-start',
+  },
+  textContainer: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 32,
   },
   title: {
-    position: 'absolute',
-    top: 80,
-    left: 65,
-    fontSize: 36,
-    fontFamily: 'Exo-Medium',
-    fontWeight: '700',
-    color: '#171717'
+    fontSize: 28,
+    color: '#181718',
+    fontFamily: 'Exo-Bold',
   },
-  firstCard: {
-    position: 'absolute',
-    top: 210,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(120, 117, 248, 0.72)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 180
+  subtitle: {
+    fontSize: 18,
+    color: '#181718',
+    marginTop: -4,
+    fontFamily: 'Exo-SemiBold',
   },
-  firstCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium'
-  },
-  firstCharacter: {
-    position: 'absolute',
-    top: 135,
-    left: -39,
-    width: 262,
-    height: 262,
-    resizeMode: 'contain'
-  },
-  secondCard: {
-    position: 'absolute',
-    top: 460,
-    left: 25.81,
-    width: 342,
-    height: 185,
-    backgroundColor: 'rgba(255, 171, 0, 0.6)',
-    borderRadius: 30,
-    justifyContent: 'center',
-    paddingLeft: 25
-  },
-  secondCardText: {
-    color: 'white',
-    fontSize: 30,
-    fontFamily: 'Exo-Medium',
-    paddingBottom: 10,
-    maxWidth: 160,
-    textAlign: 'left'
-  },
-  secondCharacter: {
-    position: 'absolute',
-    top: 385,
-    left: 133,
-    width: 292,
-    height: 292,
-    resizeMode: 'contain'
+  emptyText: {
+    fontSize: 20,
+    color: '#181718',
+    textAlign: 'center',
+    fontFamily: 'Exo-Regular',
+    marginTop: 8,
   },
 });

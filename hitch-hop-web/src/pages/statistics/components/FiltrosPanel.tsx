@@ -1,10 +1,30 @@
 import { useState } from "react";
-import { CalendarIcon, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import RangoFecha from "./RangoFecha";
+import { Button } from "@/components/ui/button";
+import type { DateRange } from "react-day-picker";
 
 const FiltrosPanel = () => {
   const [institucion, setInstitucion] = useState("todas");
   const [genero, setGenero] = useState("todos");
-  const [fecha, setFecha] = useState("01/01/25 - 12/12/25");
+  const [fecha, setFecha] = useState<DateRange | undefined>(undefined);
+
+  const handleSubmitFiltro = () => {
+    const formatDesde = fecha?.from?.toLocaleDateString() || "NA"; 
+    const formatHasta = fecha?.to?.toLocaleDateString() || "NA"; 
+
+    const filtros = {
+      institucion, 
+      genero, 
+      fecha: {
+        desde: formatDesde, 
+        hasta: formatHasta,
+      },
+    }
+
+    console.log(filtros); 
+    // send a Backend 
+  };
 
   return (
     <aside className="w-64 min-w-[240px] bg-white rounded-xl shadow p-6 border border-gray-200 h-fit">
@@ -30,15 +50,13 @@ const FiltrosPanel = () => {
       {/* Rango de Fecha */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-[#171717] mb-1">Rango de Fecha</label>
-        <div className="flex items-center border border-gray-300 px-3 py-2 rounded-md text-sm gap-2">
-          <CalendarIcon className="w-4 h-4 text-gray-500" />
-          <span className="text-[#171717]">{fecha}</span>
-          <ChevronDown className="ml-auto w-4 h-4 text-gray-500" />
+        <div className="relative">
+        <RangoFecha value={fecha} onChange={setFecha} />
         </div>
       </div>
 
       {/* Género */}
-      <div>
+      <div className="mb-8">
         <label className="block text-sm font-medium text-[#171717] mb-1">Género</label>
         <div className="relative">
           <select
@@ -52,6 +70,17 @@ const FiltrosPanel = () => {
           </select>
           <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
         </div>
+      </div>
+
+      {/* boton */}
+      {/* estoy consciente de que el spacing no es el mismo que entre el resto de componentes, sientase bienvenido a calcular cual seria el spacing correcto */}
+      <div>
+        <Button 
+          className="w-full bg-[color:var(--secondary-200)]"
+          onClick={handleSubmitFiltro}
+        >
+          Aplicar Filtro
+        </Button>
       </div>
     </aside>
   );
