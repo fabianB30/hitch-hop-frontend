@@ -60,15 +60,6 @@ export default function C_historialVacio() {
           No hay viajes registrados{'\n'}como conductor
         </Text>
       </View>
-
-      {/* Barra de navegación inferior */}
-      <View style={styles.navbar}>
-        {[...Array(4)].map((_, i) => (
-          <TouchableOpacity key={i}>
-            <Image source={"asset"} style={{ width: 32, height: 32 }} />
-          </TouchableOpacity>
-        ))}
-      </View>
     </View>
   );
 }
@@ -136,18 +127,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Exo-Regular',
     marginTop: 8,
-  },
-  navbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 64,
-    backgroundColor: '#7B61FF',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
 });
