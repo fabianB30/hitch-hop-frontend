@@ -83,7 +83,7 @@ export default function VerViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)/ViajesConductor")}
+        onPress={() => router.back()}
         style={styles.backArrow}
       >
         <Image
@@ -102,7 +102,7 @@ export default function VerViajesAceptados() {
         <Pressable style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
-        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesPendientes')} style={styles.pendientesButton}>
+        <Pressable onPress={() => router.replace('/(tabs)/ViajesConductor/verViajesPendientes')} style={styles.pendientesButton}>
           <Text style={styles.buttonText}>Por aprobar</Text>
         </Pressable>
       </Box>
@@ -155,14 +155,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   overlay: {

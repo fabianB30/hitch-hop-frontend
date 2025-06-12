@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
 
-export default function VerViajesAceptados() {
+export default function VerViajesPendientes() {
   const router = useRouter();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -143,7 +143,7 @@ export default function VerViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)/ViajesConductor")}
+        onPress={() => router.back()}
         style={styles.backArrow}
       >
         <Image
@@ -159,7 +159,7 @@ export default function VerViajesAceptados() {
       <Text style={styles.title}>Viajes Programados</Text>
 
       <Box style={styles.buttonsContainer}>
-        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
+        <Pressable onPress={() => router.replace('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
         <Pressable style={styles.pendientesButton}>
@@ -222,14 +222,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   overlay: {
