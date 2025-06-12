@@ -104,36 +104,8 @@ export default function C_detHistorial() {
           ))}
         </ScrollView>
       </View>
-
-      {/* Barra de navegación inferior */}
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        height: 64,
-        backgroundColor: '#7B61FF',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-      }}>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-      </View>
     </View>
-  );
+  );  
 }
 
 const styles = StyleSheet.create({

@@ -19,10 +19,14 @@ export default function P_historialVacio() {
   return (
     <View style={styles.container}>
       {/* Fondo superior con logo */}
-      <View style={styles.headerBackground}>
+      <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
         <Image
           source={require('@/assets/images/HHlogo.png')}
-          style={styles.headerImage}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
           resizeMode="cover"
         />
         <Image
@@ -35,7 +39,7 @@ export default function P_historialVacio() {
       {/* Contenido principal */}
       <View style={styles.content}>
         <View style={styles.titleContainer}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.push('/HistorialMain')}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
@@ -51,13 +55,13 @@ export default function P_historialVacio() {
         {/* Imagen del personaje */}
         <Image
           source={require('@/assets/images/gatoautosPasajero.png')}
-          style={{ width: 500, height: 600, marginVertical: 16, marginTop: -90, marginLeft: 10 }}
+          style={{ width: 350, height: 450, marginVertical: 16, marginTop: -20, marginLeft: -20 }}
           resizeMode="contain"
         />
 
         {/* Texto vacío */}
-        <Text style={[styles.emptyText, { marginTop: -130 }]}>
-          No hay viajes registrados{'\n'}como pasajero
+        <Text style={[styles.emptyText, { marginTop: -40, paddingHorizontal: 40 }]}>
+          No hay viajes registrados como pasajero
         </Text>
       </View>
     </View>
@@ -68,11 +72,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f3ff',
-  },
-  headerBackground: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute'
   },
   headerImage: {
     width: '160%',
