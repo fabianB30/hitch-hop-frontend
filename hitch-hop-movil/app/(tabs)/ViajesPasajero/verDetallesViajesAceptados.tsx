@@ -8,7 +8,7 @@ import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getTripByUserRequest } from '../../../interconnection/trip';
+import { getTripsByUserRequest } from '../../../interconnection/trip';
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function VerDetallesViajesAceptados() {
   /*useEffect(() => {
     async function fetchData() {
       try {
-        const trips = await getTripByUserRequest(userId, false, status);
+        const trips = await getTripsByUserRequest(userId, false, status);
         if (trips) setTrips(trips);
       } catch (error) {
         console.error("Error al obtener viajes:", error);

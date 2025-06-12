@@ -70,7 +70,7 @@ export const getTripByIdRequest = async (id): Promise<IJwtResponse | null> => {
     }
 };
 
-export const getTripByUserRequest = async (userId: string, driver: boolean, status: string): Promise<IJwtResponse | null> => {
+export const getTripsByUserRequest = async (userId: string, driver: boolean, status: string): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.get(`/backend/trips/user/${userId}`, {params: {driver, status}});
         const dataTrip = res.data.data;
