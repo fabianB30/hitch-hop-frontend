@@ -11,20 +11,29 @@ import {AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, A
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { useRouter } from "expo-router";
 import { getAllInstitutionsRequest } from '@/interconnection/institution';
-import { getParameterByNameRequest } from '@/interconnection/paremeter';
 
 interface RegisterStep1Props {
+    initialData?: {
+        email: string;
+        password: string;
+        institution: string;
+        institutionId: string;
+        name: string;
+        lastName: string;
+        secondLastName: string;
+    };
     onNext: (data: {
         email: string;
         password: string;
         institution: string;
+        institutionId: string;
         name: string;
         lastName: string;
         secondLastName: string;
     }) => void;
 }
 
-export default function RegisterStep1({ onNext }: RegisterStep1Props) {
+export default function RegisterStep1({initialData, onNext }: RegisterStep1Props) {
     const router = useRouter();
     const [fontsLoaded] = useFonts({
         Exo_400Regular,
@@ -32,13 +41,16 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
         Exo_500Medium,
         Exo_600SemiBold,
     });
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [institution, setInstitution] = useState('');
-    const [institutions, setInstitutions] = useState<{ nombre: string }[]>([]);
-    const [name, setName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [secondLastName, setSecondLastName] = useState('');
+    // Inicializar estados con datos previos si existen
+    const [email, setEmail] = useState(initialData?.email || '');
+    const [password, setPassword] = useState(initialData?.password || '');
+    const [institution, setInstitution] = useState(initialData?.institution || '');
+    const [institutionId, setInstitutionId] = useState(initialData?.institutionId || '');
+    const [institutions, setInstitutions] = useState<{ _id: string; nombre: string }[]>([]);
+    const [name, setName] = useState(initialData?.name || '');
+    const [lastName, setLastName] = useState(initialData?.lastName || '');
+    const [secondLastName, setSecondLastName] = useState(initialData?.secondLastName || '');
+
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showAlertDialog, setShowAlertDialog] = useState(false);
@@ -46,21 +58,48 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
     const handleClose = () => setShowAlertDialog(false)
 
     useEffect(() => {
-    async function loadSelects() {
-        try {
-            const result = await getAllInstitutionsRequest();
-            if (result && result.length > 0) {
-                setInstitutions(result);
-            } else {
+        async function loadSelects() {
+            try {
+                const result = await getAllInstitutionsRequest();
+                
+                if (result && result.length > 0) {
+                    setInstitutions(result);
+                } else {
+                    setInstitutions([]);
+                }
+                
+            } catch (error) {
+                console.error("Error al obtener instituciones:", error);
                 setInstitutions([]);
             }
-            
-        } catch (error) {
-            console.error("Error al obtener tipos de identificación:", error);
-        }
         }
         loadSelects();
-      }, []);
+    }, []);
+
+    // Efecto para sincronizar institutionId cuando se cargan las instituciones
+    useEffect(() => {
+        if (initialData?.institution && institutions.length > 0 && !institutionId) {
+            const selectedInstitution = institutions.find(inst => inst.nombre === initialData.institution);
+            if (selectedInstitution) {
+                setInstitutionId(selectedInstitution._id);
+            }
+        }
+    }, [institutions, initialData?.institution, institutionId]);
+
+    // Función para manejar el cambio de institución
+    const handleInstitutionChange = (selectedName: string) => {
+        setInstitution(selectedName);
+        
+        // Encontrar el ID correspondiente al nombre seleccionado
+        const selectedInstitution = institutions.find(inst => inst.nombre === selectedName);
+        
+        if (selectedInstitution) {
+            setInstitutionId(selectedInstitution._id);
+        } else {
+            console.error('No se encontró la institución:', selectedName);
+            setInstitutionId('');
+        }
+    };
 
     const handleRegister = async () => {
         // Validación campos vacíos
@@ -88,6 +127,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
             email,
             password,
             institution,
+            institutionId,
             name,
             lastName,
             secondLastName,
@@ -164,7 +204,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                             <Select
                                 options={institutions.map(inst => inst.nombre)}
                                 selectedValue={institution}
-                                onValueChange={setInstitution}
+                                onValueChange={handleInstitutionChange}
                                 placeholder="Selecciona una institución"
                                 className="w-[264px]"
                             />

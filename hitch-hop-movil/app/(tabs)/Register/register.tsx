@@ -5,24 +5,31 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, 
 import { Text } from '@/components/ui/text';
 import { TouchableOpacity } from 'react-native';
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
+import TyCScreen from './components/TyC';
 import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
 import { Avatar } from '@/components/ui/avatar';
 import { registerRequest } from '@/interconnection/user';
+import { useAuth } from '@/app/(tabs)/Context/auth-context';
+
 
 
 export default function RegisterScreen() {
     const router = useRouter();
+    const { signUp } = useAuth(); 
     const [fontsLoaded] = useFonts({
         Exo_400Regular,
         Exo_700Bold,
         Exo_500Medium,
         Exo_600SemiBold,
-    });    const [currentStep, setCurrentStep] = useState(1);
+    });    
+    const [currentStep, setCurrentStep] = useState(1);
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const [firstFormData, setFirstFormData] = useState({
         email: '',
         password: '',
         institution: '',
+        institutionId: '',
         name: '',
         lastName: '',
         secondLastName: '',
@@ -32,6 +39,7 @@ export default function RegisterScreen() {
         username: '',
         phone: '',
         identificationType: '',
+        identificationTypeId: '',
         identificationNumber: '',
         userType: '',
         genre: '',
@@ -45,51 +53,89 @@ export default function RegisterScreen() {
     const handleStep1Next = (data: any) => {
         setFirstFormData(data);
         setCurrentStep(2);
-    };    const handleStep2Back = (data: any) => {
-        // Guardar los datos del segundo formulario antes de volver
+    };
+
+    const handleStep2Back = (data: any) => {
         setSecondFormData(data);
         setCurrentStep(1);
-    };      const handleFinishRegistration = async (completeData: any) => {
+    };
+
+    const handleStep2Next = (data: any) => {
+        setSecondFormData(data);
+        setCurrentStep(3);
+    };
+
+    const handleTermsAccept = () => {
+        setTermsAccepted(true);
+        // Combinar todos los datos y proceder con el registro
+        const completeData = {
+            ...firstFormData,
+            ...secondFormData
+        };
+        handleFinishRegistration(completeData);
+    };
+
+    const handleTermsReject = () => {
+        // Volver al paso anterior o mostrar mensaje
+        setCurrentStep(2);
+        setSuccessMessage('Debe aceptar los términos y condiciones para crear una cuenta.');
+        setShowAlertDialog(true);
+    };
+        
+    const handleFinishRegistration = async (completeData: any) => {
+        // Verificar que los términos han sido aceptados
+        if (!termsAccepted) {
+            setSuccessMessage('Debe aceptar los términos y condiciones para continuar.');
+            setShowAlertDialog(true);
+            return;
+        }
+        
         try {
-            console.log('Datos completos de registro:', completeData);
-            
             // Preparar datos para el backend según el tipo User
             const registrationData = {
                 name: completeData.name,
-                firstSurname: completeData.firstSurname,
-                secondSurname: completeData.secondSurname,
+                fisrtSurname: completeData.lastName,        // Usar lastName del step 1
+                secondSurname: completeData.secondLastName, // Usar secondLastName del step 1
                 username: completeData.username,
                 email: completeData.email,
                 password: completeData.password,
-                institutionId: "default", // Esto puede necesitar ser dinámico
-                identificationTypeId: completeData.identificationType,
+                institutionId: completeData.institutionId,
+                identificationTypeId: completeData.identificationTypeId,
                 identificationNumber: parseInt(completeData.identificationNumber) || 0,
                 birthDate: completeData.birthDate,
                 genre: completeData.genre,
-                photoKey: completeData.avatar, // Usando el avatar como photoKey
-                photoUrl: "", // Por ahora vacío
+                photoKey: completeData.avatar,
+                photoUrl: "",
                 phone: parseInt(completeData.phone) || 0,
                 type: "Usuario" as const,
-                role: completeData.userType === "Conductor" ? "Conductor" as const : "Pasajero" as const,
+                role: completeData.rol === "Conductor" ? "Conductor" as const : "Pasajero" as const, // Usar 'rol' no 'userType'
                 vehicles: [],
                 notifications: []
             };
-
-            console.log('Datos preparados para el backend:', registrationData);
             
             // Llamar a la API de registro
-            const result = await registerRequest(registrationData);
-            
-            if (result) {
-                setSuccessMessage('¡Registro exitoso! Bienvenido a HitchHop.');
-                setShowAlertDialog(true);
+            const result = await signUp(registrationData);
+            console.log('Resultado del registro:', result);
+            // Verificar si el resultado es un objeto con propiedades de usuario (éxito)
+            if (result && typeof result === 'object' && result.email) {
+                // regidirir a ventana de bienvenida correspondiente
+                if(result.role === 'Conductor') {
+                    router.push('/BienvenidaConductor/C_bienvenida');
+                } else if(result.role === 'Pasajero') {
+                    router.push('/BienvenidaPasajero/P_bienvenida');
+                }
                 
-                // Redirigir al login después de un tiempo
-                setTimeout(() => {
-                    router.push('/InicioSesion/login');
-                }, 2000);
+            } else if (result && typeof result === 'string') {
+                // Si el resultado es un string, es un mensaje de error
+                setSuccessMessage(result);
+                setShowAlertDialog(true);
+            } else if (result === null) {
+                // Si es null, mostrar mensaje genérico
+                setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
+                setShowAlertDialog(true);
             } else {
-                setSuccessMessage('Error al registrar usuario. Verifique que todos los campos estén completos y que el email no esté ya registrado.');
+                // Fallback para casos inesperados
+                setSuccessMessage('Error inesperado durante el registro.');
                 setShowAlertDialog(true);
             }
 
@@ -124,14 +170,24 @@ export default function RegisterScreen() {
             </AlertDialog>
 
             {currentStep === 1 && (
-                <RegisterStep1 onNext={handleStep1Next} />
-            )}            
+                <RegisterStep1 
+                    initialData={firstFormData}
+                    onNext={handleStep1Next} 
+                />
+            )}           
             {currentStep === 2 && (
                 <RegisterStep2 
                     firstFormData={firstFormData}
                     secondFormData={secondFormData}
                     onBack={handleStep2Back}
-                    onFinish={handleFinishRegistration}
+                    onFinish={handleStep2Next}
+                />
+            )}
+
+            {currentStep === 3 && (
+                <TyCScreen 
+                    onAccept={handleTermsAccept}
+                    onReject={handleTermsReject}
                 />
             )}
         </View>

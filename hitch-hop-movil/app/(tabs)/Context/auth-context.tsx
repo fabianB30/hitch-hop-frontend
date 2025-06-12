@@ -86,11 +86,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       const res = await registerRequest(userData);
-      const newUser = res.data as UserData;
+      const newUser: UserData = res;
       setUser(newUser);
       setIsAuthenticated(true);
       setErrors([]);
       await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      return newUser;
     } catch (error: any) {
       if (error.response?.data?.messages) {
         setErrors(error.response.data.messages);

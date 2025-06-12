@@ -13,7 +13,7 @@ import { useAuth } from '@/app/(tabs)/Context/auth-context';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signIn, errors } = useAuth();
+  const { signIn } = useAuth();
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,

@@ -23,7 +23,7 @@ export type User = {
   phone?: number;
   type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
   role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
+  vehicles: string[];
   notifications: {
     title: string;
     subtitle: string;
@@ -43,8 +43,7 @@ export const registerRequest = async (data : User): Promise<IJwtResponse | null>
         if (dataUser) {
             return dataUser;
         } else {
-            console.error('Invalid response structure:', res);
-            return null;
+            return res.data.msg;
         }
     } catch (error: any) {
         return error.response?.data.msg;

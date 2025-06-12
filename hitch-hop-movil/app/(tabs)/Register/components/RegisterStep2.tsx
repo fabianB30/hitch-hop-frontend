@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { View, TouchableOpacity, ImageBackground, Alert, ActionSheetIOS, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StatusBar } from 'expo-status-bar';
@@ -21,6 +21,7 @@ interface RegisterStep2Props {
         email: string;
         password: string;
         institution: string;
+        institutionId: string;
         name: string;
         lastName: string;
         secondLastName: string;
@@ -30,6 +31,7 @@ interface RegisterStep2Props {
         username: string;
         phone: string;
         identificationType: string;
+        identificationTypeId: string;
         identificationNumber: string;
         userType: string;
         genre: string;
@@ -39,7 +41,8 @@ interface RegisterStep2Props {
     onFinish: (completeData: any) => void;
 }
 
-export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {    const [fontsLoaded] = useFonts({
+export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {    
+    const [fontsLoaded] = useFonts({
         Exo_400Regular,
         Exo_700Bold,
         Exo_500Medium,
@@ -52,8 +55,9 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [username, setUsername] = useState(secondFormData?.username || '');
     const [phone, setPhone] = useState(secondFormData?.phone || '');
     const [identificationType, setIdentificationType] = useState(secondFormData?.identificationType || '');
+    const [identificationTypeId, setIdentificationTypeId] = useState('');
     const [identificationNumber, setIdentificationNumber] = useState(secondFormData?.identificationNumber || '');
-    const [userType, setUserType] = useState(secondFormData?.userType || '');
+    const [rol, setRol] = useState(secondFormData?.userType || '');
     const [genre, setGenre] = useState(secondFormData?.genre || '');
     const [birthDate, setBirthDate] = useState(secondFormData?.birthDate ? new Date(secondFormData.birthDate) : new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
@@ -64,6 +68,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     // Estados para datos dinámicos de la API
     const [identificationTypes, setIdentificationTypes] = useState<string[]>([]);
     const [generos, setGeneros] = useState<string[]>([]);
+    const [roles, setRoles] = useState<string[]>([]);
     const [loadingParameters, setLoadingParameters] = useState(true);
 
     const handleClose = () => setShowAlertDialog(false);
@@ -89,6 +94,14 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                     if (genderParam) {
                         setGeneros(genderParam.parameterList);
                     }
+
+                    // Buscar y cargar roles
+                    const roleParam = parameters.find(param => 
+                        param.parameterName === 'Rol'
+                    );
+                    if (roleParam) {
+                        setRoles(roleParam.parameterList);
+                    }
                 }
             } catch (error) {
                 console.error('Error al cargar parámetros:', error);
@@ -100,6 +113,25 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
         loadParameters();
     }, []);
 
+
+    // Función para manejar el cambio de tipo de identificación
+    const handleIdentificationTypeChange = (selectedType: string) => {
+        setIdentificationType(selectedType);
+        
+        // Mapear el nombre al valor que espera el backend
+        const typeMapping: { [key: string]: string } = {
+            'Cédula': 'Cedula',
+            'DIMEX': 'DIMEX',
+            'Pasaporte': 'Pasaporte'
+        };
+        
+        const mappedId = typeMapping[selectedType] || selectedType;
+        setIdentificationTypeId(mappedId);
+        
+        console.log('Tipo de identificación seleccionado:', selectedType);
+        console.log('ID mapeado:', mappedId);
+    };
+
     if (!fontsLoaded || loadingParameters) {
         return (
             <View className="flex-1 justify-center items-center bg-white">
@@ -107,11 +139,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             </View>
         );
     }
-
-    const userTypes = [
-        'Pasajero',
-        'Conductor',
-    ];
 
     // Función para mostrar opciones de imagen
     const showImagePickerOptions = () => {
@@ -197,7 +224,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setErrorMessage('No se pudo abrir la galería. Por favor, inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
-    };    // Función para procesar la imagen y convertirla a base64
+    };    
+    // Función para procesar la imagen y convertirla a base64
     const processImage = async (imageUri: string) => {
         try {
             // Convertir imagen a base64
@@ -210,7 +238,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setBase64Image(base64WithPrefix);
             setAvatar(base64WithPrefix);
             
-            console.log('Imagen procesada exitosamente');
         } catch (error) {
             console.error('Error al procesar imagen:', error);
             setErrorMessage('Error al procesar la imagen. Por favor, inténtelo de nuevo.');
@@ -230,7 +257,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     };
 
     const validateForm = () => {
-        if (!phone || !identificationType || !identificationNumber || !userType || !genre) {
+        if (!phone || !identificationType || !identificationNumber || !rol || !genre) {
             setErrorMessage('Asegúrese de que todos los campos estén llenos.');
             setShowAlertDialog(true);
             return false;
@@ -262,8 +289,9 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             username,
             phone,
             identificationType,
+            identificationTypeId,
             identificationNumber,
-            userType,
+            userType: rol,
             genre,
             birthDate: birthDate.toISOString(),
         };
@@ -283,12 +311,10 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 phone,
                 identificationType,
                 identificationNumber,
-                userType,
+                rol,
                 genre,
                 birthDate: birthDate.toISOString(),
             };
-
-            console.log('Datos completos de registro:', completeRegistrationData);
             onFinish(completeRegistrationData);
 
         } catch (error) {
@@ -474,7 +500,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                             <Select
                                 options={identificationTypes}
                                 selectedValue={identificationType}
-                                onValueChange={setIdentificationType}
+                                onValueChange={handleIdentificationTypeChange}
                                 placeholder="Seleccionar"
                                 className="w-[264px]"
                             />
@@ -509,16 +535,16 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                 <Text className="text-[19px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
                                     Tipo de usuario
                                 </Text>
-                                {userType === '' && (
+                                {rol === '' && (
                                     <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
                                         *
                                     </Text>
                                 )}
                             </View>
                             <Select
-                                options={userTypes}
-                                selectedValue={userType}
-                                onValueChange={setUserType}
+                                options={roles}
+                                selectedValue={rol}
+                                onValueChange={setRol}
                                 placeholder="Seleccionar"
                                 className="w-[264px] border border-gray-300 rounded-lg bg-white"
                             />
@@ -535,7 +561,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>                            <Select
+                            </View>                            
+                            <Select
                                 options={generos}
                                 selectedValue={genre}
                                 onValueChange={setGenre}
@@ -550,9 +577,12 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                 <Text className="text-[19px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
                                     Fecha de nacimiento
                                 </Text>
-                                <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
-                                    *
-                                </Text>
+                                {!birthDate && (
+                                    <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
+                                        *
+                                    </Text>
+                                )}
+                                
                             </View>
                             <TouchableOpacity 
                                 onPress={() => setShowDatePicker(true)}
