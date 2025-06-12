@@ -9,9 +9,11 @@ import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { useRouter } from "expo-router";
+import { useAuth } from '@/app/(tabs)/Context/auth-context';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { signIn, errors } = useAuth();
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -44,14 +46,26 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Aquí iría la lógica de autenticación, por ejemplo, la llamada a la API
-      console.log('Iniciando sesión:', { email, password, rememberMe });
-
-      // Simular una petición
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
-      router.push('/(tabs)');
+      if (user.name) {
+        if (user.role === 'Pasajero'){
+          console.log(user.name);
+          router.push('../HomePasajero');
+        } else {
+          router.push('../HomeConductor');
+        }
+      } else {
+        if(user === 'contrasena incorrecta'){
+          setErrorMessage('Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.');
+          setShowAlertDialog(true);
+        }
+        if(user === 'No hay una cuenta asociada al correo'){
+          setErrorMessage('No hay una cuenta asociada al correo ingresado. Por favor, verifique su correo o cree una cuenta nueva.');
+          setShowAlertDialog(true);
+        }
+      }
+      
 
     } catch (error) {
       console.error('Login error:', error);

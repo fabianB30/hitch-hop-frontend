@@ -38,8 +38,6 @@ export const registerRequest = async (data : User): Promise<IJwtResponse | null>
         console.log('URL completa:', axios.defaults.baseURL + '/backend/user/register');
         
         const res = await axios.post(`/backend/user/register`, data);
-        console.log('Respuesta del registro - status:', res.status);
-        console.log('Respuesta del registro - data:', res.data);
         
         const dataUser = res.data.data;
         if (dataUser) {
@@ -49,14 +47,7 @@ export const registerRequest = async (data : User): Promise<IJwtResponse | null>
             return null;
         }
     } catch (error: any) {
-        console.error('http request error: ', error);
-        console.error('Error details:', {
-            message: error.message,
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data
-        });
-        return null;
+        return error.response?.data.msg;
     }
 };
 
@@ -66,32 +57,15 @@ export const loginRequest = async (data: { email: string; password: string }): P
         console.log('URL completa:', axios.defaults.baseURL + '/backend/user/login');
         
         const res = await axios.post(`/backend/user/login`, data);
-        console.log('Respuesta del backend - status:', res.status);
-        console.log('Respuesta del backend - data completa:', res.data);
-        
-        // Verificar la estructura de la respuesta
-        if (res.data && res.data.data) {
-            console.log('Usando res.data.data:', res.data.data);
-            return res.data.data;
-        } else if (res.data && res.data.user) {
-            console.log('Usando res.data.user:', res.data.user);
-            return res.data;
-        } else if (res.data && res.data.token) {
-            console.log('Usando res.data directamente:', res.data);
-            return res.data;
+        const user = res.data.data;
+        if (user) {
+            return user;
         } else {
-            console.error('Estructura de respuesta no reconocida:', res.data);
-            return null;
+            return res.data.msg;
         }
+        
     } catch (error: any) {
-        console.error('http request error: ', error);
-        console.error('Error details:', {
-            message: error.message,
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            data: error.response?.data
-        });
-        return null;
+        return error.response?.data.msg;
     }
 };
 
