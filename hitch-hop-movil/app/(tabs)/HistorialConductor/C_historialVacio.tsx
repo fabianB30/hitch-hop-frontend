@@ -80,10 +80,8 @@ const styles = StyleSheet.create({
   },
   headerBackground: {
     width: '100%',
-    height: 140,
+    height: '100%',
     position: 'absolute',
-    top: 0,
-    left: 0,
   },
   headerImage: {
     width: '160%',

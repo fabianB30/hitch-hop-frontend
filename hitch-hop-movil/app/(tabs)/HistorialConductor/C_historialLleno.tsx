@@ -6,7 +6,6 @@ import * as Font from 'expo-font';
 
 export default function C_HistorialLleno() {
   const router = useRouter();
-
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
@@ -14,6 +13,7 @@ export default function C_HistorialLleno() {
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
       'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
       'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+      'exo.medium': require('@/assets/fonts/exo.medium.otf'),
     }).then(() => setFontsLoaded(true));
   }, []);
 
@@ -34,11 +34,9 @@ export default function C_HistorialLleno() {
         <Image
           source={require('@/assets/images/HHlogo.png')}
           style={{
-            width: '160%',
+            width: '100%',
             height: '100%',
             position: 'absolute',
-            top: -20,
-            left: '-10%',
           }}
           resizeMode="cover"
         />
@@ -50,76 +48,42 @@ export default function C_HistorialLleno() {
       </View>
 
       {/* Contenido principal */}
-      <View style={{
-        flex: 1,
-        marginTop: 100,
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 32,
-        borderTopRightRadius: 32,
-        paddingTop: 24,
-      }}>
+      <View style={styles.content}>
         {/* Encabezado */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.push("/HistorialMain")}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
+          <View style={styles.headerText}>
             <Text style={styles.titulo}>Historial</Text>
             <Text style={styles.subtitulo}>Conductor</Text>
           </View>
         </View>
 
         {/* Lista de viajes */}
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 0, paddingBottom: 24 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           {viajes.map((viaje, idx) => (
-            <View
-              key={idx}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#fff',
-                marginHorizontal: 16,
-                marginBottom: 16,
-                borderRadius: 16,
-                paddingVertical: 8,
-                paddingHorizontal: 0,
-                shadowColor: '#000',
-                shadowOpacity: 0.03,
-                shadowRadius: 2,
-                elevation: 1,
-              }}
-            >
-              <View style={{
-                width: 32,
-                height: 48,
-                borderTopLeftRadius: 16,
-                borderBottomLeftRadius: 16,
-                backgroundColor: '#FFB800',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 12,
-              }} />
-              <View style={{ flex: 1 }}>
+            <View key={idx} style={styles.card}>
+              {/* Barra lateral */}
+              <View style={styles.sideBar} />
+
+              {/* Texto del viaje */}
+              <View style={{ flex: 1, marginLeft: 19 }}>
                 <Text style={styles.viajeTexto}>
                   Viaje del {viaje.fecha} a las {viaje.hora}
                 </Text>
               </View>
+
+              {/* Botón Detalles */}
               <TouchableOpacity
-                style={{
-                  borderWidth: 2,
-                  borderColor: '#FFB800',
-                  borderRadius: 8,
-                  paddingVertical: 4,
-                  paddingHorizontal: 14,
-                  marginLeft: 8,
-                }}
+                style={styles.boton}
                 onPress={() => router.push("/(tabs)/HistorialConductor/C_detHistorial")}
               >
-                <Text style={styles.botonDetalles}>Detalles</Text>
+                <Text style={styles.botonTexto}>Detalles</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -130,6 +94,25 @@ export default function C_HistorialLleno() {
 }
 
 const styles = StyleSheet.create({
+  content: {
+    flex: 1,
+    marginTop: 100,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingTop: 24,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 16,
+  },
+  headerText: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 32,
+  },
   titulo: {
     fontSize: 28,
     color: '#181718',
@@ -141,14 +124,49 @@ const styles = StyleSheet.create({
     marginTop: -4,
     fontFamily: 'Exo-SemiBold',
   },
-  viajeTexto: {
-    fontSize: 15,
-    color: '#181718',
-    fontFamily: 'Exo-Regular',
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFCF2',
+    marginHorizontal: 24,
+    marginBottom: 14,
+    borderRadius: 24,
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+    position: 'relative',
   },
-  botonDetalles: {
-    color: '#FFB800',
-    fontSize: 15,
-    fontFamily: 'Exo-Bold',
+  sideBar: {
+    width: 20,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+    backgroundColor: '#FFAB00',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+  },
+  viajeTexto: {
+    fontSize: 13,
+    color: '#181718',
+    fontFamily: 'exo.medium',
+  },
+  boton: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#FFAB00',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    marginLeft: 8,
+    justifyContent: 'center',
+  },
+  botonTexto: {
+    color: '#FFAB00',
+    fontFamily: 'exo.medium',
+    fontSize: 13,
   },
 });

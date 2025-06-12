@@ -7,15 +7,15 @@ import * as Font from 'expo-font';
 export default function P_historialVacio() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  
-    useEffect(() => {
-      Font.loadAsync({
-        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-        'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-      }).then(() => setFontsLoaded(true));
-    }, []);
-  
-    if (!fontsLoaded) return null;
+
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) return null;
   return (
     <View style={styles.container}>
       {/* Fondo superior con logo */}
@@ -80,10 +80,8 @@ const styles = StyleSheet.create({
   },
   headerBackground: {
     width: '100%',
-    height: 140,
-    position: 'absolute',
-    top: 0,
-    left: 0,
+    height: '100%',
+    position: 'absolute'
   },
   headerImage: {
     width: '160%',

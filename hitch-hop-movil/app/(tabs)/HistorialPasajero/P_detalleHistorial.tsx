@@ -7,37 +7,35 @@ import * as Font from 'expo-font';
 export default function P_detalleHistorial() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  
-    useEffect(() => {
-      Font.loadAsync({
-        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-        'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-      }).then(() => setFontsLoaded(true));
-    }, []);
-  
-    if (!fontsLoaded) return null;
+
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Light.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) return null;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
-          {/* Fondo superior con logo */}
-          <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-            <Image
-              source={require('@/assets/images/HHlogo.png')}
-              style={{
-                width: '160%',
-                height: '100%',
-                position: 'absolute',
-                top: -20,
-                left: '-10%',
-              }}
-              resizeMode="cover"
-            />
-            <Image
-              source={require('@/assets/images/HHLogoDisplay.png')}
-              style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-              resizeMode="contain"
-            />
-          </View>
+      {/* Fondo superior con logo */}
+      <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
+        <Image
+          source={require('@/assets/images/HHlogo.png')}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
+          resizeMode="cover"
+        />
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"
+        />
+      </View>
 
       {/* Contenido principal */}
       <View style={{
@@ -50,26 +48,26 @@ export default function P_detalleHistorial() {
         paddingTop: 24,
       }}>
         {/* Flecha back y título */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/HistorialPasajero/P_historialLleno')}>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
-            <Text style={styles.subtitle}>
-              Viaje del 23 de febrero del 2025 {'\n'}                       a las 12:43
-            </Text>
+
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.subtitleCentered}>Viaje del 25 de febrero del 2025 a las 20:43</Text>
           </View>
         </View>
+
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
 
           {/* Conductor */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-           
+
             <Image
               source={require('@/assets/images/avatar1.png')}
               style={{ width: 36, height: 36, borderRadius: 18, marginRight: 8, marginLeft: 0, zIndex: 1 }}
@@ -130,11 +128,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 32,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: 40, 
+  },
   title: {
-    fontSize: 28,
+    fontSize: 18,
     fontFamily: 'Exo-Bold',
     color: '#181718',
     marginTop: -4,
+    textAlign: 'center',
+  },
+  subtitleCentered: {
+    fontSize: 13,
+    fontFamily: 'Exo-Bold',
+    color: '#181718',
+    textAlign: 'center',
+    marginBottom: 2,
+    paddingHorizontal: 4,
   },
   subtitle: {
     fontSize: 16,

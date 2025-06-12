@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import * as Font from 'expo-font';
 
-export default function Home() {
+export default function HistorialMain() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
     useEffect(() => {
@@ -22,11 +22,9 @@ export default function Home() {
                     <Image
                       source={require('@/assets/images/HHlogo.png')}
                       style={{
-                        width: '160%',
+                        width: '100%',
                         height: '100%',
                         position: 'absolute',
-                        top: -20,
-                        left: '-10%',
                       }}
                       resizeMode="cover"
                     />
@@ -51,7 +49,7 @@ export default function Home() {
       }}>
         {/* Flecha back y título */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, paddingHorizontal: 16, alignSelf: 'flex-start' }}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.push('/GestionPerfilConductor')}> 
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
@@ -65,18 +63,17 @@ export default function Home() {
         </View>
         {/* Opción Conductor */}
         <TouchableOpacity
-          style={{ alignItems: 'center', width: 240, marginTop: 24, marginBottom: 0 }}
+          style={{ alignItems: 'center', width: 240, marginTop: 24, marginBottom: -5 }}
           onPress={() => router.push('/(tabs)/HistorialConductor/C_historialLleno')}
         >
           <View
             style={{
               width: 220,
-              height: 140,
+              height: 150,
               borderRadius: 16,
-              backgroundColor: '#A18AFF',
-              opacity: 0.25,
-              borderWidth: 2,
-              borderColor: '#000',
+              backgroundColor: '#ADA7FF',
+              borderWidth: 1,
+              borderColor: '#080808',
               position: 'relative',
               zIndex: 0,
             }}
@@ -97,7 +94,7 @@ export default function Home() {
             resizeMode="contain"
           />
         </TouchableOpacity>
-        <Text style={[styles.subtitle, { color: '#7B61FF', marginBottom: 24, marginTop: 20, textAlign: 'center' }]}>
+        <Text style={[styles.subtitle, { color: '#7875F8', marginBottom: 24, marginTop: 20, textAlign: 'center' }]}>
           Conductor
         </Text>
 
@@ -109,13 +106,12 @@ export default function Home() {
           <View
             style={{
               width: 220,
-              height: 140,
-              top: 40,
+              height: 150,
+              top: 35,
               borderRadius: 16,
-              backgroundColor: '#A18AFF',
-              opacity: 0.25,
-              borderWidth: 2,
-              borderColor: '#000000',
+              backgroundColor: '#b8b7fb',
+              borderWidth: 1,
+              borderColor: '#080808',
               position: 'relative',
               zIndex: 0,
             }}
@@ -135,7 +131,7 @@ export default function Home() {
             resizeMode="contain"
           />
         </TouchableOpacity>
-        <Text style={[styles.subtitle, { color: '#7B61FF', marginBottom: 30, marginTop: 60, textAlign: 'center' }]}>
+        <Text style={[styles.subtitle, { color: '#7875F8', marginBottom: 30, marginTop: 50, textAlign: 'center' }]}>
           Pasajero
         </Text>
       </View>

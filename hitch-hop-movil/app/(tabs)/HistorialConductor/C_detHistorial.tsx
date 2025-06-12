@@ -10,7 +10,7 @@ export default function C_detHistorial() {
 
   useEffect(() => {
     Font.loadAsync({
-      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Light.otf'),
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
     }).then(() => setFontsLoaded(true));
   }, []);
@@ -24,11 +24,9 @@ export default function C_detHistorial() {
         <Image
           source={require('@/assets/images/HHlogo.png')}
           style={{
-            width: '160%',
+            width: '100%',
             height: '100%',
             position: 'absolute',
-            top: -20,
-            left: '-10%',
           }}
           resizeMode="cover"
         />
@@ -50,7 +48,7 @@ export default function C_detHistorial() {
             />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.subtitle}>Viaje del 25 de febrero del 2025 a las 20:43</Text>
+            <Text style={styles.subtitleCentered}>Viaje del 25 de febrero del 2025 a las 20:43</Text>
             <Text style={styles.title}>Conductor</Text>
           </View>
         </View>
@@ -100,8 +98,8 @@ export default function C_detHistorial() {
                 source={require('@/assets/images/avatar1.png')}
                 style={styles.avatar}
               />
-              <Text style={[styles.text, { width: 180 }]}>{p.name}</Text>
-              <Text style={[styles.text, { flex: 1 }]}>{p.location}</Text>
+              <Text style={[styles.text, { width: 128 }]}>{p.name}</Text>
+              <Text style={[styles.text, { flex: 1, paddingLeft: 8 }]}>{p.location}</Text>
             </View>
           ))}
         </ScrollView>
@@ -119,9 +117,16 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     paddingTop: 24,
   },
+  subtitleCentered: {
+    fontSize: 13,
+    fontFamily: 'Exo-Bold',
+    color: '#181718',
+    textAlign: 'center',
+    marginBottom: 2,
+    paddingHorizontal: 4,
+  },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 24,
   },
   header: {
     flexDirection: 'row',
@@ -135,15 +140,10 @@ const styles = StyleSheet.create({
     marginRight: 32,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: 'Exo-Bold',
     color: '#181718',
     marginTop: -4,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: 'Exo-Bold',
-    color: '#181718',
   },
   label: {
     fontSize: 16,
@@ -178,5 +178,6 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     marginRight: 8,
+    marginBottom: 12,
   }
 })

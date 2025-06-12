@@ -52,7 +52,7 @@ export default function GestionPerfilConductor(){
               <Button style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
               </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/home")}>
+              <Button style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
               </Button>
               <Button style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
