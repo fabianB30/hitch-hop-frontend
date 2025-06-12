@@ -70,6 +70,23 @@ export const getTripByIdRequest = async (id): Promise<IJwtResponse | null> => {
     }
 };
 
+export const getTripByUserRequest = async (userId: string, driver: boolean, status: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.get(`/backend/trips/user/${userId}`, {params: {driver, status}});
+        const dataTrip = res.data.data;
+        if (dataTrip) {
+            return dataTrip;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
+
 export const deleteTripRequest = async (id): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.delete(`/backend/trip/delete/${id}`, {params: {id}});

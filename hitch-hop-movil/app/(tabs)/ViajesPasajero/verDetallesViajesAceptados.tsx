@@ -8,6 +8,7 @@ import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getTripByUserRequest } from '../../../interconnection/trip';
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
@@ -46,6 +47,21 @@ export default function VerDetallesViajesAceptados() {
     start: string;
     end: string;
   }
+
+  // Hacen un manejo algo así, eso le retorna la lista de lo que ocupan
+  /*useEffect(() => {
+    async function fetchData() {
+      try {
+        const trips = await getTripByUserRequest(userId, false, status);
+        if (trips) setTrips(trips);
+      } catch (error) {
+        console.error("Error al obtener viajes:", error);
+      }
+    }
+
+    fetchData();
+  }, []);*/
+
 
   const rides: Ride[] = [
     {
