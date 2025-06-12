@@ -31,7 +31,6 @@ interface RegisterStep2Props {
         username: string;
         phone: string;
         identificationType: string;
-        identificationTypeId: string;
         identificationNumber: string;
         userType: string;
         genre: string;
@@ -55,7 +54,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [username, setUsername] = useState(secondFormData?.username || '');
     const [phone, setPhone] = useState(secondFormData?.phone || '');
     const [identificationType, setIdentificationType] = useState(secondFormData?.identificationType || '');
-    const [identificationTypeId, setIdentificationTypeId] = useState('');
     const [identificationNumber, setIdentificationNumber] = useState(secondFormData?.identificationNumber || '');
     const [rol, setRol] = useState(secondFormData?.userType || '');
     const [genre, setGenre] = useState(secondFormData?.genre || '');
@@ -117,19 +115,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     // Función para manejar el cambio de tipo de identificación
     const handleIdentificationTypeChange = (selectedType: string) => {
         setIdentificationType(selectedType);
-        
-        // Mapear el nombre al valor que espera el backend
-        const typeMapping: { [key: string]: string } = {
-            'Cédula': 'Cedula',
-            'DIMEX': 'DIMEX',
-            'Pasaporte': 'Pasaporte'
-        };
-        
-        const mappedId = typeMapping[selectedType] || selectedType;
-        setIdentificationTypeId(mappedId);
-        
-        console.log('Tipo de identificación seleccionado:', selectedType);
-        console.log('ID mapeado:', mappedId);
     };
 
     if (!fontsLoaded || loadingParameters) {
@@ -185,7 +170,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [1, 1],
-                quality: 0.8,
+                quality: 0.5,
             });
 
             if (!result.canceled) {
@@ -213,7 +198,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [1, 1],
-                quality: 0.8,
+                quality: 0.5,
             });
 
             if (!result.canceled) {
@@ -224,7 +209,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setErrorMessage('No se pudo abrir la galería. Por favor, inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
-    };    
+    };   
     // Función para procesar la imagen y convertirla a base64
     const processImage = async (imageUri: string) => {
         try {
@@ -289,7 +274,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             username,
             phone,
             identificationType,
-            identificationTypeId,
             identificationNumber,
             userType: rol,
             genre,

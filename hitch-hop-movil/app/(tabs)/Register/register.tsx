@@ -8,8 +8,6 @@ import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold }
 import TyCScreen from './components/TyC';
 import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
-import { Avatar } from '@/components/ui/avatar';
-import { registerRequest } from '@/interconnection/user';
 import { useAuth } from '@/app/(tabs)/Context/auth-context';
 
 
@@ -39,7 +37,6 @@ export default function RegisterScreen() {
         username: '',
         phone: '',
         identificationType: '',
-        identificationTypeId: '',
         identificationNumber: '',
         userType: '',
         genre: '',
@@ -52,34 +49,38 @@ export default function RegisterScreen() {
 
     const handleStep1Next = (data: any) => {
         setFirstFormData(data);
-        setCurrentStep(2);
+        setCurrentStep(2); // Ir a TyC (paso 2)
     };
 
-    const handleStep2Back = (data: any) => {
-        setSecondFormData(data);
-        setCurrentStep(1);
-    };
-
-    const handleStep2Next = (data: any) => {
-        setSecondFormData(data);
-        setCurrentStep(3);
-    };
-
+    // Cuando acepta términos y condiciones
     const handleTermsAccept = () => {
         setTermsAccepted(true);
+        setCurrentStep(3); // Ir a RegisterStep2 (paso 3)
+    };
+
+    // Cuando rechaza términos y condiciones
+    const handleTermsReject = () => {
+        setCurrentStep(1); // Volver a RegisterStep1
+    };
+
+    // Cuando quiere volver desde RegisterStep2 a TyC
+    const handleStep2Back = (data: any) => {
+        setSecondFormData(data); // Guardar datos del paso 2
+        setCurrentStep(2); // Volver a TyC
+    };
+
+   // Cuando termina RegisterStep2
+    const handleStep2Next = async (data: any) => {
+        setSecondFormData(data);
+        
         // Combinar todos los datos y proceder con el registro
         const completeData = {
             ...firstFormData,
-            ...secondFormData
+            ...data
         };
-        handleFinishRegistration(completeData);
-    };
-
-    const handleTermsReject = () => {
-        // Volver al paso anterior o mostrar mensaje
-        setCurrentStep(2);
-        setSuccessMessage('Debe aceptar los términos y condiciones para crear una cuenta.');
-        setShowAlertDialog(true);
+        
+        // Registrar directamente (ya aceptó términos en paso 2)
+        await handleFinishRegistration(completeData);
     };
         
     const handleFinishRegistration = async (completeData: any) => {
@@ -100,7 +101,7 @@ export default function RegisterScreen() {
                 email: completeData.email,
                 password: completeData.password,
                 institutionId: completeData.institutionId,
-                identificationTypeId: completeData.identificationTypeId,
+                identificationTypeId: completeData.identificationType,
                 identificationNumber: parseInt(completeData.identificationNumber) || 0,
                 birthDate: completeData.birthDate,
                 genre: completeData.genre,
@@ -115,14 +116,13 @@ export default function RegisterScreen() {
             
             // Llamar a la API de registro
             const result = await signUp(registrationData);
-            console.log('Resultado del registro:', result);
             // Verificar si el resultado es un objeto con propiedades de usuario (éxito)
             if (result && typeof result === 'object' && result.email) {
                 // regidirir a ventana de bienvenida correspondiente
                 if(result.role === 'Conductor') {
-                    router.push('/BienvenidaConductor/C_bienvenida');
+                    router.push('/Bienvenida/C_bienvenida');
                 } else if(result.role === 'Pasajero') {
-                    router.push('/BienvenidaPasajero/P_bienvenida');
+                    router.push('/Bienvenida/P_bienvenida');
                 }
                 
             } else if (result && typeof result === 'string') {
@@ -175,19 +175,20 @@ export default function RegisterScreen() {
                     onNext={handleStep1Next} 
                 />
             )}           
+            
             {currentStep === 2 && (
+                <TyCScreen 
+                    onAccept={handleTermsAccept}
+                    onReject={handleTermsReject}
+                />
+            )}
+
+            {currentStep === 3 && (
                 <RegisterStep2 
                     firstFormData={firstFormData}
                     secondFormData={secondFormData}
                     onBack={handleStep2Back}
                     onFinish={handleStep2Next}
-                />
-            )}
-
-            {currentStep === 3 && (
-                <TyCScreen 
-                    onAccept={handleTermsAccept}
-                    onReject={handleTermsReject}
                 />
             )}
         </View>

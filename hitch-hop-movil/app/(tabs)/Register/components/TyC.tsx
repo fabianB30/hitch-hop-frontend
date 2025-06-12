@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFonts, Exo_400Regular, Exo_700Bold, Exo_500Medium, Exo_600SemiBold } from '@expo-google-fonts/exo';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,19 +27,13 @@ export default function TyCScreen({ onAccept, onReject }: TyCProps) {
     };
 
     const handleAccept = () => {
-        if (!accepted) {
-            Alert.alert(
-                'Términos y Condiciones',
-                'Debe marcar la casilla de aceptación de términos y condiciones.',
-                [{ text: 'Entendido', style: 'default' }]
-            );
-            return;
+        if (accepted) {
+            onAccept();
         }
-        onAccept();
     };
 
     const handleReject = () => {
-        router.back();
+        onReject(); // Esto regresará a RegisterStep1
     };
 
     if (!fontsLoaded) {
@@ -294,7 +288,12 @@ export default function TyCScreen({ onAccept, onReject }: TyCProps) {
 
                     <TouchableOpacity
                         onPress={handleAccept}
-                        style={[styles.button, styles.acceptButton]}
+                        style={[
+                            styles.button, 
+                            styles.acceptButton,
+                            !accepted && { opacity: 0.5 } // Deshabilitar visualmente si no está aceptado
+                        ]}
+                        disabled={!accepted} // Deshabilitar funcionalmente
                     >
                         <Text style={[styles.buttonText, styles.acceptButtonText]}>
                             Siguiente
