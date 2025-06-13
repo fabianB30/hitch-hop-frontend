@@ -123,7 +123,7 @@ const Login: React.FC = () => {
           </Button>
 
           <span className="w-[371px] h-[32px] mt-[32px] mb-4 text-[16px] font-semibold leading-[100%] font-exo text-center">
-            ¿No tienes una cuenta? <a href="/register" className="text-blue-500">Registra una cuenta</a>
+            ¿No tienes una cuenta? <a href="/registro" className="text-blue-500">Registra una cuenta</a>
           </span>
         </form>
       </div>

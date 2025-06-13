@@ -9,7 +9,7 @@ import { Icon } from "@/components/ui/icon";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { getParameterByNameRequest } from "@/interconnection/paremeter";
-
+import { useAuth } from './Context/auth-context';
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -33,6 +33,7 @@ const [tiposId, setTiposId] = useState<string[]>([]);
   }, []);
 
 export default function GestionPerfilConductor(){
+  const { logout } = useAuth();
   const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -66,13 +67,13 @@ export default function GestionPerfilConductor(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <Text style={styles.buttonTextHitch}>Información personal</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/home")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
                 <Text style={styles.buttonTextHitch}>Vehículos</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => {logout(); router.push("/VentanaInicial");}}>
                 <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
               </TouchableOpacity>
             </VStack>
