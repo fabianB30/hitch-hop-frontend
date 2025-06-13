@@ -190,7 +190,7 @@ const informacionViaje = () => {
   }
 
   return (
-    <SafeAreaView style={{flex: 1, marginBottom: 50}}>
+    <SafeAreaView style={{flex: 1}}>
       <HitchHopHeader />
 
       <ImageBackground

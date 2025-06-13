@@ -1,5 +1,5 @@
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native'
-import React from 'react'
+import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HitchHopHeader from '@/components/shared/HitchHopHeader'
 import { Input, InputField, InputSlot } from '@/components/ui/input'
@@ -10,12 +10,55 @@ import { Clock } from 'lucide-react-native'
 import { Search } from 'lucide-react-native'
 import { ImageBackground } from 'expo-image'
 import { Button, ButtonText } from '@/components/ui/button'
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
+import { Picker } from '@react-native-picker/picker'
 
 const {width, height} = Dimensions.get("window")
 
 const busquedaMain = () => {
+    const [date, setDate] = useState(new Date())
+    const [mode, setMode] = useState<'date' | 'time'>('date')
+    const [show, setShow] = useState(false)
+
+    const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
+        if (selectedDate) {
+            if (mode === 'date') {
+                const newDate = new Date(
+                    selectedDate.getFullYear(),
+                    selectedDate.getMonth(),
+                    selectedDate.getDate(),
+                    date.getHours(),
+                    date.getMinutes(),
+                    date.getSeconds()
+                );
+                setDate(newDate)
+            } else if (mode === 'time') {
+                const newDate = new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate(),
+                    selectedDate.getHours(),
+                    selectedDate.getMinutes(),
+                    selectedDate.getSeconds()
+                )
+                setDate(newDate)
+            }
+        }
+        setShow(false)
+    }
+    const showMode = (currentMode: 'date' | 'time') => {
+        setShow(true)
+        setMode(currentMode)
+    }
+    const showDatepicker = () => {
+        showMode('date')
+    }
+    const showTimepicker = () => {
+        showMode('time')
+    }
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{flex:1}}>
         <ImageBackground
         source={require("@/assets/images/pattern-background-main.png")}>
             <HitchHopHeader />
@@ -27,23 +70,53 @@ const busquedaMain = () => {
                 <HStack style={styles.data}>
                     <VStack style={{flex: 2.4}}>
                         <Text style={[styles.dataText, styles.text]}>Fecha</Text>
-                        <Input style={[styles.dataInput, {maxWidth: width * 0.48}]}>
-                            <InputField />
-                            <InputSlot>
-                                <CalendarDays size={14} color='black' strokeWidth={3} />
-                            </InputSlot>
-                        </Input>
+                        <TouchableOpacity
+                            onPress={() => showDatepicker()}
+                        >
+                            <Input style={[styles.dataInput, {maxWidth: width * 0.48}]}
+                                pointerEvents='none'
+                            >
+                                <InputField 
+                                    value={date.toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                    editable={false}
+                                    pointerEvents='none'
+                                />
+                                <InputSlot>
+                                    <CalendarDays size={14} color='black' strokeWidth={3} />
+                                </InputSlot>
+                            </Input>
+                        </TouchableOpacity>
                     </VStack>
                     <VStack style={{flex: 1.9}}>
                         <Text style={[styles.dataText, styles.text]}>Hora</Text>
-                        <Input style={[styles.dataInput, {maxWidth: width * 38.5}]}>
-                            <InputField />
-                            <InputSlot>
-                                <Clock size={14} color='black' strokeWidth={3} />
-                            </InputSlot>
-                        </Input>
+                        <TouchableOpacity
+                            onPress={() => showTimepicker()}
+                        >
+                            <Input style={[styles.dataInput, {maxWidth: width * 0.48}]}
+                                pointerEvents='none'
+                            >
+                                <InputField 
+                                    value={date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    editable={false}
+                                    pointerEvents='none'
+                                />
+                                <InputSlot>
+                                    <Clock size={14} color='black' strokeWidth={3} />
+                                </InputSlot>
+                            </Input>
+                        </TouchableOpacity>
                     </VStack>
                 </HStack>
+
+                {show && (
+                    <DateTimePicker
+                        value={date}
+                        mode={mode}
+                        is24Hour={false}
+                        onChange={onDateChange}
+                        minimumDate={new Date()}
+                    />
+                )}
 
                 <VStack>
                     <Text style={[styles.dataText, styles.text]}>Destino</Text>
@@ -98,12 +171,12 @@ dataText: {
 },
 dataInput: {
     borderRadius: 8,
-    padding: 12,
+    paddingRight: 12,
 },
 dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
-    padding: 12,
+    paddingRight: 12,
     borderRadius: 8
 },
 charaImage: {
@@ -131,7 +204,7 @@ button: {
     fontWeight: 'medium',
     marginLeft: 17,
     marginRight: 17,
-    bottom: 0
+    marginTop: 30
 }
 })
 
