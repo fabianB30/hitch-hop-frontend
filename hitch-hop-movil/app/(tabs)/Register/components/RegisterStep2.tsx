@@ -170,7 +170,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [1, 1],
-                quality: 0.5,
+                quality: 0.3,
             });
 
             if (!result.canceled) {
@@ -198,7 +198,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [1, 1],
-                quality: 0.5,
+                quality: 0.3,
             });
 
             if (!result.canceled) {
