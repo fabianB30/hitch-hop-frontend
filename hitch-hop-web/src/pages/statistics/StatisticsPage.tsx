@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ConductoresChart from "./views/ConductoresChart";
 import PasajerosChart from "./views/PasajerosChart";
 import EdadChart from "./views/EdadChart";
@@ -9,6 +9,7 @@ import ViajesPorFranjaHorariaChart from "./views/ViajesPorFranjaHorariaChart";
 import ViajesPorMesChart from "./views/ViajesPorMesChart";
 import FiltrosPanel from "./components/FiltrosPanel";
 import CardResumen from "./components/CardResumen";
+import {userStatisticsRequest} from "../../interconnection/statistics"
 
 const StatisticsPage = () => {
   const [activeTab, setActiveTab] = useState("conductores");
@@ -24,6 +25,57 @@ const StatisticsPage = () => {
     { key: "viajesMes", label: "Viajes por Mes" },
   ];
 
+  //app.get("/backend/statistics/users", statisticsController.userStatistics);
+
+/*const result = {
+      totalDrivers: users[0].totalDrivers[0]?.count || 0,
+      totalPassengers: users[0].totalPassengers[0]?.count || 0,
+      totalActiveUsers: users[0].totalActive[0]?.count || 0,
+      averageAge: users[0].avgAge[0]?.avgAge ? Math.round(users[0].avgAge[0].avgAge * 100) / 100 : null
+    };*/
+  const [resumen, setResumen] = useState([
+    { titulo: "Total de Conductores", valor: "-", cambio: "" },
+    { titulo: "Total de Pasajeros", valor: "-", cambio: "" },
+    { titulo: "Usuarios Activos", valor: "-", cambio: "" },
+    { titulo: "Edad Promedio", valor: "-", cambio: "" }
+  ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const stats = await userStatisticsRequest();
+        console.log(stats);
+        if (stats) {
+          setResumen([
+            {
+              titulo: "Total de Conductores",
+              valor: stats.totalDrivers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Total de Pasajeros",
+              valor: stats.totalPassengers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Usuarios Activos",
+              valor: stats.totalActiveUsers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Edad Promedio",
+              valor: stats.averageAge ?? "N/A",
+              cambio: "+12%",
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("Error al obtener estadísticas de usuarios:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
+/*
   const resumen = [
     {
       titulo: "Total de Conductores",
@@ -45,7 +97,7 @@ const StatisticsPage = () => {
       valor: "32.4",
       cambio: "+12%",
     },
-  ];
+  ];*/
 
   const renderChart = () => {
     switch (activeTab) {

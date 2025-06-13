@@ -3,9 +3,11 @@ import axios from './axios';
 
 export const userStatisticsRequest = async (): Promise<IJwtResponse | null> => {
 	try {
-		const res = axios.get(`/backend/statistics/users`);
+		const res = await axios.get(`/backend/statistics/users`);
 		const statistics = res.data.data;
 		if (statistics) {
+			return statistics;
+		} else{
 			console.error('Invalid response structure:', res);
 	            return null;
 		}
