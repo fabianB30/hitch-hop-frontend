@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet,ScrollView, Dimensions } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HitchHopHeader from '@/components/shared/HitchHopHeader'
@@ -16,6 +16,8 @@ type DestinationType = {
     subtitle: string
 }
 
+const { width, height } = Dimensions.get('window')
+
 // Should get this from API
 const destinations = [
     {title: "Tecnológico de Costa Rica", subtitle: "Avenida 9, Barrio Amón, San José"},
@@ -24,18 +26,49 @@ const destinations = [
     {title: "Parque España", subtitle: "Avenida 7, Calles 9, C. 11, San José"},
     {title: "Parque Morazán", subtitle: "Avenida 3,Calles 9 y, C. 5, San José"},
     {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
+    {title: "Tecnológico de Costa Rica", subtitle: "Avenida 9, Barrio Amón, San José"},
 ]
 
 const selectDestination = () => {
     const router = useRouter()
 
     const { setDestination } = useForm()
-    const [search, setSearch] = useState('')
+    const [shownDestination, setShownDestinations] = useState(destinations)
 
     const handleDestintationSelect = (dest: DestinationType) => {
         const varas = dest.subtitle.split(", ")
         setDestination(dest.title + ", " + varas[varas.length - 1])
         router.back()
+    }
+
+    function normalizeString(str: string): string {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    const handleSearch = (text: string) => {
+        if (text === "") {
+            setShownDestinations(destinations)
+        } else {
+            const query = normalizeString(text)
+            const filteredDestinations = destinations.filter((dest) => 
+                normalizeString(dest.title).includes(query) ||
+                normalizeString(dest.subtitle).includes(query))
+            setShownDestinations(filteredDestinations)
+        }
     }
 
   return (
@@ -48,15 +81,15 @@ const selectDestination = () => {
                 <Text style={styles.text}>Punto de Partida</Text>
 
                 <Input style={styles.dataInputLong}>
-                    <InputField />
+                    <InputField onChangeText={handleSearch}/>
                     <InputSlot>
                         <Search size={14} color='black' strokeWidth={3} />
                     </InputSlot>
                 </Input>
 
-                <VStack>
-                    {destinations.map((dest, index) => <DestinationItem key={index} title={dest.title} subtitle={dest.subtitle} onPress={() => handleDestintationSelect(dest)}/>)}
-                </VStack>
+                <ScrollView style={styles.bottomView} showsVerticalScrollIndicator={false}>
+                    {shownDestination.map((dest, index) => <DestinationItem key={index} title={dest.title} subtitle={dest.subtitle} onPress={() => handleDestintationSelect(dest)}/>)}
+                </ScrollView>
             </View>
         </ImageBackground>
     </SafeAreaView>
@@ -85,6 +118,9 @@ dataInputLong: {
     paddingRight: 12,
     borderRadius: 8
 },
+bottomView: {
+    maxHeight: height * 0.69
+}
 })
 
 export default selectDestination

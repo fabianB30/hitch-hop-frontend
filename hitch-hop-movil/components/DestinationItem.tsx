@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Pressable } from 'react-native'
 import React from 'react'
 import { VStack } from '@/components/ui/vstack'
 
@@ -10,13 +10,13 @@ type DestinationItemProp = {
 
 const DestinationItem = (props: DestinationItemProp) => {
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <Pressable onPress={props.onPress}>
         <VStack style={styles.container}>
             <Text style={[styles.title, styles.text]}>{props.title}</Text>
             <Text style={[styles.subtitle, styles.text]}>{props.subtitle}</Text>
             <View style={styles.divider}/>
         </VStack>
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
@@ -36,6 +36,7 @@ title: {
     color: '#000000'
 },
 subtitle: {
+    marginTop: 6,
     fontSize: 12,
     fontWeight: 'light',
     color: '#171717'
