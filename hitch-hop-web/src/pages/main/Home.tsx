@@ -1,17 +1,23 @@
 import logo from "@/assets/logo.png";
 import carImage from "@/assets/landing-car.svg";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
     <div className="w-[1440px] h-[960px] fixed bg-white overflow-hidden font-[Exo]">
       {/* Botones superior izquierda */}
       <div className="fixed top-[30px] left-[40px] flex gap-3">
-        <button className="h-[40px] px-6 text-[16px] font-medium text-[#7875F8] border border-[#7875F8] rounded-md font-[Exo]">
-          Iniciar sesión
-        </button>
-        <button className="h-[40px] px-6 text-[16px] font-medium text-white bg-[#7875F8] rounded-md font-[Exo]">
-          Registrarse
-        </button>
+        <Link to={"/login"}>
+          <button className="h-[40px] px-6 text-[16px] font-medium text-[#7875F8] border border-[#7875F8] rounded-md font-[Exo]">
+            Iniciar sesión
+          </button>
+        </Link>
+        
+        <Link to={"/registro"}>
+          <button className="h-[40px] px-6 text-[16px] font-medium text-white bg-[#7875F8] rounded-md font-[Exo]">
+            Registrarse
+          </button>
+        </Link>
       </div>
 
       {/* Logo superior derecha */}

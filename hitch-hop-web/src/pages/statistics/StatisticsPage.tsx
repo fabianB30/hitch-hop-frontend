@@ -83,7 +83,7 @@ const StatisticsPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-[#E9E9E9] rounded-xl px-4 py-[6px] flex gap-2 items-center justify-start overflow-x-auto whitespace-nowrap mb-6 max-w-full">
+      <div className="bg-[#E9E9E9] rounded-xl px-4 py-[6px] flex gap-2 items-center justify-start overflow-x-auto whitespace-nowrap mb-6 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.key}

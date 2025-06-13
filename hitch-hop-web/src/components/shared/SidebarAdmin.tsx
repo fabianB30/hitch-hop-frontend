@@ -8,10 +8,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider
+  SidebarProvider,
+  SidebarFooter
 } from "@/components/ui/sidebar";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import { LogOut } from "lucide-react";
 
 // lista de dirs del sidebar
 const items = [
@@ -87,7 +90,7 @@ export default function SidebarAdmin() {
                           to={item.url ?? "#"}
                           className={`flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-[16px] ${
                             isActive
-                              ? "bg-background text-[color:var(--Primary-primary300)] border-[color:var(--primary-900)]"
+                              ? "bg-background text-[color:var(--primary300)] border-[color:var(--primary-900)]"
                               : "text-[color:var(--text-50)] hover:bg-[color:var(--primary-100)] hover:text-[color:var(--primary-900)]"
                           }`}
                         >
@@ -156,6 +159,12 @@ export default function SidebarAdmin() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter className="bg-[color:var(--primary-300)]">
+                <Button className="mx-1 bg-white text-[color:var(--primary-400)] px-[45px] hover:bg-[color:var(--secondary-100)] hover:text-white">
+                  <LogOut />
+                  Cerrar Sesión
+                </Button>
+        </SidebarFooter>
       </Sidebar>
       <div className="flex-1 p-4">
         <Outlet />
