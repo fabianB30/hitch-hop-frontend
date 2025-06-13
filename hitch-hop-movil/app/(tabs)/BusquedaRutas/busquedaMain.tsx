@@ -13,6 +13,7 @@ import { Button, ButtonText } from '@/components/ui/button'
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import { useForm } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
+import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 
 const {width, height} = Dimensions.get("window")
 
@@ -23,6 +24,7 @@ const busquedaMain = () => {
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
 
+    const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(true);
 
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
         if (selectedDate) {
@@ -153,8 +155,29 @@ const busquedaMain = () => {
                     <ButtonText style={[styles.text, {color: 'white'}]}>Buscar Rutas</ButtonText>
                 </Button>
             </VStack>
+
+            {/* Código para el Modal de no se encontraron rutas */}
+            <Modal isOpen={showConfirmationModal} onClose={() => { setShowConfirmationModal(false) }} size="lg">
+                <ModalBackdrop />
+                <ModalContent>
+                <ModalHeader>
+                    <Text style={styles.boldText}>No se encontraron rutas disponibles.</Text>
+                </ModalHeader>
+                <ModalBody>
+                    <Image source={require('@/assets/images/gatoautos.png')} style={styles.modalImg} />
+                    <Text style={styles.normalText}>Intenta modificar el horario o la ruta elegida.</Text>
+                </ModalBody>
+                <ModalFooter className="mx-auto">
+                    <Button variant='outline' style={styles.modalBackButton}>
+                        <ButtonText style={{color: "#7875F8"}}>Regresar</ButtonText>
+                    </Button>
+                </ModalFooter>
+                </ModalContent>
+            </Modal>   
+            {/* Fin del Modal de confirmación */}
         </ImageBackground>
     </SafeAreaView>
+    
   )
 }
 
@@ -173,6 +196,20 @@ text: {
     fontWeight: 'semibold',
     color: '#262627',
     fontFamily: 'Exo',
+},
+boldText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#171717',
+    fontFamily: 'Exo',
+    textAlign: 'center'
+},
+normalText: {
+    fontSize: 16,
+    fontWeight: 'normal',
+    color: '#262627',
+    fontFamily: 'Exo',
+    textAlign: 'center'
 },
 data: {
     marginTop: 10,
@@ -219,6 +256,20 @@ button: {
     marginLeft: 17,
     marginRight: 17,
     marginTop: 30
+},
+modalBackButton: {
+    height: 36,
+    width: '50%',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderColor: '#7875F8',
+},
+modalImg: {
+    height: 180 ,
+    width: 150,
+    margin: 'auto',
 },
 })
 
