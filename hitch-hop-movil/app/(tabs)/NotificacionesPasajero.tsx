@@ -11,6 +11,7 @@ import { MapPin, ChevronLeft } from "lucide-react-native"
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { getParameterByNameRequest } from "@/interconnection/paremeter";
+import { useAuth } from "./Context/auth-context";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -89,6 +90,13 @@ const notificaciones: any[] = [
 ]
 
 export default function NotificacionesConductor (){
+    const { user } = useAuth();
+        useEffect(() => {
+            if (user) {
+            console.log("Notificaciones del usuario:", user.notifications);
+            }
+        }, [user]);
+    
     return(
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>

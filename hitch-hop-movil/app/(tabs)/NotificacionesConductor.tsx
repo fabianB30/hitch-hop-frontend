@@ -12,26 +12,13 @@ import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { getParameterByNameRequest } from "@/interconnection/paremeter";
 import { useRouter } from "expo-router";
+import { useAuth } from "./Context/auth-context";
 
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
-
-const [tiposId, setTiposId] = useState<string[]>([]);
-
- useEffect(() => {
-    async function fetchTiposId() {
-      try {
-        const param = await getParameterByNameRequest("Tipo de identificación");
-        if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
-      } catch (error) {
-        console.error("Error al obtener tipos de identificación:", error);
-      }
-    }
-    fetchTiposId();
-  }, []);
 
 const notificaciones: any[] = [
     {
@@ -97,7 +84,15 @@ const notificaciones: any[] = [
 ]
 
 export default function NotificacionesConductor (){
+    const { user } = useAuth();
+    useEffect(() => {
+        if (user) {
+        console.log("Notificaciones del usuario:", user.notifications);
+        }
+    }, [user]);
+
     const router = useRouter();
+
     return(
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
@@ -161,8 +156,8 @@ export default function NotificacionesConductor (){
                                         </Text>
                                     </HStack>
                                     <Box style={styles.spButtonBox}>
-                                        <TouchableOpacity  style={styles.spButton}>
-                                            <Text style={styles.spButtonText} onPress={() => router.push("/(tabs)/ViajesConductor/verViajesPendientes")}>Ver</Text>
+                                        <TouchableOpacity  style={styles.spButton} onPress={() => router.push("/(tabs)/ViajesConductor/verViajesPendientes")}>
+                                            <Text style={styles.spButtonText}>Ver</Text>
                                         </TouchableOpacity>
                                     </Box>
                                 </>
