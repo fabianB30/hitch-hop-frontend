@@ -76,7 +76,7 @@ export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse 
 
 export const updateUserRequest = async (id: string, data : User): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.put(`/backend/user/update`, data, {params: {id}});
+        const res = await axios.put(`/backend/user/update/${id}`, data);
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;
