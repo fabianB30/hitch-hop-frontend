@@ -23,10 +23,10 @@ export default function AgregarVehiculo() {
         brand: marca, 
         color: color, 
         plate: placa,
-        //year: anio,   ///Tenemos un p[roblemita, el carro de back no tiene ano
+        //year: anio
       };
     registerVehicleRequest(vehicleData);
-    router.back();
+    router.push('/vehiculos/vehiculoCreado')
   };
 
   return (
@@ -56,7 +56,7 @@ export default function AgregarVehiculo() {
       )}
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => router.push('/vehiculos/vehiculoCreado')}
+        onPress={handleAgregar}
       >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Agregar</Text>
       </TouchableOpacity>

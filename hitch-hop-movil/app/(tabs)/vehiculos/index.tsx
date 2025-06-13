@@ -1,33 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-
+import { getAllVehiclesRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Tenemos un problema creo
 /*
   Esto deberia funcionar trayyendose todos los vehiculos de un usuario supongo
   Pero lo del back se trae todos los vehiculos de todos los usuarios
-  nada mas es cosa de filtrarlos en el back creo
+  nada mas es cosa de filtrarlos en el back creo o se puede filtrar aqui
 */
 const mockVehiculos = [
   {
-    marca: 'Hyundai',
-    modelo: 'Santa Fe',
-    placa: 'BTR-932',
+    brand: 'Hyundai',
+    model: 'Santa Fe',
+    plate: 'BTR-932',
     color: 'Gris',
     anio: '2019',
     foto: require('@/assets/images/santafe.png'),
   },
 ];
 
+
 export default function VehiculosIndex() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
+  const [vehicles, setVehicles] = useState<any[] | null>(null);
+  const { user } = useAuth(); // Asumiendo que tienes un contexto de autenticación
+  console.log('User:', user);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const data = await getAllVehiclesRequest(); //Se trae todos
+        if (user && data) {
+          const filteredVehicles = data.filter((vehiculo: any) =>
+            user.vehicles.includes(vehiculo._id)
+          );
+          setVehicles(filteredVehicles);
+        } else {
+          setVehicles([]);
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
+  
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <FlatList
-        data={mockVehiculos}
+        data={vehicles} // Cambia esto a vehicles cuando tengas los datos reales
         keyExtractor={(_, idx) => idx.toString()}
         renderItem={({ item }) => (
           <View style={{
@@ -39,12 +67,13 @@ export default function VehiculosIndex() {
             alignItems: 'center'
           }}>
             <Image source={{ uri: item.foto }} style={{ width: 80, height: 80, borderRadius: 12, marginRight: 12 }} />
+            
             <View style={{ flex: 1 }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.marca} {item.modelo}</Text>
+              <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.brand} {item.model}</Text>
               <View style={{ flexDirection: 'row', marginTop: 8 }}>
                 <TouchableOpacity
                   style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 8, marginRight: 8 }}
-                  onPress={() => router.push("/(tabs)/vehiculos/informacionVehiculo")}
+                  onPress={() => router.push("/(tabs)/vehiculos/informacionVehiculo?")}
                 >
                   <Text style={{ color: '#fff' }}>Información</Text>
                 </TouchableOpacity>
@@ -80,13 +109,16 @@ export default function VehiculosIndex() {
               ¿Estás seguro que quieres eliminar el vehículo Hyundai Santa Fe?
             </Text>
             <Text style={{ color: '#888', marginBottom: 24 }}>Todos los datos del vehículo serán eliminados</Text>
+
             <View style={{ flexDirection: 'row' }}>
+
               <TouchableOpacity
                 style={{ backgroundColor: '#E0D7FF', borderRadius: 8, padding: 10, marginRight: 12 }}
                 onPress={() => setShowModal(false)}
               >
                 <Text style={{ color: '#7B61FF' }}>Cancelar</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 10 }}
                 onPress={() => {
@@ -96,7 +128,9 @@ export default function VehiculosIndex() {
               >
                 <Text style={{ color: '#fff' }}>Aceptar</Text>
               </TouchableOpacity>
+
             </View>
+
           </View>
         </View>
       </Modal>

@@ -8,9 +8,9 @@ export default function EditarVehiculo() {
   const router = useRouter();
   //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
   const [id, setId] = useState('1');
-  const [marca, setMarca] = useState('Hyundai');
-  const [modelo, setModelo] = useState('Santa Fe');
-  const [placa, setPlaca] = useState('BTR-932');
+  const [brand, setMarca] = useState('Hyundai');
+  const [model, setModelo] = useState('Santa Fe');
+  const [plate, setPlaca] = useState('BTR-932');
   const [color, setColor] = useState('Gris');
   const [anio, setAnio] = useState('2019');
   const [foto, setFoto] = useState(null);
@@ -18,10 +18,10 @@ export default function EditarVehiculo() {
   const handleAgregar = () => {
     // Aquí iría la lógica para guardar el vehículo
     const vehicleData = { 
-      model: modelo, 
-      brand: marca, 
+      model: model, 
+      brand: brand, 
       color: color, 
-      plate: placa,
+      plate: plate,
       //year: anio,   ///Tenemos un p[roblemita, el carro de back no tiene ano
     };
     updateVehicleByIdRequest(id, vehicleData);
@@ -36,11 +36,11 @@ export default function EditarVehiculo() {
                   />
       <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Editar Vehículo</Text>
       <Text>Marca*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={marca} onChangeText={setMarca} />
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={brand} onChangeText={setMarca} />
       <Text>Modelo*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={modelo} onChangeText={setModelo} />
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={model} onChangeText={setModelo} />
       <Text>Placa*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={placa} onChangeText={setPlaca} />
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={plate} onChangeText={setPlaca} />
       <Text>Color*</Text>
       <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={color} onChangeText={setColor} />
       <Text>Año*</Text>

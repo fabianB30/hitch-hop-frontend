@@ -2,11 +2,12 @@ import React,{ useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getVehicleByIdRequest } from '@/interconnection/vehicle';
+import { useLocalSearchParams } from 'expo-router';
 
 const mockVehiculo = {
-  marca: 'Hyundai',
-  modelo: 'Santa Fe',
-  placa: 'BTR-932',
+  brand: 'Hyundai',
+  model: 'Santa Fe',
+  plate: 'BTR-932',
   color: 'Gris',
   anio: '2019',
   foto: require('@/assets/images/santafe.png'),
@@ -14,29 +15,23 @@ const mockVehiculo = {
 
 export default function InformacionVehiculo() {
   const router = useRouter();
+  const { id } = useLocalSearchParams(); // Obtenemos la ID del vehículo desde los parametros
+  console.log('id: ',id);
   const [vehiculo, setVehiculo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
-  const [id, setId] = useState('1');
 
   useEffect(() => {
-    const fetchVehiculo = async () => {
-      try {
-        const data = await getVehicleByIdRequest(id);
-        if (data) {
-          setVehiculo(data);
-        } else {
-          console.error('No se encontró el vehículo con la ID:', id);
-          setVehiculo(mockVehiculo); //usamos el mock si no se encuentra x si acaso
+      const fetchVehicle = async () => {
+        try {
+          //const data = await getVehicleByIdRequest(id); 
+          //setVehiculo(data);
+        } catch (error) {
+          console.error("Error fetching vehicles:", error);
         }
-      } catch (error) {
-        console.error('Error al obtener el vehículo:', error);
-        setVehiculo(mockVehiculo);
-      } finally {
-        setLoading(false);
-      }
-    }
-  }, [id]);
+      };
+  
+      fetchVehicle();
+    }, []);
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
@@ -58,15 +53,15 @@ export default function InformacionVehiculo() {
 
       <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Información</Text>
       <Text>Marca</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.marca}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.brand || "No disponible"}</Text>
       <Text>Modelo</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.modelo}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.model || "No disponible"}</Text>
       <Text>Placa</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.placa}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.placa || "No disponible"}</Text>
       <Text>Color</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo.color}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.color || "No disponible"}</Text>
       <Text>Año</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo.anio}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo?.anio || "No disponible"}</Text>
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
         onPress={() => router.push("/(tabs)/vehiculos/editarVehiculo")}
