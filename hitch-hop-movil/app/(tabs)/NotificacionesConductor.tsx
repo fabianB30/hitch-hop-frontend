@@ -1,6 +1,5 @@
 import { Box } from "@/components/ui/box";
-import { Image } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Image, TouchableOpacity } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Card } from "@/components/ui/card";
@@ -10,11 +9,29 @@ import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
 import { ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { getParameterByNameRequest } from "@/interconnection/paremeter";
+import { useRouter } from "expo-router";
+
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
+
+const [tiposId, setTiposId] = useState<string[]>([]);
+
+ useEffect(() => {
+    async function fetchTiposId() {
+      try {
+        const param = await getParameterByNameRequest("Tipo de identificación");
+        if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
+      } catch (error) {
+        console.error("Error al obtener tipos de identificación:", error);
+      }
+    }
+    fetchTiposId();
+  }, []);
 
 const notificaciones: any[] = [
     {
@@ -80,6 +97,7 @@ const notificaciones: any[] = [
 ]
 
 export default function NotificacionesConductor (){
+    const router = useRouter();
     return(
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
@@ -117,7 +135,7 @@ export default function NotificacionesConductor (){
                         </Text>
                     </Box>
                 ) : (
-                <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 40}} horizontal={false} style={styles.scroll}>
+                <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 110}} horizontal={false} style={styles.scroll}>
                     <VStack space="lg" style={styles.notifBox}>
                         
                         {notificaciones.map((notif) => {
@@ -127,7 +145,6 @@ export default function NotificacionesConductor (){
                                     <Text style={styles.cardHeadFont}>
                                         {notif.tipo === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}
                                     </Text>
-
 
                                 {notif.tipo === "SP" ? (
                                 <>
@@ -144,9 +161,9 @@ export default function NotificacionesConductor (){
                                         </Text>
                                     </HStack>
                                     <Box style={styles.spButtonBox}>
-                                        <Button  style={styles.spButton}>
-                                            <ButtonText style={styles.spButtonText}>Ver</ButtonText>
-                                        </Button>
+                                        <TouchableOpacity  style={styles.spButton}>
+                                            <Text style={styles.spButtonText} onPress={() => router.push("/(tabs)/ViajesConductor/verViajesPendientes")}>Ver</Text>
+                                        </TouchableOpacity>
                                     </Box>
                                 </>
                                 ) : (
@@ -248,23 +265,20 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     cards: {
-        width: 345,
+        width: windowWidth*0.82,
         height: 107,
         backgroundColor: "#ECECFF",
         borderRadius: 8,
         position: "relative"
     },
-    cardHeadSize: {
-    },
     cardHeadFont: {
         height: 25,
-        maxHeight: 70, 
         fontSize: 20,
         fontFamily: "Exo_700Bold",
         color: "black"
     },
     lugarFechaFont: {
-        fontSize: 18,
+        fontSize: 16,
         fontFamily: "Exo_500Medium",
         color: "#404040",
         top: 2
@@ -288,13 +302,17 @@ const styles = StyleSheet.create({
     spButton: {
         backgroundColor: "#7875F8",
         borderRadius: 8,
-        height: 27,
+        alignItems: "center",
+        justifyContent: "center",
+        height: windowWidth*0.064,
         width: 61
     },
     spButtonText: {
-        width: 29,
+        width: windowWidth*0.04 + 9,
         fontFamily: "Exo_500Medium",
-        fontSize: 20,
+        fontSize: windowWidth*0.04,
+        lineHeight: windowWidth*0.04,
+        textAlign: "center",
         color: "white"
     },
     hstackStyle: {

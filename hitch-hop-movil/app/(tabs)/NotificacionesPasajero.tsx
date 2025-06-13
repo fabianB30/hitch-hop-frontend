@@ -1,6 +1,5 @@
 import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Card } from "@/components/ui/card";
@@ -8,13 +7,29 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
+import { MapPin, ChevronLeft } from "lucide-react-native"
 import { ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { getParameterByNameRequest } from "@/interconnection/paremeter";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
+
+const [tiposId, setTiposId] = useState<string[]>([]);
+
+ useEffect(() => {
+    async function fetchTiposId() {
+      try {
+        const param = await getParameterByNameRequest("Tipo de identificación");
+        if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
+      } catch (error) {
+        console.error("Error al obtener tipos de identificación:", error);
+      }
+    }
+    fetchTiposId();
+  }, []);
 
 const notificaciones: any[] = [
     {
