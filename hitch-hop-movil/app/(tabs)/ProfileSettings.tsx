@@ -70,7 +70,7 @@ const tiposUsuario = ["Administrador", "Usuario"];
 export default function ProfileSettings() {
   const [tiposId, setTiposId] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState([]);
-  const { user } = useAuth();
+  const { user , updateUser } = useAuth();
   useEffect(() => {
     async function fetchData() {
       try {
@@ -126,22 +126,29 @@ export default function ProfileSettings() {
   return Object.keys(errors).length === 0;
  };
 
-  const toggleEdit = () => {
-  if (!editable) {
-    //const userUpdate = await updateUserRequest(user.id, user);
-    setBackupData(userData);
-    setEditable(true);
-  
-  } else {
-    const isValid = validateUserData(userData);
-    if (!isValid) {
-      return;
+  // editar y llamar al backend
+  const toggleEdit = async () => {
+    if (!editable) {
+      setBackupData(userData);
+      setEditable(true);
+    } else {
+      const isValid = validateUserData(userData);
+      if (!isValid) {
+        return;
+      }
+      try {
+        // Use the MongoDB _id field
+        const userId = user._id;
+        await updateUserRequest(userId, userData);
+        await updateUser(userData);
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
+      setEditable(false);
+      setFieldErrors({});
+      setShowSavedDialog(true);
     }
-    setEditable(false);
-    setFieldErrors({});
-    setShowSavedDialog(true);
-  }
-};
+  };
 
   const cancelEdit = () => {
     setUserData(backupData);
