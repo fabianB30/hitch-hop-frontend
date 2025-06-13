@@ -11,19 +11,18 @@ import { Search } from 'lucide-react-native'
 import { ImageBackground } from 'expo-image'
 import { Button, ButtonText } from '@/components/ui/button'
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
-import { Select } from '@/components/ui/select'
+import { useForm } from '@/components/shared/SearchContext'
+import { useRouter } from 'expo-router'
 
 const {width, height} = Dimensions.get("window")
 
-// Should come from API
-const destinations = ["Destination1", "Destination2", "Destination3", "Destination4"]
-
 const busquedaMain = () => {
-    const [date, setDate] = useState(new Date())
+    const router = useRouter()
+    const {date, setDate, destination} = useForm()
+
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
 
-    const [destination, setDestination] = useState('')
 
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
         if (selectedDate) {
@@ -125,7 +124,11 @@ const busquedaMain = () => {
 
                 <VStack>
                     <Text style={[styles.dataText, styles.text]}>Destino</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                        onPress= {() => {
+                            router.push('/BusquedaRutas/selectDestination')
+                        }}
+                    >
                         <Input style={styles.dataInputLong} pointerEvents='none'>
                             <InputField 
                                 value={destination}
@@ -216,15 +219,6 @@ button: {
     marginLeft: 17,
     marginRight: 17,
     marginTop: 30
-},
-inputGroup: {
-    marginBottom: 12
-},
-inputLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-    fontFamily: "Exo",
 },
 })
 
