@@ -55,7 +55,7 @@ container: {
     padding: 16,
     justifyContent: 'space-between',
     gap: 8,
-    backgroundColor: '#F2F1F1',
+    backgroundColor: '#ECECFF',
     borderRadius: 8,
     alignItems: 'center',
     flex: 1
