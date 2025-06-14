@@ -7,7 +7,6 @@ import VehiculosPorConductorChart from "./views/VehiculosPorConductorChart";
 import PasajerosPorViajeChart from "./views/PasajerosPorViajeChart";
 import ViajesPorFranjaHorariaChart from "./views/ViajesPorFranjaHorariaChart";
 import ViajesPorMesChart from "./views/ViajesPorMesChart";
-import FiltrosPanel from "./components/FiltrosPanel";
 import CardResumen from "./components/CardResumen";
 import {userStatisticsRequest} from "../../interconnection/statistics"
 
@@ -153,7 +152,6 @@ const StatisticsPage = () => {
 
       {/* Contenido: filtros + gráfico */}
       <div className="flex gap-6 items-start">
-        <FiltrosPanel />
         <div className="flex-1">{renderChart()}</div>
       </div>
     </div>
