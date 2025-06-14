@@ -14,24 +14,31 @@ export default function DateTimeModal({
   isVisible,
   onClose,
   onConfirm,
-  initialDate = new Date(),
-  initialTime = new Date(),
+  initialDate,
+  initialTime,
 }: Readonly<DateTimeModalProps>) {
-  const [date, setDate] = useState(initialDate);
-  const [time, setTime] = useState(initialTime);
+  // Create default values that respect the 30 min minimum
+  const now = new Date();
+  const defaultMinTime = new Date(now);
+  defaultMinTime.setMinutes(now.getMinutes() + 30);
+  
+  // Use provided values or defaults
+  const [date, setDate] = useState(initialDate || new Date());
+  const [time, setTime] = useState(initialTime || defaultMinTime);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  
-  // Calculate minimum allowed time (current time + 30 mins)
-  const minTime = new Date();
-  minTime.setMinutes(minTime.getMinutes() + 30);
-  
-  // Reset time if needed on date change
+    // Calculate minimum allowed time (current time + 30 mins)
+  const minTime = React.useMemo(() => {
+    const min = new Date();
+    min.setMinutes(min.getMinutes() + 30);
+    return min;
+  }, []);
+    // Reset time if needed on date change
   useEffect(() => {
     if (isToday(date) && time < minTime) {
       setTime(new Date(minTime));
     }
-  }, [date]);
+  }, [date, time, minTime]);
   
   const isToday = (someDate: Date) => {
     const today = new Date();
@@ -98,6 +105,17 @@ export default function DateTimeModal({
     return time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   };
 
+  // A helper function to get the time picker value
+  const getTimePickerValue = () => {
+    if (isToday(date)) {
+      if (time < minTime) {
+        return minTime;
+      }
+      return time;
+    }
+    return time;
+  };
+
   return (
     <Modal
       visible={isVisible}
@@ -116,7 +134,6 @@ export default function DateTimeModal({
               
               {/* Simple Date Display */}
               <View style={styles.contentContainer}>
-                <Text style={styles.labelText}>Fecha</Text>
                 <TouchableOpacity 
                   style={styles.valueContainer}
                   onPress={() => setShowDatePicker(true)}
@@ -140,17 +157,15 @@ export default function DateTimeModal({
               
               {/* Simple Time Display */}
               <View style={styles.contentContainer}>
-                <Text style={styles.labelText}>Hora</Text>
                 <TouchableOpacity 
                   style={styles.valueContainer}
                   onPress={() => setShowTimePicker(true)}
                 >
                   <Text style={styles.valueText}>{formatTime(time)}</Text>
                 </TouchableOpacity>
-                
-                {showTimePicker && (
+                  {showTimePicker && (
                   <DateTimePicker
-                    value={isToday(date) ? (time < minTime ? minTime : time) : time}
+                    value={getTimePickerValue()}
                     mode="time"
                     display={Platform.OS === 'ios' ? "inline" : "default"}
                     onChange={handleTimeChange}
@@ -219,6 +234,9 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         marginBottom: 8,
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     labelText: {
         fontSize: 14,
@@ -227,11 +245,12 @@ const styles = StyleSheet.create({
     },
     valueContainer: {
         paddingVertical: 8,
-    },
-    valueText: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },    valueText: {
         fontSize: 18,
         fontWeight: '400',
-        color: '#0000',
+        color: '#000000',
     },
     pickerContainer: {
         marginTop: 8,
