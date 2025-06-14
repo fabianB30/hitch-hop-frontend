@@ -219,7 +219,7 @@ const tripInformation = () => {
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
             <RideStopDetail stopType="Partida" detail={additionalInfo.start} isAtEnd={true}/>
-            {additionalInfo.stops.map((stop, index) => <RideStopDetail key={index} stopType="Parada" detail={stop} isAtEnd={false}/>)}
+            {additionalInfo.stops !== undefined && additionalInfo.stops.map((stop, index) => <RideStopDetail key={index} stopType="Parada" detail={stop} isAtEnd={false}/>)}
             <RideStopDetail stopType="Destino" detail={additionalInfo.end} isAtEnd={true}/>
           </ScrollView>
 
@@ -234,7 +234,7 @@ const tripInformation = () => {
 
             <Button style={styles.button}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/selectPickupPoint",
+                pathname: "/(tabs)/TripJoinInfo/selectPickupPoint",
                 params: {
                   rideInfo: JSON.stringify(rideInfo),
                   additionalInfo: JSON.stringify(additionalInfo)

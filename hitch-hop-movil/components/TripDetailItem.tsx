@@ -1,9 +1,10 @@
-import { Text, StyleSheet, Image, Dimensions } from 'react-native'
+import { Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Proportions, Users } from 'lucide-react-native'
 import { useForm } from './shared/SearchContext'
 import { VStack } from '@/components/ui/vstack'
 import { HStack } from '@/components/ui/hstack'
+import { router } from 'expo-router'
 
 const {width, height} = Dimensions.get('window')
 
@@ -18,32 +19,34 @@ type tripDetailProp = {
 
 const TripDetailItem = (props: tripDetailProp) => {
   return (
-    <HStack style={styles.container}>
-        <Image style={styles.image}
-            source={props.avatar}
-        />
+    <TouchableOpacity onPress= {() => { router.push("/(tabs)/TripJoinInfo/tripInformation") }}>
+        <HStack style={styles.container}>
+            <Image style={styles.image}
+                source={props.avatar}
+            />
 
-        <VStack style={styles.tripInfo}>
-            <Text style={[styles.driver]}
-                numberOfLines={1}
-                ellipsizeMode='tail'
-            >{props.driverName}</Text>
-            <Text style={[styles.subtext]}>Punto de Partida:</Text>
-            <Text style={[styles.details]}
-                numberOfLines={2}
-                ellipsizeMode='tail'
-            >{props.details}</Text>
-        </VStack>
+            <VStack style={styles.tripInfo}>
+                <Text style={[styles.driver]}
+                    numberOfLines={1}
+                    ellipsizeMode='tail'
+                >{props.driverName}</Text>
+                <Text style={[styles.subtext]}>Punto de Partida:</Text>
+                <Text style={[styles.details]}
+                    numberOfLines={2}
+                    ellipsizeMode='tail'
+                >{props.details}</Text>
+            </VStack>
 
-        <VStack style={styles.rightColumn}>
-            <HStack style={{gap: 4, alignItems: 'center'}}>
-                <Users size={16} color='black' strokeWidth={3}/>
-                <Text style={styles.regText}>{props.passengers}</Text>
-            </HStack>
-            <Text style={styles.regText}>&#8353;{props.price}</Text>
-            <Text style={styles.regText}>{props.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-        </VStack>
-    </HStack>
+            <VStack style={styles.rightColumn}>
+                <HStack style={{gap: 4, alignItems: 'center'}}>
+                    <Users size={16} color='black' strokeWidth={3}/>
+                    <Text style={styles.regText}>{props.passengers}</Text>
+                </HStack>
+                <Text style={styles.regText}>&#8353;{props.price}</Text>
+                <Text style={styles.regText}>{props.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            </VStack>
+        </HStack>
+    </TouchableOpacity>
   )
 }
 
@@ -88,7 +91,7 @@ details: {
 },
 rightColumn: {
     alignItems: 'flex-end',
-    flex: 19.5
+    flex: 22
 }
 })
 
