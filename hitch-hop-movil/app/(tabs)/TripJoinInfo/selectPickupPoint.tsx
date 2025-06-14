@@ -103,7 +103,7 @@ const selectPickupPoint = () => {
           <View style={styles.buttons}>
             <Button style={[styles.button, styles.confirmButton]}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/checkoutTrip",
+                pathname: "/(tabs)/TripJoinInfo/checkoutTrip",
                 params: {
                   rideInfo: rideInfo,
                   additionalInfo: additionalInfo,

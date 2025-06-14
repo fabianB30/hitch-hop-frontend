@@ -128,7 +128,7 @@ const searchMain = () => {
                     <Text style={[styles.dataText, styles.text]}>Destino</Text>
                     <TouchableOpacity
                         onPress= {() => {
-                            router.push('/BusquedaRutas/selectDestination')
+                            router.push('/RouteSearch/selectDestination')
                         }}
                     >
                         <Input style={styles.dataInputLong} pointerEvents='none' isReadOnly>
@@ -155,7 +155,7 @@ const searchMain = () => {
 
                 <Button style={styles.button}
                     onPress={() => {
-                        router.push("/(tabs)/BusquedaRutas/availableTrips")
+                        router.push("/(tabs)/RouteSearch/availableTrips")
                     }}
                 >
                     <ButtonText style={[styles.text, {color: 'white'}]}>Buscar Rutas</ButtonText>

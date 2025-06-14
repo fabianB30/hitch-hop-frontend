@@ -234,7 +234,7 @@ const tripInformation = () => {
 
             <Button style={styles.button}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/selectPickupPoint",
+                pathname: "/(tabs)/TripJoinInfo/selectPickupPoint",
                 params: {
                   rideInfo: JSON.stringify(rideInfo),
                   additionalInfo: JSON.stringify(additionalInfo)
