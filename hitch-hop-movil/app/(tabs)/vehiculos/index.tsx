@@ -18,7 +18,7 @@ const mockVehiculos = [
     model: 'Santa Fe',
     plate: 'BTR-932',
     color: 'Gris',
-    anio: '2019',
+    year: '2019',
     foto: require('@/assets/images/santafe.png'),
   },
 ];

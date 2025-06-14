@@ -69,7 +69,8 @@ export const updateVehicleByIdRequest = async (id: string, data: {
         model: string, 
         brand: string, 
         color: string, 
-        plate: string
+        plate: string,
+        year: string
     }): Promise<any | null> => {
     try {
         const res = await axios.put(`/backend/vehicle/update/${id}`, data);

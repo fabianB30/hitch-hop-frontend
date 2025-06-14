@@ -9,7 +9,7 @@ const mockVehiculo = {
   model: 'Santa Fe',
   plate: 'BTR-932',
   color: 'Gris',
-  anio: '2019',
+  year: '2019',
   foto: require('@/assets/images/santafe.png'),
 };
 
@@ -66,7 +66,7 @@ export default function InformacionVehiculo() {
       <Text>Color</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.color || "No disponible"}</Text>
       <Text>Año</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo?.anio || "No disponible"}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo?.year || "No disponible"}</Text>
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
         onPress={() => router.push({

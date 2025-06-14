@@ -23,7 +23,7 @@ export default function AgregarVehiculo() {
         brand: marca, 
         color: color, 
         plate: placa,
-        //year: anio
+        year: anio
       };
     try {
       const vehicle = await registerVehicleRequest(vehicleData);
