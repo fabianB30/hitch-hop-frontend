@@ -9,7 +9,6 @@ const GratuitosCobradosChart = () => {
     async function fetchData() {
       try {
         const res = await statisticsFreeVsChargedTripsRequest();
-        console.log(res);
         if (res) {
           const dataPieRes = [{
             name: "Gratuitos",

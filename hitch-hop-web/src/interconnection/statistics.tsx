@@ -79,3 +79,36 @@ export const statisticsVehicleCountByDriverRequest = async (): Promise<IJwtRespo
         return null;
 	}
 }
+
+//app.get("/backend/statistics/trips/passenger-approval", statisticsController.tripPassengerApprovalStats);
+export const statisticsTripPassengerApprovalStatsRequest = async (): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.get(`/backend/statistics/trips/passenger-approval`);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}
+// app.get("/backend/statistics/trips/hour-range", statisticsController.getTripsByHourRange);
+export const statisticsTripsByHourRangeRequest = async (): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.get(`/backend/statistics/trips/hour-range`);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}
