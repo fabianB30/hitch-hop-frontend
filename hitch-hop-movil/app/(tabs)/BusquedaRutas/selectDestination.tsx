@@ -26,21 +26,6 @@ const destinations = [
     {title: "Parque España", subtitle: "Avenida 7, Calles 9, C. 11, San José"},
     {title: "Parque Morazán", subtitle: "Avenida 3,Calles 9 y, C. 5, San José"},
     {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-    {title: "Tecnológico de Costa Rica", subtitle: "Avenida 9, Barrio Amón, San José"},
 ]
 
 const selectDestination = () => {
@@ -72,9 +57,9 @@ const selectDestination = () => {
     }
 
   return (
-    <SafeAreaView>
          <ImageBackground
         source={require("@/assets/images/pattern-background-main.png")}>
+    <SafeAreaView>
             <HitchHopHeader />
 
             <View style={styles.container}>
@@ -91,8 +76,8 @@ const selectDestination = () => {
                     {shownDestination.map((dest, index) => <DestinationItem key={index} title={dest.title} subtitle={dest.subtitle} onPress={() => handleDestintationSelect(dest)}/>)}
                 </ScrollView>
             </View>
-        </ImageBackground>
     </SafeAreaView>
+        </ImageBackground>
   )
 }
 

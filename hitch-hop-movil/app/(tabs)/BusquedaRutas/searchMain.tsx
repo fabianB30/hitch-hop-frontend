@@ -16,9 +16,9 @@ import { useRouter } from 'expo-router'
 
 const {width, height} = Dimensions.get("window")
 
-const busquedaMain = () => {
+const searchMain = () => {
     const router = useRouter()
-    const {date, setDate, destination} = useForm()
+    const { date, setDate, destination } = useForm()
 
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
@@ -62,9 +62,9 @@ const busquedaMain = () => {
     }
 
   return (
-    <SafeAreaView style={{flex:1}}>
-        <ImageBackground
-        source={require("@/assets/images/pattern-background-main.png")}>
+      <ImageBackground
+      source={require("@/assets/images/pattern-background-main.png")}>
+            <SafeAreaView>
             <HitchHopHeader />
 
             {/* Main view */}
@@ -129,12 +129,14 @@ const busquedaMain = () => {
                             router.push('/BusquedaRutas/selectDestination')
                         }}
                     >
-                        <Input style={styles.dataInputLong} pointerEvents='none'>
-                            <InputField 
-                                value={destination}
-                                editable={false}
-                                pointerEvents='none'
-                            />
+                        <Input style={styles.dataInputLong} pointerEvents='none' isReadOnly>
+                            <Text
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={{ flex: 1 }}
+                            >
+                                {destination || ""}
+                            </Text>
                             <InputSlot>
                                 <Search size={14} color='black' strokeWidth={3} />
                             </InputSlot>
@@ -149,12 +151,16 @@ const busquedaMain = () => {
                 <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
                 <Text style={[styles.charaSubtext, styles.text]}>¡Encuentre su próximo viaje con nosotros!</Text>
 
-                <Button style={styles.button}>
+                <Button style={styles.button}
+                    onPress={() => {
+                        router.push("/(tabs)/BusquedaRutas/availableTrips")
+                    }}
+                >
                     <ButtonText style={[styles.text, {color: 'white'}]}>Buscar Rutas</ButtonText>
                 </Button>
             </VStack>
-        </ImageBackground>
     </SafeAreaView>
+        </ImageBackground>
   )
 }
 
@@ -191,7 +197,8 @@ dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
     paddingRight: 12,
-    borderRadius: 8
+    borderRadius: 8,
+    paddingLeft: 12
 },
 charaImage: {
     marginHorizontal: 'auto',
@@ -222,4 +229,4 @@ button: {
 },
 })
 
-export default busquedaMain
+export default searchMain

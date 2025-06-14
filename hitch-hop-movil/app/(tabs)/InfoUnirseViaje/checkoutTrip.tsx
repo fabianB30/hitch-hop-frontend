@@ -16,7 +16,7 @@ import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, Moda
 
 const {width, height} = Dimensions.get("window")
 
-const checkoutViaje = () => {
+const checkoutTrip = () => {
     const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
     const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
     
@@ -292,4 +292,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default checkoutViaje
+export default checkoutTrip

@@ -12,7 +12,7 @@ import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/r
 
 const wh = Dimensions.get("window").height
 
-const seleccionRecogida = () => {
+const selectPickupPoint = () => {
   const router = useRouter()
 
   const [selectedStop, setStop] = useState("0")
@@ -103,7 +103,7 @@ const seleccionRecogida = () => {
           <View style={styles.buttons}>
             <Button style={[styles.button, styles.confirmButton]}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/checkoutViaje",
+                pathname: "/(tabs)/InfoUnirseViaje/checkoutTrip",
                 params: {
                   rideInfo: rideInfo,
                   additionalInfo: additionalInfo,
@@ -217,4 +217,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default seleccionRecogida
+export default selectPickupPoint

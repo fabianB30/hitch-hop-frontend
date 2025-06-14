@@ -12,8 +12,14 @@ const DestinationItem = (props: DestinationItemProp) => {
   return (
     <Pressable onPress={props.onPress}>
         <VStack style={styles.container}>
-            <Text style={[styles.title, styles.text]}>{props.title}</Text>
-            <Text style={[styles.subtitle, styles.text]}>{props.subtitle}</Text>
+            <Text style={[styles.title, styles.text]}
+                ellipsizeMode='tail'
+                numberOfLines={1}
+            >{props.title}</Text>
+            <Text style={[styles.subtitle, styles.text]}
+                ellipsizeMode='tail'
+                numberOfLines={1}
+            >{props.subtitle}</Text>
             <View style={styles.divider}/>
         </VStack>
     </Pressable>
