@@ -1,28 +1,35 @@
 // Import React
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 // Input Fields Components
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, } from "react-native";
+import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
+import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import DateTimeModal from '@/components/SelectDateTimeModal';
+import { LucideCalendar } from "lucide-react-native";
 
+
+// Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
 const flechaBack = require("@/assets/images/flechaback.png");
 const logoHeader = require("@/assets/images/HHLogoDisplay.png");
 
+const tiposPago = [ "Efectivo", "SINPE Movil", "Gratuito" ];
+
+interface Vehiculo {
+  nombre: string;
+}
+
 export default function FormPublicarRuta() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  const [userVehicles, setUserVehicles] = useState<Vehiculo[]>([]);
+  const [showNoVehicleModal, setShowNoVehicleModal] = useState(false);
 
   const [fecha, setFecha] = useState(new Date());
   const [hora, setHora] = useState(new Date());
@@ -32,7 +39,30 @@ export default function FormPublicarRuta() {
   const [asientosDisponibles, setAsientosDisponibles] = useState("");
   const [vehiculo, setVehiculo] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
-  const [error, setError] = useState("");
+  
+  // New state for the modal
+  const [dateTimeModalVisible, setDateTimeModalVisible] = useState(false);
+  
+  useEffect(() => {
+    const fetchUserVehicles = async () => {
+      try {
+        const vehiculos: Vehiculo[] = []; // Simulación de vehículos del usuario #TODO: Reemplazar con llamada a API real
+        vehiculos.push({ nombre: "Vehículo 1" });
+        vehiculos.push({ nombre: "Vehículo 2" });
+        vehiculos.push({ nombre: "Vehículo 3" });
+        if (vehiculos.length === 0) {
+          setShowNoVehicleModal(true);
+        } else {
+          setUserVehicles(vehiculos);
+          setShowNoVehicleModal(false);
+        }
+      } catch (error) {
+        console.error("Error fetching user vehicles:", error);
+      }
+    };
+
+    fetchUserVehicles();
+  }, []);
 
   const handlePublicarRuta = () => {
     // Aquí iría la lógica para publicar la ruta
@@ -48,6 +78,12 @@ export default function FormPublicarRuta() {
     });
   };
 
+  // Function to handle the selection
+  const handleDateTimeConfirm = (selectedDate: Date, selectedTime: Date) => {
+    setFecha(selectedDate);
+    setHora(selectedTime);
+  };
+  
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
       {/* Imagen de fondo Superior*/}
@@ -72,31 +108,22 @@ export default function FormPublicarRuta() {
       </View>
 
       <View
-        style={{
-          marginTop: 70,
-          width: "100%",
-          flex: 1,
-          backgroundColor: "white",
-          borderTopLeftRadius: 32,
-          borderTopRightRadius: 32,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.1,
-          shadowRadius: 5,
-          elevation: 3,
-          overflow: "hidden", // This ensures content doesn't spill outside rounded corners
+        style={styles.formContainer}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={() => {
+          // Dismiss keyboard when tapping outside of input fields
+          const input = TextInput.State.currentlyFocusedInput();
+          if (input) {
+            TextInput.State.blurTextInput(input);
+          }
         }}
       >
         <ScrollView
-          contentContainerStyle={{
-            alignItems: "center",
-            paddingHorizontal: 15,
-            paddingBottom: 20,
-            paddingTop: 20,
-          }}
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={true}
         >
           {/*Contenido del formulario*/}
-          <View style={styles.formContainer}></View>
+          <View style={{padding: 18}}></View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Punto de Inicio</Text>
             <TextInput
@@ -105,7 +132,6 @@ export default function FormPublicarRuta() {
               placeholder="Ingrese el punto de inicio"
               style={styles.textInput}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Puntos de Parada</Text>
@@ -115,7 +141,6 @@ export default function FormPublicarRuta() {
               placeholder="Ingrese los puntos de parada"
               style={styles.textInput}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Punto Final</Text>
@@ -125,17 +150,24 @@ export default function FormPublicarRuta() {
               placeholder="Ingrese el punto final"
               style={styles.textInput}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Vehículo a Usar</Text>
-            <Select
-              options={["Vehículo 1", "Vehículo 2", "Vehículo 3"]}
-              selectedValue={vehiculo}
-              onValueChange={setVehiculo}
-              placeholder="Seleccione un vehículo"
-            />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {userVehicles.length > 0 ? (
+              <Select
+                options={userVehicles.map((v) => v.nombre)}
+                selectedValue={vehiculo}
+                onValueChange={setVehiculo}
+                placeholder="Seleccione un vehículo"
+              />
+            ) : (
+              <TouchableOpacity 
+                style={styles.disabledSelect}
+                onPress={() => setShowNoVehicleModal(true)}
+              >
+                <Text style={styles.placeholderText}>No hay vehículos disponibles</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Cantidad de Pasajeros</Text>
@@ -146,7 +178,6 @@ export default function FormPublicarRuta() {
               keyboardType="numeric"
               style={styles.textInput}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Método de Pago</Text>
@@ -160,22 +191,64 @@ export default function FormPublicarRuta() {
               onValueChange={setMetodoPago}
               placeholder="Seleccione un método de pago"
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Elegir un Horario</Text>
-            <TouchableOpacity onPress={() => setHora(new Date())}>
-              <Text style={styles.dateTimeText}>
-                {hora.toLocaleTimeString()}
-              </Text>
+            <Text style={styles.inputLabel}>Horario del Viaje</Text>
+            <TouchableOpacity 
+              style={styles.dateTimeSelector}
+              onPress={() => setDateTimeModalVisible(true)}
+            >
+              <View style={styles.dateTimeSelectorInner}>
+                <Text style={styles.dateTimeText}>
+                  {fecha.toLocaleDateString('es-ES')} - {hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+                <LucideCalendar
+                  size={24}
+                  color="#7875F8"
+                />
+              </View>
             </TouchableOpacity>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            
           </View>
           <Button onPress={handlePublicarRuta} style={styles.button}>
             <Text style={{ color: "white" }}>Registrar Ruta</Text>
           </Button>
         </ScrollView>
       </View>
+
+      {showNoVehicleModal && (
+        <Modal isOpen={showNoVehicleModal} onClose={() => setShowNoVehicleModal(false)}>
+          <ModalBackdrop />
+          <ModalContent>
+            <ModalHeader>
+              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>No tienes vehículos registrados</Text>
+              <ModalCloseButton />
+            </ModalHeader>
+            <ModalBody>
+              <Text>Para publicar una ruta, primero debes agregar un vehículo.</Text>
+            </ModalBody>
+            <ModalFooter>
+              <Button 
+                onPress={() => {
+                  setShowNoVehicleModal(false);
+                  router.push('/(tabs)/vehiculos/agregarVehiculo');
+                }}
+                style={{ backgroundColor: '#5D12D2', width: '100%' }}
+              >
+                <Text style={{ color: 'white' }}>Agregar vehículo</Text>
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+      {/* Modal that appears when clicking on the date/time selector */}
+      <DateTimeModal 
+        isVisible={dateTimeModalVisible}
+        onClose={() => setDateTimeModalVisible(false)}
+        onConfirm={handleDateTimeConfirm}
+        initialDate={fecha}
+        initialTime={hora}
+      />
     </View>
   );
 }
@@ -188,12 +261,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    paddingHorizontal: 15,
-    paddingBottom: 0,
-    paddingTop: 20, // Reduced from 80 to show more content
+    paddingHorizontal: 45,
     backgroundColor: "#fff",
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
@@ -203,17 +273,23 @@ const styles = StyleSheet.create({
   formContainer: {
     width: "100%",
     alignItems: "center",
-    borderRadius: 30,
-  },
-  dateTimeText: {
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    backgroundColor: "#fff",
+    marginTop: 100,
+    flex: 1,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   button: {
-    marginTop: 20,
-    width: "100%",
+    backgroundColor: "#7875F8",
+    borderRadius: 8,
+    paddingVertical: 0,
+    paddingHorizontal: 16,
+    
   },
   textInput: {
     borderWidth: 1,
@@ -241,15 +317,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "flex-end",
     justifyContent: "center",
-    top: -20,
+    top: -25,
     left: 0,
     zIndex: 1,
+    overflow: "hidden",
   },
   backgroundImage: {
     position: "absolute",
     width: "100%",
     height: "100%",
-    top: 0,
+    top: 10,
     resizeMode: "cover",
   },
   hitchhopText: {
@@ -274,5 +351,36 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     marginRight: 16,
+  },
+  disabledSelect: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    backgroundColor: "#f9f9f9",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 5,
+  },
+  placeholderText: {
+    color: "#999",
+  },
+  dateTimeSelector: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    backgroundColor: 'white',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  dateTimeSelectorInner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dateTimeText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
