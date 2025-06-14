@@ -41,7 +41,7 @@ const availableTrips = () => {
             )
             setShownTrips(filteredTrips)
         }
-    }, [])
+    }, [destination])
 
   return (
          <ImageBackground
