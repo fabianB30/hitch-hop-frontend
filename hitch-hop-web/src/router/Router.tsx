@@ -23,6 +23,10 @@ import StatisticsPage from "../pages/statistics/StatisticsPage";
 import ProfileSettings from "@/pages/ProfileSettings";
 import UsersManagement from "@/pages/UsersManagement";
 import Register from "@/pages/1.1-registro-de-usuario/Register";
+import RegisterSuccessful from "@/pages/1.1-registro-de-usuario/RegisterSuccessful";
+import Login from "@/pages/1.3-inicio-de-sesion/Login";
+import DownloadApp from "@/pages/1.3-inicio-de-sesion/download-app";
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,7 +34,10 @@ const router = createBrowserRouter(
       {/* Página de inicio sin sidebar */}
       <Route path="/" element={<Home />} />
       <Route path="/bienvenida" element={<Bienvenida />} />
-      <Route path="/registro" element={<Register />}/>
+      <Route path="/registro" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/download-app" element={<DownloadApp />} />
+      <Route path="/registro-exitoso" element={<RegisterSuccessful />} />
 
       {/* Rutas con SidebarAdmin */}
       <Route path="/" element={<SidebarAdmin />}>
