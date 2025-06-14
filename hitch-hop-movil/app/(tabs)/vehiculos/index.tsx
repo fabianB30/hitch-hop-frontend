@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { getAllVehiclesRequest } from '@/interconnection/vehicle';
+import { getAllVehiclesRequest, deleteVehicleByIdRequest } from '@/interconnection/vehicle';
+import { updateUserRequest } from '@/interconnection/user';
 import { useAuth } from '../Context/auth-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -27,8 +28,9 @@ export default function VehiculosIndex() {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [vehicles, setVehicles] = useState<any[] | null>(null);
-  const { user } = useAuth(); // Asumiendo que tienes un contexto de autenticación
-  console.log('User:', user);
+  const { user,setUser } = useAuth(); 
+  const [idVehicle, setIdVehicle] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -39,8 +41,15 @@ export default function VehiculosIndex() {
             user.vehicles.includes(vehiculo._id)
           );
           setVehicles(filteredVehicles);
+
+          if (filteredVehicles.length === 0) {
+            router.push('/(tabs)/vehiculos/sinVehiculos'); // Redirige si no hay vehículos
+          }
+
         } else {
           setVehicles([]);
+          console.log('No hay usuario o datos de vehículos disponibles');
+          router.push('/(tabs)/vehiculos/sinVehiculos'); // Redirige si no hay usuario o datos
         }
       } catch (error) {
         console.error("Error fetching vehicles:", error);
@@ -48,7 +57,20 @@ export default function VehiculosIndex() {
     };
 
     fetchVehicles();
-  }, []);
+  }, [user]);
+
+  const handleEliminar = async () => {
+      if (!idVehicle) {
+        console.error("No vehicle ID provided for deletion.");
+        return;
+      }
+      await deleteVehicleByIdRequest(idVehicle);
+      setUser({
+            ...user,
+            vehicles: user.vehicles.filter((v: string) => v !== idVehicle)
+      });
+      await updateUserRequest(user._id, user);
+  };
 
   
 
@@ -73,16 +95,24 @@ export default function VehiculosIndex() {
               <View style={{ flexDirection: 'row', marginTop: 8 }}>
                 <TouchableOpacity
                   style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 8, marginRight: 8 }}
-                  onPress={() => router.push("/(tabs)/vehiculos/informacionVehiculo?")}
+                  onPress={() => router.push({
+                    pathname:"/(tabs)/vehiculos/informacionVehiculo",
+                    params: { id: item._id }
+                  })}
                 >
                   <Text style={{ color: '#fff' }}>Información</Text>
                 </TouchableOpacity>
+                
                 <TouchableOpacity
                   style={{ backgroundColor: '#E0D7FF', borderRadius: 8, padding: 8 }}
-                  onPress={() => setShowModal(true)}
+                  onPress={() => {
+                    setIdVehicle(item._id);
+                    setShowModal(true);
+                  }}
                 >
                   <Text style={{ color: '#7B61FF' }}>Eliminar</Text>
                 </TouchableOpacity>
+
               </View>
             </View>
           </View>
@@ -121,9 +151,9 @@ export default function VehiculosIndex() {
 
               <TouchableOpacity
                 style={{ backgroundColor: '#7B61FF', borderRadius: 8, padding: 10 }}
-                onPress={() => {
+                onPress={async () => {
+                  await handleEliminar();
                   setShowModal(false);
-                  router.push('/(tabs)/vehiculos/sinVehiculos');
                 }}
               >
                 <Text style={{ color: '#fff' }}>Aceptar</Text>

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
-//Importamos lo del las rutas para agregar el vehiculo
+
 import { registerVehicleRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
+import { addCarsRequest } from '@/interconnection/user';
 
 export default function AgregarVehiculo() {
   const router = useRouter();
@@ -13,11 +15,9 @@ export default function AgregarVehiculo() {
   const [color, setColor] = useState('');
   const [anio, setAnio] = useState('');
   const [foto, setFoto] = useState(null);
+  const { user,setUser } = useAuth();
 
-  const handleAgregar = () => {
-    // Lo unico que hacemos es:
-      // HAcer el vehiculo con los datos
-      // llamar a la funcion para registrarlo
+  const handleAgregar = async () => {
       const vehicleData = { 
         model: modelo, 
         brand: marca, 
@@ -25,8 +25,28 @@ export default function AgregarVehiculo() {
         plate: placa,
         //year: anio
       };
-    registerVehicleRequest(vehicleData);
-    router.push('/vehiculos/vehiculoCreado')
+    try {
+      const vehicle = await registerVehicleRequest(vehicleData);
+      console.log('Vehículo registrado:', vehicle);
+
+      if (user && vehicle) {
+        console.log('Usuario:', user);
+        await addCarsRequest(
+          { cars: [vehicle._id], email: user.email }
+        );
+        setUser({
+          ...user,
+          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
+        });
+        user.vehicles.push(vehicle._id); // Agregar el vehículo al array de vehículos del usuario actual para la sesion
+
+      }
+
+    } catch (error) {
+      console.error('Error al registrar el vehículo:', error);
+    }
+
+    router.push('/vehiculos')
   };
 
   return (

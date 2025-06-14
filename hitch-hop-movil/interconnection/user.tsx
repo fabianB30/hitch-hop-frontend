@@ -58,7 +58,7 @@ export const loginRequest = async (data: {email, password}): Promise<IJwtRespons
     }
 };
 
-export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse | null> => {
+export const addCarsRequest = async (data: {cars:any, email:any}): Promise<any | null> => {
     try {
         const res = await axios.post(`/backend/user/addCars`, data);
         const dataUser = res.data.data;
@@ -74,7 +74,7 @@ export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse 
     }
 };
 
-export const updateUserRequest = async (id: string, data : User): Promise<IJwtResponse | null> => {
+export const updateUserRequest = async (id: string, data : User): Promise<any | null> => {
     try {
         const res = await axios.put(`/backend/user/update`, data, {params: {id}});
         const dataPlace = res.data.data;

@@ -16,22 +16,26 @@ const mockVehiculo = {
 export default function InformacionVehiculo() {
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Obtenemos la ID del vehículo desde los parametros
-  console.log('id: ',id);
+  console.log('vehiculo: ', id);
   const [vehiculo, setVehiculo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
       const fetchVehicle = async () => {
         try {
-          //const data = await getVehicleByIdRequest(id); 
-          //setVehiculo(data);
+          if (typeof id === 'string'){
+            const data = await getVehicleByIdRequest(id); 
+            setVehiculo(data);
+          } else {
+             console.log('Error mamadisimo que no deberia pasar, id:', id);
+          }
         } catch (error) {
           console.error("Error fetching vehicles:", error);
         }
       };
   
       fetchVehicle();
-    }, []);
+    }, [id]);
 
   return (
     <View style={{ flex: 1, padding: 24 }}>
@@ -39,13 +43,14 @@ export default function InformacionVehiculo() {
               source={require('@/assets/images/hitchhop-logo.png')}
               style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginLeft: -25, marginTop: -24 }}
             />
-      <TouchableOpacity onPress={() => router.push('/vehiculos/vehiculoCreado')}>
+      <TouchableOpacity onPress={() => router.push('/vehiculos')}>
         <Image
           source={require('@/assets/images/flechaback.png')}
           style={{ width: 32, height: 32, marginBottom: 16 }}
         />
       </TouchableOpacity>
 
+      { /*Problema problemos, la base no tiene fotos creo*/ }
       <Image
         source={require('@/assets/images/santafe.png')}
         style={{ width: 160, height: 120, borderRadius: 12, marginBottom: 16 }}
@@ -57,14 +62,17 @@ export default function InformacionVehiculo() {
       <Text>Modelo</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.model || "No disponible"}</Text>
       <Text>Placa</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.placa || "No disponible"}</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.plate || "No disponible"}</Text>
       <Text>Color</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>{vehiculo?.color || "No disponible"}</Text>
       <Text>Año</Text>
       <Text style={{ fontWeight: 'bold', marginBottom: 16 }}>{vehiculo?.anio || "No disponible"}</Text>
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => router.push("/(tabs)/vehiculos/editarVehiculo")}
+        onPress={() => router.push({
+          pathname: "/(tabs)/vehiculos/editarVehiculo",
+          params: { id: id }
+        })}
       >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar Información</Text>
       </TouchableOpacity>
