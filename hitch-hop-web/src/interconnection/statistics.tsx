@@ -48,3 +48,34 @@ export const statisticsUserCountByAgeRangesRequest = async (data: {institutionId
         return null;
 	}
 }
+
+export const statisticsFreeVsChargedTripsRequest = async (): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.get(`/backend/statistics/trips/free-vs-paid`);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}
+export const statisticsVehicleCountByDriverRequest = async (): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.get(`/backend/statistics/vehicles/by-driver`);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}
