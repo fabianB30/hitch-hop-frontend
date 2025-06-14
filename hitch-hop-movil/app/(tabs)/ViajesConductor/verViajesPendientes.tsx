@@ -75,7 +75,7 @@ export default function VerViajesPendientes() {
             return {
               id: trip._id,
               users: pendingPassengers,
-              userLimit: 4, // Hardcodeado
+              userLimit: trip.passengerLimit,
               actualPassengerNumber: pendingPassengers.length,
               price: `₡${trip.costPerPerson}`,
               date: trip.departure.split("T")[0],

@@ -31,7 +31,7 @@ export default function VerSolicitudesPendientes() {
   }
 
   const requests: Requests[] = usersList.map((user: any, idx: number) => ({
-    id: idx + 1,
+    id: user.id,
     name: user.name,
     price: user.price,
     location: user.location,
@@ -40,6 +40,7 @@ export default function VerSolicitudesPendientes() {
   }));
 
   useEffect(() => {
+    console.log(requests);
     if (requests.length == 0) {
       router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
