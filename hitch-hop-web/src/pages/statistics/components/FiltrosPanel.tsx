@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import RangoFecha from "./RangoFecha";
 import { Button } from "@/components/ui/button";
 import type { DateRange } from "react-day-picker";
+import {getParameterByNameRequest} from "../../../interconnection/paremeter";
+import {getAllInstitutionsRequest} from "../../../interconnection/institution";
 
 interface FiltrosPanelProps {
   showInstitucion?: boolean;
@@ -17,14 +19,36 @@ const FiltrosPanel = ({
   showFecha = false,
   onSubmit,
 }: FiltrosPanelProps) => {
-  const [institucion, setInstitucion] = useState("todas");
-  const [genero, setGenero] = useState("todos");
+  const [institucion, setInstitucion] = useState("all");
+  const [genero, setGenero] = useState("all");
   const [fecha, setFecha] = useState<DateRange | undefined>(undefined);
+
+  const [instituciones, setInstituciones] = useState<[]>([]);
+  const [generos, setGeneros] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const param = await getParameterByNameRequest("Géneros");
+        if (Array.isArray(param.parameterList)) {
+          setGeneros(param.parameterList);
+        }
+        const resInstitutions = await getAllInstitutionsRequest();
+        if (Array.isArray(resInstitutions)) {
+          setInstituciones(resInstitutions);
+        }
+      } catch (error) {
+        console.error("Error al obtener opciones:", error);
+      }
+    }
+    fetchData();
+  }, []);
+
 
   const handleSubmitFiltro = () => {
     const filtros: any = {};
-    if (showInstitucion) filtros.institucion = institucion;
-    if (showGenero) filtros.genero = genero;
+    if (showInstitucion && institucion !== "all") filtros.institucion = institucion;
+    if (showGenero && genero !== "all") filtros.genero = genero;
     if (showFecha) {
       filtros.fecha = {
         desde: fecha?.from?.toLocaleDateString() || "NA",
@@ -47,9 +71,12 @@ const FiltrosPanel = ({
               onChange={(e) => setInstitucion(e.target.value)}
               className="w-full border px-3 py-2 rounded-md text-sm appearance-none pr-8"
             >
-              <option value="todas">Todas las instituciones</option>
-              <option value="inst1">Institución 1</option>
-              <option value="inst2">Institución 2</option>
+              <option value="all">Todas las instituciones</option>
+              {instituciones.map((inst) => (
+                <option key={inst._id} value={inst._id}>
+                  {inst.nombre}
+                </option>
+              ))}
             </select>
             <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
           </div>
@@ -72,9 +99,12 @@ const FiltrosPanel = ({
               onChange={(e) => setGenero(e.target.value)}
               className="w-full border px-3 py-2 rounded-md text-sm appearance-none pr-8"
             >
-              <option value="todos">Todos los géneros</option>
-              <option value="masculino">Masculino</option>
-              <option value="femenino">Femenino</option>
+              <option value="all">Todos los géneros</option>
+              {generos.map((g, idx) => (
+                <option key={idx} value={g}>
+                  {g}
+                </option>
+              ))}
             </select>
             <ChevronDown className="absolute right-2 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
           </div>

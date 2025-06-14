@@ -8,7 +8,7 @@ import PasajerosPorViajeChart from "./views/PasajerosPorViajeChart";
 import ViajesPorFranjaHorariaChart from "./views/ViajesPorFranjaHorariaChart";
 import ViajesPorMesChart from "./views/ViajesPorMesChart";
 import CardResumen from "./components/CardResumen";
-import {userStatisticsRequest} from "../../interconnection/statistics"
+import {userStatisticsRequest } from "../../interconnection/statistics"
 
 const StatisticsPage = () => {
   const [activeTab, setActiveTab] = useState("conductores");
@@ -23,15 +23,6 @@ const StatisticsPage = () => {
     { key: "franja", label: "Viajes por Franja Horaria" },
     { key: "viajesMes", label: "Viajes por Mes" },
   ];
-
-  //app.get("/backend/statistics/users", statisticsController.userStatistics);
-
-/*const result = {
-      totalDrivers: users[0].totalDrivers[0]?.count || 0,
-      totalPassengers: users[0].totalPassengers[0]?.count || 0,
-      totalActiveUsers: users[0].totalActive[0]?.count || 0,
-      averageAge: users[0].avgAge[0]?.avgAge ? Math.round(users[0].avgAge[0].avgAge * 100) / 100 : null
-    };*/
   const [resumen, setResumen] = useState([
     { titulo: "Total de Conductores", valor: "-", cambio: "" },
     { titulo: "Total de Pasajeros", valor: "-", cambio: "" },
@@ -74,29 +65,6 @@ const StatisticsPage = () => {
 
     fetchData();
   }, []);
-/*
-  const resumen = [
-    {
-      titulo: "Total de Conductores",
-      valor: "1284",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Total de Pasajeros",
-      valor: "2089",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Usuarios Activos",
-      valor: "3373",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Edad Promedio",
-      valor: "32.4",
-      cambio: "+12%",
-    },
-  ];*/
 
   const renderChart = () => {
     switch (activeTab) {
