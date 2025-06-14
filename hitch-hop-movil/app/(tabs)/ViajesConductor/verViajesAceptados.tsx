@@ -7,12 +7,15 @@ import { RideCardDriver } from "@/components/RideCardDriver";
 import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
+import { useAuth } from "../Context/auth-context";
+import { getTripsByUserRequest } from "@/interconnection/trip";
 
 export default function VerViajesAceptados() {
   const router = useRouter();
-
+  const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [requests, setRequests] = useState<Requests[]>([]);
   const [successVisible, setSuccessVisible] = useState(false);
 
   interface Requests {
@@ -25,30 +28,6 @@ export default function VerViajesAceptados() {
     start: string;
     end: string;
   }
-
-  const requests: Requests[] = [
-    {
-      id: 1,
-      users: 2,
-      userLimit: 4,
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      users: 3,
-      userLimit: 4,
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
 
   const handleCancel = (requestId: number) => {
     setSelectedRequestId(requestId);
@@ -67,10 +46,39 @@ export default function VerViajesAceptados() {
   };
 
   useEffect(() => {
-    if (requests.length == 0) {
+  async function fetchTrips() {
+    try {
+      const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
+      if (trips) {
+        const mappedRequests = trips.map((trip: any) => ({
+          id: trip._id,
+          users: trip.passengers?.filter((p: any) => p.status === "Aprobado").length ?? 0,
+          userLimit: 4,
+          price: `₡${trip.costPerPerson}`,
+          date: trip.departure.split("T")[0],
+          time: trip.departure.split("T")[1]?.slice(0,5),
+          start: trip.startpoint?.name || "",
+          end: trip.endpoint?.name || "",
+        }));
+        setRequests(mappedRequests);
+
+        if (mappedRequests.length === 0) {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      } else {
+        setRequests([]);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
+    } catch (error) {
+      setRequests([]);
       router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
-  }, [requests, router]);
+  }
+
+  if (user?._id) {
+    fetchTrips();
+  }
+}, [user, router]);
   
   if (requests.length === 0) {
     return null;

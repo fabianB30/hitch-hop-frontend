@@ -7,13 +7,17 @@ import { RideCardDriver2 } from "@/components/RideCardDriver2";
 import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
+import { useAuth } from "../Context/auth-context";
+import { getTripsByUserRequest } from "../../../interconnection/trip";
 
 export default function VerViajesPendientes() {
+  const { user } = useAuth();
   const router = useRouter();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [successVisible, setSuccessVisible] = useState(false);
+  const [requests, setRequests] = useState<Requests[]>([]);
 
   type PendingRequestCard = {
     id: number;
@@ -35,81 +39,6 @@ export default function VerViajesPendientes() {
     end: string;
   }
 
-  const requests: Requests[] = [
-    {
-      id: 1,
-      users: [
-        {
-            id: 1,
-            name: "Tatiana Lobo",
-            price: "₡1500",
-            location: "Estación del Atlántico",
-            time: "11:55 am",
-        },
-        {
-            id: 2,
-            name: "Ana Gómez",
-            price: "₡1500",
-            location: "Cartago",
-            time: "11:35 AM",
-        },
-    ],
-      userLimit: 4,
-      actualPassengerNumber: 4,
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      users: [
-        {
-            id: 1,
-            name: "Carlos Ruiz",
-            price: "₡2000",
-            location: "Tres Ríos",
-            time: "12:00 PM",
-        },
-        {
-            id: 2,
-            name: "María López",
-            price: "₡2000",
-            location: "San Pedro",
-            time: "12:10 PM",
-        },
-        {
-            id: 3,
-            name: "Luis Fernández",
-            price: "₡2000",
-            location: "Curridabat",
-            time: "12:15 PM",
-        },
-      ],
-      userLimit: 4,
-      actualPassengerNumber: 2,
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 3,
-      users: [],
-      userLimit: 4,
-      actualPassengerNumber: 0,
-      price: "₡2200",
-      date: "07 de Abr, 2025.",
-      time: "7:55 AM",
-      start: "Cristo de Sabanilla.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
-
   const handleCancel = (requestId: number) => {
     setSelectedRequestId(requestId);
     setModalVisible(true);
@@ -127,10 +56,54 @@ export default function VerViajesPendientes() {
   };
 
   useEffect(() => {
-    if (requests.length == 0) {
-      router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    async function fetchTrips() {
+      try {
+        const trips = await getTripsByUserRequest(user._id, true, "all");
+        if (trips) {
+          const mappedRequests = trips.map((trip: any) => {
+            // Solo pasajeros pendientes
+            const pendingPassengers = trip.passengers
+              ?.filter((p: any) => p.status === "Pendiente")
+              .map((p: any) => ({
+                id: p.user._id,
+                name: p.user.name,
+                price: `₡${trip.costPerPerson}`,
+                location: trip.startpoint?.name || "",
+                time: trip.departure.split("T")[1]?.slice(0, 5) || "",
+              })) ?? [];
+
+            return {
+              id: trip._id,
+              users: pendingPassengers,
+              userLimit: 4, // Hardcodeado
+              actualPassengerNumber: pendingPassengers.length,
+              price: `₡${trip.costPerPerson}`,
+              date: trip.departure.split("T")[0],
+              time: trip.departure.split("T")[1]?.slice(0, 5),
+              start: trip.startpoint?.name || "",
+              end: trip.endpoint?.name || "",
+            };
+          });
+
+          setRequests(mappedRequests);
+
+          if (mappedRequests.length === 0) {
+            router.replace("/(tabs)/ViajesConductor/sinProgramados");
+          }
+        } else {
+          setRequests([]);
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      } catch (error) {
+        setRequests([]);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
     }
-  }, [requests, router]);
+
+    if (user?._id) {
+      fetchTrips();
+    }
+  }, [user, router]);
   
   if (requests.length === 0) {
     return null;

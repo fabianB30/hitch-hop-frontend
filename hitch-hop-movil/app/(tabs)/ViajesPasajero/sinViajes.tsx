@@ -1,9 +1,10 @@
 import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image } from 'react-native';
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
+import { useAuth } from '../Context/auth-context'; // Adjust the import path as necessary
 
 export default function sinViajes() {
-
+  const { user } = useAuth(); // Assuming useAuth is defined in your context
   const router = useRouter();
   const { width } = Dimensions.get('window');
 
@@ -38,7 +39,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => console.log('Buscar Viajes')}
+          onPress={() => console.log(user._id)}
         >
           <Text style={styles.buttonText}>Buscar Viajes</Text>
         </Pressable>

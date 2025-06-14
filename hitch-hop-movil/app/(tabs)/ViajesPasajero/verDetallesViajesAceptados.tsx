@@ -8,12 +8,15 @@ import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from '../Context/auth-context';
 import { getTripsByUserRequest } from '../../../interconnection/trip';
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
+  const { user } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  const [rides, setRides] = useState<Ride[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const insets = useSafeAreaInsets();
 
@@ -62,42 +65,49 @@ export default function VerDetallesViajesAceptados() {
     fetchData();
   }, []);*/
 
-
-  const rides: Ride[] = [
-    {
-      id: 1,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Adrián Zamora",
-      car: "Toyota Camry",
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Juan Pérez",
-      car: "Chevrolet Spark",
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
-
   useEffect(() => {
-    if (rides.length == 0) {
-      router.replace("/(tabs)/ViajesPasajero/sinViajes");
+    async function fetchRides() {
+      try {
+        const trips = await getTripsByUserRequest(user._id, false, "Aprobado");
+        if (trips) {
+          const mappedRides = trips.map((trip: any) => ({
+            id: trip._id,
+            avatar: require("@/assets/images/avatar1.png"),
+            name: trip.driver?.name || "Nombre Conductor",
+            car: "Modelo Auto",
+            price: `₡${trip.costPerPerson}`,
+            date: trip.departure.split("T")[0],
+            time: trip.departure.split("T")[1]?.slice(0,5),
+            start: trip.startpoint?.name || "",
+            end: trip.endpoint?.name || "",
+          }));
+          setRides(mappedRides);
+
+          // Si no hay rides, redirige
+          if (mappedRides.length === 0) {
+            router.replace("/(tabs)/ViajesPasajero/sinViajes");
+          }
+        } else {
+          // Si trips es null o undefined, también redirige
+          setRides([]);
+          router.replace("/(tabs)/ViajesPasajero/sinViajes");
+        }
+      } catch (error) {
+        console.error("Error al obtener viajes:", error);
+        setRides([]);
+        router.replace("/(tabs)/ViajesPasajero/sinViajes");
+      }
     }
-  }, [rides, router]);
+
+    if (user?._id) {
+      fetchRides();
+    }
+  }, [user, router]);
 
   if (rides.length === 0) {
     return null;
   }
+  
   return (
     <ImageBackground
       source={require("@/assets/images/fondoDefault.png")}
