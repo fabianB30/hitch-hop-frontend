@@ -5,15 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+import { useAuth } from '@/Context/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const {signIn, isAuthenticated, errors: loginErrors = []} = useAuth();
+  const navigate = useNavigate();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     
@@ -30,9 +35,24 @@ const Login: React.FC = () => {
       return;
     }
     
-    console.log("Login attempt:", { email, password, rememberMe });
+    try {
+      const user = await signIn({ email: email, password: password});
+      // Navegar a la pantalla principal
+      if (user) {
+        if (user.type === 'Administrador'){
+          navigate("/bienvenida");
+        } else {
+          
+        }
+      } else {
+        console.log('Login error');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
+    }
   };
-
+  
   // Manejador para el cambio del checkbox
   const handleCheckboxChange = (checked: boolean) => {
     setRememberMe(checked);
