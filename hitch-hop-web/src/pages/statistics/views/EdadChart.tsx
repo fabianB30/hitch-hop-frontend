@@ -28,7 +28,6 @@ const EdadChart = () => {
         if (filtros?.genero) payload.genre = filtros.genero;
 
         const res = await statisticsUserCountByAgeRangesRequest(payload);
-        console.log(res);
         if (res && Array.isArray(res)) {
           const formattedData = res.map(r => ({
             name: `${r.min}-${r.max === Infinity ? '+' : r.max}`,

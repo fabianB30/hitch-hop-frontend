@@ -33,7 +33,7 @@ const StatisticsPage = () => {
     async function fetchData() {
       try {
         const stats = await userStatisticsRequest();
-        console.log(stats);
+        
         if (stats) {
           setResumen([
             {
