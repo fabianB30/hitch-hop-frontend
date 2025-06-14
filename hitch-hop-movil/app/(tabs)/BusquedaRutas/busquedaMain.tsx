@@ -23,6 +23,7 @@ const busquedaMain = () => {
 
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
+    const [msgError, setMsgError] = useState(false)
 
     const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(true);
 
@@ -61,6 +62,12 @@ const busquedaMain = () => {
     }
     const showTimepicker = () => {
         showMode('time')
+    }
+
+    const checkInputs = () => {
+        if(!destination){
+            setMsgError(true);
+        }
     }
 
   return (
@@ -125,13 +132,13 @@ const busquedaMain = () => {
                 )}
 
                 <VStack>
-                    <Text style={[styles.dataText, styles.text]}>Destino</Text>
+                    <Text style={[styles.dataText, styles.text, msgError && {color: 'red'}]}>Destino</Text>
                     <TouchableOpacity
                         onPress= {() => {
                             router.push('/BusquedaRutas/selectDestination')
                         }}
                     >
-                        <Input style={styles.dataInputLong} pointerEvents='none'>
+                        <Input style={[styles.dataInputLong, msgError && {borderColor: 'red'}]} pointerEvents='none'>
                             <InputField 
                                 value={destination}
                                 editable={false}
@@ -143,6 +150,8 @@ const busquedaMain = () => {
                         </Input>
                     </TouchableOpacity>
                 </VStack>
+                
+                {msgError && <Text style={{color: 'red'}}>Algunos campos se encuentran vacíos*</Text>}
 
                 <Image 
                 source={require("@/assets/images/conductorFlorSquare.png")}
@@ -151,7 +160,7 @@ const busquedaMain = () => {
                 <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
                 <Text style={[styles.charaSubtext, styles.text]}>¡Encuentre su próximo viaje con nosotros!</Text>
 
-                <Button style={styles.button}>
+                <Button style={styles.button} onPress={ checkInputs }>
                     <ButtonText style={[styles.text, {color: 'white'}]}>Buscar Rutas</ButtonText>
                 </Button>
             </VStack>
@@ -168,9 +177,9 @@ const busquedaMain = () => {
                     <Text style={styles.normalText}>Intenta modificar el horario o la ruta elegida.</Text>
                 </ModalBody>
                 <ModalFooter className="mx-auto">
-                    <Button variant='outline' style={styles.modalBackButton}>
-                        <ButtonText style={{color: "#7875F8"}}>Regresar</ButtonText>
-                    </Button>
+                    <Button variant='outline' style={styles.modalBackButton} onPress={() => { setShowConfirmationModal(false)}}>
+                        <ButtonText style={{color: "#7875F8"}} >Regresar</ButtonText>
+                    </Button>   
                 </ModalFooter>
                 </ModalContent>
             </Modal>   
@@ -229,6 +238,9 @@ dataInputLong: {
     marginBottom: 20,
     paddingRight: 12,
     borderRadius: 8
+},
+errorStyle:{
+    borderColor: 'red',
 },
 charaImage: {
     marginHorizontal: 'auto',
