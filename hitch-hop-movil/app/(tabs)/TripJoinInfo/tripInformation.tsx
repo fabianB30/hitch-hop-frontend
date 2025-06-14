@@ -182,7 +182,7 @@ if (carInfo == null || startInfo == null || endInfo == null || stopsInfo == null
 
 const wh = Dimensions.get("window").height
 
-const informacionViaje = () => {
+const tripInformation = () => {
   const router = useRouter()
 
   if (Object.keys(rideInfo).length == 0 || Object.keys(additionalInfo).length == 0) {
@@ -234,7 +234,7 @@ const informacionViaje = () => {
 
             <Button style={styles.button}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/seleccionRecogida",
+                pathname: "/(tabs)/InfoUnirseViaje/selectPickupPoint",
                 params: {
                   rideInfo: JSON.stringify(rideInfo),
                   additionalInfo: JSON.stringify(additionalInfo)
@@ -319,4 +319,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default informacionViaje
+export default tripInformation

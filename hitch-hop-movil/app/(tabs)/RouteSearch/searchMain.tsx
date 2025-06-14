@@ -17,9 +17,9 @@ import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, Moda
 
 const {width, height} = Dimensions.get("window")
 
-const busquedaMain = () => {
+const searchMain = () => {
     const router = useRouter()
-    const {date, setDate, destination} = useForm()
+    const { date, setDate, destination } = useForm()
 
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
@@ -65,15 +65,19 @@ const busquedaMain = () => {
     }
 
     const checkInputs = () => {
+        console.log("Hola")
         if(!destination){
-            setMsgError(true);
+            setMsgError(true)
+        } else{
+            //router.push("/(tabs)/RouteSearch/availableTrips"); 
         }
+        //(!destination) ? setMsgError(true) : router.push("/(tabs)/RouteSearch/availableTrips"); 
     }
 
   return (
-    <SafeAreaView style={{flex:1}}>
-        <ImageBackground
-        source={require("@/assets/images/pattern-background-main.png")}>
+      <ImageBackground
+      source={require("@/assets/images/pattern-background-main.png")}>
+            <SafeAreaView>
             <HitchHopHeader />
 
             {/* Main view */}
@@ -135,15 +139,16 @@ const busquedaMain = () => {
                     <Text style={[styles.dataText, styles.text, msgError && {color: 'red'}]}>Destino</Text>
                     <TouchableOpacity
                         onPress= {() => {
-                            router.push('/BusquedaRutas/selectDestination')
-                        }}
-                    >
-                        <Input style={[styles.dataInputLong, msgError && {borderColor: 'red'}]} pointerEvents='none'>
-                            <InputField 
-                                value={destination}
-                                editable={false}
-                                pointerEvents='none'
-                            />
+                            router.push('/RouteSearch/selectDestination')
+                        }}>
+                        <Input style={styles.dataInputLong} pointerEvents='none' isReadOnly>
+                            <Text
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={{ flex: 1 }}
+                            >
+                                {destination || ""}
+                            </Text>
                             <InputSlot>
                                 <Search size={14} color='black' strokeWidth={3} />
                             </InputSlot>
@@ -160,7 +165,7 @@ const busquedaMain = () => {
                 <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
                 <Text style={[styles.charaSubtext, styles.text]}>¡Encuentre su próximo viaje con nosotros!</Text>
 
-                <Button style={styles.button} onPress={ checkInputs }>
+                <Button style={styles.button} onPress={() => {checkInputs}}>
                     <ButtonText style={[styles.text, {color: 'white'}]}>Buscar Rutas</ButtonText>
                 </Button>
             </VStack>
@@ -184,8 +189,8 @@ const busquedaMain = () => {
                 </ModalContent>
             </Modal>   
             {/* Fin del Modal de confirmación */}
-        </ImageBackground>
     </SafeAreaView>
+        </ImageBackground>
     
   )
 }
@@ -237,10 +242,8 @@ dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
     paddingRight: 12,
-    borderRadius: 8
-},
-errorStyle:{
-    borderColor: 'red',
+    borderRadius: 8,
+    paddingLeft: 12
 },
 charaImage: {
     marginHorizontal: 'auto',
@@ -285,4 +288,4 @@ modalImg: {
 },
 })
 
-export default busquedaMain
+export default searchMain

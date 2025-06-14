@@ -4,7 +4,7 @@ import SearchContext from "@/components/shared/SearchContext";
 export default function Layout() {
     return (
         <SearchContext>
-            <Stack screenOptions={{headerShown: false}} initialRouteName="busquedaMain"/>
+            <Stack screenOptions={{headerShown: false}} initialRouteName="searchMain"/>
         </SearchContext>
     )
 }
