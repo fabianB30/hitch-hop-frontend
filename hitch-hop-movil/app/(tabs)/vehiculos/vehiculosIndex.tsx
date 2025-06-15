@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, Modal
+  View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Modal
 } from 'react-native';
-import { Image } from 'expo-image';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getAllVehiclesRequest, deleteVehicleByIdRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
@@ -22,6 +21,10 @@ export default function VehiculosIndex() {
 
       const mine = all.filter((v: any) => user.vehicles.includes(v._id));
       setVehicles(mine);
+
+      if (mine.length === 0) {
+        router.replace('/(tabs)/vehiculos/sinVehiculos');
+      }
     };
     fetchVehicles();
   }, [user]);
@@ -41,42 +44,36 @@ export default function VehiculosIndex() {
     setDeleteModal({ visible: false });
   };
 
-  return (
+    return (
     <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
       <View style={styles.topBackground}>
         <Image
           source={require('@/assets/images/mg_backround_gestion.png')}
           style={styles.bgPattern}
-          contentFit="cover"
+          resizeMode="cover"
         />
         <Image
           source={require('@/assets/images/HHLogoDisplay.png')}
           style={styles.logo}
-          contentFit="contain"
+          resizeMode="contain"
         />
       </View>
 
-      <View style={styles.formContainer}>
-        <View style={styles.formHeader}>
+      <View style={styles.contentContainer}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Image
-              source={require('@/assets/images/flechaback.png')}
-              style={{ width: 32, height: 32 }}
-              contentFit="contain"
-            />
+            <Image source={require('@/assets/images/flechaback.png')} style={{ width: 32, height: 32 }} />
           </TouchableOpacity>
-          <Text style={[styles.formTitle, { marginLeft: 70 }]}>Vehículos</Text>
+          <Text style={styles.title}>Vehículos</Text>
         </View>
 
         {vehicles.length === 0 ? (
-          <>
-            <View style={{ alignItems: 'center', marginTop: 12 }}>
-              <Image
-                source={require('@/assets/images/gatoautos.png')}
-                style={styles.emptyIllustration}
-                contentFit="contain"
-              />
-            </View>
+          <View style={{ alignItems: 'center', marginTop: 12 }}>
+            <Image
+              source={require('@/assets/images/gatoautos.png')}
+              style={styles.emptyIllustration}
+              resizeMode="contain"
+            />
             <Text style={styles.emptyText}>No hay vehículos registrados</Text>
             <TouchableOpacity
               style={styles.addButtonEmpty}
@@ -84,7 +81,7 @@ export default function VehiculosIndex() {
             >
               <Text style={styles.addButtonText}>Agregar Vehículo</Text>
             </TouchableOpacity>
-          </>
+          </View>
         ) : (
           <FlatList
             data={vehicles}
@@ -128,7 +125,6 @@ export default function VehiculosIndex() {
         )}
       </View>
 
-      {/* Modales */}
       <Modal transparent visible={deleteModal.visible} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -170,19 +166,17 @@ const styles = StyleSheet.create({
   },
   bgPattern: {
     position: 'absolute',
-    top: 0,
-    left: 0,
     width: '100%',
     height: '100%',
   },
   logo: {
+    width: 120,
+    height: 36,
     position: 'absolute',
     top: 16,
     right: 16,
-    width: 120,
-    height: 36,
   },
-  formContainer: {
+  contentContainer: {
     flex: 1,
     backgroundColor: '#fff',
     borderTopLeftRadius: 32,
@@ -191,42 +185,17 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     zIndex: 10,
   },
-  formHeader: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
     paddingHorizontal: 24,
   },
-  formTitle: {
+  title: {
     fontFamily: 'Exo-Bold',
     fontSize: 30,
     color: '#181718',
-    marginTop: 8,
-  },
-  emptyIllustration: {
-    width: 350,
-    height: 350,
-    marginBottom: 12,
-    marginLeft: -50,
-    marginTop: 15,
-  },
-  emptyText: {
-    fontFamily: 'Exo-Bold',
-    fontSize: 16,
-    color: '#181718',
-    textAlign: 'center',
-    marginTop: -35,
-    marginBottom: 40,
-  },
-  addButtonEmpty: {
-    backgroundColor: '#7875F8',
-    borderRadius: 12,
-    width: 190,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 8,
+    marginLeft: 70,
   },
   list: {
     paddingHorizontal: 16,
@@ -262,6 +231,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Exo-Bold',
     fontSize: 18,
     marginBottom: 8,
+  },
+  emptyText: {
+    fontFamily: 'Exo-Bold',
+    fontSize: 16,
+    color: '#181718',
+    textAlign: 'center',
+    marginTop: -35,
+    marginBottom: 40,
+  },
+  emptyIllustration: {
+    width: 350,
+    height: 350,
+    marginBottom: 12,
+    marginLeft: -50,
+    marginTop: 15,
+  },
+  addButtonEmpty: {
+    backgroundColor: '#7875F8',
+    borderRadius: 12,
+    width: 190,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 8,
   },
   actions: {
     flexDirection: 'row',

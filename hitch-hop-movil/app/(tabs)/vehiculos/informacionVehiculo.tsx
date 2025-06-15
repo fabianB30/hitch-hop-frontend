@@ -27,7 +27,7 @@ export default function InformacionVehiculo() {
             const data = await getVehicleByIdRequest(id); 
             setVehiculo(data);
           } else {
-             console.log('Error mamadisimo que no deberia pasar, id:', id);
+             console.log('Error que no deberia pasar, id:', id);
           }
         } catch (error) {
           console.error("Error fetching vehicles:", error);

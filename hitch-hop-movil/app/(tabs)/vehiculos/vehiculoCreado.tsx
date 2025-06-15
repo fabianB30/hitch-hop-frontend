@@ -30,6 +30,7 @@ export default function VehiculoCreado() {
     Font.loadAsync({
       'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
     }).then(() => setFontsLoaded(true));
   }, []);
 
@@ -47,17 +48,11 @@ export default function VehiculoCreado() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
-      {/* Fondo superior con patrón y logo */}
-      <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
+      {/* Fondo superior con patrón */}
+      <View style={styles.topBackground}>
         <Image
-          source={require('@/assets/images/backround_gestion.png')}
-          style={{
-            width: '160%',
-            height: '100%',
-            position: 'absolute',
-            top: -20,
-            left: '-10%',
-          }}
+          source={require('@/assets/images/mg_backround_gestion.png')}
+          style={styles.bgPattern}
           resizeMode="cover"
         />
         <Image
@@ -306,6 +301,10 @@ export default function VehiculoCreado() {
 }
 
 const styles = StyleSheet.create({
+  topBackground: { height: 120, position: 'relative' },
+  bgPattern: { position: 'absolute' },
+  logo: { width: 120, height: 36, position: 'absolute', top: 16, right: 16 },
+
   formContainer: {
     flex: 1,
     backgroundColor: '#fff',

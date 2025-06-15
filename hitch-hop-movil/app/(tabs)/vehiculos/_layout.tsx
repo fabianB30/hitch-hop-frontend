@@ -8,8 +8,12 @@ import { Children,ReactNode } from "react";
 
 export default function TabLayout({children} : {children: ReactNode}) {
   const colorScheme = useColorScheme();
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {children}
+    </Stack>
+  );
 
-  return <Stack/>; 
   
   /*(
       {QUITE ESTO PQ NO ESTABA EN EL PROTOTIPO, SI SE NECESITA LA BARRA  SE DFESCOMENTA}

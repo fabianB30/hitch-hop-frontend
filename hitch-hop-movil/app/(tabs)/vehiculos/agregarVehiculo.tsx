@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { Image as ExpoImage } from 'expo-image';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
 import * as ImagePicker from 'expo-image-picker';
+import { FontAwesome } from '@expo/vector-icons';
 
 import { registerVehicleRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
@@ -11,209 +11,134 @@ import { addCarsRequest } from '@/interconnection/user';
 
 export default function AgregarVehiculo() {
   const router = useRouter();
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const { user, setUser } = useAuth();
 
-  // All useState hooks must be here, before any return!
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [marca, setMarca] = useState('');
   const [modelo, setModelo] = useState('');
   const [placa, setPlaca] = useState('');
   const [color, setColor] = useState('');
   const [anio, setAnio] = useState('');
-  const [foto, setFoto] = useState(null);
-  const { user,setUser } = useAuth();
+  const [foto, setFoto] = useState<string | null>(null);
 
-  const handleAgregar = async () => {
-      const vehicleData = { 
-        model: modelo, 
-        brand: marca, 
-        color: color, 
-        plate: placa,
-        year: anio
-      };
-    try {
-      const vehicle = await registerVehicleRequest(vehicleData);
-      console.log('Vehículo registrado:', vehicle);
-
-      if (user && vehicle) {
-        console.log('Usuario:', user);
-        await addCarsRequest(
-          { cars: [vehicle._id], email: user.email }
-        );
-        setUser({
-          ...user,
-          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
-        });
-        user.vehicles.push(vehicle._id); // Agregar el vehículo al array de vehículos del usuario actual para la sesion
-
-      }
-
-    } catch (error) {
-      console.error('Error al registrar el vehículo:', error);
-    }
-
-    router.push('/vehiculos')
-  };
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
 
   if (!fontsLoaded) return null;
+
+  const handleBrowseFile = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setFoto(result.assets[0].uri);
+    }
+  };
+
+  const handleAgregar = async () => {
+    const vehicleData = { model: modelo, brand: marca, color, plate: placa, year: anio };
+
+    try {
+      const vehicle = await registerVehicleRequest(vehicleData);
+      if (user && vehicle) {
+        await addCarsRequest({ cars: [vehicle._id], email: user.email });
+        setUser({ ...user, vehicles: [...user.vehicles, vehicle._id] });
+      }
+      router.push('/vehiculos');
+    } catch (error) {
+      console.error('Error al registrar el vehículo:', error);
+      // Puedes mostrar una alerta aquí
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
       {/* Fondo superior con patrón */}
       <View style={styles.topBackground}>
         <Image
-          source={require('@/assets/images/backround_gestion.png')}
+          source={require('@/assets/images/mg_backround_gestion.png')}
           style={styles.bgPattern}
           resizeMode="cover"
         />
         <Image
-              source={require('@/assets/images/HHLogoDisplay.png')}
-              style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-              resizeMode="contain"
-            />
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"
+        />
       </View>
 
-      {/* Contenedor principal con esquinas superiores redondeadas */}
+      {/* Formulario */}
       <View style={styles.formContainer}>
-        {/* Flecha y título */}
         <View style={styles.formHeader}>
           <TouchableOpacity onPress={() => router.push("/(tabs)/GestionPerfilConductor")}>
-            <Image
-              source={require('@/assets/images/flechaback.png')}
-              style={{ width: 32, height: 32 }}
-              resizeMode="contain"
-            />
+            <Image source={require('@/assets/images/flechaback.png')} style={{ width: 32, height: 32 }} />
           </TouchableOpacity>
-          <Text style={[styles.formTitle, { marginLeft: 32 }]}>Agregar Vehículo </Text>
+          <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
+            <Text style={styles.formTitle}>Agregar Vehículo</Text>
+          </View>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-          {/* Campos */}
-          <View style={styles.inputRow}>
-            <Text style={styles.label}>Marca<Text style={styles.required}>*</Text></Text>
-            <TextInput style={styles.input} value={marca} onChangeText={setMarca} />
-          </View>
-          <View style={styles.inputRow}>
-            <Text style={styles.label}>Modelo<Text style={styles.required}>*</Text></Text>
-            <TextInput style={styles.input} value={modelo} onChangeText={setModelo} />
-          </View>
-          <View style={styles.inputRow}>
-            <Text style={styles.label}>Placa<Text style={styles.required}>*</Text></Text>
-            <TextInput style={styles.input} value={placa} onChangeText={setPlaca} />
-          </View>
-          <View style={styles.inputRow}>
-            <Text style={styles.label}>Color<Text style={styles.required}>*</Text></Text>
-            <TextInput style={styles.input} value={color} onChangeText={setColor} />
-          </View>
-          <View style={styles.inputRow}>
-            <Text style={styles.label}>Año<Text style={styles.required}>*</Text></Text>
-            <TextInput style={styles.input} value={anio} onChangeText={setAnio} keyboardType="numeric" />
-          </View>
-
-          {/* Fotografía */}
-          <Text style={styles.photoLabel}>Fotografía del vehículo</Text>
-          <View style={styles.photoBox}>
-            <Text style={styles.photoBoxText}>
-              Choose a file or drag & drop it here.{"\n"}
-              JPEG, PNG, PDF, and MP4 formats, up to 50 MB.
-            </Text>
-            <TouchableOpacity style={styles.browseButton} onPress={handleBrowseFile}>
-              <Text style={styles.browseButtonText}>Browse File</Text>
-            </TouchableOpacity>
-            {foto && (
-              <Image
-                source={{ uri: foto }}
-                style={{ width: 80, height: 80, marginTop: 8, borderRadius: 8 }}
-                resizeMode="cover"
+          {[
+            { label: 'Marca', value: marca, setter: setMarca },
+            { label: 'Modelo', value: modelo, setter: setModelo },
+            { label: 'Placa', value: placa, setter: setPlaca },
+            { label: 'Color', value: color, setter: setColor },
+            { label: 'Año', value: anio, setter: setAnio, keyboard: 'numeric' },
+          ].map((f, i) => (
+            <View key={i} style={styles.inputRow}>
+              <Text style={styles.label}>{f.label}<Text style={styles.required}>*</Text></Text>
+              <TextInput
+                style={styles.input}
+                value={f.value}
+                onChangeText={f.setter}
+                keyboardType={f.keyboard as any}
               />
+            </View>
+          ))}
+          <Text style={styles.photoLabel}>Fotografía del vehículo</Text>
+          <View style={styles.photoUploadArea}>
+            {foto ? (
+              <View>
+                <Image source={{ uri: foto }} style={styles.photoRect} />
+
+                {/* Sólo el botón del lápiz es Touchable */}
+                <TouchableOpacity style={styles.editIcon} onPress={handleBrowseFile}>
+                  <FontAwesome name="pencil" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity style={styles.photoPlaceholderRect} onPress={handleBrowseFile}>
+                <Text style={styles.browseButtonText}>+ Seleccionar foto</Text>
+              </TouchableOpacity>
             )}
           </View>
 
-          {/* Botón Agregar */}
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push('/vehiculos/vehiculoCreado')}
-          >
+
+
+
+          <TouchableOpacity style={styles.addButton} onPress={handleAgregar}>
             <Text style={styles.addButtonText}>Agregar</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
-
-      {/* Barra de navegación inferior */}
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              alignItems: 'center',
-              height: 64,
-              backgroundColor: '#7B61FF',
-              borderTopLeftRadius: 18,
-              borderTopRightRadius: 18,
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-            }}>
-              <TouchableOpacity>
-                <Image source={"asset"} style={{ width: 32, height: 32 }} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image source={"asset"} style={{ width: 32, height: 32 }} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image source={"asset"} style={{ width: 32, height: 32 }} />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image source={"asset"} style={{ width: 32, height: 32 }} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        );
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  topBackground: {
-    height: 120,
-    backgroundColor: '#A18AFF',
-    position: 'relative',
-    justifyContent: 'flex-start',
-  },
-  bgPattern: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    top: 0,
-    left: 0,
-    opacity: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 32,
-    marginLeft: 24,
-    zIndex: 2,
-  },
-  avatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#4FC3F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  avatarLetter: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 22,
-    fontFamily: 'Exo-Bold',
-  },
-  logoText: {
-    color: '#fff',
-    fontFamily: 'Exo-Bold',
-    fontSize: 22,
-    marginLeft: 8,
-    marginTop: 2,
-    letterSpacing: 0.5,
-  },
+  topBackground: { height: 120, position: 'relative' },
+  bgPattern: { position: 'absolute' },
+  logo: { width: 120, height: 36, position: 'absolute', top: 16, right: 16 },
+
   formContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -221,7 +146,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 32,
     marginTop: -24,
     paddingTop: 24,
-    paddingHorizontal: 0,
     zIndex: 10,
   },
   formHeader: {
@@ -251,7 +175,6 @@ const styles = StyleSheet.create({
   required: {
     color: '#E53935',
     fontSize: 16,
-    fontFamily: 'Exo-Bold',
   },
   input: {
     flex: 1,
@@ -291,55 +214,58 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-  browseButton: {
-    backgroundColor: '#fff',
+  photoUploadArea: {
+    alignSelf: 'center',
+    marginBottom: 20,
+    position: 'relative',
+  },
+  photoPlaceholderRect: {
+    width: 200,
+    height: 120,
+    borderRadius: 12,
+    backgroundColor: '#EAEAEA',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#A18AFF',
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 18,
+    borderColor: '#D1D5DB',
+  },
+  photoRect: {
+    width: 200,
+    height: 120,
+    borderRadius: 12,
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    backgroundColor: '#7875F8',
+    padding: 6,
+    borderRadius: 16,
   },
   browseButtonText: {
     color: '#A18AFF',
-    fontFamily: 'Exo-Bold',
-    fontSize: 15,
+    fontFamily: 'Exo-Regular',
+    fontSize: 16,
+  }, photoPreview: {
+    width: 80,
+    height: 80,
+    marginTop: 8,
+    borderRadius: 8,
   },
   addButton: {
+    width: 170, 
+    height: 44,
     backgroundColor: '#FFB800',
-    borderRadius: 8,
-    padding: 14,
-    marginHorizontal: 24,
-    marginTop: 8,
+    paddingLeft: 16, paddingRight: 16, 
+    borderRadius: 4,
+justifyContent: 'center', 
+alignItems: 'center',
+alignSelf: 'center', 
   },
   addButtonText: {
     color: '#fff',
     textAlign: 'center',
-    fontWeight: 'bold',
-    fontFamily: 'Exo-Bold',
+    fontFamily: 'Exo-SemiBold',
     fontSize: 18,
   },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 56,
-    backgroundColor: '#A18AFF',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-  },
-  bottomIcon: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  iconImg: {
-    width: 32,
-    height: 32,
-    tintColor: '#fff',
-  },
 });
-

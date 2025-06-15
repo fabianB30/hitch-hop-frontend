@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import * as Font from 'expo-font';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
@@ -9,6 +10,7 @@ import { useAuth } from '../Context/auth-context';
 export default function EditarVehiculo() {
   const router = useRouter();
   //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const { id } = useLocalSearchParams();;
   const [brand, setMarca] = useState('Hyundai');
   const [model, setModelo] = useState('Santa Fe');
