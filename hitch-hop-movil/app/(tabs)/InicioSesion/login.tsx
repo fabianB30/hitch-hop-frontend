@@ -49,7 +49,7 @@ export default function LoginScreen() {
       const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
       if (user) {
-        if (user.role === 'passenger'){
+        if (user.role === 'Pasajero'){
           console.log(user.name);
           router.push('../HomePasajero');
         } else {

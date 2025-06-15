@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ConductoresChart from "./views/ConductoresChart";
 import PasajerosChart from "./views/PasajerosChart";
 import EdadChart from "./views/EdadChart";
@@ -7,8 +7,8 @@ import VehiculosPorConductorChart from "./views/VehiculosPorConductorChart";
 import PasajerosPorViajeChart from "./views/PasajerosPorViajeChart";
 import ViajesPorFranjaHorariaChart from "./views/ViajesPorFranjaHorariaChart";
 import ViajesPorMesChart from "./views/ViajesPorMesChart";
-import FiltrosPanel from "./components/FiltrosPanel";
 import CardResumen from "./components/CardResumen";
+import {userStatisticsRequest } from "../../interconnection/statistics"
 
 const StatisticsPage = () => {
   const [activeTab, setActiveTab] = useState("conductores");
@@ -23,29 +23,48 @@ const StatisticsPage = () => {
     { key: "franja", label: "Viajes por Franja Horaria" },
     { key: "viajesMes", label: "Viajes por Mes" },
   ];
+  const [resumen, setResumen] = useState([
+    { titulo: "Total de Conductores", valor: "-", cambio: "" },
+    { titulo: "Total de Pasajeros", valor: "-", cambio: "" },
+    { titulo: "Usuarios Activos", valor: "-", cambio: "" },
+    { titulo: "Edad Promedio", valor: "-", cambio: "" }
+  ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const stats = await userStatisticsRequest();
+        
+        if (stats) {
+          setResumen([
+            {
+              titulo: "Total de Conductores",
+              valor: stats.totalDrivers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Total de Pasajeros",
+              valor: stats.totalPassengers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Usuarios Activos",
+              valor: stats.totalActiveUsers,
+              cambio: "+12%",
+            },
+            {
+              titulo: "Edad Promedio",
+              valor: stats.averageAge ?? "N/A",
+              cambio: "+12%",
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("Error al obtener estadísticas de usuarios:", error);
+      }
+    }
 
-  const resumen = [
-    {
-      titulo: "Total de Conductores",
-      valor: "1284",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Total de Pasajeros",
-      valor: "2089",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Usuarios Activos",
-      valor: "3373",
-      cambio: "+12%",
-    },
-    {
-      titulo: "Edad Promedio",
-      valor: "32.4",
-      cambio: "+12%",
-    },
-  ];
+    fetchData();
+  }, []);
 
   const renderChart = () => {
     switch (activeTab) {
@@ -101,7 +120,6 @@ const StatisticsPage = () => {
 
       {/* Contenido: filtros + gráfico */}
       <div className="flex gap-6 items-start">
-        <FiltrosPanel />
         <div className="flex-1">{renderChart()}</div>
       </div>
     </div>
