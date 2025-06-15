@@ -111,7 +111,7 @@ export default function NotificacionesConductor (){
         };
         fetchNotifications();
     }, [userId]);
-    console.log(notificaciones);
+    //console.log(notificaciones);
 
     // Formateo para la hora
     const formatHour = (tripDate: string) => {
