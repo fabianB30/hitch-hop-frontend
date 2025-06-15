@@ -164,7 +164,10 @@ export default function VerDetallesViajesAceptados() {
             {...ride}
             onCancel={() => handleCancelPress(ride.id)}
             onDetails={() => {
-              router.push("/(tabs)/ViajesPasajero/verDetalleViajeProgramado");
+              console.log("Detalles del viaje:", ride);
+              router.push({pathname: "/(tabs)/ViajesPasajero/verDetalleViajeProgramado",
+              params: { rideId: ride.id }
+              });
             }}
           />
         ))}
