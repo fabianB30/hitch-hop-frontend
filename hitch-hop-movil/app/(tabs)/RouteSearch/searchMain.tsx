@@ -15,7 +15,7 @@ import { useForm } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import TripDetailItem from '@/components/TripDetailItem'
-import { getAllTripsRequest } from '../../../interconnection/trip'
+import { getAllTripsRequest, getTripsParams } from '../../../interconnection/trip'
 
 const {width, height} = Dimensions.get("window")
 
@@ -85,8 +85,19 @@ const searchMain = () => {
         showMode('time')
     }
 
-    const searchTrips = () => {
-        //Aquí debería llamarse al API que haga la búsqueda de los viajes
+    const searchTrips = async () => {
+        //Aquí se llama la API para obtener los viajes
+        //Hay que obtener el id de la institución, y el id del destino
+        const validData = {
+            "endDate": date,
+            "institutionId": "6841390cb2cce04f89706f02",
+            "endpoint": "684b8255c0f8aa8f4dfa3e5f"
+        }
+
+        const data = await getTripsParams(validData);
+        if (data) console.log(data[0]);
+        //Aquí solo hay que manipular los datos y ya, estaría el backend
+
         //router.push("/(tabs)/RouteSearch/availableTrips")
         setMsgError(false)
         const filteredTrips = trips.filter((trip) => 
@@ -104,6 +115,7 @@ const searchMain = () => {
         (!destination) ? setMsgError(true) : searchTrips(); 
     }
 
+    /*
     useEffect(() => {
         async function fetchTrips() {
             const data = await getAllTripsRequest();
@@ -114,6 +126,8 @@ const searchMain = () => {
         fetchTrips();
 
     }, [destination])
+
+    */
 
   return (
       <ImageBackground

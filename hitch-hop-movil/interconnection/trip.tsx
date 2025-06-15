@@ -79,3 +79,19 @@ export const deleteTripRequest = async (id): Promise<IJwtResponse | null> => {
         return null;
     }
 };
+
+export const getTripsParams = async (data: any): Promise<Response[] | null> => {
+    try {
+        const res = await axios.post(`/backend/trip/filter`, data);
+        const dataTrip = res.data.data;
+        if (dataTrip) {
+            return dataTrip;
+        } else {
+            console.error('Invalid response structure at getTripsParams:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error at getTripsParams: ', error);
+        return null;
+    }
+};
