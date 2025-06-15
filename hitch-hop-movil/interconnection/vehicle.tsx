@@ -18,6 +18,7 @@ export const registerVehicleRequest = async ( data: {
 
     try {
         const res = await axios.post(`/backend/vehicle/register`, data);
+        console.log('Data all vehicles:', res);
         const dataVehicle = res.data.data;
         if (dataVehicle) {
             return dataVehicle;
@@ -68,7 +69,8 @@ export const updateVehicleByIdRequest = async (id: string, data: {
         model: string, 
         brand: string, 
         color: string, 
-        plate: string
+        plate: string,
+        year: string
     }): Promise<any | null> => {
     try {
         const res = await axios.put(`/backend/vehicle/update/${id}`, data);

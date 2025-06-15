@@ -1,39 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Image } from 'expo-image';
+import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
-import * as Font from 'expo-font';
-import * as ImagePicker from 'expo-image-picker';
+import { useLocalSearchParams } from 'expo-router/build/hooks';
+import { getVehicleByIdRequest, updateVehicleByIdRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
 
 export default function EditarVehiculo() {
   const router = useRouter();
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  // Simulación de datos actuales del vehículo
-  const [marca, setMarca] = useState('Hyundai');
-  const [modelo, setModelo] = useState('Santa Fe');
-  const [placa, setPlaca] = useState('BTR-932');
+  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
+  const { id } = useLocalSearchParams();;
+  const [brand, setMarca] = useState('Hyundai');
+  const [model, setModelo] = useState('Santa Fe');
+  const [plate, setPlaca] = useState('BTR-932');
   const [color, setColor] = useState('Gris');
   const [anio, setAnio] = useState('2019');
-  const [foto, setFoto] = useState(require('@/assets/images/santafe.png'));
+  const [foto, setFoto] = useState(null);
+  const { user, setUser } = useAuth();
 
-  // Nueva función para acceder a la galería
-  const handleCambiarFoto = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permiso para acceder a la galería es necesario.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setFoto({ uri: result.assets[0].uri });
-    }
-  };
+  useEffect(() => {
+        const fetchVehicle = async () => {
+          try {
+            if (typeof id === 'string'){
+              const data = await getVehicleByIdRequest(id); 
+              setMarca(data.brand);
+              setModelo(data.model);
+              setPlaca(data.plate);
+              setColor(data.color);
+              setAnio(data.year);
+              //setFoto(data.foto);
+            } else {
+               console.log('Error mamadisimo que no deberia pasar, id:', id);
+            }
+          } catch (error) {
+            console.error("Error fetching vehicles:", error);
+          }
+        };
+    
+        fetchVehicle();
+  }, [id]);
+
+  const handleEditar = async () => {
+        const vehicleData = { 
+          model: model, 
+          brand: brand, 
+          color: color, 
+          plate: plate,
+          year: anio
+        };
+      try {
+        if (typeof id === 'string') {
+          const vehicle = await updateVehicleByIdRequest(id, vehicleData);
+          setUser({...user});
+        } else {
+          console.log('Error mamadisimo que no deberia pasar, id:', id);
+        }
+      } catch (error) {
+        console.error('Error al editar el vehículo:', error);
+      }
+  
+      router.push('/vehiculos')
+    };
+
 
   useEffect(() => {
     Font.loadAsync({
@@ -45,123 +73,38 @@ export default function EditarVehiculo() {
   if (!fontsLoaded) return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
-      {/* Fondo superior con patrón y logo */}
-      <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
-        <Image
-          source={require('@/assets/images/backround_gestion.png')}
-          style={{
-            width: '160%',
-            height: '100%',
-            position: 'absolute',
-            top: -20,
-            left: '-10%',
-          }}
-          resizeMode="cover"
-        />
-        <Image
-          source={require('@/assets/images/HHLogoDisplay.png')}
-          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={styles.formContainer}>
-        {/* Flecha y título */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 18, paddingHorizontal: 8 }}>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/vehiculos/vehiculoCreado")}>
-            <Image
-              source={require('@/assets/images/flechaback.png')}
-              style={{ width: 32, height: 32 }}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.title}>Editar Información</Text>
+    <ScrollView contentContainerStyle={{ flex: 1, padding: 24 }}>
+      <Image
+                    source={require('@/assets/images/hitchhop-logo.png')} 
+                    style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginTop: -24, marginLeft: -25 }}
+                  />
+      <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Editar Vehículo</Text>
+      <Text>Marca*</Text>
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={brand} onChangeText={setMarca} />
+      <Text>Modelo*</Text>
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={model} onChangeText={setModelo} />
+      <Text>Placa*</Text>
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={plate} onChangeText={setPlaca} />
+      <Text>Color*</Text>
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={color} onChangeText={setColor} />
+      <Text>Año*</Text>
+      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={anio} onChangeText={setAnio} keyboardType="numeric" />
+      <Text style={{ marginTop: 8 }}>Fotografía del vehículo</Text>
+      {foto ? (
+        <Image source={{ uri: foto }} style={{ width: 120, height: 80, borderRadius: 8, marginVertical: 8 }} />
+      ) : (
+        <View style={{ borderWidth: 1, borderRadius: 8, height: 100, justifyContent: 'center', alignItems: 'center', marginVertical: 8 }}>
+          <Text>Sube una foto</Text>
         </View>
-
-        <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-          {/* Campos */}
-          <View style={styles.inputGroupRow}>
-            <Text style={styles.label}>Marca<Text style={{ color: '#FF3D00' }}>*</Text></Text>
-            <TextInput
-              style={styles.inputRight}
-              value={marca}
-              onChangeText={setMarca}
-              placeholder="Marca"
-              placeholderTextColor="#bbb"
-              editable={true}
-            />
-          </View>
-          <View style={styles.inputGroupRow}>
-            <Text style={styles.label}>Modelo<Text style={{ color: '#FF3D00' }}>*</Text></Text>
-            <TextInput
-              style={styles.inputRight}
-              value={modelo}
-              onChangeText={setModelo}
-              placeholder="Modelo"
-              placeholderTextColor="#bbb"
-              editable={true}
-            />
-          </View>
-          <View style={styles.inputGroupRow}>
-            <Text style={styles.label}>Placa<Text style={{ color: '#FF3D00' }}>*</Text></Text>
-            <TextInput
-              style={styles.inputRight}
-              value={placa}
-              onChangeText={setPlaca}
-              placeholder="Placa"
-              placeholderTextColor="#bbb"
-              editable={true}
-            />
-          </View>
-          <View style={styles.inputGroupRow}>
-            <Text style={styles.label}>Color<Text style={{ color: '#FF3D00' }}>*</Text></Text>
-            <TextInput
-              style={styles.inputRight}
-              value={color}
-              onChangeText={setColor}
-              placeholder="Color"
-              placeholderTextColor="#bbb"
-              editable={true}
-            />
-          </View>
-          <View style={styles.inputGroupRow}>
-            <Text style={styles.label}>Año<Text style={{ color: '#FF3D00' }}>*</Text></Text>
-            <TextInput
-              style={styles.inputRight}
-              value={anio}
-              onChangeText={setAnio}
-              placeholder="Año"
-              placeholderTextColor="#bbb"
-              keyboardType="numeric"
-              editable={true}
-            />
-          </View>
-
-          <Text style={[styles.label, { marginTop: 18, marginBottom: 6, alignSelf: 'center' }]}>Fotografía del vehículo</Text>
-          <View style={{ alignItems: 'center', marginBottom: 12 }}>
-            <Image
-              source={foto}
-              style={styles.vehicleImg}
-              resizeMode="cover"
-            />
-          </View>
-          <TouchableOpacity
-            style={[styles.changePhotoBtn, { alignSelf: 'center' }]}
-            onPress={handleCambiarFoto}
-          >
-            <Text style={styles.changePhotoBtnText}>Cambiar Foto</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.saveBtn}
-            onPress={() => router.push('/(tabs)/vehiculos/vehiculoCreado?from=editarVehiculo')}
-          >
-            <Text style={styles.saveBtnText}>Guardar Datos</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    </View>
+      )}
+      <TouchableOpacity
+        style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
+        onPress={() => handleEditar()}
+      >
+        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar</Text>
+      </TouchableOpacity>
+      
+    </ScrollView>
   );
 }
 

@@ -73,10 +73,36 @@ export default function C_detHistorial() {
             </View>
           </View>
 
-          <Text style={styles.label}>Pasajeros</Text>
-          <View style={styles.passengerHeader}>
-            <Text style={[styles.label, { width: 180 }]}>Nombre</Text>
-            <Text style={styles.label}>Lugar de recogida</Text>
+          {/* Pasajeros */}
+          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 2 }}>Pasajeros</Text>
+          <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold', width: 180 }}>Nombre</Text>
+            <Text style={{ fontWeight: 'bold' }}>Lugar de recogida</Text>
+          </View>
+          {/* Lista de pasajeros */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Image
+              source={require('@/assets/images/pfphitchhop.png')}
+              style={{ width: 36, height: 36, borderRadius: 18, marginRight: 8 }}
+            />
+            <Text style={{ width: 180 }}>Esteban Herrera Solís</Text>
+            <Text style={{ flex: 1 }}>75 metros Oeste del Hospital de Niños, San José</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Image
+              source={require('@/assets/images/pfphitchhop.png')}
+              style={{ width: 36, height: 36, borderRadius: 18, marginRight: 8 }}
+            />
+            <Text style={{ width: 180 }}>Mariano Torres Monge</Text>
+            <Text style={{ flex: 1 }}>Av. 4, San José, Merced</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+            <Image
+              source={require('@/assets/images/pfphitchhop.png')}
+              style={{ width: 36, height: 36, borderRadius: 18, marginRight: 8 }}
+            />
+            <Text style={{ width: 180 }}>Carolina Salas Guardia</Text>
+            <Text style={{ flex: 1 }}>Cementerio Extranjero, C.20, San José, Santa Lucía</Text>
           </View>
 
           {[
@@ -103,6 +129,34 @@ export default function C_detHistorial() {
             </View>
           ))}
         </ScrollView>
+      </View>
+
+      {/* Barra de navegación inferior */}
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        height: 64,
+        backgroundColor: '#7B61FF',
+        borderTopLeftRadius: 18,
+        borderTopRightRadius: 18,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+      }}>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image source={"asset"} style={{ width: 32, height: 32 }} />
+        </TouchableOpacity>
       </View>
     </View>
   );  

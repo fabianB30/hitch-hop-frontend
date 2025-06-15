@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function agregarVehiculo() {
+import { registerVehicleRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
+import { addCarsRequest } from '@/interconnection/user';
+
+export default function AgregarVehiculo() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -16,20 +20,38 @@ export default function agregarVehiculo() {
   const [color, setColor] = useState('');
   const [anio, setAnio] = useState('');
   const [foto, setFoto] = useState(null);
+  const { user,setUser } = useAuth();
 
-  useEffect(() => {
-    Font.loadAsync({
-      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-    }).then(() => setFontsLoaded(true));
-  }, []);
+  const handleAgregar = async () => {
+      const vehicleData = { 
+        model: modelo, 
+        brand: marca, 
+        color: color, 
+        plate: placa,
+        year: anio
+      };
+    try {
+      const vehicle = await registerVehicleRequest(vehicleData);
+      console.log('Vehículo registrado:', vehicle);
 
-  const handleBrowseFile = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.7,
-    });
+      if (user && vehicle) {
+        console.log('Usuario:', user);
+        await addCarsRequest(
+          { cars: [vehicle._id], email: user.email }
+        );
+        setUser({
+          ...user,
+          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
+        });
+        user.vehicles.push(vehicle._id); // Agregar el vehículo al array de vehículos del usuario actual para la sesion
+
+      }
+
+    } catch (error) {
+      console.error('Error al registrar el vehículo:', error);
+    }
+
+    router.push('/vehiculos')
   };
 
   if (!fontsLoaded) return null;
