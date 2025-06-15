@@ -18,19 +18,19 @@ const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-const [tiposId, setTiposId] = useState<string[]>([]);
+// const [tiposId, setTiposId] = useState<string[]>([]);
 
- useEffect(() => {
-    async function fetchTiposId() {
-      try {
-        const param = await getParameterByNameRequest("Tipo de identificación");
-        if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
-      } catch (error) {
-        console.error("Error al obtener tipos de identificación:", error);
-      }
-    }
-    fetchTiposId();
-  }, []);
+//  useEffect(() => {
+//     async function fetchTiposId() {
+//       try {
+//         const param = await getParameterByNameRequest("Tipo de identificación");
+//         if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
+//       } catch (error) {
+//         console.error("Error al obtener tipos de identificación:", error);
+//       }
+//     }
+//     fetchTiposId();
+//   }, []);
 
 const notificaciones: any[] = [
     {
