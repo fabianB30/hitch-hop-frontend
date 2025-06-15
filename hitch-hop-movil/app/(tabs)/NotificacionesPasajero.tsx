@@ -10,7 +10,6 @@ import { HStack } from "@/components/ui/hstack";
 import { MapPin, ChevronLeft } from "lucide-react-native"
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
-import { getParameterByNameRequest } from "@/interconnection/paremeter";
 import { useAuth } from "./Context/auth-context";
 import { User, getNotificationsByUserRequest } from "@/interconnection/user";
 
@@ -18,20 +17,6 @@ const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
-
-// const [tiposId, setTiposId] = useState<string[]>([]);
-
-//  useEffect(() => {
-//     async function fetchTiposId() {
-//       try {
-//         const param = await getParameterByNameRequest("Tipo de identificación");
-//         if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
-//       } catch (error) {
-//         console.error("Error al obtener tipos de identificación:", error);
-//       }
-//     }
-//     fetchTiposId();
-//   }, []);
 
 // const notificaciones: any[] = [
 //     {
@@ -95,11 +80,6 @@ type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
     const { user } = useAuth() as {user: User | null};
-        // useEffect(() => {
-        //     if (user) {
-        //     console.log("Notificaciones del usuario:", user);
-        //     }
-        // }, [user]);
     
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;

@@ -10,7 +10,6 @@ import { HStack } from "@/components/ui/hstack";
 import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
-import { getParameterByNameRequest } from "@/interconnection/paremeter";
 import { useRouter } from "expo-router";
 import { useAuth } from "./Context/auth-context";
 import { User, getNotificationsByUserRequest } from "@/interconnection/user";
@@ -88,11 +87,6 @@ type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
     const { user } = useAuth() as {user: User | null};
-    // useEffect(() => {
-    //     if (user) {
-    //     console.log("Notificaciones del usuario:", user.notifications);
-    //     }
-    // }, [user]);
 
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;
