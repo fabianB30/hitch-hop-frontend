@@ -10,22 +10,30 @@ import { getAllInstitutionsRequest } from "@/interconnection/institution";
 import { getParameterByNameRequest } from '@/interconnection/paremeter';
 import { getAllUsersRequest } from "@/interconnection/user";
 import { getVehicleByIdRequest } from "@/interconnection/vehicle";
+import { updateUserRequest } from "@/interconnection/user";
 
-//const users = [
-//  { id: 123, username: "fabianB30", email: "frojas@estudiantec.cr", type: "Conductor", date: "Dec 5", institution: "Tecnológico de Costa Rica" },
-//  { id: 124, username: "gerardo510", email: "gcorrales@estudiantec.cr", type: "Pasajero", date: "Nov 29", institution: "Tecnológico de Costa Rica" },
-//  { id: 125, username: "maria12", email: "marguedas@estudiantec.cr", type: "Administrador", date: "Oct 16", institution: "Tecnológico de Costa Rica" },
-//  { id: 126, username: "ruben2193", email: "rbarrantes@estudiantec.cr", type: "Pasajero", date: "Set 23", institution: "Tecnológico de Costa Rica" },
-//  { id: 127, username: "abrenes08", email: "abrenes@estudiantec.cr", type: "Pasajero", date: "Set 17", institution: "Tecnológico de Costa Rica" },
-//  { id: 128, username: "lbarboza", email: "lbarboza@estudiantec.cr", type: "Conductor", date: "Ago 21", institution: "Tecnológico de Costa Rica" },
-//  { id: 129, username: "jcalderon5", email: "jcalderon@itcr.ac.cr", type: "Conductor", date: "Ago 2", institution: "Tecnológico de Costa Rica" },
-//  { id: 130, username: "maria12", email: "marguedas@estudiantec.cr", type: "Pasajero", date: "Ago 29", institution: "Tecnológico de Costa Rica" },
-//  { id: 131, username: "bgutierrez", email: "bgutierrez@estudiantec.cr", type: "Conductor", date: "Jul 9", institution: "Tecnológico de Costa Rica" },
-//  { id: 132, username: "pvartavia93", email: "partavia@itcr.ac.cr", type: "Pasajero", date: "Jul 24", institution: "Tecnológico de Costa Rica" },
-//];
-
-//const userTypes = ["Todos", "Conductor", "Pasajero", "Administrador"];
-//const instituciones = ["Todas", "ITCR"];
+//Esquema real de la base de datos, se los dejo como referencia
+// /export type User = {
+// name: string;
+// username: string;
+// email: string;
+// password: string;
+// institutionId: string;
+// identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
+// identificationNumber?: number;
+// birthDate: string;
+// genre?: "Masculino" | "Femenino" | "Otro";
+// photoKey?: string;
+// photoUrl?: string;
+// type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
+// role: "Conductor" | "Pasajero";
+// vehicles: string[]; // array id
+// notifications: {
+// title: string;
+// subtitle: string;
+// timestamp?: string;
+// }[];
+// };/
 
 const UsersManagement: React.FC = () => {
   const [searchUsername, setSearchUsername] = useState("");
@@ -211,6 +219,7 @@ const UsersManagement: React.FC = () => {
    // Vista de informacion de un usuario especifico
   function UserDetailsView({ user, onBack }: { user: any; onBack: () => void }) {
     const [editMode, setEditMode] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [form, setForm] = useState({
       username: user.username || "",
       email: user.email || "",
@@ -236,6 +245,22 @@ const UsersManagement: React.FC = () => {
     }
     fetchVehicles();
   }, [user.vehicles]);
+   
+  const validateUserData = (data: typeof form) => {
+    const errors: Record<string, string> = {};
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+    if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
+    if (!nameRegex.test(data.firstLastName)) errors.firstLastName = "El primer apellido solo puede contener letras.";
+    if (!nameRegex.test(data.secondLastName)) errors.secondLastName = "El segundo apellido solo puede contener letras.";
+    if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
+    if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
+      errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+  }
+
+  setFieldErrors(errors);
+  return Object.keys(errors).length === 0;
+ };
 
     // Estado de la cuenta y dialog de desactivación
     const [accountActive, setAccountActive] = useState(user.accountActive ?? true);
@@ -270,9 +295,34 @@ const UsersManagement: React.FC = () => {
     };
 
     // Guardar cambios
-    const handleSave = () => {
-      // logic de guardar en base de datos
-      setEditMode(false);
+    const handleSave = async () => {
+      const isValid = validateUserData(form);
+      if (!isValid) {
+        return;
+      }
+      try {
+        const updatedUser = {
+          ...user,
+          username: form.username,
+          email: form.email,
+          name: form.name,
+          firstSurname: form.firstLastName,
+          secondSurname: form.secondLastName,
+          phone: form.phone,
+          institutionId: instituciones.find((i: any) => i.nombre === form.institution)?._id || user.institutionId,
+          type: form.type,
+          // Agregar otros campos
+        };
+
+        await updateUserRequest(user._id, updatedUser);
+
+        setEditMode(false);
+        setFieldErrors({});
+        //mensaje de exito
+      } catch (error) {
+        console.error("Error al guardar usuario:", error);
+        // mensaje de error
+      }
     };
     
     // Handler para el switch
@@ -338,6 +388,9 @@ const UsersManagement: React.FC = () => {
                   value={form.email}
                   onChange={handleChange}
                 />
+                {fieldErrors.email && (
+                  <div className="text-red-500 text-xs">{fieldErrors.email}</div>
+                )}
               </div>
               <div className="flex gap-4">
                 <div className="flex-1">
@@ -348,6 +401,9 @@ const UsersManagement: React.FC = () => {
                     value={form.name}
                     onChange={handleChange}
                   />
+                  {fieldErrors.name && (
+                    <div className="text-red-500 text-xs">{fieldErrors.name}</div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <Label className="text-lg">1° Apellido</Label>
@@ -357,6 +413,9 @@ const UsersManagement: React.FC = () => {
                     value={form.firstLastName}
                     onChange={handleChange}
                   />
+                  {fieldErrors.firstLastName && (
+                    <div className="text-red-500 text-xs">{fieldErrors.firstLastName}</div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <Label className="text-lg">2° Apellido</Label>
@@ -366,6 +425,9 @@ const UsersManagement: React.FC = () => {
                     value={form.secondLastName}
                     onChange={handleChange}
                   />
+                  {fieldErrors.secondLastName && (
+                    <div className="text-red-500 text-xs">{fieldErrors.secondLastName}</div>
+                  )}
                 </div>
               </div>
               <div>
@@ -376,6 +438,9 @@ const UsersManagement: React.FC = () => {
                   value={form.phone}
                   onChange={handleChange}
                 />
+                {fieldErrors.phone && (
+                  <div className="text-red-500 text-xs">{fieldErrors.phone}</div>
+                )}
               </div>
               <div>
                 <Label className="text-lg">Institución</Label>
