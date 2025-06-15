@@ -112,7 +112,7 @@ export const updatePassangerStatusRequest = async (id, userId, status): Promise<
     }
 };
 
-export const updatePassangerStatusRequest = async (id: string, placeId: string, status: string): Promise<IJwtResponse | null> => {
+export const updateStopStatusRequest = async (id: string, placeId: string, status: string): Promise<IJwtResponse | null> => {
     try {
         const res = axios.patch(`/backend/trip/${id}/stops/${placeId}/status`, {status});
         const data = res.data.data;
