@@ -2,11 +2,18 @@ import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image }
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
 import { useAuth } from '../Context/auth-context'; // Adjust the import path as necessary
+import { useFonts } from "expo-font";
 
 export default function sinViajes() {
   const { user } = useAuth(); // Assuming useAuth is defined in your context
   const router = useRouter();
   const { width } = Dimensions.get('window');
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+  });
+  if (!fontsLoaded) return null;
 
    return (
     <ImageBackground
@@ -98,14 +105,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontSize: 24,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-SemiBold',
     fontWeight: '600',
   },
   subtitle: {
     textAlign: 'center',
     color: 'black',
     fontSize: 18,
-    fontFamily: 'Exo',
+    fontFamily: 'exo.medium',
     fontWeight: '500',
   },
   button: {
@@ -120,7 +127,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FEFEFF',
     fontSize: 20,
-    fontFamily: 'Exo',
+    fontFamily: 'exo.medium',
     fontWeight: '500',
   },
 });

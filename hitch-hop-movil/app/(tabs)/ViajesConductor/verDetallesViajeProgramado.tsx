@@ -8,9 +8,18 @@ import { HStack } from "@/components/ui/hstack";
 import { MoveRight, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
+import { useFonts } from "expo-font";
 
 export default function VerDetallesViajeProgramado() {
   const router = useRouter();
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+  });
+  if (!fontsLoaded) return null;
 
   // boolean if ride is full
   var isFull = false;
@@ -93,7 +102,7 @@ export default function VerDetallesViajeProgramado() {
               <Users size={24} color="black" />
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-Regular',
                   fontSize: 16,
                   fontWeight: "400",
                   color: "#171717",
@@ -132,12 +141,11 @@ export default function VerDetallesViajeProgramado() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-SemiBold',
                   fontSize: 12,
-                  fontStyle: "normal",
                   fontWeight: "400",
                   color: "#171717",
-                  textAlign: "right",
+                  textAlign: "left",
                 }}
               >
                 Tecnológico de Costa Rica, Cartago
@@ -172,7 +180,7 @@ export default function VerDetallesViajeProgramado() {
                 }}
               >
                 <ButtonText
-                  style={{ color: "#FEFEFF" }}
+                  style={styles.buttonText}
                   onPress={handlePendingRequests}
                 >
                   Solicitudes Pendientes
@@ -205,7 +213,7 @@ export default function VerDetallesViajeProgramado() {
                 alignSelf: "center",
               }}
             >
-              <ButtonText style={{ color: "#FEFEFF" }}>Cancelar</ButtonText>
+              <ButtonText style={styles.buttonText}>Cancelar</ButtonText>
             </Button>
           </ScrollView>
         </Box>
@@ -243,7 +251,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 20,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,
@@ -289,8 +297,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: 'Exo-Regular',
     fontWeight: "500",
   },
   cardsScroll: {
@@ -308,9 +316,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",

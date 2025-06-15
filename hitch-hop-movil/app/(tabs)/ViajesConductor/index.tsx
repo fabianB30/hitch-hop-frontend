@@ -3,9 +3,20 @@ import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import * as Font from 'expo-font';
 
 export default function Index() {
   const router = useRouter();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  useEffect(() => {
+    Font.loadAsync({   
+      'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),      
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+      
+  if (!fontsLoaded) return null;
 
   return (
     <ImageBackground
@@ -85,7 +96,7 @@ export default function Index() {
                   textAlign: "center",
                   color: "#FEFEFF",
                   fontSize: 30,
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-Bold',
                   fontWeight: "700",
                   letterSpacing: 0.2,
                   textShadowColor: "#6C63FF",
@@ -150,7 +161,7 @@ export default function Index() {
                   textAlign: "center",
                   color: "#FEFEFF",
                   fontSize: 30,
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-Bold',
                   fontWeight: "700",
                   letterSpacing: 0.2,
                   textShadowColor: "#6C63FF",

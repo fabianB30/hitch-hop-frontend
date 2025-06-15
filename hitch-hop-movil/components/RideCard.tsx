@@ -62,7 +62,7 @@ export function RideCard({
           <Text style={{
             color: '#171717',
             fontSize: 24,
-            fontFamily: 'Exo',
+            fontFamily: 'Exo-Bold',
             fontWeight: '700',
             letterSpacing: 0.2,
           }}>
@@ -71,7 +71,7 @@ export function RideCard({
           <Text style={{
             color: '#171717',
             fontSize: 14,
-            fontFamily: 'Exo',
+            fontFamily: 'Exo-Light',
             fontWeight: '300',
             marginTop: 2,
           }}>
@@ -91,7 +91,7 @@ export function RideCard({
               style={{
                 color: '#171717',
                 fontSize: 18,
-                fontFamily: 'Exo',
+                fontFamily: 'exo.medium',
                 fontWeight: '500',
                 marginTop: 2,
                 flex: 1,
@@ -109,7 +109,7 @@ export function RideCard({
                 <Text style={{
                   color: 'black',
                   fontSize: 12,
-                  fontFamily: 'Exo',
+                  fontFamily: 'exo.medium',
                   fontWeight: '500',
                   textAlign: 'left',
                   flexShrink: 1,
@@ -119,8 +119,8 @@ export function RideCard({
               </Box>
               <Text style={{
                 color: 'black',
-                fontSize: 16,
-                fontFamily: 'Exo',
+                fontSize: 12,
+                fontFamily: 'exo.medium',
                 fontWeight: '500',
                 marginTop: 2,
                 textAlign: 'center',
@@ -139,7 +139,7 @@ export function RideCard({
         <Text style={{
           color: '#262627',
           fontSize: 12,
-          fontFamily: 'Exo',
+          fontFamily: 'Exo-Regular',
           fontWeight: '400',
           flexShrink: 1,
           flexWrap: 'wrap',
@@ -153,7 +153,7 @@ export function RideCard({
         <Text style={{
           color: '#262627',
           fontSize: 12,
-          fontFamily: 'Exo',
+          fontFamily: 'Exo-Regular',
           fontWeight: '400',
           flexShrink: 1,
           flexWrap: 'wrap',
@@ -186,7 +186,7 @@ export function RideCard({
             style={{
               color: '#FEFEFF',
               fontSize: 16,
-              fontFamily: 'Exo',
+              fontFamily: 'Exo-Regular',
               fontWeight: '500',
             }}
           >
@@ -210,7 +210,7 @@ export function RideCard({
             style={{
               color: '#FEFEFF',
               fontSize: 16,
-              fontFamily: 'Exo',
+              fontFamily: 'Exo-Regular',
               fontWeight: '500',
             }}
           >

@@ -10,6 +10,7 @@ import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from '../Context/auth-context';
 import { getTripsByUserRequest } from '../../../interconnection/trip';
+import { useFonts } from "expo-font";
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
@@ -19,6 +20,14 @@ export default function VerDetallesViajesAceptados() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const insets = useSafeAreaInsets();
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+  });
 
     const handleCancelPress = (rideId: number) => {
       setRideToCancel(rideId);
@@ -104,6 +113,7 @@ export default function VerDetallesViajesAceptados() {
     }
   }, [user, router]);
 
+  if (!fontsLoaded) return null;
   if (rides.length === 0) {
     return null;
   }
@@ -212,7 +222,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -251,7 +261,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FEFEFF",
     fontSize: 16,
-    fontFamily: "Exo",
+    fontFamily: 'exo.medium',
     fontWeight: "500",
   },
   cardsScroll: {

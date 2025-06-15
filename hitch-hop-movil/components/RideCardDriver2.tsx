@@ -97,8 +97,8 @@ export function RideCardDriver2({
             gap: 7,
           }}
         >
-          <Text style={styles.mediumFont}>{date}</Text>
-          <Text style={styles.BigFont}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 16}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
@@ -120,7 +120,7 @@ export function RideCardDriver2({
               Solicitudes pendientes: {users.length}
             </Text>
           </Box>
-          <Text style={styles.BigFont}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -152,7 +152,7 @@ export function RideCardDriver2({
             style={{ 
               color: "#FEFEFF",
               fontSize: 16, 
-              fontFamily: 'Exo', 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word'
             }} 
@@ -181,7 +181,7 @@ export function RideCardDriver2({
             style={{ 
               color: "#FEFEFF",
               fontSize: 16, 
-              fontFamily: 'Exo', 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word'
             }} 
@@ -197,47 +197,41 @@ export function RideCardDriver2({
 
 const styles = StyleSheet.create({
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
   },
   end: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
-    textAlign: "right",
+    textAlign: "left",
   },
   mediumFont: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+    fontFamily: 'exo.medium',
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
+    wordWrap: 'break-word'
+  },
+  regularFont: {
+    fontFamily: 'exo.medium',
+    fontWeight: "400",
+    color: "#171717",
+    textAlign: "center",
+    wordWrap: 'break-word'
   },
   mediumFont2: {
-    fontFamily: "Exo",
+    fontFamily: 'exo.medium',
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
     flexShrink: 1, 
     flexWrap: "wrap",
-    maxWidth: 130,
-  },
-  BigFont: {
-    fontFamily: "Exo",
-    fontSize: 22,
-    fontStyle: "normal",
-    fontWeight: "500",
-    color: "#171717",
-    textAlign: "center",
-    paddingTop: 5,
+    maxWidth: 140,
   },
 });

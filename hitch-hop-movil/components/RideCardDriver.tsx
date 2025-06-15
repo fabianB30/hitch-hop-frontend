@@ -89,8 +89,8 @@ export function RideCardDriver({
             gap: 7,
           }}
         >
-          <Text style={styles.mediumFont}>{date}</Text>
-          <Text style={styles.BigFont}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 14}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
@@ -107,11 +107,11 @@ export function RideCardDriver({
             }}
           >
             <Users size={20} color="black" />
-            <Text style={styles.mediumFont}>
+            <Text style={[styles.regularFont, {fontSize: 16}]}>
               {users}/{userLimit}
             </Text>
           </Box>
-          <Text style={styles.BigFont}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -143,7 +143,7 @@ export function RideCardDriver({
             style={{ 
               color: "#FEFEFF",
               fontSize: 16, 
-              fontFamily: 'Exo', 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
             }} 
@@ -172,7 +172,7 @@ export function RideCardDriver({
             style={{ 
               color: "#FEFEFF",
               fontSize: 16, 
-              fontFamily: 'Exo', 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
             }} 
@@ -188,38 +188,31 @@ export function RideCardDriver({
 
 const styles = StyleSheet.create({
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
   },
   end: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
-    textAlign: "right",
+    textAlign: "left",
   },
   mediumFont: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+    fontFamily: 'exo.medium',
     fontWeight: "400",
     color: "#171717",
-    textAlign: "left",
+    textAlign: "center",
     wordWrap: 'break-word'
   },
-  BigFont: {
-    fontFamily: "Exo",
-    fontSize: 22,
-    fontStyle: "normal",
-    fontWeight: "500",
+  regularFont: {
+    fontFamily: 'Exo-Regular',
+    fontWeight: "400",
     color: "#171717",
-    textAlign: "left",
-    paddingTop: 5,
+    textAlign: "center",
     wordWrap: 'break-word'
   },
 });

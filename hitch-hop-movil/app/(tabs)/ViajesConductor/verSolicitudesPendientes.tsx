@@ -9,6 +9,7 @@ import { MoveRight, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useEffect } from "react";
+import { useFonts } from "expo-font";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
@@ -20,6 +21,15 @@ export default function VerSolicitudesPendientes() {
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+  });
+  if (!fontsLoaded) return null;
+
 
   interface Requests {
     id: number;
@@ -104,9 +114,8 @@ export default function VerSolicitudesPendientes() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-SemiBold',
                   fontSize: 14,
-                  fontStyle: "normal",
                   fontWeight: "600",
                   color: "#171717",
                   textAlign: "right",
@@ -123,7 +132,7 @@ export default function VerSolicitudesPendientes() {
             ? {
                 color: "#EF4444",
                 fontSize: 18,
-                fontFamily: "Exo",
+                fontFamily: 'Exo-SemiBold',
                 fontWeight: "600",
                 textAlign: "left",
                 left: 25,
@@ -242,7 +251,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontSize: 14,
     fontStyle: "normal",
     fontWeight: "600",
@@ -253,7 +262,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,
