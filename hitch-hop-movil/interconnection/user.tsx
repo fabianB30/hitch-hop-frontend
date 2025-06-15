@@ -92,7 +92,7 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
 
 export const getNotificationsByUserRequest = async (id: string): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.put(`/backend/user/get-notifications/${id}`);
+        const res = await axios.get(`/backend/user/get-notifications/${id}`);
         const notifications = res.data.data;
         if (notifications) {
             return notifications;
