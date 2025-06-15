@@ -87,7 +87,7 @@ const searchMain = () => {
 
     const searchTrips = async () => {
         //Aquí se llama la API para obtener los viajes
-        //Hay que obtener el id de la institución, y el id del destino
+        //Hay que obtener el id de la institución, y el id del destino, que eso debería de practicamente estar
         const validData = {
             "endDate": date,
             "institutionId": "6841390cb2cce04f89706f02",
@@ -99,6 +99,7 @@ const searchMain = () => {
         //Aquí solo hay que manipular los datos y ya, estaría el backend
 
         //router.push("/(tabs)/RouteSearch/availableTrips")
+
         setMsgError(false)
         const filteredTrips = trips.filter((trip) => 
             trip.details.includes(destination)

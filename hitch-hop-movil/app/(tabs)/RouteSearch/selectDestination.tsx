@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet,ScrollView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HitchHopHeader from '@/components/shared/HitchHopHeader'
 import DestinationItem from '@/components/DestinationItem'
@@ -10,10 +10,19 @@ import { ImageBackground } from 'expo-image'
 import { Input, InputField, InputSlot } from '@/components/ui/input'
 import { useForm } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
+import { getAllPlacesRequest } from '../../../interconnection/place'
 
 type DestinationType = {
     title: string,
     subtitle: string
+}
+
+type Place = {
+    __id: any,
+    name: string,
+    description: any,
+    longitude: any,
+    latitude: any,
 }
 
 const { width, height } = Dimensions.get('window')
@@ -32,11 +41,12 @@ const selectDestination = () => {
     const router = useRouter()
 
     const { setDestination } = useForm()
-    const [shownDestination, setShownDestinations] = useState(destinations)
+    const [allDestinations, setAllDestinations] = useState<Place[]>([])
+    const [shownDestination, setShownDestinations] = useState<Place[]>([])
 
-    const handleDestintationSelect = (dest: DestinationType) => {
-        const varas = dest.subtitle.split(", ")
-        setDestination(dest.title + ", " + varas[varas.length - 1])
+    const handleDestintationSelect = (dest: Place) => {
+        const varas = dest.description.split(", ")
+        setDestination(dest.name + ", " + varas[varas.length - 1])
         router.back()
     }
 
@@ -46,15 +56,28 @@ const selectDestination = () => {
 
     const handleSearch = (text: string) => {
         if (text === "") {
-            setShownDestinations(destinations)
+            setShownDestinations(allDestinations)
         } else {
             const query = normalizeString(text)
-            const filteredDestinations = destinations.filter((dest) => 
-                normalizeString(dest.title).includes(query) ||
-                normalizeString(dest.subtitle).includes(query))
+            const filteredDestinations = allDestinations.filter((dest) => 
+                normalizeString(dest.name).includes(query) ||
+                normalizeString(dest.description).includes(query))
             setShownDestinations(filteredDestinations)
         }
     }
+
+    useEffect(() => {
+        //Esto se tiene que revisar mejor, pero de momento ya agarra los destinos
+        async function fetchPlaces() {
+            const data = await getAllPlacesRequest();
+            
+            if (data){
+                setAllDestinations(data);
+                setShownDestinations(data)
+            }
+        }
+        fetchPlaces()
+    }, [])
 
   return (
          <ImageBackground
@@ -73,7 +96,7 @@ const selectDestination = () => {
                 </Input>
 
                 <ScrollView style={styles.bottomView} showsVerticalScrollIndicator={false}>
-                    {shownDestination.map((dest, index) => <DestinationItem key={index} title={dest.title} subtitle={dest.subtitle} onPress={() => handleDestintationSelect(dest)}/>)}
+                    {shownDestination.map((dest, index) => <DestinationItem key={index} title={dest.name} subtitle={dest.description} onPress={() => handleDestintationSelect(dest)}/>)}
                 </ScrollView>
             </View>
     </SafeAreaView>
