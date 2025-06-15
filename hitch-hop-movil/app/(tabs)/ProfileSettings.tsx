@@ -16,6 +16,7 @@ import { updateUserRequest, User } from '../../interconnection/user';
 import { useAuth } from './Context/auth-context';
 import { getParameterByNameRequest } from '../../interconnection/paremeter';
 import { getAllInstitutionsRequest } from '../../interconnection/institution';
+import { changePasswordRequest } from '../../interconnection/user';
 import { Pressable } from "@/components/ui/pressable";
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 
@@ -70,13 +71,25 @@ const tiposUsuario = ["Administrador", "Usuario"];
 export default function ProfileSettings() {
   const [tiposId, setTiposId] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState([]);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
   const { user , updateUser } = useAuth();
+  const [passwordChangeError, setPasswordChangeError] = useState("");
+  
   useEffect(() => {
     async function fetchData() {
       try {
-        const param = await getParameterByNameRequest("Tipo de identificación");
+        const paramId = await getParameterByNameRequest("Tipo de identificación");
+        const paramGenero = await getParameterByNameRequest("Géneros");
+        const paramTipoUsuario = await getParameterByNameRequest("Tipo de Usuario");
+        const paramRol = await getParameterByNameRequest("Rol");
         const resInstitutions = await getAllInstitutionsRequest();
-        if (param) setTiposId(param.parameterList);
+
+        if (paramId) setTiposId(paramId.parameterList);
+        if (paramGenero) setGenres(paramGenero.parameterList);
+        if (paramTipoUsuario) setTiposUsuario(paramTipoUsuario.parameterList);
+        if (paramRol) setRoles(paramRol.parameterList);
         if (resInstitutions) setInstituciones(resInstitutions);
       } catch (error) {
         console.error("Error al obtener opciones:", error);
@@ -195,15 +208,16 @@ export default function ProfileSettings() {
   };
 
 
-const handleChangePassword = () => {
-  let hasError = false;
+const handleChangePassword = async () => {
   setCurrentPasswordError(false);
   setNewPasswordError(false);
   setConfirmPasswordError(false);
+  setPasswordChangeError("");
 
   // mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula y 1 número
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
+  let hasError = false;
   if (!currentPassword) {
     setCurrentPasswordError(true);
     hasError = true;
@@ -218,13 +232,25 @@ const handleChangePassword = () => {
   }
   if (hasError) return;
 
+  // Call backend to change password
+  
+  const userId = user._id;
+  const result = await changePasswordRequest(userId, currentPassword, newPassword);
+  if (!result.success) {
+    setPasswordChangeError(result.msg);
+    if (result.msg === "La contraseña actual es incorrecta.") {
+      setCurrentPasswordError(true);
+    }
+    return;
+  }
+
   setShowPasswordModal(false);
   setShowSavedDialog(true);
   setCurrentPassword("");
   setNewPassword("");
   setConfirmPassword("");
 };
-
+  
   return (
     <View style={{ flex: 1,  width: "100%" }}>
     <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
@@ -337,7 +363,8 @@ const handleChangePassword = () => {
         <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
         <ProfileInput label="Tipo de usuario" value={userData.type} editable={editable} onChange={v => handleChange("type", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
-      </View>
+        <ProfileInput label="Rol" value={userData.role} editable={editable} onChange={v => handleChange("role", v)} options={roles} />
+    </View>
     </View>
     {/* Modal para cambiar contraseña */}
     <Modal
@@ -371,9 +398,9 @@ const handleChangePassword = () => {
               )}
             </TouchableOpacity>
           </Input>
-          {currentPasswordError && (
-            <InputError>Debes ingresar tu contraseña actual.</InputError>
-          )}
+          {passwordChangeError ? (
+            <Text style={{ color: "red", marginBottom: 8 }}>{passwordChangeError}</Text>
+          ) : null}
 
           <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
             <InputField
@@ -423,7 +450,6 @@ const handleChangePassword = () => {
             <InputError>Las contraseñas no coinciden.</InputError>
           )}
 
-          {/* Formato esperado de la contraseña */}
           <View
             style={{
               backgroundColor: "#F5F5F5",
@@ -435,15 +461,17 @@ const handleChangePassword = () => {
               gap: 8,
             }}
           >
-          <Info color="#787878" size={20} style={{ marginTop: 2 }} />
-          <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
-            Mínimo 8 caracteres, con al menos{"\n"}
-            1 letra mayúscula, 1 letra minúscula, y 1 número.
-          </Text>
-        </View>
+            <Info color="#787878" size={20} style={{ marginTop: 2 }} />
+            <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
+              Mínimo 8 caracteres, con al menos{"\n"}
+              1 letra mayúscula, 1 letra minúscula, y 1 número.
+            </Text>
+          </View>
         </ModalBody>
         <ModalFooter>
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => {
               setShowPasswordModal(false);
               setCurrentPassword("");
               setNewPassword("");
@@ -452,18 +480,17 @@ const handleChangePassword = () => {
               setNewPasswordError(false);
               setConfirmPasswordError(false);
               setShowCurrentPassword(false);
-              setShowNewPassword(false);          
-              setShowConfirmPassword(false);
-            }}>
-            <Text style={styles.cancelBtnText}>Volver</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.saveBtn} onPress={() => {
-              handleChangePassword();
-              setShowCurrentPassword(false);   
               setShowNewPassword(false);
               setShowConfirmPassword(false);
-              
-            }}>
+              setPasswordChangeError("");
+            }}
+          >
+            <Text style={styles.cancelBtnText}>Volver</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.saveBtn}
+            onPress={handleChangePassword}
+          >
             <Text style={styles.saveBtnText}>Confirmar</Text>
           </TouchableOpacity>
         </ModalFooter>

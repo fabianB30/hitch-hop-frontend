@@ -58,6 +58,16 @@ export const loginRequest = async (data: {email, password}): Promise<IJwtRespons
     }
 };
 
+export const changePasswordRequest = async (id: string, oldPassword: string, newPassword: string): Promise<{ success: boolean; msg: string }> => {
+  try {
+    const res = await axios.post(`/backend/user/change-password/${id}`, { oldPassword, newPassword });
+    return { success: true, msg: res.data.msg };
+  } catch (error: any) {
+    const msg = error.response?.data?.msg || "Error al cambiar contraseña";
+    return { success: false, msg };
+  }
+};
+
 export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/addCars`, data);
