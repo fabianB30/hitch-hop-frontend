@@ -89,3 +89,19 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
         return null;
     }
 };
+
+export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.put(`/backend/users"`);
+        const dataUsers = res.data.data;
+        if (dataUsers) {
+            return dataUsers;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
