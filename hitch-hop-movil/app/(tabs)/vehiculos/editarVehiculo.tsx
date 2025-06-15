@@ -50,7 +50,7 @@ export default function EditarVehiculo() {
         };
       try {
         if (typeof id === 'string') {
-          const vehicle = await updateVehicleByIdRequest(id, vehicleData);
+          await updateVehicleByIdRequest(id, vehicleData);
           setUser({...user});
         } else {
           console.log('Error mamadisimo que no deberia pasar, id:', id);

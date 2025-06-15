@@ -23,23 +23,17 @@ export default function AgregarVehiculo() {
         brand: marca, 
         color: color, 
         plate: placa,
-        year: anio
+        year: anio,
+        userId: user._id
       };
     try {
       const vehicle = await registerVehicleRequest(vehicleData);
-      console.log('Vehículo registrado:', vehicle);
-
+      //console.log('Vehículo registrado:', vehicle);
       if (user && vehicle) {
-        console.log('Usuario:', user);
-        await addCarsRequest(
-          { cars: [vehicle._id], email: user.email }
-        );
         setUser({
           ...user,
           vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
         });
-        user.vehicles.push(vehicle._id); // Agregar el vehículo al array de vehículos del usuario actual para la sesion
-
       }
 
     } catch (error) {

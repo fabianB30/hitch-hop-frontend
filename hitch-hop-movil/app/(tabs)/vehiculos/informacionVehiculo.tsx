@@ -16,7 +16,7 @@ const mockVehiculo = {
 export default function InformacionVehiculo() {
   const router = useRouter();
   const { id } = useLocalSearchParams(); // Obtenemos la ID del vehículo desde los parametros
-  console.log('vehiculo: ', id);
+  //console.log('vehiculo: ', id);
   const [vehiculo, setVehiculo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export default function InformacionVehiculo() {
             const data = await getVehicleByIdRequest(id); 
             setVehiculo(data);
           } else {
-             console.log('Error mamadisimo que no deberia pasar, id:', id);
+             console.error('Error mamadisimo que no deberia pasar, id:', id);
           }
         } catch (error) {
           console.error("Error fetching vehicles:", error);

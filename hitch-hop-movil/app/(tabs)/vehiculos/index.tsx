@@ -65,11 +65,12 @@ export default function VehiculosIndex() {
         return;
       }
       await deleteVehicleByIdRequest(idVehicle);
+      const updatedVehicles = user.vehicles.filter((v: string) => v !== idVehicle);
       setUser({
             ...user,
-            vehicles: user.vehicles.filter((v: string) => v !== idVehicle)
+            vehicles: updatedVehicles
       });
-      await updateUserRequest(user._id, user);
+      await updateUserRequest(user._id, {...user, vehicles: updatedVehicles });
   };
 
   
