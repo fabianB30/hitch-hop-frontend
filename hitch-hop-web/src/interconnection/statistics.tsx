@@ -17,9 +17,9 @@ export const userStatisticsRequest = async (): Promise<IJwtResponse | null> => {
 	}
 }
 
-export const filteredUserCountByMonthRequest = async (institutionId: string, startDate: string, endDate: string, genres: [string], role: string): Promise<IJwtResponse | null> => {
+export const filteredUserCountByMonthRequest = async (data: {institutionId: string, startDate: string, endDate: string, genres: [string], role: string}): Promise<IJwtResponse | null> => {
 	try {
-		const res = await axios.post(`/backend/statistics/users/by-month`);
+		const res = await axios.post(`/backend/statistics/users/by-month`, data);
 		const statistics = res.data.data;
 		if (statistics) {
 			return statistics;

@@ -1,25 +1,37 @@
 import { useState } from "react";
 import FiltrosPanel from "../components/FiltrosPanel";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { filteredUserCountByMonthRequest } from "../../../interconnection/statistics"
 
 const ConductoresChart = () => {
   const [filtros, setFiltros] = useState<any>(null);
-
-  const handleFiltros = (filtrosAplicados: any) => {
-    console.log("Filtros de conductores:", filtrosAplicados);
-    setFiltros(filtrosAplicados);
-
-    // Aquí es donde tu backend partner puede hacer el fetch con los filtros
-    // Ejemplo:
-    // fetchConductoresData(filtrosAplicados)
-  };
-
-  const data = [
-    { name: "Ene", valor1: 10, valor2: 20 },
-    { name: "Feb", valor1: 15, valor2: 25 },
-    { name: "Mar", valor1: 20, valor2: 22 },
-    { name: "Abr", valor1: 30, valor2: 18 },
+  const [data, setData] = useState<any[]>([]);
+  const meses = [
+    "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  const handleFiltros = async (filtrosAplicados: any) => {
+    setFiltros(filtrosAplicados);
+    const payload = {
+      startDate: "1999-06-15T15:00:00.000Z",
+      endDate: new Date().toISOString(),
+      institutionId: filtrosAplicados.institucion ? filtrosAplicados.institucion : "all",
+      genres: filtrosAplicados.genero ? [filtrosAplicados.genero] : ["all"],
+      role: "Conductor"
+    }
+    try {
+      const res = await filteredUserCountByMonthRequest(payload);
+      if (Array.isArray(res)) {
+        const formattedData = res.map((item: any) => ({
+          name: `${meses[item.month]} ${item.year}`,
+          cantidad: item.count,
+        }));
+        setData(formattedData);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    }
+  };
 
   return (
     <div className="flex gap-6">
@@ -47,8 +59,7 @@ const ConductoresChart = () => {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="valor1" stackId="a" fill="#7875F8" />
-            <Bar dataKey="valor2" stackId="a" fill="#FFBA2A" />
+            <Bar dataKey="cantidad" stackId="a" fill="#7875F8" />
           </BarChart>
         </ResponsiveContainer>
       </div>
