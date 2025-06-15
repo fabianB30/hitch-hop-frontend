@@ -20,7 +20,18 @@ export default function TabLayout({children} : {children: ReactNode}) {
       <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { display: "none" }, // Oculta la barra de tabs
+        tabBarButton: HapticTab,
+        tabBarStyle: Platform.select({
+          ios: {
+            // Transparent background on iOS to show blur
+            position: "absolute",
+          },
+          default: { 
+            height: 0, 
+            paddingBottom: 0, 
+            paddingTop: 0,   
+          },
+        }),
       }}
       initialRouteName="sinVehiculos"
     >

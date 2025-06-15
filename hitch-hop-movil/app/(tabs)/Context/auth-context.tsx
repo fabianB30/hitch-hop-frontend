@@ -13,7 +13,8 @@ interface AuthContextType {
   signIn: (userData: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
-  user: User | null;
+  user: UserData | null;
+  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
   isAuthenticated: boolean;
   errors: string[];
 }
@@ -128,6 +129,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         loading,
         user,
+        setUser,
         isAuthenticated,
         errors,
       }}

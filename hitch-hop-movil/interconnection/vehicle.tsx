@@ -13,13 +13,14 @@ export const registerVehicleRequest = async ( data: {
         model: string, 
         brand: string, 
         color: string, 
-        plate: string
+        plate: string,
+        year: string,
+        userId: string
     }): Promise<any | null> => {
 
     try {
         const res = await axios.post(`/backend/vehicle/register`, data);
-        console.log('Data all vehicles:', res);
-        const dataVehicle = res.data.data;
+        const dataVehicle = res.data.vehicle;
         if (dataVehicle) {
             return dataVehicle;
         } else {

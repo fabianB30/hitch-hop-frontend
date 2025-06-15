@@ -52,7 +52,7 @@ export default function EditarVehiculo() {
         };
       try {
         if (typeof id === 'string') {
-          const vehicle = await updateVehicleByIdRequest(id, vehicleData);
+          await updateVehicleByIdRequest(id, vehicleData);
           setUser({...user});
         } else {
           console.log('Error mamadisimo que no deberia pasar, id:', id);
@@ -64,15 +64,6 @@ export default function EditarVehiculo() {
       router.push('/vehiculos')
     };
 
-
-  useEffect(() => {
-    Font.loadAsync({
-      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-    }).then(() => setFontsLoaded(true));
-  }, []);
-
-  if (!fontsLoaded) return null;
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1, padding: 24 }}>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,9 +10,14 @@ import { registerVehicleRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 import { addCarsRequest } from '@/interconnection/user';
 
+import { registerVehicleRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
+import { addCarsRequest } from '@/interconnection/user';
+
 export default function AgregarVehiculo() {
   const router = useRouter();
   const { user, setUser } = useAuth();
+  
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [marca, setMarca] = useState('');
@@ -44,19 +50,29 @@ export default function AgregarVehiculo() {
   };
 
   const handleAgregar = async () => {
-    const vehicleData = { model: modelo, brand: marca, color, plate: placa, year: anio };
-
+      const vehicleData = { 
+        model: modelo, 
+        brand: marca, 
+        color: color, 
+        plate: placa,
+        year: anio,
+        userId: user._id
+      };
     try {
       const vehicle = await registerVehicleRequest(vehicleData);
+      //console.log('Vehículo registrado:', vehicle);
       if (user && vehicle) {
-        await addCarsRequest({ cars: [vehicle._id], email: user.email });
-        setUser({ ...user, vehicles: [...user.vehicles, vehicle._id] });
+        setUser({
+          ...user,
+          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
+        });
       }
-      router.push('/vehiculos');
+
     } catch (error) {
       console.error('Error al registrar el vehículo:', error);
-      // Puedes mostrar una alerta aquí
     }
+
+    router.push('/vehiculos')
   };
 
   return (
