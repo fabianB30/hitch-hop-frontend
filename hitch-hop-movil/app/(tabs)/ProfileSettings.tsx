@@ -20,53 +20,6 @@ import { changePasswordRequest } from '../../interconnection/user';
 import { Pressable } from "@/components/ui/pressable";
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 
-//const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
-
-
-// Esquema real de la base de datos, se los dejo como referencia
-/*export type User = {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  institutionId: string;
-  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-  identificationNumber?: number;
-  birthDate: string;
-  genre?: "Masculino" | "Femenino" | "Otro";
-  photoKey?: string;
-  photoUrl?: string;
-  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-  role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
-  notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
-  }[];
-};*/
-
-// Esto era de ustedes, pueden eliminarlo
-/*type User = {
-  name: string;
-  firstSurname: string;
-  secondSurname: string;
-  email: string;
-  institucion: string;
-  identificationTypeId: string;
-  identificationNumber: string;
-  birthDate: string;
-  phone: string;
-  genre: string;
-  username: string;
-  type: string;
-  photoKey: string | null;
-};*/
-
-//const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
-//const instituciones = ["Tecnológico de Costa Rica"];
-const genres = ["Masculino", "Femenino", "Otro"];
-const tiposUsuario = ["Administrador", "Usuario"];
 
 export default function ProfileSettings() {
   const [tiposId, setTiposId] = useState<string[]>([]);
@@ -110,6 +63,7 @@ export default function ProfileSettings() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [tempPassword, setTempPassword] = useState("");
   const [currentPasswordError, setCurrentPasswordError] = useState(false);
   const [newPasswordError, setNewPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
@@ -152,11 +106,20 @@ export default function ProfileSettings() {
       try {
         // Use the MongoDB _id field
         const userId = user._id;
-        await updateUserRequest(userId, userData);
-        await updateUser(userData);
+        const dataToUpdate = { ...userData };
+
+        // add temp password if exists
+        if (tempPassword) {dataToUpdate.password = tempPassword; }
+        setTempPassword(""); // reset it once saved
+
+        // call backend to update user
+        await updateUserRequest(userId, dataToUpdate);
+        await updateUser(dataToUpdate);
+
       } catch (error) {
         console.error("Error updating user:", error);
       }
+      
       setEditable(false);
       setFieldErrors({});
       setShowSavedDialog(true);
@@ -232,18 +195,7 @@ const handleChangePassword = async () => {
   }
   if (hasError) return;
 
-  // Call backend to change password
-  
-  const userId = user._id;
-  const result = await changePasswordRequest(userId, currentPassword, newPassword);
-  if (!result.success) {
-    setPasswordChangeError(result.msg);
-    if (result.msg === "La contraseña actual es incorrecta.") {
-      setCurrentPasswordError(true);
-    }
-    return;
-  }
-
+  setTempPassword(newPassword);
   setShowPasswordModal(false);
   setShowSavedDialog(true);
   setCurrentPassword("");
