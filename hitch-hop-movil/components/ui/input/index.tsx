@@ -10,6 +10,7 @@ import {
 import { cssInterop } from 'nativewind';
 import type { VariantProps } from '@gluestack-ui/nativewind-utils';
 import { PrimitiveIcon, UIIcon } from '@gluestack-ui/icon';
+import { Text } from 'react-native';
 
 const SCOPE = 'INPUT';
 
@@ -209,9 +210,27 @@ const InputField = React.forwardRef<
   );
 });
 
+const InputError = React.forwardRef<Text, React.ComponentProps<typeof Text>>(
+  function InputError({ style, children, ...props }, ref) {
+    return (
+      <Text
+        ref={ref}
+        style={[
+          { color: '#EF4444', fontSize: 13, marginTop: 2, marginLeft: 4 },
+          style,
+        ]}
+        {...props}
+      >
+        {children}
+      </Text>
+    );
+  }
+);
+
 Input.displayName = 'Input';
 InputIcon.displayName = 'InputIcon';
 InputSlot.displayName = 'InputSlot';
 InputField.displayName = 'InputField';
+InputError.displayName = 'InputError';
 
-export { Input, InputField, InputIcon, InputSlot };
+export { Input, InputField, InputIcon, InputSlot, InputError  };

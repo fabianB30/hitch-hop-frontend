@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -38,8 +39,10 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-ring: var(--sidebar-ring); 
 }
+
+
 
 :root {
   --radius: 0.625rem;
@@ -74,6 +77,29 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --primary-50: oklch(0.8047 0.0956 284.71);
+  --primary-100: oklch(0.7674 0.1246 286.19);
+  --primary-200: oklch(0.6555 0.1192 283.73);
+  --primary-300: oklch(0.6313 0.1902 280.48);
+  --primary-400: oklch(0.5085 0.2126 276.63);
+  --primary-500: oklch(0.4329 0.2425 271.02);
+  --secondary-50: oklch(0.908 0.0981 84.65);
+  --secondary-100: oklch(0.8589 0.1467 83.07);
+  --secondary-200: oklch(0.8319 0.1628 79.75);
+  --secondary-300: oklch(0.8034 0.1704 73.79);
+  --secondary-400: oklch(0.7442 0.1695 63.07);
+  --secondary-500: oklch(0.6986 0.1852 49.7);
+  --text-50: oklch(0.9702 0 0);
+  --text-100: oklch(0.9219 0 0);
+  --text-200: oklch(0.8917 0.0014 286.37);
+  --text-300: oklch(0.8699 0 0);
+  --text-400: oklch(0.7155 0 0);
+  --text-500: oklch(0.6401 0 0);
+  --text-600: oklch(0.5555 0 0);
+  --text-700: oklch(0.4386 0 0);
+  --text-800: oklch(0.3715 0 0);
+  --text-900: oklch(0.269 0.0018 286.28);
+  --text-950: oklch(0.2046 0 0);
 }
 
 .dark {

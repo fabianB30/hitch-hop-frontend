@@ -15,6 +15,7 @@ import { useForm } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import TripDetailItem from '@/components/TripDetailItem'
+import { getAllTripsRequest } from '../../../interconnection/trip'
 
 const {width, height} = Dimensions.get("window")
 
@@ -102,6 +103,17 @@ const searchMain = () => {
     const checkInputs = () => {
         (!destination) ? setMsgError(true) : searchTrips(); 
     }
+
+    useEffect(() => {
+        async function fetchTrips() {
+            const data = await getAllTripsRequest();
+            
+            console.log(data[0].startpoint);
+        }
+        
+        fetchTrips();
+
+    }, [destination])
 
   return (
       <ImageBackground
