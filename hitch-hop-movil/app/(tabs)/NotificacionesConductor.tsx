@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { getParameterByNameRequest } from "@/interconnection/paremeter";
 import { useRouter } from "expo-router";
 import { useAuth } from "./Context/auth-context";
+import { User, getNotificationsByUserRequest } from "@/interconnection/user";
 
 
 const windowHeight = Dimensions.get("window").height;
@@ -20,76 +21,121 @@ const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-const notificaciones: any[] = [
-    {
-        id: 0,
-        tipo: "SP",
-        fecha: "Lun. 14 de abril, 2025.",
-        hora: "11:55am"
-    },
-    {
-        id: 1,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "02:00pm"
-    },
-    {
-        id: 2,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 3,
-        tipo: "SP",
-        fecha: "Vie. 11 de abril, 2025.",
-        hora: "02:10pm"
-    },
-    {
-        id: 4,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 5,
-        tipo: "SP",
-        fecha: "Vie. 11 de abril, 2025.",
-        hora: "02:10pm"
-    },
-    {
-        id: 6,
-        tipo: "SP",
-        fecha: "Vie. 11 de abril, 2025.",
-        hora: "02:10pm"
-    },
-    {
-        id: 7,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 8,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 9,
-        tipo: "SP",
-        fecha: "Vie. 11 de abril, 2025.",
-        hora: "02:10pm"
-    }
-]
+// const notificaciones: any[] = [
+//     {
+//         id: 0,
+//         tipo: "SP",
+//         fecha: "Lun. 14 de abril, 2025.",
+//         hora: "11:55am"
+//     },
+//     {
+//         id: 1,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "02:00pm"
+//     },
+//     {
+//         id: 2,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 3,
+//         tipo: "SP",
+//         fecha: "Vie. 11 de abril, 2025.",
+//         hora: "02:10pm"
+//     },
+//     {
+//         id: 4,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 5,
+//         tipo: "SP",
+//         fecha: "Vie. 11 de abril, 2025.",
+//         hora: "02:10pm"
+//     },
+//     {
+//         id: 6,
+//         tipo: "SP",
+//         fecha: "Vie. 11 de abril, 2025.",
+//         hora: "02:10pm"
+//     },
+//     {
+//         id: 7,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 8,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 9,
+//         tipo: "SP",
+//         fecha: "Vie. 11 de abril, 2025.",
+//         hora: "02:10pm"
+//     }
+// ]
+
+type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
-    const { user } = useAuth();
+    const { user } = useAuth() as {user: User | null};
+    // useEffect(() => {
+    //     if (user) {
+    //     console.log("Notificaciones del usuario:", user.notifications);
+    //     }
+    // }, [user]);
+
+    const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
+    const userId = user?._id;
+    //console.log(userId);
+
+    // Conseguir notificaciones de usuario
     useEffect(() => {
-        if (user) {
-        console.log("Notificaciones del usuario:", user.notifications);
-        }
-    }, [user]);
+        const fetchNotifications = async () => {
+            if (!userId) return;
+            const result = await getNotificationsByUserRequest(userId);
+            if (result) {
+                setNotificaciones(result);
+            } else {
+                setNotificaciones([]);
+            }
+        };
+        fetchNotifications();
+    }, [userId]);
+    console.log(notificaciones);
+
+    // Formateo para la hora
+    const formatHour = (tripDate: string) => {
+        const date = new Date(tripDate);
+        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit'});
+    };
+
+    // Formateo para la fecha
+    const formatFecha = (tripDate: string) => {
+        const date = new Date(tripDate);
+        const opcionesFecha: Intl.DateTimeFormatOptions = {
+            weekday: "short",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        };
+
+        let fecha = date.toLocaleDateString("es-CR",opcionesFecha);
+        fecha = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+        if (!fecha.endsWith(".")) fecha += ".";
+        return fecha;
+
+    }
+
 
     const router = useRouter();
 
@@ -135,24 +181,24 @@ export default function NotificacionesConductor (){
                         
                         {notificaciones.map((notif) => {
                             return (
-                            <Card key={notif.id} variant="filled" style={styles.cards}>
+                            <Card key={notif.tripDate} variant="filled" style={styles.cards}>
 
                                     <Text style={styles.cardHeadFont}>
-                                        {notif.tipo === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}
+                                        {notif.type === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}
                                     </Text>
 
-                                {notif.tipo === "SP" ? (
+                                {notif.type === "SP" ? (
                                 <>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={Calendar} size="md" />
                                         <Text size="sm" style={styles.lugarFechaFont}>
-                                            {notif.fecha}
+                                            {formatFecha(notif.tripDate || "")}
                                         </Text>
                                     </HStack>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon color="#404040" as={ClockIcon} size="md" />
                                         <Text size="sm" style={styles.horaFont}>
-                                            {notif.hora}
+                                            {formatHour(notif.tripDate || "")}
                                         </Text>
                                     </HStack>
                                     <Box style={styles.spButtonBox}>
@@ -166,13 +212,13 @@ export default function NotificacionesConductor (){
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={MapPin} size="md" />
                                         <Text size="sm" style={styles.lugarFechaFont}>
-                                            {notif.lugar}
+                                            {notif.place}
                                         </Text>
                                     </HStack>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon color="#404040" as={ClockIcon} size="md" />
                                         <Text size="sm" style={styles.horaFont}>
-                                            {notif.hora}
+                                            {formatHour(notif.tripDate || "")}
                                         </Text>
                                     </HStack>
                                 </>
