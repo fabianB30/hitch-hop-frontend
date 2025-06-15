@@ -90,9 +90,9 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
     }
 };
 
-export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
+export const getAllUsersRequest = async (): Promise<User[] | null> => {
     try {
-        const res = await axios.put(`/backend/users"`);
+        const res = await axios.get('/backend/users');
         const dataUsers = res.data.data;
         if (dataUsers) {
             return dataUsers;

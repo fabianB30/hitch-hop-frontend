@@ -242,7 +242,6 @@ const UsersManagement: React.FC = () => {
     const [showDialog, setShowDialog] = useState(false);
 
     // Selects
-    const typeOptions = ["Conductor", "Pasajero", "Administrador"];
     const institutionOptions = instituciones.map((inst: any) => inst.nombre);
     
     // Actualiza los campos del formulario
@@ -437,7 +436,7 @@ const UsersManagement: React.FC = () => {
                       value={form.type}
                       onChange={(e) => handleSelectChange("type", e.target.value)}
                     >
-                      {typeOptions.map((type) => (
+                      {tiposUsuario.map((type) => (
                         <option key={type} value={type}>{type}</option>
                       ))}
                     </select>
