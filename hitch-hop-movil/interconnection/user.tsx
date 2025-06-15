@@ -89,3 +89,20 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
         return null;
     }
 };
+
+export const getNotificationsByUserRequest = async (id: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.get(`/backend/user/get-notifications/${id}`);
+        const notifications = res.data.data;
+        if (notifications) {
+            return notifications;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
