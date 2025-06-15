@@ -186,3 +186,18 @@ export const cancelPassengerTripRequest = async (id: string, userId: string): Pr
         return null;
     }
 };
+
+export const getTripsParamsRequest = async (data: {startDate: string, endDate: string, institutionId: string, endpoint: string | null}): Promise<IJwtResponse | null> => {
+    try {
+        const res = axios.post(`/backend/trip/filter`, data);
+        const data = res.data.data;
+        if (data) {
+            return data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
