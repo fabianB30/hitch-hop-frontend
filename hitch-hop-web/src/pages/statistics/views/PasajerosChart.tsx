@@ -13,8 +13,8 @@ const PasajerosChart = () => {
   const handleFiltros = async (filtrosAplicados: any) => {
     setFiltros(filtrosAplicados);
     const payload = {
-      startDate: "1999-06-15T15:00:00.000Z",
-      endDate: new Date().toISOString(),
+      startDate: filtrosAplicados.fecha.desde ? filtrosAplicados.fecha.desde : "1999-06-15T15:00:00.000Z",
+      endDate: filtrosAplicados.fecha.hasta ? filtrosAplicados.fecha.hasta : new Date().toISOString(),
       institutionId: filtrosAplicados.institucion ? filtrosAplicados.institucion : "all",
       genres: filtrosAplicados.genero ? [filtrosAplicados.genero] : ["all"],
       role: "Pasajero"
