@@ -90,18 +90,18 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
     }
 };
 
-export const getAllUsersRequest = async (): Promise<User[] | null> => {
-  try {
-    const res = await axios.get('/backend/users');
-    const users = res.data.data;
-    if (users) {
-      return users;
-    } else {
-      console.error('Invalid response structure:', res);
-      return null;
+export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.put(`/backend/users"`);
+        const dataUsers = res.data.data;
+        if (dataUsers) {
+            return dataUsers;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
     }
-  } catch (error) {
-    console.error('http request error: ', error);
-    return null;
-  }
 };

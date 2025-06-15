@@ -1,6 +1,16 @@
+import { useState } from "react";
+import FiltrosPanel from "../components/FiltrosPanel";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+
 const PasajerosChart = () => {
+  const [filtros, setFiltros] = useState<any>(null);
+
+  const handleFiltros = (filtrosAplicados: any) => {
+    console.log("Filtros Pasajeros:", filtrosAplicados);
+    setFiltros(filtrosAplicados);
+  };
+
   const data = [
     { name: "Ene", valor1: 12, valor2: 18 },
     { name: "Feb", valor1: 17, valor2: 20 },
@@ -9,22 +19,21 @@ const PasajerosChart = () => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow">
-      <div className="flex justify-between mb-2">
-        <div>
-          <h2 className="text-xl font-bold">Pasajeros</h2>
-          <p className="text-sm text-gray-500">Información correspondiente</p>
-        </div>
+    <div className="flex gap-6">
+      <FiltrosPanel showInstitucion showGenero showFecha onSubmit={handleFiltros} />
+      <div className="flex-1 bg-white p-6 rounded-xl shadow">
+        <h2 className="text-xl font-bold mb-2">Pasajeros</h2>
+        <p className="text-sm text-gray-500 mb-4">Información correspondiente</p>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="valor1" stackId="a" fill="#7875F8" />
+            <Bar dataKey="valor2" stackId="a" fill="#FFBA2A" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="valor1" stackId="a" fill="#7875F8" />
-          <Bar dataKey="valor2" stackId="a" fill="#FFBA2A" />
-        </BarChart>
-      </ResponsiveContainer>
     </div>
   );
 };
