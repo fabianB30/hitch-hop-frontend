@@ -76,7 +76,7 @@ export const addCarsRequest = async (data: {cars:any, email:any}): Promise<any |
 
 export const updateUserRequest = async (id: string, data : User): Promise<any | null> => {
     try {
-        const res = await axios.put(`/backend/user/update`, data, {params: {id}});
+        const res = await axios.put(`/backend/user/update/${id}`, data);
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;
@@ -89,3 +89,20 @@ export const updateUserRequest = async (id: string, data : User): Promise<any | 
         return null;
     }
 };
+
+export const getNotificationsByUserRequest = async (id: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.get(`/backend/user/get-notifications/${id}`);
+        const notifications = res.data.data;
+        if (notifications) {
+            return notifications;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
