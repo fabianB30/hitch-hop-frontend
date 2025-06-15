@@ -10,11 +10,14 @@ const PasajerosChart = () => {
     "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), 0, 1);
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const handleFiltros = async (filtrosAplicados: any) => {
     setFiltros(filtrosAplicados);
     const payload = {
-      startDate: filtrosAplicados.fecha.desde ? filtrosAplicados.fecha.desde : "1999-06-15T15:00:00.000Z",
-      endDate: filtrosAplicados.fecha.hasta ? filtrosAplicados.fecha.hasta : new Date().toISOString(),
+      startDate: filtrosAplicados.fecha.desde ? filtrosAplicados.fecha.desde : startDate,
+      endDate: filtrosAplicados.fecha.hasta ? filtrosAplicados.fecha.hasta : endDate,
       institutionId: filtrosAplicados.institucion ? filtrosAplicados.institucion : "all",
       genres: filtrosAplicados.genero ? [filtrosAplicados.genero] : ["all"],
       role: "Pasajero"
