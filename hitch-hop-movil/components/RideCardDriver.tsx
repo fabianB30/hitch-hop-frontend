@@ -77,7 +77,7 @@ export function RideCardDriver({
 
       <HStack
         style={{
-          alignItems: "stretch",
+          alignItems: "center", 
           justifyContent: "space-between",
           marginBottom: 10,
           width: "100%",
@@ -87,14 +87,20 @@ export function RideCardDriver({
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50, 
           }}
         >
-          <Text style={[styles.mediumFont, {fontSize: 14}]}>{date}</Text>
-          <Text style={[styles.mediumFont, {fontSize: 24}]}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 14, lineHeight: 18}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50,
           }}
         >
           <Box
@@ -103,15 +109,15 @@ export function RideCardDriver({
               alignItems: "flex-end",
               gap: 4,
               marginRight: 10,
-              alignSelf: "flex-end", // Add this line to push the box to the right
+              alignSelf: "flex-end",
             }}
           >
             <Users size={20} color="black" />
-            <Text style={[styles.regularFont, {fontSize: 16}]}>
+            <Text style={[styles.regularFont, {fontSize: 16, lineHeight: 20}]}>
               {users}/{userLimit}
             </Text>
           </Box>
-          <Text style={[styles.mediumFont, {fontSize: 24}]}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -206,13 +212,11 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
-    wordWrap: 'break-word'
   },
   regularFont: {
     fontFamily: 'Exo-Regular',
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
-    wordWrap: 'break-word'
   },
 });
