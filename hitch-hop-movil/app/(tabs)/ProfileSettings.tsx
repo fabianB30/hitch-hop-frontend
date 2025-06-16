@@ -63,7 +63,6 @@ export default function ProfileSettings() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [tempPassword, setTempPassword] = useState("");
   const [currentPasswordError, setCurrentPasswordError] = useState(false);
   const [newPasswordError, setNewPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
@@ -107,10 +106,6 @@ export default function ProfileSettings() {
         // Use the MongoDB _id field
         const userId = user._id;
         const dataToUpdate = { ...userData };
-
-        // add temp password if exists
-        if (tempPassword) {dataToUpdate.password = tempPassword; }
-        setTempPassword(""); // reset it once saved
 
         // call backend to update user
         await updateUserRequest(userId, dataToUpdate);
@@ -170,38 +165,53 @@ export default function ProfileSettings() {
     }
   };
 
+  const handleChangePassword = async () => {
+    setCurrentPasswordError(false);
+    setNewPasswordError(false);
+    setConfirmPasswordError(false);
+    setPasswordChangeError("");
 
-const handleChangePassword = async () => {
-  setCurrentPasswordError(false);
-  setNewPasswordError(false);
-  setConfirmPasswordError(false);
-  setPasswordChangeError("");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    let hasError = false;
 
-  // mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula y 1 número
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!currentPassword) {
+      setCurrentPasswordError(true);
+      hasError = true;
+    }
 
-  let hasError = false;
-  if (!currentPassword) {
-    setCurrentPasswordError(true);
-    hasError = true;
-  }
-  if (!passwordRegex.test(newPassword)) {
-    setNewPasswordError(true);
-    hasError = true;
-  }
-  if (newPassword !== confirmPassword) {
-    setConfirmPasswordError(true);
-    hasError = true;
-  }
-  if (hasError) return;
+    if (!passwordRegex.test(newPassword)) {
+      setNewPasswordError(true);
+      hasError = true;
+    }
 
-  setTempPassword(newPassword);
-  setShowPasswordModal(false);
-  setShowSavedDialog(true);
-  setCurrentPassword("");
-  setNewPassword("");
-  setConfirmPassword("");
-};
+    if (newPassword !== confirmPassword) {
+      setConfirmPasswordError(true);
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    const result = await changePasswordRequest({
+      email: user.email,
+      currentPassword,
+      newPassword,
+    });
+
+    if (!result.success) {
+      setPasswordChangeError(result.msg || "Error desconocido.");
+      if (result.msg?.toLowerCase().includes("actual")) {
+        setCurrentPasswordError(true);
+      }
+      return;
+    }
+
+    setShowPasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowSavedDialog(true);
+  };
+
   
   return (
     <View style={{ flex: 1,  width: "100%" }}>

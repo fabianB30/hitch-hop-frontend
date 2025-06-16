@@ -58,16 +58,6 @@ export const loginRequest = async (data: {email, password}): Promise<IJwtRespons
     }
 };
 
-export const changePasswordRequest = async (id: string, oldPassword: string, newPassword: string): Promise<{ success: boolean; msg: string }> => {
-  try {
-    const res = await axios.post(`/backend/user/change-password/${id}`, { oldPassword, newPassword });
-    return { success: true, msg: res.data.msg };
-  } catch (error: any) {
-    const msg = error.response?.data?.msg || "Error al cambiar contraseña";
-    return { success: false, msg };
-  }
-};
-
 export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/addCars`, data);
@@ -116,17 +106,24 @@ export const getNotificationsByUserRequest = async (id: string): Promise<IJwtRes
     }
 };
 
-export const changePasswordRequest = async (data: {email: string, currentPassword: string, newPassword: string}): Promise<IJwtResponse | null> => {
-    try {
-        const res = await axios.post(`/backend/user/update-password`, data);
-        const dataPlace = res.data.data;
-        if (dataPlace) {
-            return dataPlace;
-        } else {
-            console.error('Invalid response structure:', res);
-            return null;
-        }
-    } catch (error) {
-        return error.response?.data.msg;
+export const changePasswordRequest = async (
+  data: { email: string; currentPassword: string; newPassword: string }
+): Promise<{ success: boolean; msg?: string }> => {
+  try {
+    const res = await axios.post(`/backend/user/update-password`, data);
+
+    console.log("Password change response:", res.data);
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    } else {
+      return { success: false, msg: res.data?.msg || "Respuesta inesperada del servidor." };
     }
+  } catch (error: any) {
+    return {
+      success: false,
+      msg: error.response?.data?.msg || "Error al cambiar contraseña.",
+    };
+  }
 };
+
