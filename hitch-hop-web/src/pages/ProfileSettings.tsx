@@ -16,31 +16,6 @@ import { getAllInstitutionsRequest } from '@/interconnection/institution';
 import { updateUserRequest } from "@/interconnection/user";
 import { changePasswordRequest } from "@/interconnection/user";
 
-//import { format } from "date-fns";
-
-//Esquema real de la base de datos, se los dejo como referencia
-// /export type User = {
-// name: string;
-// username: string;
-// email: string;
-// password: string;
-// institutionId: string;
-// identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-// identificationNumber?: number;
-// birthDate: string;
-// genre?: "Masculino" | "Femenino" | "Otro";
-// photoKey?: string;
-// photoUrl?: string;
-// type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-// role: "Conductor" | "Pasajero";
-// vehicles: string[]; // array id
-// notifications: {
-// title: string;
-// subtitle: string;
-// timestamp?: string;
-// }[];
-// };/
-
 const initialUser = {
   nombre: "",
   primerApellido: "",
@@ -93,11 +68,10 @@ const ProfileSettings: React.FC = () => {
         genero: user.genre || "",
         username: user.username || "",
         tipoUsuario: (user.type || "").trim(),
-        foto: user.photoKey || Imagen1,
+        foto: user.photoUrl || Imagen1,
       }
     : initialUser;
 
-  // Sincroniza userData cuando el usuario real cambie
   useEffect(() => {
     if (user) {
       let fechaNacimiento = user.birthDate || "";
@@ -107,9 +81,8 @@ const ProfileSettings: React.FC = () => {
       }
       const institucionObj = instituciones.find((inst) => inst._id === user.institutionId);
       const institucionNombre = institucionObj ? institucionObj.nombre : "";
-       // Normaliza el tipo de usuario para que coincida con las opciones del select
+      
       let tipoUsuario = (user.type || "").trim();
-      // Busca el valor exacto en tiposUsuario
       if (tiposUsuario.length > 0) {
         const match = tiposUsuario.find(
           (tipo) => tipo.toLowerCase() === tipoUsuario.toLowerCase()
@@ -129,7 +102,7 @@ const ProfileSettings: React.FC = () => {
     
   }, [user, instituciones]);
 
-  // Cargar opciones desde la base de datos al montar el componente
+  // Cargar opciones desde la base de datos
   useEffect(() => {
     async function fetchOptions() {
       try {
@@ -193,6 +166,7 @@ const ProfileSettings: React.FC = () => {
     return newErrors;
   };
 
+  // Guardar los datos del usuario
   const toggleEdit = async () => {
     if (!editable) {
       setBackupData(userData);
@@ -204,14 +178,12 @@ const ProfileSettings: React.FC = () => {
         return;
       }
       try {
-        // Use the MongoDB _id field
         const userId = user._id;
         let birthDateISO = "";
         if (userData.fechaNacimiento) {
           const [day, month, year] = userData.fechaNacimiento.split("/").map(s => s.trim());
           birthDateISO = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
         }
-        // Map userData to User type
         const dataToUpdate: User = {
           ...user,
           name: userData.nombre,
@@ -227,9 +199,9 @@ const ProfileSettings: React.FC = () => {
           username: userData.username,
           type: userData.tipoUsuario,
           photoKey: typeof userData.foto === "string" ? userData.foto : "",
+          photoUrl: typeof userData.foto === "string" ? userData.foto : Imagen1,
         };
 
-        // call backend to update user
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
 
@@ -250,9 +222,9 @@ const ProfileSettings: React.FC = () => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
-   const handleChangePassword = async () => {
+  // Cambio de contraseña
+  const handleChangePassword = async () => {
     setPasswordChangeError("");
-
     // Validación de campos
     if (!currentPassword || !newPassword || !confirmPassword) {
       setPasswordChangeError("Todos los campos son obligatorios.");
@@ -266,20 +238,17 @@ const ProfileSettings: React.FC = () => {
       setPasswordChangeError("Las contraseñas no coinciden.");
       return false;
     }
-
     // Validar contraseña actual con la base de datos
     const result = await changePasswordRequest({
       email: user.email,
       currentPassword,
       newPassword,
     });
-
     if (!result.success) {
       setPasswordChangeError(result.msg || "La contraseña actual es incorrecta.");
       return false;
     }
 
-    // Si todo bien, limpiar campos y mostrar éxito
     setShowPasswordModal(false);
     setCurrentPassword("");
     setNewPassword("");
@@ -293,15 +262,25 @@ const ProfileSettings: React.FC = () => {
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setUserData((prev) => ({ ...prev, foto: ev.target?.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const file = e.target.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64String = ev.target?.result as string;
+      setUserData((prev) => ({ ...prev, foto: base64String }));
+
+      // Guardar la imagen en base64 en la base de datos
+      try {
+        const userId = user._id;
+        await updateUserRequest(userId, { ...user, photoKey: base64String, photoUrl: base64String });
+        await updateUser({ ...user, photoKey: base64String, photoUrl: base64String });
+      } catch (error) {
+        console.error("Error guardando la imagen:", error);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
   return (
     <div className="min-h-screen w-full bg-white flex">
@@ -309,7 +288,6 @@ const ProfileSettings: React.FC = () => {
         <span className="mt-2 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
           Gestión de Perfil
         </span>
-
         <div className="flex flex-row gap-12 mt-4">
           <div className="flex flex-col items-center min-w-[260px] pt-0">
             <span className="text-lg font-medium font-exo mb-3 text-gray-700">Foto de perfil</span>
@@ -330,6 +308,7 @@ const ProfileSettings: React.FC = () => {
             )}
           </div>
 
+          {/* Formulario de edición de datos */}
           <form className="flex-1">
             <div className="grid grid-cols-2 gap-x-8 gap-y-5">
               {Object.entries({
@@ -378,8 +357,8 @@ const ProfileSettings: React.FC = () => {
                         setCalendarOpen(false);
                       }}
                       initialFocus
-                      captionLayout="dropdown" // <--- Selector de año y mes
-                      fromYear={1900}          // <--- Cambia el año mínimo si lo deseas
+                      captionLayout="buttons" // Selector 
+                      fromYear={1900}
                       toYear={new Date().getFullYear()}
                     />
                   </PopoverContent>
@@ -387,7 +366,6 @@ const ProfileSettings: React.FC = () => {
                 {errors.fechaNacimiento && <p className="text-red-500 text-sm mt-1">{errors.fechaNacimiento}</p>}
               </div>
             </div>
-
             <div className="flex justify-end mt-8 gap-4">
               {editable && (
                 <Button type="button" onClick={cancelEdit} variant="outline" className="border-gray-400 text-gray-600">
@@ -405,14 +383,12 @@ const ProfileSettings: React.FC = () => {
             </div>
           </form>
 
-
          {/* Dialogo para cambiar password */}
         <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
             </DialogHeader>
-
             <div className="space-y-6 mt-4">
               {/* Contraseña actual */}
               <div className="flex flex-col gap-y-3">
@@ -433,12 +409,11 @@ const ProfileSettings: React.FC = () => {
                     {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                {/* Mostrar error de contraseña actual aquí */}
+                {/* Mostrar error de contraseña actual*/}
                 {passwordChangeError && (
                   <p className="text-red-500 text-sm mt-1">{passwordChangeError}</p>
                 )}
               </div>
-
               {/* Contraseña nueva */}
               <div className="flex flex-col gap-y-3">
                 <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
@@ -464,7 +439,6 @@ const ProfileSettings: React.FC = () => {
                   </p>
                 )}
               </div>
-
               {/* Confirmar contraseña */}
               <div className="flex flex-col gap-y-3">
                 <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
@@ -488,10 +462,8 @@ const ProfileSettings: React.FC = () => {
                   <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
                 )}
               </div>
-
               <p className="text-xs text-red-500">* Información obligatoria</p>
             </div>
-
             <DialogFooter className="flex justify-between mt-6">
               <Button variant="ghost" onClick={() => {
                     setShowPasswordModal(false);
@@ -521,10 +493,6 @@ const ProfileSettings: React.FC = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-
-
-
         </div>
       </main>
       {/* AlertDialog de confirmación de guardado */}

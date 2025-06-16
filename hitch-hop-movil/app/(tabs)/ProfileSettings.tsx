@@ -29,6 +29,23 @@ export default function ProfileSettings() {
   const [roles, setRoles] = useState<string[]>([]);
   const { user , updateUser } = useAuth();
   const [passwordChangeError, setPasswordChangeError] = useState("");
+  const [editable, setEditable] = useState(false);
+  const [userData, setUserData] = useState(user);
+  const [backupData, setBackupData] = useState(user);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPasswordError, setCurrentPasswordError] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSavedDialog, setShowSavedDialog] = useState(false);
+  const router = useRouter();
   
   useEffect(() => {
     async function fetchData() {
@@ -57,48 +74,29 @@ export default function ProfileSettings() {
     value: inst._id
   }));
 
-  const [editable, setEditable] = useState(false);
-  const [userData, setUserData] = useState(user);
-  const [backupData, setBackupData] = useState(user);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [currentPasswordError, setCurrentPasswordError] = useState(false);
-  const [newPasswordError, setNewPasswordError] = useState(false);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showSavedDialog, setShowSavedDialog] = useState(false);
-  const router = useRouter();
-
   const validateUserData = (data: typeof initialUser) => {
-  const errors: Record<string, string> = {};
-  const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    const errors: Record<string, string> = {};
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-  if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
-  if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
-  if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
+    if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
+    if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
+    if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
 
-  // Identification number validation based on type
-  if (data.identificationTypeId === "Cédula" && !/^\d{9}$/.test(String(data.identificationNumber))) {
-    errors.identificationNumber = "La cédula debe tener 9 dígitos.";
-  } else if (data.identificationTypeId === "DIMEX" && !/^\d{12}$/.test(String(data.identificationNumber))) {
-    errors.identificationNumber = "El DIMEX debe tener 12 dígitos.";
-  } else if (data.identificationTypeId === "Pasaporte" && !/^\d{9}$/.test(String(data.identificationNumber))) {
-    errors.identificationNumber = "El pasaporte debe tener 9 dígitos.";
-  }
+    if (data.identificationTypeId === "Cédula" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "La cédula debe tener 9 dígitos.";
+    } else if (data.identificationTypeId === "DIMEX" && !/^\d{12}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "El DIMEX debe tener 12 dígitos.";
+    } else if (data.identificationTypeId === "Pasaporte" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "El pasaporte debe tener 9 dígitos.";
+    }
 
-  if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
-  if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
-    errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
-  }
+    if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
+    if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
+      errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+    }
 
-  setFieldErrors(errors);
-  return Object.keys(errors).length === 0;
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
  };
 
   // editar y llamar al backend
@@ -112,18 +110,14 @@ export default function ProfileSettings() {
         return;
       }
       try {
-        // Use the MongoDB _id field
         const userId = user._id;
         const dataToUpdate = { ...userData };
-
-        // call backend to update user
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
 
       } catch (error) {
         console.error("Error updating user:", error);
       }
-      
       setEditable(false);
       setFieldErrors({});
       setShowSavedDialog(true);
@@ -140,24 +134,23 @@ export default function ProfileSettings() {
     setUserData({ ...userData, [key]: value });
   };
 
-
   const handleEditPhoto = async () => {
-    // Request permissions if necessary
+    // Permisos
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       alert('Se requieren permisos para acceder a tus fotos.');
       return;
     }
-
-    // Open the gallery and request base64
+    // Abre la galería de imágenes
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
-      base64: true, // <-- This is important!
+      base64: true,
     });
 
+    //Base 64
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
       if (asset.base64) {
@@ -169,7 +162,7 @@ export default function ProfileSettings() {
     }
   };
 
- // Convierte la fecha de nacimiento a objeto Date
+  // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
     return new Date(year, month - 1, day);
@@ -183,6 +176,7 @@ export default function ProfileSettings() {
     }
   };
 
+  // Maneja el cambio de contraseña
   const handleChangePassword = async () => {
     setCurrentPasswordError(false);
     setNewPasswordError(false);
@@ -196,17 +190,14 @@ export default function ProfileSettings() {
       setCurrentPasswordError(true);
       hasError = true;
     }
-
     if (!passwordRegex.test(newPassword)) {
       setNewPasswordError(true);
       hasError = true;
     }
-
     if (newPassword !== confirmPassword) {
       setConfirmPasswordError(true);
       hasError = true;
     }
-
     if (hasError) return;
 
     const result = await changePasswordRequest({
@@ -263,7 +254,7 @@ export default function ProfileSettings() {
               source={
                 userData.photoUrl
                   ? { uri: userData.photoUrl }
-                  : require('@/assets/images/iconPrimary.png') // fallback image
+                  : require('@/assets/images/iconPrimary.png')
               }
               style={styles.avatar}
             />
@@ -304,7 +295,8 @@ export default function ProfileSettings() {
           </View>
         )}
 
-      <View style={styles.formSection}>
+        {/* Información del usuario */}
+        <View style={styles.formSection}>
         <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
         <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
         <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
@@ -329,7 +321,7 @@ export default function ProfileSettings() {
               <InputField
                 value={userData.birthDate || ""}
                 placeholder="Selecciona una fecha"
-                editable={false} // No editable, solo abre el picker
+                editable={false}
                 pointerEvents="none"
                 style={{ color: userData.birthDate ? "#222" : "#888" }}
               />
@@ -586,7 +578,7 @@ const styles = StyleSheet.create({
     color: "white",
     letterSpacing: 1,
     fontFamily: "Exo",
-    textShadowColor: "#7875F8", // Color del borde
+    textShadowColor: "#7875F8",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
@@ -640,7 +632,7 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: "#fff",
     borderRadius: 24,
-    marginTop: -60, // Para que suba sobre la imagen
+    marginTop: -60,
     padding: 24,
     width: "100%",
     shadowColor: "#000",

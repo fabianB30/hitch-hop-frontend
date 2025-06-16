@@ -80,7 +80,6 @@ const UsersManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-
   const filteredUsers = users.filter((user) => {
     const matchUsername = !searchUsername || user.username.toLowerCase().includes(searchUsername.toLowerCase());
     const matchEmail = !searchEmail || user.email.toLowerCase().includes(searchEmail.toLowerCase());
@@ -89,8 +88,6 @@ const UsersManagement: React.FC = () => {
     return matchUsername && matchEmail && matchType && matchInst;
   });
 
-
-
   // Si se selecciona un usuario, muestra sus detalles
   if (selectedUser) {
     return (
@@ -98,7 +95,7 @@ const UsersManagement: React.FC = () => {
         user={selectedUser}
         onBack={() => {
           setSelectedUser(null);
-          setRefreshUsers((prev) => !prev); // <-- Fuerza refresco al volver
+          setRefreshUsers((prev) => !prev);
         }}
       />
     );
@@ -276,13 +273,9 @@ const UsersManagement: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ ...form, [e.target.name]: e.target.value });
     };
-
-    // Para selects personalizados
     const handleSelectChange = (name: string, value: string) => {
       setForm({ ...form, [name]: value });
     };
-
-    // Cancelar
     const handleCancel = () => {
       setForm({
         username: user.username || "",
@@ -314,21 +307,17 @@ const UsersManagement: React.FC = () => {
           phone: form.phone,
           institutionId: instituciones.find((i: any) => i.nombre === form.institution)?._id || user.institutionId,
           type: form.type,
-          // Agregar otros campos
         };
 
         await updateUserRequest(user._id, updatedUser);
 
         setEditMode(false);
         setFieldErrors({});
-        //mensaje de exito
       } catch (error) {
         console.error("Error al guardar usuario:", error);
-        // mensaje de error
       }
     };
     
-    // Handler para el switch
     const handleSwitchClick = async () => {
       if (accountActive) {
         setShowDialog(true);
@@ -338,7 +327,6 @@ const UsersManagement: React.FC = () => {
         if (form.type === "Inactivo - Admin") newType = "Administrador";
         setForm({ ...form, type: newType });
         setAccountActive(true);
-        // Actualiza en backend
         await updateUserRequest(user._id, {
           ...user,
           type: newType,
@@ -376,7 +364,7 @@ const UsersManagement: React.FC = () => {
           <h1 className="text-[36px] font-bold text-[#171717] mb-0">Detalles de Usuario</h1>
         </div>
         <div className="flex gap-12">
-          {/* Left column - user info */}
+          {/* Información del usuario */}
           <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
             <h2 className="text-[30px] font-bold mb-6">Información de Usuario</h2>
             <div className="flex flex-col gap-4">
@@ -481,8 +469,6 @@ const UsersManagement: React.FC = () => {
                   <Input disabled value={form.institution} />
                 )}
               </div>
-              
-            
             </div>
             {!editMode ? (
               <Button
@@ -509,7 +495,7 @@ const UsersManagement: React.FC = () => {
               </div>
             )}
           </div>
-          {/* Right column - roles & permissions */}
+          {/* Roles y permisos*/}
           <div className="flex flex-col gap-8">
             <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
               <h2 className="text-[30px] font-bold mb-6">Tipos y Permisos</h2>
@@ -566,7 +552,7 @@ const UsersManagement: React.FC = () => {
                 )}
               </div>
             </div>
-            {/* Account status */}
+            {/* Estado de la cuenta */}
             <div className="bg-white rounded-xl shadow-md border border-[#DDDCDB] w-[450px] p-6">
             <h2 className="text-[30px] font-bold mb-4">Estado de Cuenta</h2>
             <div className="flex items-center justify-between mb-2">
