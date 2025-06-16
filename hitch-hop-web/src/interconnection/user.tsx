@@ -106,17 +106,23 @@ export const getAllUsersRequest = async (): Promise<User[] | null> => {
     }
 };
 
-export const changePasswordRequest = async (data: {email: string, currentPassword: string, newPassword: string}): Promise<IJwtResponse | null> => {
-    try {
-        const res = await axios.post(`/backend/user/update-password`, data);
-        const dataPlace = res.data.data;
-        if (dataPlace) {
-            return dataPlace;
-        } else {
-            console.error('Invalid response structure:', res);
-            return null;
-        }
-    } catch (error) {
-        return error.response?.data.msg;
+export const changePasswordRequest = async (
+  data: { email: string; currentPassword: string; newPassword: string }
+): Promise<{ success: boolean; msg?: string }> => {
+  try {
+    const res = await axios.post(`/backend/user/update-password`, data);
+
+    console.log("Password change response:", res.data);
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    } else {
+      return { success: false, msg: res.data?.msg || "Respuesta inesperada del servidor." };
     }
+  } catch (error: any) {
+    return {
+      success: false,
+      msg: error.response?.data?.msg || "Error al cambiar contraseña.",
+    };
+  }
 };

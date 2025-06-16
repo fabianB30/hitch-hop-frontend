@@ -13,22 +13,47 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, 
 import { useAuth } from '@/Context/auth-context';
 import { getParameterByNameRequest } from '@/interconnection/paremeter';
 import { getAllInstitutionsRequest } from '@/interconnection/institution';
+import { updateUserRequest } from "@/interconnection/user";
+import { changePasswordRequest } from "@/interconnection/user";
 
 //import { format } from "date-fns";
 
+//Esquema real de la base de datos, se los dejo como referencia
+// /export type User = {
+// name: string;
+// username: string;
+// email: string;
+// password: string;
+// institutionId: string;
+// identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
+// identificationNumber?: number;
+// birthDate: string;
+// genre?: "Masculino" | "Femenino" | "Otro";
+// photoKey?: string;
+// photoUrl?: string;
+// type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
+// role: "Conductor" | "Pasajero";
+// vehicles: string[]; // array id
+// notifications: {
+// title: string;
+// subtitle: string;
+// timestamp?: string;
+// }[];
+// };/
+
 const initialUser = {
-  nombre: "Juan",
-  primerApellido: "Rodríguez",
-  segundoApellido: "Chaves",
-  correo: "juan@estudiantec.cr",
-  institucion: "Tecnológico de Costa Rica",
-  tipoId: "Cédula",
-  numeroId: "116032348",
-  fechaNacimiento: "27 / 02 / 2003",
-  telefono: "83017776",
-  genero: "Masculino",
-  username: "juanRC02",
-  tipoUsuario: "Administrador",
+  nombre: "",
+  primerApellido: "",
+  segundoApellido: "",
+  correo: "",
+  institucion: "",
+  tipoId: "",
+  numeroId: "",
+  fechaNacimiento: "",
+  telefono: "",
+  genero: "",
+  username: "",
+  tipoUsuario: "",
   foto: Imagen1,
 };
 
@@ -52,21 +77,22 @@ const ProfileSettings: React.FC = () => {
   const [generos, setGeneros] = useState<string[]>([]);
   const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState<string[]>([]);
-  const { user } = useAuth(); 
+  const [passwordChangeError, setPasswordChangeError] = useState("");
+  const { user, updateUser } = useAuth();
   const userMapped = user
     ? {
         nombre: user.name || "",
         primerApellido: user.firstSurname || "",
         segundoApellido: user.secondSurname || "",
         correo: user.email || "",
-        institucion: user.institutionName || "",
+        institucion: user.institutionId || "",
         tipoId: user.identificationTypeId || "",
         numeroId: user.identificationNumber ? String(user.identificationNumber) : "",
         fechaNacimiento: user.birthDate || "",
         telefono: user.phone ? String(user.phone) : "",
         genero: user.genre || "",
         username: user.username || "",
-        tipoUsuario: user.type || "",
+        tipoUsuario: (user.type || "").trim(),
         foto: user.photoKey || Imagen1,
       }
     : initialUser;
@@ -74,11 +100,34 @@ const ProfileSettings: React.FC = () => {
   // Sincroniza userData cuando el usuario real cambie
   useEffect(() => {
     if (user) {
-      setUserData(userMapped);
-      setBackupData(userMapped);
+      let fechaNacimiento = user.birthDate || "";
+      if (fechaNacimiento && !fechaNacimiento.includes("/")) {
+        const dateObj = new Date(fechaNacimiento);
+        fechaNacimiento = formatDate(dateObj);
+      }
+      const institucionObj = instituciones.find((inst) => inst._id === user.institutionId);
+      const institucionNombre = institucionObj ? institucionObj.nombre : "";
+       // Normaliza el tipo de usuario para que coincida con las opciones del select
+      let tipoUsuario = (user.type || "").trim();
+      // Busca el valor exacto en tiposUsuario
+      if (tiposUsuario.length > 0) {
+        const match = tiposUsuario.find(
+          (tipo) => tipo.toLowerCase() === tipoUsuario.toLowerCase()
+        );
+        if (match) tipoUsuario = match;
+      }
+      console.log("Tipo de usuario normalizado:", tipoUsuario);
+      const mapped = {
+        ...userMapped,
+        fechaNacimiento,
+        institucion: institucionNombre,
+        tipoUsuario,
+      };
+      setUserData(mapped);
+      setBackupData(mapped);
     }
     
-  }, [user]);
+  }, [user, instituciones]);
 
   // Cargar opciones desde la base de datos al montar el componente
   useEffect(() => {
@@ -92,7 +141,7 @@ const ProfileSettings: React.FC = () => {
         if (paramId) setTiposId(paramId.parameterList);
         if (paramGenero) setGeneros(paramGenero.parameterList);
         if (paramTipoUsuario) setTiposUsuario(paramTipoUsuario.parameterList);
-        if (resInstitutions) setInstituciones(resInstitutions.map((inst: any) => inst.nombre));
+        if (resInstitutions) setInstituciones(resInstitutions);
       } catch (error) {
         console.error("Error al obtener opciones:", error);
       }
@@ -144,13 +193,49 @@ const ProfileSettings: React.FC = () => {
     return newErrors;
   };
 
-  const toggleEdit = () => {
+  const toggleEdit = async () => {
     if (!editable) {
       setBackupData(userData);
       setEditable(true);
     } else {
       if (Object.keys(errors).length > 0) return;
-      console.log("Datos guardados:", userData);
+      const isValid = validateUserData(userData);
+      if (!isValid) {
+        return;
+      }
+      try {
+        // Use the MongoDB _id field
+        const userId = user._id;
+        let birthDateISO = "";
+        if (userData.fechaNacimiento) {
+          const [day, month, year] = userData.fechaNacimiento.split("/").map(s => s.trim());
+          birthDateISO = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        }
+        // Map userData to User type
+        const dataToUpdate: User = {
+          ...user,
+          name: userData.nombre,
+          firstSurname: userData.primerApellido,
+          secondSurname: userData.segundoApellido,
+          email: userData.correo,
+          institutionName: userData.institucion,
+          identificationTypeId: userData.tipoId,
+          identificationNumber: Number(userData.numeroId),
+          birthDate: birthDateISO,
+          phone: Number(userData.telefono),
+          genre: userData.genero,
+          username: userData.username,
+          type: userData.tipoUsuario,
+          photoKey: typeof userData.foto === "string" ? userData.foto : "",
+        };
+
+        // call backend to update user
+        await updateUserRequest(userId, dataToUpdate);
+        await updateUser(dataToUpdate);
+
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
       setEditable(false);
       setShowSavedDialog(true);
     }
@@ -165,21 +250,43 @@ const ProfileSettings: React.FC = () => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleChangePassword = (key: keyof typeof userData, value: string) => {
-    // validaciones
+   const handleChangePassword = async () => {
+    setPasswordChangeError("");
 
-    if (newPassword !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
+    // Validación de campos
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordChangeError("Todos los campos son obligatorios.");
+      return false;
     }
-    // Logica para guardar la nueva contraseña
-    
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword)) {
+      setPasswordChangeError("La contraseña nueva no cumple los requisitos.");
+      return false;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordChangeError("Las contraseñas no coinciden.");
+      return false;
+    }
+
+    // Validar contraseña actual con la base de datos
+    const result = await changePasswordRequest({
+      email: user.email,
+      currentPassword,
+      newPassword,
+    });
+
+    if (!result.success) {
+      setPasswordChangeError(result.msg || "La contraseña actual es incorrecta.");
+      return false;
+    }
+
+    // Si todo bien, limpiar campos y mostrar éxito
     setShowPasswordModal(false);
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
-    setUserData((prev) => ({ ...prev, [key]: value })); 
-  }
+    setShowSavedDialog(true);
+    return true;
+  };
 
   const handleEditPhoto = () => {
     fileInputRef.current?.click();
@@ -246,7 +353,7 @@ const ProfileSettings: React.FC = () => {
                   onChange={(v) => handleChange(key as keyof typeof userData, v)}
                   error={errors[key as keyof typeof userData]}
                   as={key === "institucion" || key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
-                  options={ key === "institucion" ? instituciones : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
+                  options={ key === "institucion" ? instituciones.map(inst => inst.nombre) : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
                 />
               ))}
               <div className="flex flex-col gap-1">
@@ -271,6 +378,9 @@ const ProfileSettings: React.FC = () => {
                         setCalendarOpen(false);
                       }}
                       initialFocus
+                      captionLayout="dropdown" // <--- Selector de año y mes
+                      fromYear={1900}          // <--- Cambia el año mínimo si lo deseas
+                      toYear={new Date().getFullYear()}
                     />
                   </PopoverContent>
                 </Popover>
@@ -323,6 +433,10 @@ const ProfileSettings: React.FC = () => {
                     {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
+                {/* Mostrar error de contraseña actual aquí */}
+                {passwordChangeError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordChangeError}</p>
+                )}
               </div>
 
               {/* Contraseña nueva */}
@@ -400,14 +514,7 @@ const ProfileSettings: React.FC = () => {
                   !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
                   newPassword !== confirmPassword
                 }
-                onClick={() => {
-                  // Aquí iría la lógica real para guardar contraseña
-                  setShowPasswordModal(false);
-                  setCurrentPassword("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                  setShowSavedDialog(true);
-                }}
+                onClick={handleChangePassword}
               >
                 Confirmar cambios
               </Button>
@@ -455,7 +562,7 @@ function ProfileInput({ label, value, onChange, editable = false, as, options, t
     <div className="flex flex-col gap-1">
       <Label className="text-base">{label}</Label>
       {as === "select" && options ? (
-        <Select disabled={!editable} onValueChange={(val) => onChange?.(val)} defaultValue={value}>
+        <Select disabled={!editable} onValueChange={(val) => onChange?.(val)} value={value}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
