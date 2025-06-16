@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, Image, TouchableOpacity, StyleSheet, Modal
 } from 'react-native';
+import * as Font from 'expo-font';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getAllVehiclesRequest, deleteVehicleByIdRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
@@ -9,43 +10,91 @@ import { useAuth } from '../Context/auth-context';
 export default function VehiculosIndex() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const { user, setUser } = useAuth();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [deleteModal, setDeleteModal] = useState<{ visible: boolean, id?: string, label?: string }>({ visible: false });
   const [showCreated, setShowCreated] = useState(params?.created === 'true');
 
+
+  /*   useEffect(() => {
+      const fetchVehicles = async () => {
+        const all = await getAllVehiclesRequest();
+        if (!all) return;
+  
+        const mine = all.filter((v: any) => user.vehicles.includes(v._id));
+        setVehicles(mine);
+  
+        if (mine.length === 0) {
+          router.replace('/(tabs)/vehiculos/sinVehiculos');
+        }
+      };
+      fetchVehicles();
+    }, [user]);
+  
+    const confirmDelete = (id: string, label: string) => {
+      setDeleteModal({ visible: true, id, label });
+    }; 
+  
+    
+  
+    const handleDelete = async () => {
+      if (!deleteModal.id) return;
+      await deleteVehicleByIdRequest(deleteModal.id);
+      setUser({
+        ...user,
+        vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
+      });
+      setVehicles(prev => prev.filter(v => v._id !== deleteModal.id));
+      setDeleteModal({ visible: false });
+    }; */
+
+  const USE_PLACEHOLDER = true; // 🔧 Cambia aquí para alternar datos placeholder
+
   useEffect(() => {
-    const fetchVehicles = async () => {
-      const all = await getAllVehiclesRequest();
-      if (!all) return;
-
-      const mine = all.filter((v: any) => user.vehicles.includes(v._id));
-      setVehicles(mine);
-
-      if (mine.length === 0) {
-        router.replace('/(tabs)/vehiculos/sinVehiculos');
+    const loadVehicles = async () => {
+      if (USE_PLACEHOLDER) {
+        setVehicles([
+          { _id: 'demo1', brand: 'Hyundai', model: 'Santa Fe', foto: 'https://www.hyundaicr.com/images/modelos/all-new-santa-fe/colors/blanco-cremoso-mate-wwm.webp' },
+          { _id: 'demo2', brand: 'Toyota', model: 'RAV4', foto: 'https://via.placeholder.com/96' },
+          { _id: 'demo3', brand: 'Ford', model: 'Escape', foto: 'https://via.placeholder.com/96' },
+          { _id: 'demo4', brand: 'Kia', model: 'Sorento', foto: 'https://via.placeholder.com/96' },
+        ]);
+      } else {
+        const all = await getAllVehiclesRequest();
+        const mine = all?.filter((v: any) => user.vehicles.includes(v._id)) || [];
+        setVehicles(mine);
       }
     };
-    fetchVehicles();
+    loadVehicles();
   }, [user]);
 
-  const confirmDelete = (id: string, label: string) => {
-    setDeleteModal({ visible: true, id, label });
-  };
+  const confirmDelete = (id: string, label: string) => setDeleteModal({ visible: true, id, label });
 
   const handleDelete = async () => {
     if (!deleteModal.id) return;
-    await deleteVehicleByIdRequest(deleteModal.id);
-    setUser({
-      ...user,
-      vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
-    });
+    if (!USE_PLACEHOLDER) {
+      await deleteVehicleByIdRequest(deleteModal.id);
+      setUser({
+        ...user,
+        vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
+      });
+    }
     setVehicles(prev => prev.filter(v => v._id !== deleteModal.id));
     setDeleteModal({ visible: false });
   };
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
 
-    return (
-    <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
+  if (!fontsLoaded) return null;
+
+  return (
+    <View style={styles.container}>
       <View style={styles.topBackground}>
         <Image
           source={require('@/assets/images/mg_backround_gestion.png')}
@@ -67,70 +116,80 @@ export default function VehiculosIndex() {
           <Text style={styles.title}>Vehículos</Text>
         </View>
 
-        {vehicles.length === 0 ? (
-          <View style={{ alignItems: 'center', marginTop: 12 }}>
-            <Image
-              source={require('@/assets/images/gatoautos.png')}
-              style={styles.emptyIllustration}
-              resizeMode="contain"
-            />
-            <Text style={styles.emptyText}>No hay vehículos registrados</Text>
-            <TouchableOpacity
-              style={styles.addButtonEmpty}
-              onPress={() => router.push("/(tabs)/vehiculos/agregarVehiculo")}
-            >
-              <Text style={styles.addButtonText}>Agregar Vehículo</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <FlatList
-            data={vehicles}
-            keyExtractor={v => v._id}
-            contentContainerStyle={styles.list}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <View style={styles.sideStripe} />
-                <Image source={{ uri: item.foto }} style={styles.image} />
-                <View style={styles.info}>
-                  <Text style={styles.name}>{item.brand} {item.model}</Text>
-                  <View style={styles.actions}>
-                    <TouchableOpacity
-                      style={styles.btnInfo}
-                      onPress={() => router.push({
-                        pathname: '/(tabs)/vehiculos/informacionVehiculo',
-                        params: { id: item._id },
-                      })}
-                    >
-                      <Text style={styles.btnInfoText}>Información</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.btnDelete}
-                      onPress={() => confirmDelete(item._id, `${item.brand} ${item.model}`)}
-                    >
-                      <Text style={styles.btnDeleteText}>Eliminar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            )}
-            ListFooterComponent={
+        {/* Contenedor del scroll */}
+        <View style={{ flex: 1 }}>
+          {vehicles.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Image
+                source={require('@/assets/images/gatoautos.png')}
+                style={styles.emptyIllustration}
+                resizeMode="contain"
+              />
+              <Text style={styles.emptyText}>No hay vehículos registrados</Text>
               <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => router.push({ pathname: '/(tabs)/vehiculos/agregarVehiculo', params: { created: 'true' } })}
+                style={styles.addButtonEmpty}
+                onPress={() => router.push("/(tabs)/vehiculos/agregarVehiculo")}
               >
                 <Text style={styles.addButtonText}>Agregar Vehículo</Text>
               </TouchableOpacity>
-            }
-          />
-        )}
+            </View>
+          ) : (
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={vehicles}
+                keyExtractor={v => v._id}
+                contentContainerStyle={styles.list}
+                renderItem={({ item }) => (
+                  <View style={styles.cardWrapper}>
+
+                    <View style={styles.card}>
+                      <View style={styles.sideStripe} />
+                      <Image source={{ uri: item.foto }} style={styles.image} />
+                      <View style={styles.info}>
+                        <Text style={styles.name}>{item.brand} {item.model}</Text>
+                        <View style={styles.actions}>
+                          <TouchableOpacity
+                            style={styles.btnInfo}
+                            onPress={() => router.push({
+                              pathname: '/(tabs)/vehiculos/informacionVehiculo',
+                              params: { id: item._id },
+                            })}
+                          >
+                            <Text style={styles.btnInfoText}>Información</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.btnDelete}
+                            onPress={() => confirmDelete(item._id, `${item.brand} ${item.model}`)}
+                          >
+                            <Text style={styles.btnDeleteText}>Eliminar</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+          )}
+        </View>
       </View>
 
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.addButtonFixed}
+          onPress={() => router.push('/(tabs)/vehiculos/agregarVehiculo')}
+        >
+          <Text style={styles.addButtonText}>Agregar Vehículo</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Modal eliminar */}
       <Modal transparent visible={deleteModal.visible} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Eliminar vehículo</Text>
+            <Text style={styles.modalTitle}>¿Estas seguro que quieres eliminar el vehiculo {deleteModal.label}?</Text>
             <Text style={styles.modalText}>
-              ¿Deseas eliminar "{deleteModal.label}"?
+              Todos los datos del vehiculo serán eliminados.
             </Text>
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setDeleteModal({ visible: false })}>
@@ -144,6 +203,7 @@ export default function VehiculosIndex() {
         </View>
       </Modal>
 
+      {/* Modal vehículo agregado */}
       <Modal transparent visible={showCreated} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -154,11 +214,16 @@ export default function VehiculosIndex() {
           </View>
         </View>
       </Modal>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#A18AFF',
+  },
   topBackground: {
     height: 130,
     width: '100%',
@@ -199,32 +264,43 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingBottom: 85, // suficiente para no ocultar el contenido tras el botón
   },
+  cardWrapper: {
+    marginBottom: 16,
+    position: 'relative',
+  },
+
+  sideStripe: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 19,
+    backgroundColor: '#7875F8',
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+  },
+
   card: {
     flexDirection: 'row',
     backgroundColor: '#F3F2FF',
     borderRadius: 30,
-    marginBottom: 16,
     alignItems: 'center',
+    overflow: 'hidden',  // opcional, para que contenido interno no se desborde
+    paddingVertical: 16,
+    paddingRight: 16,
   },
-  sideStripe: {
-    width: 12,
-    backgroundColor: '#7875F8',
-    borderTopLeftRadius: 30,
-    borderBottomLeftRadius: 30,
-    height: '100%',
-  },
+
   image: {
     width: 96,
     height: 96,
     borderRadius: 8,
-    marginLeft: 16,
-    marginVertical: 16,
+    marginLeft: 22,
   },
   info: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 15,
     justifyContent: 'space-between',
   },
   name: {
@@ -232,24 +308,53 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
   },
-  emptyText: {
-    fontFamily: 'Exo-Bold',
-    fontSize: 16,
-    color: '#181718',
-    textAlign: 'center',
-    marginTop: -35,
-    marginBottom: 40,
+  actions: {
+    flexDirection: 'row',
+  },
+  btnInfo: {
+    backgroundColor: '#7875F8',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  btnInfoText: {
+    color: '#FFFFFF',
+    fontFamily: 'Exo-Regular',
+    fontSize: 13,
+  },
+  btnDelete: {
+    borderWidth: 1,
+    borderColor: '#7875F8',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  btnDeleteText: {
+    color: '#7875F8',
+    fontFamily: 'Exo-Regular',
+    fontSize: 13,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 12
   },
   emptyIllustration: {
     width: 350,
     height: 350,
     marginBottom: 12,
     marginLeft: -50,
-    marginTop: 15,
+  },
+  emptyText: {
+    fontFamily: 'Exo-Bold',
+    fontSize: 16,
+    color: '#181718',
+    textAlign: 'center',
+    marginBottom: 40,
   },
   addButtonEmpty: {
     backgroundColor: '#7875F8',
-    borderRadius: 12,
+    borderRadius: 8,
     width: 190,
     height: 44,
     justifyContent: 'center',
@@ -257,41 +362,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 8,
   },
-  actions: {
-    flexDirection: 'row',
+  buttonContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    zIndex: 900,
+    elevation: 8,
+    shadowColor: '#000',
   },
-  btnInfo: {
+  addButtonFixed: {
     backgroundColor: '#7875F8',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginRight: 8,
-  },
-  btnInfoText: {
-    color: '#FFFFFF',
-    fontFamily: 'Exo-Regular',
-    fontSize: 14,
-  },
-  btnDelete: {
-    borderWidth: 1,
-    borderColor: '#7875F8',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  btnDeleteText: {
-    color: '#7875F8',
-    fontFamily: 'Exo-Regular',
-    fontSize: 14,
-  },
-  addButton: {
-    backgroundColor: '#7875F8',
+    borderRadius: 8,
+    width: 190,
     height: 44,
-    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 16,
+    alignSelf: 'center',
+    marginTop: 8,
   },
+
   addButtonText: {
     color: '#FFFFFF',
     fontFamily: 'Exo-SemiBold',
@@ -312,15 +404,16 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontFamily: 'Exo-Bold',
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 8,
     textAlign: 'center',
   },
   modalText: {
     fontFamily: 'Exo-Regular',
     fontSize: 14,
-    marginBottom: 24,
+    marginBottom: 14,
     textAlign: 'center',
+    color: '#8C8C8C',
   },
   modalActions: {
     flexDirection: 'row',
@@ -328,15 +421,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   modalBtnCancel: {
-    backgroundColor: '#E0D7FF',
+    backgroundColor: '#FFAB00',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
     marginRight: 8,
   },
   modalBtnCancelText: {
-    color: '#7875F8',
-    fontFamily: 'Exo-Regular',
+    color: '#FEFEFF',
+    fontFamily: 'Exo-SemiBold',
     fontSize: 14,
   },
   modalBtnAccept: {
@@ -346,8 +439,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   modalBtnAcceptText: {
-    color: '#FFFFFF',
-    fontFamily: 'Exo-Regular',
+    color: '#FEFEFF',
+    fontFamily: 'Exo-SemiBold',
     fontSize: 14,
   },
 });

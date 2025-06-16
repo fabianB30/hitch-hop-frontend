@@ -43,7 +43,7 @@ export default function InformacionVehiculo() {
               source={require('@/assets/images/hitchhop-logo.png')}
               style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginLeft: -25, marginTop: -24 }}
             />
-      <TouchableOpacity onPress={() => router.push('/vehiculos')}>
+      <TouchableOpacity onPress={() => router.push('/vehiculos/vehiculosIndex')}>
         <Image
           source={require('@/assets/images/flechaback.png')}
           style={{ width: 32, height: 32, marginBottom: 16 }}

@@ -5,19 +5,15 @@ import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome } from '@expo/vector-icons';
-
 import { registerVehicleRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 import { addCarsRequest } from '@/interconnection/user';
 
-import { registerVehicleRequest } from '@/interconnection/vehicle';
-import { useAuth } from '../Context/auth-context';
-import { addCarsRequest } from '@/interconnection/user';
 
 export default function AgregarVehiculo() {
   const router = useRouter();
   const { user, setUser } = useAuth();
-  
+
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [marca, setMarca] = useState('');
@@ -41,7 +37,7 @@ export default function AgregarVehiculo() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
     });
     if (!result.canceled && result.assets.length > 0) {
@@ -50,14 +46,14 @@ export default function AgregarVehiculo() {
   };
 
   const handleAgregar = async () => {
-      const vehicleData = { 
-        model: modelo, 
-        brand: marca, 
-        color: color, 
-        plate: placa,
-        year: anio,
-        userId: user._id
-      };
+    const vehicleData = {
+      model: modelo,
+      brand: marca,
+      color: color,
+      plate: placa,
+      year: anio,
+      userId: user._id
+    };
     try {
       const vehicle = await registerVehicleRequest(vehicleData);
       //console.log('Vehículo registrado:', vehicle);
@@ -72,7 +68,7 @@ export default function AgregarVehiculo() {
       console.error('Error al registrar el vehículo:', error);
     }
 
-    router.push('/vehiculos')
+    router.push('/vehiculos/vehiculosIndex')
   };
 
   return (
@@ -94,7 +90,7 @@ export default function AgregarVehiculo() {
       {/* Formulario */}
       <View style={styles.formContainer}>
         <View style={styles.formHeader}>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/GestionPerfilConductor")}>
+          <TouchableOpacity onPress={() => router.push("/vehiculos/vehiculosIndex")}>
             <Image source={require('@/assets/images/flechaback.png')} style={{ width: 32, height: 32 }} />
           </TouchableOpacity>
           <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
@@ -236,8 +232,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   photoPlaceholderRect: {
-    width: 200,
-    height: 120,
+    width: 180,
+    height: 180,
     borderRadius: 12,
     backgroundColor: '#EAEAEA',
     justifyContent: 'center',
@@ -246,8 +242,8 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
   },
   photoRect: {
-    width: 200,
-    height: 120,
+    width: 180,
+    height: 180,
     borderRadius: 12,
   },
   editIcon: {

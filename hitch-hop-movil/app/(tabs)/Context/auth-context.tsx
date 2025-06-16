@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, {createContext, useState, useContext, useEffect, ReactNode} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerRequest, loginRequest, User } from "../../../interconnection/user";
 
@@ -18,7 +12,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   errors: string[];
 }
-
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
