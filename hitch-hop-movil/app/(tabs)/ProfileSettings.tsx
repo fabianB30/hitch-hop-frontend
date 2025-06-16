@@ -82,7 +82,16 @@ export default function ProfileSettings() {
   if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
   if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
   if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
-  if (!/^\d{9}$/.test(String(data.identificationNumber))) errors.identificationNumber = "El número de ID debe tener 9 dígitos.";
+
+  // Identification number validation based on type
+  if (data.identificationTypeId === "Cédula" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+    errors.identificationNumber = "La cédula debe tener 9 dígitos.";
+  } else if (data.identificationTypeId === "DIMEX" && !/^\d{12}$/.test(String(data.identificationNumber))) {
+    errors.identificationNumber = "El DIMEX debe tener 12 dígitos.";
+  } else if (data.identificationTypeId === "Pasaporte" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+    errors.identificationNumber = "El pasaporte debe tener 9 dígitos.";
+  }
+
   if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
   if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
     errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
@@ -131,26 +140,35 @@ export default function ProfileSettings() {
     setUserData({ ...userData, [key]: value });
   };
 
+
   const handleEditPhoto = async () => {
-  // Pide permisos si es necesario
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== 'granted') {
-    alert('Se requieren permisos para acceder a tus photoKeys.');
-    return;
-  }
+    // Request permissions if necessary
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se requieren permisos para acceder a tus fotos.');
+      return;
+    }
 
-  // Abre la galería
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
-    quality: 0.7,
-  });
+    // Open the gallery and request base64
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      base64: true, // <-- This is important!
+    });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    setUserData({ ...userData, photoKey: result.assets[0].uri });
-  }
-};
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        setUserData({
+          ...userData,
+          photoUrl: `data:image/jpeg;base64,${asset.base64}`,
+        });
+      }
+    }
+  };
+
  // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
@@ -226,7 +244,15 @@ export default function ProfileSettings() {
         {/* Botón de regresar arriba*/}
         <TouchableOpacity
           style={styles.backBtnAbsolute}
-          onPress={() => router.back()}
+          onPress={() =>{
+              if (user?.role === "Conductor") {
+                router.replace("/GestionPerfilConductor");
+              } else if (user?.role === "Pasajero") {
+                router.replace("/GestionPerfilPasajero");
+              } else {
+                router.back();
+              }
+            }}
         >
           <ChevronLeft color="black" size={35} />
         </TouchableOpacity>
@@ -235,9 +261,9 @@ export default function ProfileSettings() {
           <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
             <Image
               source={
-                userData.photoKey
-                  ? { uri: userData.photoKey }
-                  : require("@/assets/images/iconPrimary.png")
+                userData.photoUrl
+                  ? { uri: userData.photoUrl }
+                  : require('@/assets/images/iconPrimary.png') // fallback image
               }
               style={styles.avatar}
             />
