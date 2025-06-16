@@ -12,29 +12,6 @@ import { getAllUsersRequest } from "@/interconnection/user";
 import { getVehicleByIdRequest } from "@/interconnection/vehicle";
 import { updateUserRequest } from "@/interconnection/user";
 
-//Esquema real de la base de datos, se los dejo como referencia
-// /export type User = {
-// name: string;
-// username: string;
-// email: string;
-// password: string;
-// institutionId: string;
-// identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-// identificationNumber?: number;
-// birthDate: string;
-// genre?: "Masculino" | "Femenino" | "Otro";
-// photoKey?: string;
-// photoUrl?: string;
-// type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-// role: "Conductor" | "Pasajero";
-// vehicles: string[]; // array id
-// notifications: {
-// title: string;
-// subtitle: string;
-// timestamp?: string;
-// }[];
-// };/
-
 const UsersManagement: React.FC = () => {
   const [searchUsername, setSearchUsername] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
@@ -67,8 +44,8 @@ const UsersManagement: React.FC = () => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
       if (data) {
-        const mapped = data.map((user: any) => ({
-          id: 1,
+        const mapped = data.map((user: any,  idx: number) => ({
+          id: idx + 1, // Asignar un ID único basado en el índice
           username: user.username,
           email: user.email,
           type: user.type,
@@ -87,8 +64,8 @@ const UsersManagement: React.FC = () => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
       if (data) {
-        const mapped = data.map((user: any) => ({
-          id: 1,
+        const mapped = data.map((user: any,  idx: number) => ({
+          id: idx + 1, // Asignar un ID único basado en el índice
           username: user.username,
           email: user.email,
           type: user.type,
