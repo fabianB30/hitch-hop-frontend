@@ -10,6 +10,10 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useAuth } from '@/Context/auth-context';
+import { getParameterByNameRequest } from '@/interconnection/paremeter';
+import { getAllInstitutionsRequest } from '@/interconnection/institution';
+
 //import { format } from "date-fns";
 
 const initialUser = {
@@ -28,10 +32,6 @@ const initialUser = {
   foto: Imagen1,
 };
 
-const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
-const generos = ["Masculino", "Femenino", "Otro"];
-const tiposUsuario = ["Administrador", "Usuario"];
-
 const ProfileSettings: React.FC = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [editable, setEditable] = useState(false);
@@ -48,9 +48,58 @@ const ProfileSettings: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSavedDialog, setShowSavedDialog] = useState(false);
-  const [instituciones, setInstituciones] = useState<string[]>([
-    "Tecnológico de Costa Rica"
-  ]);
+  const [tiposId, setTiposId] = useState<string[]>([]);
+  const [generos, setGeneros] = useState<string[]>([]);
+  const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
+  const [instituciones, setInstituciones] = useState<string[]>([]);
+  const { user } = useAuth(); 
+  const userMapped = user
+    ? {
+        nombre: user.name || "",
+        primerApellido: user.firstSurname || "",
+        segundoApellido: user.secondSurname || "",
+        correo: user.email || "",
+        institucion: user.institutionName || "",
+        tipoId: user.identificationTypeId || "",
+        numeroId: user.identificationNumber ? String(user.identificationNumber) : "",
+        fechaNacimiento: user.birthDate || "",
+        telefono: user.phone ? String(user.phone) : "",
+        genero: user.genre || "",
+        username: user.username || "",
+        tipoUsuario: user.type || "",
+        foto: user.photoKey || Imagen1,
+      }
+    : initialUser;
+
+  // Sincroniza userData cuando el usuario real cambie
+  useEffect(() => {
+    if (user) {
+      setUserData(userMapped);
+      setBackupData(userMapped);
+    }
+    
+  }, [user]);
+
+  // Cargar opciones desde la base de datos al montar el componente
+  useEffect(() => {
+    async function fetchOptions() {
+      try {
+        const paramId = await getParameterByNameRequest("Tipo de identificación");
+        const paramGenero = await getParameterByNameRequest("Géneros");
+        const paramTipoUsuario = await getParameterByNameRequest("Tipo de Usuario");
+        const resInstitutions = await getAllInstitutionsRequest();
+
+        if (paramId) setTiposId(paramId.parameterList);
+        if (paramGenero) setGeneros(paramGenero.parameterList);
+        if (paramTipoUsuario) setTiposUsuario(paramTipoUsuario.parameterList);
+        if (resInstitutions) setInstituciones(resInstitutions.map((inst: any) => inst.nombre));
+      } catch (error) {
+        console.error("Error al obtener opciones:", error);
+      }
+    }
+    fetchOptions();
+  }, []);
+  
 
   useEffect(() => {
     const validationErrors = validateUserData(userData);
@@ -77,7 +126,6 @@ const ProfileSettings: React.FC = () => {
     if (!data.primerApellido.trim()) newErrors.primerApellido = "El primer apellido es obligatorio.";
     if (!data.segundoApellido.trim()) newErrors.segundoApellido = "El segundo apellido es obligatorio.";
     if (!data.correo.trim()) newErrors.correo = "El correo es obligatorio.";
-    if (!data.institucion.trim()) newErrors.institucion = "La institución es obligatoria.";
     if (!data.tipoId.trim()) newErrors.tipoId = "El tipo de ID es obligatorio.";
     if (!data.numeroId.trim()) newErrors.numeroId = "El número de ID es obligatorio.";
     if (!data.fechaNacimiento.trim()) newErrors.fechaNacimiento = "La fecha de nacimiento es obligatoria.";
@@ -420,7 +468,9 @@ function ProfileInput({ label, value, onChange, editable = false, as, options, t
       ) : (
         <Input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} disabled={!editable} className={error ? "border-red-500" : ""} />
       )}
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {editable && error && (
+        <span className="text-red-500 text-xs">{error}</span>
+      )}
     </div>
   );
 }

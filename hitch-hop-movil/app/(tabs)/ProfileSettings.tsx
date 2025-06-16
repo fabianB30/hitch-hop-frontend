@@ -269,11 +269,11 @@ const handleChangePassword = async () => {
         )}
 
       <View style={styles.formSection}>
-        <ProfileInput label="name de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="name" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
+        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
+        <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
         <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
         <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />
-        <ProfileInput label="email institucional" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
+        <ProfileInput label="Correo" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
         <ProfileInput label="Teléfono" value={String(userData.phone)} editable={editable} onChange={v => handleChange("phone", Number(v))} error={fieldErrors.phone} />
         <ProfileInput label="Tipo de ID" value={userData.identificationTypeId} editable={editable} onChange={v => handleChange("identificationTypeId", v)} options={tiposId} />
         <ProfileInput label="Número de ID" value={String(userData.identificationNumber)} editable={editable} onChange={v => handleChange("identificationNumber", Number(v))} error={fieldErrors.identificationNumber} />

@@ -5,7 +5,7 @@ import { Dialog,DialogTrigger,DialogContent,DialogHeader,DialogFooter,DialogTitl
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAllInstitutionsRequest } from "@/interconnection/institution";
 import { getParameterByNameRequest } from '@/interconnection/paremeter';
 import { getAllUsersRequest } from "@/interconnection/user";
@@ -44,6 +44,7 @@ const UsersManagement: React.FC = () => {
   const [instituciones, setInstituciones] = useState([]);
   const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [refreshUsers, setRefreshUsers] = useState(false);
   useEffect(() => {
     async function fetchData() {
       try {
@@ -61,6 +62,26 @@ const UsersManagement: React.FC = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      const data = await getAllUsersRequest();
+      if (data) {
+        const mapped = data.map((user: any) => ({
+          id: 1,
+          username: user.username,
+          email: user.email,
+          type: user.type,
+          date: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "",
+          institution: user.institutionId,
+          vehicle: user.vehicles?.[0] || null,
+          ...user,
+        }));
+        setUsers(mapped);
+      }
+    }
+    fetchUsers();
+  }, [refreshUsers]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -98,7 +119,10 @@ const UsersManagement: React.FC = () => {
     return (
       <UserDetailsView
         user={selectedUser}
-        onBack={() => setSelectedUser(null)}
+        onBack={() => {
+          setSelectedUser(null);
+          setRefreshUsers((prev) => !prev); // <-- Fuerza refresco al volver
+        }}
       />
     );
   }
@@ -201,10 +225,10 @@ const UsersManagement: React.FC = () => {
                     {instituciones.find((i: any) => i._id === user.institutionId)?.nombre || ""}
                   </div>
                   <button
-                    className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-3 py-1 text-xs font-exo font-semibold"
+                    className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-5 py-0.5 text-xs font-exo font-semibold items-center justify-cente"
                     onClick={() => setSelectedUser(user)}
                   >
-                    Ver
+                    <ChevronRight />
                   </button>
                 </div>
               ))}
@@ -263,10 +287,12 @@ const UsersManagement: React.FC = () => {
  };
 
     // Estado de la cuenta y dialog de desactivación
-    const [accountActive, setAccountActive] = useState(user.accountActive ?? true);
+    const isInitiallyActive = user.type === "Administrador" || user.type === "Usuario";
+    const [accountActive, setAccountActive] = useState(isInitiallyActive);
     const [showDialog, setShowDialog] = useState(false);
 
     // Selects
+    const activeTypes = ["Administrador", "Usuario"];
     const institutionOptions = instituciones.map((inst: any) => inst.nombre);
     
     // Actualiza los campos del formulario
@@ -326,20 +352,34 @@ const UsersManagement: React.FC = () => {
     };
     
     // Handler para el switch
-    const handleSwitchClick = () => {
+    const handleSwitchClick = async () => {
       if (accountActive) {
-        // Si está activo, pide confirmación para desactivar
         setShowDialog(true);
       } else {
-        // Si está desactivado, actívalo directamente sin dialog
+        let newType = form.type;
+        if (form.type === "Inactivo - User") newType = "Usuario";
+        if (form.type === "Inactivo - Admin") newType = "Administrador";
+        setForm({ ...form, type: newType });
         setAccountActive(true);
+        // Actualiza en backend
+        await updateUserRequest(user._id, {
+          ...user,
+          type: newType,
+        }); 
       }
    };
 
-    const handleConfirmDeactivate = () => {
+    const handleConfirmDeactivate = async () => {
+      let newType = form.type;
+      if (form.type === "Administrador") newType = "Inactivo - Admin";
+      if (form.type === "Usuario") newType = "Inactivo - User";
+      setForm({ ...form, type: newType });
       setAccountActive(false);
+      await updateUserRequest(user._id, {
+        ...user,
+        type: newType,
+      });
       setShowDialog(false);
-      // logica para back
     };
 
     const handleCancelDeactivate = () => {
@@ -445,16 +485,21 @@ const UsersManagement: React.FC = () => {
               <div>
                 <Label className="text-lg">Institución</Label>
                 {editMode ? (
-                  <select
-                    name="institution"
-                    className="w-full border rounded-lg px-3 py-2"
+                  <Select
                     value={form.institution}
-                    onChange={(e) => handleSelectChange("institution", e.target.value)}
+                    onValueChange={(value) => handleSelectChange("institution", value)}
                   >
-                    {institutionOptions.map((inst) => (
-                      <option key={inst} value={inst}>{inst}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full border rounded-lg px-3 py-2">
+                      <SelectValue placeholder="Selecciona una institución" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {institutionOptions.map((inst) => (
+                        <SelectItem key={inst} value={inst}>
+                          {inst}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <Input disabled value={form.institution} />
                 )}
@@ -495,16 +540,22 @@ const UsersManagement: React.FC = () => {
               <div>
                   <Label className="text-lg">Tipo de Usuario</Label>
                   {editMode ? (
-                    <select
-                      name="type"
-                      className="w-full border rounded-lg px-3 py-2"
+                    <Select
                       value={form.type}
-                      onChange={(e) => handleSelectChange("type", e.target.value)}
+                      onValueChange={(value) => handleSelectChange("type", value)}
+                      disabled={!accountActive}
                     >
-                      {tiposUsuario.map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="w-full border rounded-lg px-3 py-2">
+                        <SelectValue placeholder="Selecciona un tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <Input disabled value={form.type} />
                   )}
@@ -543,7 +594,11 @@ const UsersManagement: React.FC = () => {
             <h2 className="text-[30px] font-bold mb-4">Estado de Cuenta</h2>
             <div className="flex items-center justify-between mb-2">
               <Label className="text-md font-semibold">Estado de Cuenta</Label>
-              <Switch checked={accountActive} onCheckedChange={handleSwitchClick} />
+              <Switch
+                checked={accountActive}
+                onCheckedChange={handleSwitchClick}
+                className={accountActive ? "bg-[yellow]" : "bg-gray-300"}
+              />
             </div>
             <p className="text-sm text-[#525252] mb-1">
               {accountActive
