@@ -38,14 +38,18 @@ const Login: React.FC = () => {
     
     try {
       const user = await signIn({ email: email, password: password});
-      console.log(user);
       // Navegar a la pantalla principal
       if (user) {
-        if (user.type === 'Inactivo - Admin') {
+        if (user.type === 'Inactivo - User' || user.type === 'Inactivo - Admin') {
           setError('Cuenta inactiva. Por favor, contacte a soporte.');
           return;
-        } else if (user.type === 'Inactivo - User') {
-          setError('Cuenta inactiva. Por favor, contacte a soporte.');
+        } 
+
+        if (user == 'contrasena incorrecta') {
+          setError('Contraseña incorrecta. Por favor, inténtelo de nuevo.');
+          return;
+        } else if (user == 'No hay una cuenta asociada al correo') {
+          setError('El correo no se encuentra registrado. Por favor regístrese en la app y inténtelo de nuevo.');
           return;
         }
 
@@ -55,11 +59,7 @@ const Login: React.FC = () => {
           navigate("/download-app");
         }
 
-        if (user == 'contrasena incorrecta') {
-          setError('Contraseña incorrecta. Por favor, inténtelo de nuevo.');
-        } else if (user == 'No hay una cuenta asociada al correo') {
-          setError('El correo no se encuentra registrado. Por favor regístrese en la app y inténtelo de nuevo.');
-        }
+        
       }
     } catch (error) {
       setError('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
