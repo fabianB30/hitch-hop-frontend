@@ -51,8 +51,8 @@ const FiltrosPanel = ({
     if (showGenero && genero !== "all") filtros.genero = genero;
     if (showFecha) {
       filtros.fecha = {
-        desde: fecha?.from?.toLocaleDateString() || "NA",
-        hasta: fecha?.to?.toLocaleDateString() || "NA",
+        desde: fecha?.from?.toLocaleDateString() || null,
+        hasta: fecha?.to?.toLocaleDateString() || null,
       };
     }
     onSubmit(filtros);

@@ -116,3 +116,17 @@ export const getNotificationsByUserRequest = async (id: string): Promise<IJwtRes
     }
 };
 
+export const changePasswordRequest = async (data: {email: string, currentPassword: string, newPassword: string}): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.post(`/backend/user/update-password`, data);
+        const dataPlace = res.data.data;
+        if (dataPlace) {
+            return dataPlace;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        return error.response?.data.msg;
+    }
+};
