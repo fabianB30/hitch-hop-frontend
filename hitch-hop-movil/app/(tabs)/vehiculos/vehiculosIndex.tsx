@@ -15,6 +15,7 @@ export default function VehiculosIndex() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [deleteModal, setDeleteModal] = useState<{ visible: boolean, id?: string, label?: string }>({ visible: false });
   const [showCreated, setShowCreated] = useState(params?.created === 'true');
+  const [infoModal, setInfoModal] = useState<{ visible: boolean; vehiculo: any | null }>({ visible: false, vehiculo: null, });
 
 
   /*   useEffect(() => {
@@ -150,10 +151,7 @@ export default function VehiculosIndex() {
                         <View style={styles.actions}>
                           <TouchableOpacity
                             style={styles.btnInfo}
-                            onPress={() => router.push({
-                              pathname: '/(tabs)/vehiculos/informacionVehiculo',
-                              params: { id: item._id },
-                            })}
+                            onPress={() => setInfoModal({ visible: true, vehiculo: item })}
                           >
                             <Text style={styles.btnInfoText}>Información</Text>
                           </TouchableOpacity>
@@ -174,14 +172,16 @@ export default function VehiculosIndex() {
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.addButtonFixed}
-          onPress={() => router.push('/(tabs)/vehiculos/agregarVehiculo')}
-        >
-          <Text style={styles.addButtonText}>Agregar Vehículo</Text>
-        </TouchableOpacity>
-      </View>
+      {vehicles.length > 0 && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.addButtonFixed}
+            onPress={() => router.push('/(tabs)/vehiculos/agregarVehiculo')}
+          >
+            <Text style={styles.addButtonText}>Agregar Vehículo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Modal eliminar */}
       <Modal transparent visible={deleteModal.visible} animationType="fade">
@@ -207,7 +207,7 @@ export default function VehiculosIndex() {
       <Modal transparent visible={showCreated} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={[styles.modalTitle, { color: '#4CAF50' }]}>✔ Vehículo Agregado</Text>
+            <Text style={[styles.modalTitle, { color: '#4CAF50' }]}>Vehículo Agregado Correctamente</Text>
             <TouchableOpacity style={styles.modalBtnAccept} onPress={() => setShowCreated(false)}>
               <Text style={styles.modalBtnAcceptText}>Continuar</Text>
             </TouchableOpacity>
@@ -215,8 +215,62 @@ export default function VehiculosIndex() {
         </View>
       </Modal>
 
-    </View>
-  );
+      <Modal transparent visible={infoModal.visible} animationType="fade">
+        <View style={styles.modalOverlay}>
+          
+          <View style={styles.modalInfoContainer}>
+            <View style={styles.modalTopStripe} />
+
+            <View style={styles.modalInfoHeader}>
+              <TouchableOpacity onPress={() => setInfoModal({ visible: false, vehiculo: null })}>
+                <Image source={require('@/assets/images/flechaback.png')} style={styles.backIcon} />
+              </TouchableOpacity>
+              <Text style={styles.modalInfoTitle}>Información</Text>
+            </View>
+
+            <View style={styles.modalInfoBody}>
+              <View style={styles.textBlock}>
+                <Text style={styles.infoLabel}>Marca</Text>
+                <Text style={styles.infoValue}>{infoModal.vehiculo?.brand || '—'}</Text>
+
+                <Text style={styles.infoLabel}>Modelo</Text>
+                <Text style={styles.infoValue}>{infoModal.vehiculo?.model || '—'}</Text>
+
+                <Text style={styles.infoLabel}>Placa</Text>
+                <Text style={styles.infoValue}>{infoModal.vehiculo?.plate || '—'}</Text>
+
+                <Text style={styles.infoLabel}>Color</Text>
+                <Text style={styles.infoValue}>{infoModal.vehiculo?.color || '—'}</Text>
+
+                <Text style={styles.infoLabel}>Año</Text>
+                <Text style={styles.infoValue}>{infoModal.vehiculo?.year || '—'}</Text>
+              </View>
+
+              <View style={styles.imageBox}>
+                <View style={styles.purpleBgBox} />
+                <Image source={{ uri: infoModal.vehiculo?.foto }} style={styles.vehicleImage} />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => {
+                setInfoModal({ visible: false, vehiculo: null });
+                router.push({
+                  pathname: "/(tabs)/vehiculos/editarVehiculo",
+                  params: { id: infoModal.vehiculo?._id }
+                });
+              }}
+            >
+              <Text style={styles.editButtonText}>Editar información</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+    </View >
+  )
 }
 
 const styles = StyleSheet.create({
@@ -303,6 +357,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     justifyContent: 'space-between',
   },
+
   name: {
     fontFamily: 'Exo-Bold',
     fontSize: 18,
@@ -371,7 +426,6 @@ const styles = StyleSheet.create({
     padding: 12,
     zIndex: 900,
     elevation: 8,
-    shadowColor: '#000',
   },
   addButtonFixed: {
     backgroundColor: '#7875F8',
@@ -443,4 +497,158 @@ const styles = StyleSheet.create({
     fontFamily: 'Exo-SemiBold',
     fontSize: 14,
   },
+  infoModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    padding: 24,
+    width: '85%',
+    alignItems: 'center',
+  },
+  infoModalContent: {
+    width: '90%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    padding: 20,
+    alignItems: 'center',
+  },
+  infoModalImage: {
+    width: 160,
+    height: 130,
+    borderRadius: 12,
+    marginBottom: 20,
+    resizeMode: 'cover',
+  },
+
+  modalBtnInfoAccept: {
+    backgroundColor: '#7875F8',
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    marginTop: 16,
+  },
+  modalBtnInfoAcceptText: {
+    color: '#FFFFFF',
+    fontFamily: 'Exo-SemiBold',
+    fontSize: 16,
+  },
+  infoField: {
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  modalTopStripe: {
+    height: 6,
+    width: '100%',
+    backgroundColor: '#7875F8',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    marginBottom: 12,
+  },
+
+  closeInfoBtn: {
+    marginTop: 20,
+    backgroundColor: '#7875F8',
+    borderRadius: 12,
+    paddingHorizontal: 32,
+    paddingVertical: 10,
+  },
+
+  closeInfoBtnText: {
+    color: '#FFFFFF',
+    fontFamily: 'Exo-SemiBold',
+    fontSize: 16,
+  },
+  modalInfoContainer: {
+    width: '90%',
+    backgroundColor: '#F3F2FF',
+    borderRadius: 30,
+    padding: 24,
+  },
+
+  modalInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    position: 'relative',
+  },
+
+
+  backIcon: {
+    width: 28,
+    height: 28,
+    position: 'absolute',
+    left: 0,
+  },
+
+  modalInfoTitle: {
+    fontSize: 24,
+    fontFamily: 'Exo-Bold',
+    color: '#181718',
+  },
+
+  modalInfoBody: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  textBlock: {
+    flex: 1,
+  },
+
+  infoLabel: {
+    fontFamily: 'Exo-Regular',
+    fontSize: 12,
+    color: '#6B6B6B',
+    marginTop: 10,
+  },
+
+  infoValue: {
+    fontFamily: 'Exo-SemiBold',
+    fontSize: 18,
+    color: '#181718',
+  },
+
+  imageBox: {
+    width: 140,
+    height: 140,
+    position: 'relative',
+    marginLeft: 16,
+  },
+
+  purpleBgBox: {
+    backgroundColor: '#7875F8',
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    borderRadius: 10,
+  },
+
+  vehicleImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+
+  editButton: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#FFB800',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 24,
+  },
+
+  editButtonText: {
+    color: '#FFF',
+    fontFamily: 'Exo-SemiBold',
+    fontSize: 14,
+  },
+
+
 });
