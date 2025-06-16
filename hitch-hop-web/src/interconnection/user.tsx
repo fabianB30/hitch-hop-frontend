@@ -76,7 +76,7 @@ export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse 
 
 export const updateUserRequest = async (id: string, data : User): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.put(`/backend/user/update`, data, {params: {id}});
+        const res = await axios.put(`/backend/user/update/${id}`, data);
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;
@@ -87,5 +87,36 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
     } catch (error) {
         console.error('http request error: ', error);
         return null;
+    }
+};
+
+export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.put(`/backend/users"`);
+        const dataUsers = res.data.data;
+        if (dataUsers) {
+            return dataUsers;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
+export const changePasswordRequest = async (data: {email: string, currentPassword: string, newPassword: string}): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.post(`/backend/user/update-password`, data);
+        const dataPlace = res.data.data;
+        if (dataPlace) {
+            return dataPlace;
+        } else {
+            console.error('Invalid response structure:', res);
+            return null;
+        }
+    } catch (error) {
+        return error.response?.data.msg;
     }
 };
