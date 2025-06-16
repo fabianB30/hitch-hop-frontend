@@ -49,6 +49,15 @@ export default function LoginScreen() {
       const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
       if (user.name) {
+        if (user.type === 'Inactivo - Admin') {
+          setErrorMessage('Cuenta inactiva. Por favor, contacte a soporte.');
+          setShowAlertDialog(true);
+          return;
+        } else if (user.type === 'Inactivo - User') {
+          setErrorMessage('Cuenta inactiva. Por favor, contacte a soporte.');
+          setShowAlertDialog(true);
+          return;
+        }
         if (user.role === 'Pasajero'){
           console.log(user.name);
           router.push('../HomePasajero');

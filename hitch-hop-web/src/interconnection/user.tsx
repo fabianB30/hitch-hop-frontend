@@ -37,8 +37,7 @@ export const registerRequest = async (data : User): Promise<IJwtResponse | null>
             return null;
         }
     } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+        return error.response?.data.msg;
     }
 };
 
@@ -53,8 +52,7 @@ export const loginRequest = async (data: {email, password}): Promise<IJwtRespons
             return null;
         }
     } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+        return error.response?.data.msg;
     }
 };
 
