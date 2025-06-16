@@ -9,7 +9,7 @@ import { useAuth } from '@/Context/auth-context';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  const {signIn, isAuthenticated, errors: loginErrors = []} = useAuth();
+  const {signIn } = useAuth();
   const navigate = useNavigate();
   
   const [showPassword, setShowPassword] = useState(false);
