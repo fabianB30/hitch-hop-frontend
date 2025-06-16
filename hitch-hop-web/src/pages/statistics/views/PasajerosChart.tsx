@@ -1,22 +1,40 @@
 import { useState } from "react";
 import FiltrosPanel from "../components/FiltrosPanel";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-
+import { filteredUserCountByMonthRequest } from "../../../interconnection/statistics"
 
 const PasajerosChart = () => {
   const [filtros, setFiltros] = useState<any>(null);
-
-  const handleFiltros = (filtrosAplicados: any) => {
-    console.log("Filtros Pasajeros:", filtrosAplicados);
-    setFiltros(filtrosAplicados);
-  };
-
-  const data = [
-    { name: "Ene", valor1: 12, valor2: 18 },
-    { name: "Feb", valor1: 17, valor2: 20 },
-    { name: "Mar", valor1: 22, valor2: 26 },
-    { name: "Abr", valor1: 28, valor2: 30 },
+  const [data, setData] = useState<any[]>([]);
+  const meses = [
+    "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), 0, 1);
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const handleFiltros = async (filtrosAplicados: any) => {
+    setFiltros(filtrosAplicados);
+    const payload = {
+      startDate: filtrosAplicados.fecha.desde ? filtrosAplicados.fecha.desde : startDate,
+      endDate: filtrosAplicados.fecha.hasta ? filtrosAplicados.fecha.hasta : endDate,
+      institutionId: filtrosAplicados.institucion ? filtrosAplicados.institucion : "all",
+      genres: filtrosAplicados.genero ? [filtrosAplicados.genero] : ["all"],
+      role: "Pasajero"
+    }
+    try {
+      const res = await filteredUserCountByMonthRequest(payload);
+      if (Array.isArray(res)) {
+        const formattedData = res.map((item: any) => ({
+          name: `${meses[item.month]} ${item.year}`,
+          cantidad: item.count,
+        }));
+        setData(formattedData);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    }
+  };
 
   return (
     <div className="flex gap-6">
@@ -29,8 +47,7 @@ const PasajerosChart = () => {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="valor1" stackId="a" fill="#7875F8" />
-            <Bar dataKey="valor2" stackId="a" fill="#FFBA2A" />
+            <Bar dataKey="cantidad" stackId="a" fill="#7875F8" />
           </BarChart>
         </ResponsiveContainer>
       </div>

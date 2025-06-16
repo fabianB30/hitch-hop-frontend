@@ -17,9 +17,9 @@ export const userStatisticsRequest = async (): Promise<IJwtResponse | null> => {
 	}
 }
 
-export const filteredUserCountByMonthRequest = async (institutionId: string, startDate: string, endDate: string, genres: [string], role: string): Promise<IJwtResponse | null> => {
+export const filteredUserCountByMonthRequest = async (data: {institutionId: string, startDate: string, endDate: string, genres: [string], role: string}): Promise<IJwtResponse | null> => {
 	try {
-		const res = await axios.post(`/backend/statistics/users/by-month`);
+		const res = await axios.post(`/backend/statistics/users/by-month`, data);
 		const statistics = res.data.data;
 		if (statistics) {
 			return statistics;
@@ -100,6 +100,22 @@ export const statisticsTripPassengerApprovalStatsRequest = async (): Promise<IJw
 export const statisticsTripsByHourRangeRequest = async (): Promise<IJwtResponse | null> => {
 	try {
 		const res = await axios.get(`/backend/statistics/trips/hour-range`);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}
+
+export const filteredTripCountByMonthRequest = async (data: {institutionId: string, startDate: string, endDate: string, hourStart: string, hourEnd: string}): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.post(`/backend/statistics/trips/by-month`, data);
 		const statistics = res.data.data;
 		if (statistics) {
 			return statistics;

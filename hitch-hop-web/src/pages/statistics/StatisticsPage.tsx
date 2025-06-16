@@ -38,23 +38,22 @@ const StatisticsPage = () => {
           setResumen([
             {
               titulo: "Total de Conductores",
-              valor: stats.totalDrivers,
-              cambio: "+12%",
+              valor: stats.totalDrivers.value,
+              cambio: `+${stats.totalDrivers.growth}%`,
             },
             {
               titulo: "Total de Pasajeros",
-              valor: stats.totalPassengers,
-              cambio: "+12%",
+              valor: stats.totalPassengers.value,
+              cambio: `+${stats.totalPassengers.growth}%`,
             },
             {
               titulo: "Usuarios Activos",
-              valor: stats.totalActiveUsers,
-              cambio: "+12%",
+              valor: stats.totalActiveUsers.value,
+              cambio: `+${stats.totalActiveUsers.growth}%`,
             },
             {
               titulo: "Edad Promedio",
               valor: stats.averageAge ?? "N/A",
-              cambio: "+12%",
             }
           ]);
         }
