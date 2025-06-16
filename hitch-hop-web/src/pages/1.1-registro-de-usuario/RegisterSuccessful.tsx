@@ -11,7 +11,7 @@ export default function RegisterSuccessful() {
     <div className="min-h-screen w-full flex">
 
         {/* Imagen de la derecha */}
-        <div className="hidden lg:block absolute top-0 right-0 w-1/2 xl:w-[60%] 2xl:w-[60%] h-full overflow-hidden bg-amber-700">
+        <div className="hidden lg:block absolute top-0 right-0 w-1/2 xl:w-[60%] 2xl:w-[60%] h-full overflow-hidde">
           <img
             src={registroExitoso}
             alt="Background Right"
