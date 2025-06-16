@@ -35,7 +35,7 @@ export const getAllPlacesRequest = async (): Promise<IJwtResponse | null> => {
 
 export const getPlaceByIdRequest = async (id): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.get(`/backend/place/get/${id}`);
+        const res = await axios.get(`/backend/place/get/${id}`, {params: {id}});
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;
@@ -52,7 +52,7 @@ export const getPlaceByIdRequest = async (id): Promise<IJwtResponse | null> => {
 export const updatePlaceRequest = async (id: string, data : { 
     name, description, longitude, latitude }): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.put(`/backend/place/update/${id}`, data);
+        const res = await axios.put(`/backend/place/update/${id}`, data, {params: {id}});
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;
@@ -68,7 +68,7 @@ export const updatePlaceRequest = async (id: string, data : {
 
 export const deletePlaceRequest = async (id): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.delete(`/backend/place/delete/${id}`);
+        const res = await axios.delete(`/backend/place/delete/${id}`, {params: {id}});
         const dataPlace = res.data.data;
         if (dataPlace) {
             return dataPlace;

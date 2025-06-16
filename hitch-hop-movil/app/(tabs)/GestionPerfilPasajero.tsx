@@ -50,7 +50,7 @@ export default function GestionPerfil(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <Text style={styles.buttonTextHitch}>Información personal</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/home")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>

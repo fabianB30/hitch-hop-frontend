@@ -1,11 +1,5 @@
 import axios from './axios';
 
-export interface IJwtResponse {
-  token: string;
-  user: User;
-  refreshToken?: string;
-}
-
 export type User = {
   name: string;
   firstSurname: string;
@@ -23,7 +17,7 @@ export type User = {
   phone?: number;
   type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
   role: "Conductor" | "Pasajero";
-  vehicles: string[];
+  vehicles: string[]; // array id
   notifications: {
     title: string;
     subtitle: string;
@@ -34,41 +28,37 @@ export type User = {
 
 export const registerRequest = async (data : User): Promise<IJwtResponse | null> => {
     try {
-        console.log('Enviando datos de registro:', data);
-        console.log('URL completa:', axios.defaults.baseURL + '/backend/user/register');
-        
         const res = await axios.post(`/backend/user/register`, data);
-        
         const dataUser = res.data.data;
         if (dataUser) {
             return dataUser;
         } else {
-            return res.data.msg;
+            console.error('Invalid response structure:', res);
+            return null;
         }
-    } catch (error: any) {
-        return error.response?.data.msg;
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
     }
 };
 
-export const loginRequest = async (data: { email: string; password: string }): Promise<IJwtResponse | null> => {
+export const loginRequest = async (data: {email, password}): Promise<IJwtResponse | null> => {
     try {
-        console.log('Enviando request al backend:', { email: data.email, password: '***' });
-        console.log('URL completa:', axios.defaults.baseURL + '/backend/user/login');
-        
         const res = await axios.post(`/backend/user/login`, data);
-        const user = res.data.data;
-        if (user) {
-            return user;
+        const dataUser = res.data.data;
+        if (dataUser) {
+            return dataUser;
         } else {
-            return res.data.msg;
+            console.error('Invalid response structure:', res);
+            return null;
         }
-        
-    } catch (error: any) {
-        return error.response?.data.msg;
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
     }
 };
 
-export const addCarsRequest = async (data: { cars: any[]; email: string }): Promise<IJwtResponse | null> => {
+export const addCarsRequest = async (data: {cars, email}): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/addCars`, data);
         const dataUser = res.data.data;
@@ -100,12 +90,12 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
     }
 };
 
-export const getNotificationsByUserRequest = async (id: string): Promise<IJwtResponse | null> => {
+export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
     try {
-        const res = await axios.get(`/backend/user/get-notifications/${id}`);
-        const notifications = res.data.data;
-        if (notifications) {
-            return notifications;
+        const res = await axios.put(`/backend/users"`);
+        const dataUsers = res.data.data;
+        if (dataUsers) {
+            return dataUsers;
         } else {
             console.error('Invalid response structure:', res);
             return null;
