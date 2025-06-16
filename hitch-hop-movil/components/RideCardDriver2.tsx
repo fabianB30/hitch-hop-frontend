@@ -85,7 +85,7 @@ export function RideCardDriver2({
 
       <HStack
         style={{
-          alignItems: "stretch",
+          alignItems: "center", 
           justifyContent: "space-between",
           marginBottom: 10,
           width: "100%",
@@ -95,14 +95,20 @@ export function RideCardDriver2({
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50, 
           }}
         >
-          <Text style={[styles.mediumFont, {fontSize: 16}]}>{date}</Text>
-          <Text style={[styles.mediumFont, {fontSize: 24}]}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 16, lineHeight: 20}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50,
           }}
         >
           <Box
@@ -120,7 +126,7 @@ export function RideCardDriver2({
               Solicitudes pendientes: {users.length}
             </Text>
           </Box>
-          <Text style={[styles.mediumFont, {fontSize: 24}]}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -215,14 +221,12 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
-    wordWrap: 'break-word'
   },
   regularFont: {
-    fontFamily: 'exo.medium',
+    fontFamily: 'Exo-Regular',
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
-    wordWrap: 'break-word'
   },
   mediumFont2: {
     fontFamily: 'exo.medium',
