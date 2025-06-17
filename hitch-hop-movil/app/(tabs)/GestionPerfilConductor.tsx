@@ -1,5 +1,5 @@
 import { Box } from "@/components/ui/box";
-import { Image } from "react-native";
+import { Image, TouchableOpacity } from "react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
@@ -8,7 +8,7 @@ import { StyleSheet } from 'react-native';
 import { ChevronLeft } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
 import { useRouter } from "expo-router";
-
+import { useAuth } from './Context/auth-context';
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -20,6 +20,7 @@ const headerHeight = windowHeight * 0.15;
 
 
 export default function GestionPerfilConductor(){
+  const { logout } = useAuth();
   const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -50,18 +51,18 @@ export default function GestionPerfilConductor(){
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
           <Box style={styles.boxHitch}>
             <VStack style={{gap: 15, alignItems: "center", marginTop: 40}}>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
-                <ButtonText style={styles.buttonTextHitch}>Información personal</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/home")}>
-                <ButtonText style={styles.buttonTextHitch}>Historial de actividad</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
-                <ButtonText style={styles.buttonTextHitch}>Vehículos</ButtonText>
-              </Button>
-              <Button style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
-                <ButtonText style={styles.buttonTextHitch}>Cerrar sesión</ButtonText>
-              </Button>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
+                <Text style={styles.buttonTextHitch}>Información personal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
+                <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
+                <Text style={styles.buttonTextHitch}>Vehículos</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => {logout(); router.push("/VentanaInicial");}}>
+                <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
+              </TouchableOpacity>
             </VStack>
           </Box>
         </Box>
@@ -73,15 +74,17 @@ export default function GestionPerfilConductor(){
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,
-    height: 60,
+    height: 55,
     backgroundColor: "#716EFF",
     borderRadius: 8,
-    
+    alignItems: "center",
+    justifyContent: "center"
   },
   buttonTextHitch: {
     fontFamily: "Exo_600SemiBold",
     fontSize: 16,
-    textAlign: "center"
+    textAlign: "center",
+    color: "white"
   },
   boxHitch: {
     backgroundColor: "#A49DFF",
