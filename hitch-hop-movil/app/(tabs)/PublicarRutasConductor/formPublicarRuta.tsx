@@ -5,11 +5,12 @@ import { useRouter } from "expo-router";
 
 // Input Fields Components
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, } from "react-native";
-import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
+// Removed unused imports from @/components/ui/input
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";
 import DateTimeModal from '@/components/SelectDateTimeModal';
+import SelectPaymentModal from '@/components/SelectPaymentModal';
 import { LucideCalendar } from "lucide-react-native";
 
 
@@ -18,7 +19,7 @@ const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
 const flechaBack = require("@/assets/images/flechaback.png");
 const logoHeader = require("@/assets/images/HHLogoDisplay.png");
 
-const tiposPago = [ "Efectivo", "SINPE Movil", "Gratuito" ];
+// Payment method options - now handled by SelectPaymentModal
 
 interface Vehiculo {
   nombre: string;
@@ -39,9 +40,12 @@ export default function FormPublicarRuta() {
   const [asientosDisponibles, setAsientosDisponibles] = useState("");
   const [vehiculo, setVehiculo] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
-  
-  // New state for the modal
+    // Modal visibility states
   const [dateTimeModalVisible, setDateTimeModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  
+  // Cost state
+  const [costoPasajero, setCostoPasajero] = useState("");
   
   useEffect(() => {
     const fetchUserVehicles = async () => {
@@ -63,7 +67,6 @@ export default function FormPublicarRuta() {
 
     fetchUserVehicles();
   }, []);
-
   const handlePublicarRuta = () => {
     // Aquí iría la lógica para publicar la ruta
     console.log("Ruta publicada:", {
@@ -75,13 +78,24 @@ export default function FormPublicarRuta() {
       asientosDisponibles,
       vehiculo,
       metodoPago,
+      costoPasajero
     });
   };
-
-  // Function to handle the selection
+  // Function to handle the date/time selection
   const handleDateTimeConfirm = (selectedDate: Date, selectedTime: Date) => {
     setFecha(selectedDate);
     setHora(selectedTime);
+  };
+  
+  // Function to handle payment method selection
+  const handlePaymentConfirm = (paymentMethods: string[], cost: string) => {
+    setMetodoPago(paymentMethods.join(", "));
+    setCostoPasajero(cost);
+    
+    // If Gratuito is selected, set cost to 0
+    if (paymentMethods.includes("Gratuito")) {
+      setCostoPasajero("0");
+    }
   };
   
   return (
@@ -105,25 +119,15 @@ export default function FormPublicarRuta() {
             resizeMode="contain"
           />
         </TouchableOpacity>
-      </View>
-
-      <View
+      </View>      <View
         style={styles.formContainer}
-        onStartShouldSetResponder={() => true}
-        onResponderRelease={() => {
-          // Dismiss keyboard when tapping outside of input fields
-          const input = TextInput.State.currentlyFocusedInput();
-          if (input) {
-            TextInput.State.blurTextInput(input);
-          }
-        }}
-      >
-        <ScrollView
+      >        <ScrollView
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
-          {/*Contenido del formulario*/}
-          <View style={{padding: 18}}></View>
+          {/* Contenido del formulario */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Punto de Inicio</Text>
             <TextInput
@@ -133,6 +137,8 @@ export default function FormPublicarRuta() {
               style={styles.textInput}
             />
           </View>
+          {/* Divider */}
+          <View style={styles.divider} />
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Puntos de Parada</Text>
             <TextInput
@@ -142,6 +148,8 @@ export default function FormPublicarRuta() {
               style={styles.textInput}
             />
           </View>
+          {/* Divider */}
+          <View style={styles.divider} />
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Punto Final</Text>
             <TextInput
@@ -151,6 +159,8 @@ export default function FormPublicarRuta() {
               style={styles.textInput}
             />
           </View>
+          {/* Divider */}
+          <View style={styles.divider} />
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Vehículo a Usar</Text>
             {userVehicles.length > 0 ? (
@@ -169,6 +179,8 @@ export default function FormPublicarRuta() {
               </TouchableOpacity>
             )}
           </View>
+          {/* Divider */}
+          <View style={styles.divider} />
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Cantidad de Pasajeros</Text>
             <TextInput
@@ -179,19 +191,22 @@ export default function FormPublicarRuta() {
               style={styles.textInput}
             />
           </View>
-          <View style={styles.inputGroup}>
+          {/* Divider */}
+          <View style={styles.divider} />          <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Método de Pago</Text>
-            <Select
-              options={[
-                "Efectivo",
-                "Tarjeta de Crédito",
-                "Transferencia Bancaria",
-              ]}
-              selectedValue={metodoPago}
-              onValueChange={setMetodoPago}
-              placeholder="Seleccione un método de pago"
-            />
+            <TouchableOpacity 
+              style={styles.dateTimeSelector}
+              onPress={() => setPaymentModalVisible(true)}
+            >
+              <View style={styles.dateTimeSelectorInner}>                <Text style={[styles.dateTimeText, !metodoPago && styles.placeholderText]}>
+                  {metodoPago || "Seleccione un método de pago"}
+                  {costoPasajero && metodoPago && !metodoPago.includes("Gratuito") ? ` - ₡${costoPasajero}` : ""}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
+          {/* Divider */}
+          <View style={styles.divider} />
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Horario del Viaje</Text>
             <TouchableOpacity 
@@ -208,11 +223,12 @@ export default function FormPublicarRuta() {
                 />
               </View>
             </TouchableOpacity>
-            
+              </View>          {/* Button with proper margins */}
+          <View style={styles.buttonContainer}>
+            <Button onPress={handlePublicarRuta} style={styles.button}>
+              <ButtonText style={{ fontWeight: "bold" }}>Registrar Ruta</ButtonText>
+            </Button>
           </View>
-          <Button onPress={handlePublicarRuta} style={styles.button}>
-            <Text style={{ color: "white" }}>Registrar Ruta</Text>
-          </Button>
         </ScrollView>
       </View>
 
@@ -227,21 +243,19 @@ export default function FormPublicarRuta() {
             <ModalBody>
               <Text>Para publicar una ruta, primero debes agregar un vehículo.</Text>
             </ModalBody>
-            <ModalFooter>
-              <Button 
+            <ModalFooter>            <Button 
                 onPress={() => {
                   setShowNoVehicleModal(false);
                   router.push('/(tabs)/vehiculos/agregarVehiculo');
                 }}
-                style={{ backgroundColor: '#5D12D2', width: '100%' }}
+                style={{ backgroundColor: '#7875F8', width: '100%' }}
               >
-                <Text style={{ color: 'white' }}>Agregar vehículo</Text>
+                <ButtonText>Añadir</ButtonText>
               </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
-      )}
-      {/* Modal that appears when clicking on the date/time selector */}
+      )}      {/* Modal that appears when clicking on the date/time selector */}
       <DateTimeModal 
         isVisible={dateTimeModalVisible}
         onClose={() => setDateTimeModalVisible(false)}
@@ -249,26 +263,31 @@ export default function FormPublicarRuta() {
         initialDate={fecha}
         initialTime={hora}
       />
+      
+      {/* Modal that appears when clicking on the payment method selector */}
+      <SelectPaymentModal
+        isVisible={paymentModalVisible}
+        onClose={() => setPaymentModalVisible(false)}
+        onConfirm={handlePaymentConfirm}
+        initialPaymentMethods={metodoPago ? metodoPago.split(", ") : []}
+        initialCost={costoPasajero}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
+const styles = StyleSheet.create({  root: {
     flex: 1,
     backgroundColor: "#fff",
   },
   container: {
-    flex: 1,
     alignItems: "center",
     paddingHorizontal: 45,
+    paddingTop: 10, 
+    paddingBottom: 30, // Added bottom padding to ensure the button is not cut off
     backgroundColor: "#fff",
     borderRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    flexGrow: 1, // Use flexGrow instead of flex to ensure content can expand in scrollview
   },
   formContainer: {
     width: "100%",
@@ -276,31 +295,29 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     backgroundColor: "#fff",
-    marginTop: 100,
+    marginTop: 50,
     flex: 1,
-    elevation: 5,
+    elevation: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  button: {
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    zIndex: 2,
+  },  button: {
     backgroundColor: "#7875F8",
     borderRadius: 8,
     paddingVertical: 0,
     paddingHorizontal: 16,
-    
+    width: '100%',
   },
   textInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
-    width: "100%",
-    marginBottom: 5,
-  },
-  inputGroup: {
-    marginBottom: 15,
+    width: "100%",    marginBottom: 5,
+  },  inputGroup: {
+    marginVertical: 10,
     width: "100%",
   },
   inputLabel: {
@@ -310,16 +327,15 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 12,
-  },
-  backgroundImageContainer: {
+  },  backgroundImageContainer: {
     width: "115%",
-    height: 130,
+    height: 150, // Increased height for better effect
     position: "absolute",
     alignItems: "flex-end",
     justifyContent: "center",
     top: -25,
     left: 0,
-    zIndex: 1,
+    zIndex: 0, // Changed from 1 to 0 to ensure form appears above it
     overflow: "hidden",
   },
   backgroundImage: {
@@ -328,12 +344,11 @@ const styles = StyleSheet.create({
     height: "100%",
     top: 10,
     resizeMode: "cover",
-  },
-  hitchhopText: {
+  },  hitchhopText: {
     position: "absolute",
     right: 75,
-    bottom: 75,
-    zIndex: 1,
+    bottom: 70, // Adjusted to be more visible with the new container position
+    zIndex: 5, // Increased to ensure it's above background but below header buttons
     width: 135,
     height: 25,
   },
@@ -344,7 +359,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingLeft: 16,
     position: "absolute",
-    zIndex: 10,
+    zIndex: 10, // Keep high to ensure it's on top
     top: 0,
   },
   flechaBack: {
@@ -378,9 +393,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  dateTimeText: {
+  },  dateTimeText: {
     fontSize: 16,
     color: '#333',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#DDDCDB',
+    width: '100%',
+    alignSelf: 'center',
+    marginVertical: 8,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
