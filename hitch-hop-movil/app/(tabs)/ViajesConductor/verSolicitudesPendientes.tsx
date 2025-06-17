@@ -9,6 +9,7 @@ import { MoveRight, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useEffect } from "react";
+import { useFonts } from "expo-font";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
@@ -20,6 +21,15 @@ export default function VerSolicitudesPendientes() {
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+  });
+  if (!fontsLoaded) return null;
+
 
   interface Requests {
     id: number;
@@ -31,7 +41,7 @@ export default function VerSolicitudesPendientes() {
   }
 
   const requests: Requests[] = usersList.map((user: any, idx: number) => ({
-    id: idx + 1,
+    id: user.id,
     name: user.name,
     price: user.price,
     location: user.location,
@@ -40,6 +50,7 @@ export default function VerSolicitudesPendientes() {
   }));
 
   useEffect(() => {
+    console.log(requests);
     if (requests.length == 0) {
       router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
@@ -103,9 +114,8 @@ export default function VerSolicitudesPendientes() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-SemiBold',
                   fontSize: 14,
-                  fontStyle: "normal",
                   fontWeight: "600",
                   color: "#171717",
                   textAlign: "right",
@@ -122,7 +132,7 @@ export default function VerSolicitudesPendientes() {
             ? {
                 color: "#EF4444",
                 fontSize: 18,
-                fontFamily: "Exo",
+                fontFamily: 'Exo-SemiBold',
                 fontWeight: "600",
                 textAlign: "left",
                 left: 25,
@@ -164,14 +174,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   title: {
@@ -243,7 +251,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontSize: 14,
     fontStyle: "normal",
     fontWeight: "600",
@@ -254,7 +262,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,

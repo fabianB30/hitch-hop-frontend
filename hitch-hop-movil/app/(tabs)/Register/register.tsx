@@ -5,23 +5,29 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, 
 import { Text } from '@/components/ui/text';
 import { TouchableOpacity } from 'react-native';
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
+import TyCScreen from './components/TyC';
 import RegisterStep1 from './components/RegisterStep1';
 import RegisterStep2 from './components/RegisterStep2';
-import { Avatar } from '@/components/ui/avatar';
+import { useAuth } from '@/app/(tabs)/Context/auth-context';
+
 
 
 export default function RegisterScreen() {
     const router = useRouter();
+    const { signUp } = useAuth(); 
     const [fontsLoaded] = useFonts({
         Exo_400Regular,
         Exo_700Bold,
         Exo_500Medium,
         Exo_600SemiBold,
-    });    const [currentStep, setCurrentStep] = useState(1);
+    });    
+    const [currentStep, setCurrentStep] = useState(1);
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const [firstFormData, setFirstFormData] = useState({
         email: '',
         password: '',
         institution: '',
+        institutionId: '',
         name: '',
         lastName: '',
         secondLastName: '',
@@ -43,31 +49,99 @@ export default function RegisterScreen() {
 
     const handleStep1Next = (data: any) => {
         setFirstFormData(data);
-        setCurrentStep(2);
-    };    const handleStep2Back = (data: any) => {
-        // Guardar los datos del segundo formulario antes de volver
-        setSecondFormData(data);
-        setCurrentStep(1);
+        setCurrentStep(2); // Ir a TyC (paso 2)
     };
 
+    // Cuando acepta términos y condiciones
+    const handleTermsAccept = () => {
+        setTermsAccepted(true);
+        setCurrentStep(3); // Ir a RegisterStep2 (paso 3)
+    };
+
+    // Cuando rechaza términos y condiciones
+    const handleTermsReject = () => {
+        setCurrentStep(1); // Volver a RegisterStep1
+    };
+
+    // Cuando quiere volver desde RegisterStep2 a TyC
+    const handleStep2Back = (data: any) => {
+        setSecondFormData(data); // Guardar datos del paso 2
+        setCurrentStep(2); // Volver a TyC
+    };
+
+   // Cuando termina RegisterStep2
+    const handleStep2Next = async (data: any) => {
+        setSecondFormData(data);
+        
+        // Combinar todos los datos y proceder con el registro
+        const completeData = {
+            ...firstFormData,
+            ...data
+        };
+        
+        // Registrar directamente (ya aceptó términos en paso 2)
+        await handleFinishRegistration(completeData);
+    };
+        
     const handleFinishRegistration = async (completeData: any) => {
-        try {
-            // API de registro
-            
-            console.log('Datos completos de registro:', completeData);
-            
-            // Simular éxito
-            setSuccessMessage('¡Registro exitoso! Bienvenido a HitchHop.');
+        // Verificar que los términos han sido aceptados
+        if (!termsAccepted) {
+            setSuccessMessage('Debe aceptar los términos y condiciones para continuar.');
             setShowAlertDialog(true);
+            return;
+        }
+        
+        try {
+            // Preparar datos para el backend según el tipo User
+            const registrationData = {
+                name: completeData.name,
+                fisrtSurname: completeData.lastName,        // Usar lastName del step 1
+                secondSurname: completeData.secondLastName, // Usar secondLastName del step 1
+                username: completeData.username,
+                email: completeData.email,
+                password: completeData.password,
+                institutionId: completeData.institutionId,
+                identificationTypeId: completeData.identificationType,
+                identificationNumber: parseInt(completeData.identificationNumber) || 0,
+                birthDate: completeData.birthDate,
+                genre: completeData.genre,
+                photoKey: completeData.avatar,
+                photoUrl: "",
+                phone: parseInt(completeData.phone) || 0,
+                type: "Usuario" as const,
+                role: completeData.rol === "Conductor" ? "Conductor" as const : "Pasajero" as const, // Usar 'rol' no 'userType'
+                vehicles: [],
+                notifications: []
+            };
             
-            // Redirigir al login después de un tiempo
-            setTimeout(() => {
-                router.push('/InicioSesion/login');
-            }, 2000);
+            // Llamar a la API de registro
+            const result = await signUp(registrationData);
+            // Verificar si el resultado es un objeto con propiedades de usuario (éxito)
+            if (result && typeof result === 'object' && result.email) {
+                // regidirir a ventana de bienvenida correspondiente
+                if(result.role === 'Conductor') {
+                    router.push('/Bienvenida/C_bienvenida');
+                } else if(result.role === 'Pasajero') {
+                    router.push('/Bienvenida/P_bienvenida');
+                }
+                
+            } else if (result && typeof result === 'string') {
+                // Si el resultado es un string, es un mensaje de error
+                setSuccessMessage(result);
+                setShowAlertDialog(true);
+            } else if (result === null) {
+                // Si es null, mostrar mensaje genérico
+                setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
+                setShowAlertDialog(true);
+            } else {
+                // Fallback para casos inesperados
+                setSuccessMessage('Error inesperado durante el registro.');
+                setShowAlertDialog(true);
+            }
 
         } catch (error) {
             console.error('Registration error:', error);
-            setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
+            setSuccessMessage('Error al registrar usuario. Por favor, verifique su conexión a internet e inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
     };
@@ -96,14 +170,25 @@ export default function RegisterScreen() {
             </AlertDialog>
 
             {currentStep === 1 && (
-                <RegisterStep1 onNext={handleStep1Next} />
-            )}            
+                <RegisterStep1 
+                    initialData={firstFormData}
+                    onNext={handleStep1Next} 
+                />
+            )}           
+            
             {currentStep === 2 && (
+                <TyCScreen 
+                    onAccept={handleTermsAccept}
+                    onReject={handleTermsReject}
+                />
+            )}
+
+            {currentStep === 3 && (
                 <RegisterStep2 
                     firstFormData={firstFormData}
                     secondFormData={secondFormData}
                     onBack={handleStep2Back}
-                    onFinish={handleFinishRegistration}
+                    onFinish={handleStep2Next}
                 />
             )}
         </View>

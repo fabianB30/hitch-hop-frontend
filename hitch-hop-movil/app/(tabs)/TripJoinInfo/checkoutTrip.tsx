@@ -16,19 +16,23 @@ import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, Moda
 
 const {width, height} = Dimensions.get("window")
 
-const checkoutViaje = () => {
+const checkoutTrip = () => {
     const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
     const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
     
     const router = useRouter()
 
-    const { rideInfo } = useLocalSearchParams()
-    const { additionalInfo } = useLocalSearchParams()
-    const { selectedStop } = useLocalSearchParams()
-    let parsedData
-    let additionalParsed
-    let parsedStop
+    const params = useLocalSearchParams()
 
+    const trip = JSON.parse(params.trip as string)
+    const vehicleInformation = JSON.parse(params.additionalInfo as string)
+    const selectedStop = JSON.parse(params.selectedStop as string)
+    console.log(selectedStop)
+
+    const stopList = JSON.parse(params.stopList as string);
+    console.log(stopList)
+
+    /*
     if (typeof rideInfo === 'string') {
       parsedData = JSON.parse(rideInfo)
     } else {
@@ -57,6 +61,7 @@ const checkoutViaje = () => {
     if (!parsedStop) {
       return <Text style={{marginVertical: 'auto'}}>Error: No selected stop or param is invalid.</Text>
     }
+    */
 
     function openLastModal() {
        setShowConfirmationModal(false);
@@ -64,22 +69,22 @@ const checkoutViaje = () => {
     }
     
     useEffect(() => {
-    if (showAcceptModal) {
-      const backAction = () => {
-        return true;
-      };
+      if (showAcceptModal) {
+        const backAction = () => {
+          return true;
+        };
 
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        backAction
-      );
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction
+        );
 
-      return () => backHandler.remove();
-    }
-  }, [showAcceptModal]);
+        return () => backHandler.remove();
+      }
+    }, [showAcceptModal]);
 
   return (
-    <SafeAreaView style={{flex: 1, marginBottom: 50}}>
+    <SafeAreaView style={{flex: 1}}>
       <HitchHopHeader />
 
       <ImageBackground
@@ -90,34 +95,34 @@ const checkoutViaje = () => {
         <View style={styles.card}>
           <HStack style={{gap: 10}}>
             <Image 
-              source={additionalParsed.avatar}
+              source={{uri: trip.driver.photoUrl}}
               style={styles.profilePic}
             />
             
             <View>
-              <Text style={styles.carInfo}>{additionalParsed.carBrand + " " + additionalParsed.carModel + " " + additionalParsed.carColor}</Text>
-              <Text style={styles.driverInfo}>{parsedData.driver}</Text>
+              <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+              <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={{ color: '#171717'}}>{additionalParsed.date}</Text>
-            <Text style={{ color: '#171717'}}>{additionalParsed.time}</Text>
+            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={additionalParsed.start} isAtEnd={true}/>
-            <RideStopDetailIcon stopType="Parada de recogida" detail={parsedStop} isAtEnd={true}/>
-            <RideStopDetail stopType="Destino" detail={additionalParsed.end} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
+            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)]} isAtEnd={true}/>
+            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
           </ScrollView>
 
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4, alignItems: 'center'}}>
-                <Text style={styles.priceText}>&#8353;{parsedData.costPerPerson}</Text>
+                <Text style={styles.priceText}>&#8353;{trip.costPerPerson}</Text>
                 <Users size={16} color='black' strokeWidth={3} />
-                <Text style={{ color: '#171717'}}>{parsedData.passengers.length}</Text>
+                <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
               </HStack>    
             </View>     
             <Button onPress={() => setShowConfirmationModal(true)} style={[styles.button, styles.joinButton]}>
@@ -292,4 +297,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default checkoutViaje
+export default checkoutTrip

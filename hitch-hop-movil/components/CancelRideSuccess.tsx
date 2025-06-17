@@ -57,14 +57,14 @@ const styles = StyleSheet.create({
   heading: {
     color: '#FB954B',
     fontSize: 16,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-SemiBold',
     fontWeight: '600',
     marginBottom: 2,
   },
   message: {
     color: '#262627',
     fontSize: 16,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Regular',
     fontWeight: '400',
     lineHeight: 24,
     marginLeft: 42,

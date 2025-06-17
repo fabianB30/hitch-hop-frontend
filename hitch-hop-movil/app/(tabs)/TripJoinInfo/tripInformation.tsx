@@ -9,7 +9,10 @@ import { Users } from 'lucide-react-native'
 import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
+import { useLocalSearchParams } from 'expo-router';
+import { getBrandVehicleRequest } from '@/interconnection/vehicle'
 
+/*
 const getCarInfo = (id:string) => {
   // API call to get car data
   let carData
@@ -179,18 +182,36 @@ if (carInfo == null || startInfo == null || endInfo == null || stopsInfo == null
     carColor: carInfo.color
   }
 }
-
+*/
 const wh = Dimensions.get("window").height
 
-const informacionViaje = () => {
-  const router = useRouter()
+const tripInformation = () => {
+  const [vehicleInformation, setVehicleInformation] = useState<any>({})
 
+  const router = useRouter()
+  
+  const params = useLocalSearchParams();
+  const trip = JSON.parse(params.trip as string);
+
+  /*
   if (Object.keys(rideInfo).length == 0 || Object.keys(additionalInfo).length == 0) {
     return <Text style={{marginVertical:'auto'}}>Error: Couldn't not load data.</Text>
   }
+*/
+  useEffect(() => {
+      async function fetchVehicleInformation() {
+          const data = await getBrandVehicleRequest(trip.vehicle);
+          
+          if (data){
+              setVehicleInformation(data);
+          }
+      }
+      fetchVehicleInformation()
+      
+  }, [])
 
   return (
-    <SafeAreaView style={{flex: 1, marginBottom: 50}}>
+    <SafeAreaView style={{flex: 1}}>
       <HitchHopHeader />
 
       <ImageBackground
@@ -201,43 +222,43 @@ const informacionViaje = () => {
         <View style={styles.card}>
           <HStack style={{gap: 10}}>
             <Image 
-              source={additionalInfo.avatar}
+              source={{uri: trip.driver.photoUrl}}
               style={styles.profilePic}
             />
             
             <View>
-              <Text style={styles.carInfo}>{additionalInfo.carBrand + " " + additionalInfo.carModel + " " + additionalInfo.carColor}</Text>
-              <Text style={styles.driverInfo}>{rideInfo.driver}</Text>
+              <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+              <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={{ color: '#171717'}}>{additionalInfo.date}</Text>
-            <Text style={{ color: '#171717'}}>{additionalInfo.time}</Text>
+            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={additionalInfo.start} isAtEnd={true}/>
-            {additionalInfo.stops.map((stop, index) => <RideStopDetail key={index} stopType="Parada" detail={stop} isAtEnd={false}/>)}
-            <RideStopDetail stopType="Destino" detail={additionalInfo.end} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
+            {trip.stopPlaces.length > 0 && trip.stopPlaces.map((stop: any, index: any) => <RideStopDetail key={index} stopType="Parada" detail={stop.name} isAtEnd={false}/>)}
+            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
           </ScrollView>
 
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4}}>
                 <Users size={16} color='black' />
-                <Text style={{ color: '#171717'}}>{rideInfo.passengers?.length}</Text>
+                <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
               </HStack>
-              <Text style={{ color: '#171717'}}>&#8353;{rideInfo.costPerPerson}</Text>
+              <Text style={{ color: '#171717'}}>&#8353;{trip.costPerPerson}</Text>
             </View>
 
             <Button style={styles.button}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/seleccionRecogida",
+                pathname: "/(tabs)/TripJoinInfo/selectPickupPoint",
                 params: {
-                  rideInfo: JSON.stringify(rideInfo),
-                  additionalInfo: JSON.stringify(additionalInfo)
+                  trip: params.trip,
+                  additionalInfo: JSON.stringify(vehicleInformation)
                 }
               })}}
             >
@@ -319,4 +340,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default informacionViaje
+export default tripInformation
