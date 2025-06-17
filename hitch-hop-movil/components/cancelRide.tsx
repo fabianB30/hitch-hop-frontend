@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   title: {
     color: "black",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "center",
     marginBottom: 40,
@@ -87,13 +87,13 @@ const styles = StyleSheet.create({
   buttonTextYes: {
     color: "#FEFEFF",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
   buttonTextNo: {
     color: "#FEFEFF",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
 });
