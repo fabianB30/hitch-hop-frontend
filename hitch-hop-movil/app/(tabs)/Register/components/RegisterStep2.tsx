@@ -13,7 +13,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Camera } from 'lucide-react-native';
 
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { getAllParametersRequest } from '@/interconnection/paremeter';
 
 interface RegisterStep2Props {
@@ -62,6 +62,15 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [loading, setLoading] = useState(false);
     const [showAlertDialog, setShowAlertDialog] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [identificationTypes, setIdentificationTypes] = useState<string[]>([]);
+    const [generos, setGeneros] = useState<string[]>([]);
+    const [roles, setRoles] = useState<string[]>([]);
+    const [loadingParameters, setLoadingParameters] = useState(true);
+    
+    // Estados para almacenar los IDs de los parámetros
+    const [identificationTypesData, setIdentificationTypesData] = useState<any>(null);
+    const [generosData, setGenerosData] = useState<any>(null);
+    const [rolesData, setRolesData] = useState<any>(null);
 
     // Estados para datos dinámicos de la API
     const [identificationTypes, setIdentificationTypes] = useState<string[]>([]);
@@ -70,19 +79,24 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [loadingParameters, setLoadingParameters] = useState(true);
 
     const handleClose = () => setShowAlertDialog(false);
-
-    // Cargar parámetros desde la API
     useEffect(() => {
         const loadParameters = async () => {
             try {
+                console.log('Cargando parámetros desde la API...');
                 const parameters = await getAllParametersRequest();
+                console.log('Parámetros recibidos:', parameters);
+                
                 if (parameters) {
                     // Buscar y cargar tipos de identificación
                     const identificationParam = parameters.find(param => 
                         param.parameterName === 'Tipo de identificación'
                     );
                     if (identificationParam) {
+                        console.log('Tipos de identificación encontrados:', identificationParam.parameterList);
                         setIdentificationTypes(identificationParam.parameterList);
+                        setIdentificationTypesData(identificationParam);
+                    } else {
+                        console.log('No se encontraron tipos de identificación');
                     }
 
                     // Buscar y cargar géneros
@@ -90,7 +104,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                         param.parameterName === 'Géneros'
                     );
                     if (genderParam) {
+                        console.log('Géneros encontrados:', genderParam.parameterList);
                         setGeneros(genderParam.parameterList);
+                        setGenerosData(genderParam);
+                    } else {
+                        console.log('No se encontraron géneros');
                     }
 
                     // Buscar y cargar roles
@@ -98,7 +116,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                         param.parameterName === 'Rol'
                     );
                     if (roleParam) {
+                        console.log('Roles encontrados:', roleParam.parameterList);
                         setRoles(roleParam.parameterList);
+                        setRolesData(roleParam); // Guardar el objeto completo
+                    } else {
+                        console.log('No se encontraron roles');
                     }
                 }
             } catch (error) {
@@ -111,10 +133,43 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
         loadParameters();
     }, []);
 
+    // Función para comprimir imagen en React Native
+    const compressImage = async (imageUri: string, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+        try {
+            // Comprimir y redimensionar la imagen
+            const manipulatedImage = await ImageManipulator.manipulateAsync(
+                imageUri,
+                [
+                    { resize: { width: maxWidth } } // Mantiene la proporción automáticamente
+                ],
+                {
+                    compress: quality,
+                    format: ImageManipulator.SaveFormat.JPEG,
+                    base64: true
+                }
+            );
+
+            // Retornar la imagen en formato base64 con el prefijo correcto
+            return `data:image/jpeg;base64,${manipulatedImage.base64}`;
+        } catch (error) {
+            console.error('Error al comprimir imagen:', error);
+            throw error;
+        }
+    };   
 
     // Función para manejar el cambio de tipo de identificación
     const handleIdentificationTypeChange = (selectedType: string) => {
         setIdentificationType(selectedType);
+    };
+
+    // Función para manejar el cambio de rol
+    const handleRolChange = (selectedRol: string) => {
+        setRol(selectedRol);
+    };
+
+    // Función para manejar el cambio de género
+    const handleGenreChange = (selectedGenre: string) => {
+        setGenre(selectedGenre);
     };
 
     if (!fontsLoaded || loadingParameters) {
@@ -209,19 +264,16 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setErrorMessage('No se pudo abrir la galería. Por favor, inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
-    };   
-    // Función para procesar la imagen y convertirla a base64
+    };
+    // Función para procesar la imagen y convertirla a base64 comprimida
     const processImage = async (imageUri: string) => {
         try {
-            // Convertir imagen a base64
-            const base64 = await FileSystem.readAsStringAsync(imageUri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-
-            // Guardar base64 para enviar al backend
-            const base64WithPrefix = `data:image/jpeg;base64,${base64}`;
-            setBase64Image(base64WithPrefix);
-            setAvatar(base64WithPrefix);
+            // Comprimir la imagen antes de convertirla a base64
+            const compressedBase64 = await compressImage(imageUri, 200, 0.7);
+            
+            // Guardar base64 comprimido para enviar al backend
+            setBase64Image(compressedBase64);
+            setAvatar(compressedBase64);
             
         } catch (error) {
             console.error('Error al procesar imagen:', error);
@@ -239,11 +291,21 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('es-ES');
-    };
-
+    };    
     const validateForm = () => {
+        // Verificar la condición completa
+        const isFormValid = !(!phone || !identificationType || !identificationNumber || !rol || !genre);
+        
+        // Verificar campos obligatorios
         if (!phone || !identificationType || !identificationNumber || !rol || !genre) {
-            setErrorMessage('Asegúrese de que todos los campos estén llenos.');
+            let missingFields = [];
+            if (!phone) missingFields.push('teléfono');
+            if (!identificationType) missingFields.push('tipo de identificación');
+            if (!identificationNumber) missingFields.push('número de identificación');
+            if (!rol) missingFields.push('tipo de usuario');
+            if (!genre) missingFields.push('género');
+            
+            setErrorMessage(`Faltan los siguientes campos obligatorios: ${missingFields.join(', ')}.`);
             setShowAlertDialog(true);
             return false;
         }
@@ -255,6 +317,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setShowAlertDialog(true);
             return false;        
         }
+        // Validar identificación según el tipo
         if (identificationType === 'Cédula') {
             const cedulaPattern = /^\d{9}$/;
             if (!cedulaPattern.test(identificationNumber)) {
@@ -280,9 +343,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             birthDate: birthDate.toISOString(),
         };
         onBack(currentSecondFormData);
-    };
-
-    const handleFinishRegistration = async () => {
+    };    const handleFinishRegistration = async () => {
         if (!validateForm()) return;
 
         setLoading(true);
@@ -293,12 +354,12 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 avatar,
                 username,
                 phone,
-                identificationType,
+                identificationType: identificationType,
                 identificationNumber,
-                rol,
-                genre,
+                rol: rol,
+                genre: genre,
                 birthDate: birthDate.toISOString(),
-            };
+            }; 
             onFinish(completeRegistrationData);
 
         } catch (error) {
@@ -524,11 +585,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>
+                            </View>                            
                             <Select
                                 options={roles}
                                 selectedValue={rol}
-                                onValueChange={setRol}
+                                onValueChange={handleRolChange}
                                 placeholder="Seleccionar"
                                 className="w-[264px] border border-gray-300 rounded-lg bg-white"
                             />
@@ -545,11 +606,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>                            
+                            </View>                              
                             <Select
                                 options={generos}
                                 selectedValue={genre}
-                                onValueChange={setGenre}
+                                onValueChange={handleGenreChange}
                                 placeholder="Seleccionar"
                                 className="w-[264px]"
                             />
