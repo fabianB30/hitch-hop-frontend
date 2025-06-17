@@ -217,7 +217,7 @@ export default function VehiculosIndex() {
 
       <Modal transparent visible={infoModal.visible} animationType="fade">
         <View style={styles.modalOverlay}>
-          
+
           <View style={styles.modalInfoContainer}>
             <View style={styles.modalTopStripe} />
 
@@ -245,28 +245,28 @@ export default function VehiculosIndex() {
                 <Text style={styles.infoLabel}>Año</Text>
                 <Text style={styles.infoValue}>{infoModal.vehiculo?.year || '—'}</Text>
               </View>
-
-              <View style={styles.imageBox}>
-                <View style={styles.purpleBgBox} />
-                <Image source={{ uri: infoModal.vehiculo?.foto }} style={styles.vehicleImage} />
-              </View>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => {
+                  setInfoModal({ visible: false, vehiculo: null });
+                  router.push({
+                    pathname: "/(tabs)/vehiculos/editarVehiculo",
+                    /*params: { id: vehiculo._id },*/
+                  });
+                }}
+              >
+                <Text style={styles.editButtonText}>Editar información</Text>
+              </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => {
-                setInfoModal({ visible: false, vehiculo: null });
-                router.push({
-                  pathname: "/(tabs)/vehiculos/editarVehiculo",
-                  params: { id: infoModal.vehiculo?._id }
-                });
-              }}
-            >
-              <Text style={styles.editButtonText}>Editar información</Text>
-            </TouchableOpacity>
+            <View style={styles.imageBox}>
+              <View style={styles.purpleBgBox} />
+              <Image source={{ uri: infoModal.vehiculo?.foto }} style={styles.vehicleImage} />
+              {/*<Image source={{ uri: vehiculo.foto }} style={styles.vehicleImage} />*/}
+            </View>
           </View>
         </View>
-      </Modal>
+      </Modal >
 
 
     </View >
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 16,
-    paddingBottom: 85, // suficiente para no ocultar el contenido tras el botón
+    paddingBottom: 85,
   },
   cardWrapper: {
     marginBottom: 16,
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F2FF',
     borderRadius: 30,
     alignItems: 'center',
-    overflow: 'hidden',  // opcional, para que contenido interno no se desborde
+    overflow: 'hidden',
     paddingVertical: 16,
     paddingRight: 16,
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   infoModalImage: {
     width: 160,
-    height: 130,
+    height: 160,
     borderRadius: 12,
     marginBottom: 20,
     resizeMode: 'cover',
@@ -537,39 +537,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTopStripe: {
-    height: 6,
-    width: '100%',
+    height: 25,
+    width: 346,
     backgroundColor: '#7875F8',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    marginBottom: 12,
-  },
-
-  closeInfoBtn: {
-    marginTop: 20,
-    backgroundColor: '#7875F8',
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 10,
-  },
-
-  closeInfoBtnText: {
-    color: '#FFFFFF',
-    fontFamily: 'Exo-SemiBold',
-    fontSize: 16,
+    position: 'absolute',
   },
   modalInfoContainer: {
     width: '90%',
     backgroundColor: '#F3F2FF',
     borderRadius: 30,
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    paddingTop: 24 + 6,
+    overflow: 'hidden',
   },
 
   modalInfoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 0,
     position: 'relative',
   },
 
@@ -577,19 +566,22 @@ const styles = StyleSheet.create({
   backIcon: {
     width: 28,
     height: 28,
-    position: 'absolute',
-    left: 0,
+    top: 15,
+    left: -60,
   },
 
   modalInfoTitle: {
-    fontSize: 24,
+    fontSize: 30,
     fontFamily: 'Exo-Bold',
     color: '#181718',
+    top: 15,
+
   },
 
   modalInfoBody: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    top: 20,
   },
 
   textBlock: {
