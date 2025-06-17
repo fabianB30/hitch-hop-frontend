@@ -1,23 +1,28 @@
-import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
 import { PassengerCard } from "@/components/PassengerCard";
-import { HStack } from "@/components/ui/hstack";
-import { MoveRight, Users } from "lucide-react-native";
-import { Text } from "@/components/ui/text";
+import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import { getTripByIdRequest } from "@/interconnection/trip";
 import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { MoveRight, Users } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerDetallesViajeProgramado() {
   const router = useRouter();
+  const { tripId } = useLocalSearchParams();
+  const { user } = useAuth();
   const [fontsLoaded] = useFonts({
-    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
-    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
-    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
-    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
   });
   if (!fontsLoaded) return null;
 
@@ -29,31 +34,64 @@ export default function VerDetallesViajeProgramado() {
     router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
   };
 
-  const passengers = [
-    {
-      id: 1,
-      name: "Robert Schumann",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7.",
-    },
+  interface Passenger {
+    id: string;
+    name: string;
+    price: string;
+    phone: string;
+    location: string; // Optional, if you want to include location
+  }
+  const [passengers, setPassengers] = useState<Passenger[]>([]);
 
-    {
-      id: 2,
-      name: "Johannes Brahms",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7.",
-    },
+  interface Trip {
+    id: number;
+    users: number;
+    userLimit: number;
+    start: string;
+    end: string;
+  }
+  const [trip, setTrip] = useState<Trip | null>(null);
 
-    {
-      id: 3,
-      name: "Jan Sibelius",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7. Calle 2",
-    },
-  ];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const trip = await getTripByIdRequest(tripId as string);
+        const price = trip.costPerPerson;
+        if (trip) {
+          const mappedRequests = trip.passengers.map((passenger: any) => ({
+            id: passenger.user._id,
+            name: passenger.user.name + " " + passenger.user.secondSurname,
+            price: "₡" + price,
+            phone: passenger.user.phone,
+            location: "FALTA",
+          }));
+          setTrip({
+            id: trip._id,
+            users: trip.passengers.length,
+            userLimit: trip.capacity,
+            start: trip.startpoint.name,
+            end: trip.endpoint.name,
+          });
+          setPassengers(mappedRequests);
+
+          if (mappedRequests.length === 0) {
+            router.replace("/(tabs)/ViajesConductor/sinProgramados");
+          }
+        } else {
+          setPassengers([]);
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      } catch (error) {
+        setPassengers([]);
+        console.log(tripId);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
+    }
+
+    if (user?._id) {
+      fetchData();
+    }
+  }, [user, router]);
 
   return (
     <ImageBackground
@@ -102,7 +140,7 @@ export default function VerDetallesViajeProgramado() {
               <Users size={24} color="black" />
               <Text
                 style={{
-                  fontFamily: 'Exo-Regular',
+                  fontFamily: "Exo-Regular",
                   fontSize: 16,
                   fontWeight: "400",
                   color: "#171717",
@@ -126,7 +164,7 @@ export default function VerDetallesViajeProgramado() {
           >
             <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
               <Text style={styles.start}>
-                Tecnológico de Costa Rica, San José Av. 9.
+                {trip ? trip.start : "Cargando..."}
               </Text>
             </Box>
             <Box
@@ -141,14 +179,14 @@ export default function VerDetallesViajeProgramado() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: 'Exo-SemiBold',
+                  fontFamily: "Exo-SemiBold",
                   fontSize: 12,
                   fontWeight: "400",
                   color: "#171717",
                   textAlign: "left",
                 }}
               >
-                Tecnológico de Costa Rica, Cartago
+                {trip ? trip.end : "Cargando..."}
               </Text>
             </Box>
           </HStack>
@@ -239,19 +277,19 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     right: 20,
     fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000',
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   title: {
     left: 25,
     color: "#171717",
     fontSize: 20,
-    fontFamily: 'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,
@@ -298,7 +336,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FEFEFF",
     fontSize: 16,
-    fontFamily: 'Exo-Regular',
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
   cardsScroll: {
@@ -316,7 +354,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: 'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontSize: 12,
     fontWeight: "400",
     color: "#171717",

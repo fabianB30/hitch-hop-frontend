@@ -1,30 +1,38 @@
-import { ImageBackground, View, ScrollView, StyleSheet, Text } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
-import { RideCardDriver } from "@/components/RideCardDriver";
-import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
-import { useAuth } from "../Context/auth-context";
+import { RideCardDriver } from "@/components/RideCardDriver";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
 import { getTripsByUserRequest } from "@/interconnection/trip";
 import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerViajesAceptados() {
   const router = useRouter();
   const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null
+  );
   const [requests, setRequests] = useState<Requests[]>([]);
   const [successVisible, setSuccessVisible] = useState(false);
   const [fontsLoaded] = useFonts({
-    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
-    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
-    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
-    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
-    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
+    "Exo-Light": require("@/assets/fonts/Exo-Light.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
   });
 
   interface Requests {
@@ -55,40 +63,42 @@ export default function VerViajesAceptados() {
   };
 
   useEffect(() => {
-  async function fetchTrips() {
-    try {
-      const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
-      if (trips) {
-        const mappedRequests = trips.map((trip: any) => ({
-          id: trip._id,
-          users: trip.passengers?.filter((p: any) => p.status === "Aprobado").length ?? 0,
-          userLimit: 4,
-          price: `₡${trip.costPerPerson}`,
-          date: trip.departure.split("T")[0],
-          time: trip.departure.split("T")[1]?.slice(0,5),
-          start: trip.startpoint?.name || "",
-          end: trip.endpoint?.name || "",
-        }));
-        setRequests(mappedRequests);
+    async function fetchTrips() {
+      try {
+        const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
+        if (trips) {
+          const mappedRequests = trips.map((trip: any) => ({
+            id: trip._id,
+            users:
+              trip.passengers?.filter((p: any) => p.status === "Aprobado")
+                .length ?? 0,
+            userLimit: 4,
+            price: `₡${trip.costPerPerson}`,
+            date: trip.departure.split("T")[0],
+            time: trip.departure.split("T")[1]?.slice(0, 5),
+            start: trip.startpoint?.name || "",
+            end: trip.endpoint?.name || "",
+          }));
+          setRequests(mappedRequests);
 
-        if (mappedRequests.length === 0) {
+          if (mappedRequests.length === 0) {
+            router.replace("/(tabs)/ViajesConductor/sinProgramados");
+          }
+        } else {
+          setRequests([]);
           router.replace("/(tabs)/ViajesConductor/sinProgramados");
         }
-      } else {
+      } catch (error) {
         setRequests([]);
         router.replace("/(tabs)/ViajesConductor/sinProgramados");
       }
-    } catch (error) {
-      setRequests([]);
-      router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
-  }
 
-  if (user?._id) {
-    fetchTrips();
-  }
-}, [user, router]);
-  
+    if (user?._id) {
+      fetchTrips();
+    }
+  }, [user, router]);
+
   if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;
@@ -100,10 +110,7 @@ export default function VerViajesAceptados() {
       style={styles.background}
       resizeMode="cover"
     >
-      <Pressable
-        onPress={() => router.back()}
-        style={styles.backArrow}
-      >
+      <Pressable onPress={() => router.back()} style={styles.backArrow}>
         <Image
           source={require("@/assets/images/backArrow.png")}
           style={{ width: 30, height: 30 }}
@@ -120,7 +127,12 @@ export default function VerViajesAceptados() {
         <Pressable style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
-        <Pressable onPress={() => router.replace('/(tabs)/ViajesConductor/verViajesPendientes')} style={styles.pendientesButton}>
+        <Pressable
+          onPress={() =>
+            router.replace("/(tabs)/ViajesConductor/verViajesPendientes")
+          }
+          style={styles.pendientesButton}
+        >
           <Text style={styles.buttonText}>Por aprobar</Text>
         </Pressable>
       </Box>
@@ -147,7 +159,10 @@ export default function VerViajesAceptados() {
             {...request}
             onCancel={() => handleCancel(request.id)}
             onDetails={() =>
-              router.push("/(tabs)/ViajesConductor/verDetallesViajeProgramado")
+              router.push({
+                pathname: "/(tabs)/ViajesConductor/verDetallesViajeProgramado",
+                params: { tripId: request.id },
+              })
             }
           />
         ))}
@@ -173,12 +188,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     right: 20,
     fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000',
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   overlay: {
@@ -192,7 +207,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: 'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -231,7 +246,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FEFEFF",
     fontSize: 16,
-    fontFamily: 'exo.medium',
+    fontFamily: "exo.medium",
     fontWeight: "500",
   },
   cardsScroll: {
