@@ -9,11 +9,11 @@ import { FormControl } from '@/components/ui/form-control';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { useRouter } from "expo-router";
-import { useAuth } from '../Context/auth-context';
+import { useAuth } from '@/app/(tabs)/Context/auth-context';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signIn, errors } = useAuth();
+  const { signIn } = useAuth();
   const [fontsLoaded] = useFonts({
     Exo_400Regular,
     Exo_700Bold,
@@ -48,7 +48,13 @@ export default function LoginScreen() {
     try {
       const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
-      if (user) {
+      if (user.name) {
+        if (user.type === 'Inactivo - User' || user.type === 'Inactivo - Admin') {
+          setErrorMessage('Cuenta inactiva. Por favor, contacte a soporte.');
+          setShowAlertDialog(true);
+          return;
+        }
+        
         if (user.role === 'Pasajero'){
           console.log(user.name);
           router.push('../HomePasajero');
@@ -56,7 +62,14 @@ export default function LoginScreen() {
           router.push('../HomeConductor');
         }
       } else {
-        console.log('Login error');
+        if(user === 'contrasena incorrecta'){
+          setErrorMessage('Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.');
+          setShowAlertDialog(true);
+        }
+        if(user === 'No hay una cuenta asociada al correo'){
+          setErrorMessage('No hay una cuenta asociada al correo ingresado. Por favor, verifique su correo o cree una cuenta nueva.');
+          setShowAlertDialog(true);
+        }
       }
       
 
