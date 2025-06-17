@@ -31,7 +31,15 @@ export default function VerDetallesViajeProgramado() {
 
   //Esto no funciona, la página recibe parámetros para crear las cards
   const handlePendingRequests = () => {
-    router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
+    console.log(trip, pendingPassengers);
+    router.push({
+      pathname: "/(tabs)/ViajesConductor/verSolicitudesPendientes",
+      params: {
+        users: JSON.stringify(pendingPassengers),
+        userLimit: trip ? trip.userLimit : 0,
+        actualPassengerNumber: trip ? trip.users : 0,
+      },
+    });
   };
 
   interface Passenger {
@@ -39,9 +47,12 @@ export default function VerDetallesViajeProgramado() {
     name: string;
     price: string;
     phone: string;
-    location: string; // Optional, if you want to include location
+    location: string;
+    image: string;
+    time: string;
   }
   const [passengers, setPassengers] = useState<Passenger[]>([]);
+  const [pendingPassengers, setPendingPassengers] = useState<Passenger[]>([]);
 
   interface Trip {
     id: number;
@@ -58,25 +69,37 @@ export default function VerDetallesViajeProgramado() {
         const trip = await getTripByIdRequest(tripId as string);
         const price = trip.costPerPerson;
         if (trip) {
-          const mappedRequests = trip.passengers.map((passenger: any) => ({
-            id: passenger.user._id,
-            name: passenger.user.name + " " + passenger.user.secondSurname,
-            price: "₡" + price,
-            phone: passenger.user.phone,
-            location: "FALTA",
-          }));
+          const mappedRequests = trip.passengers
+            .filter((passenger: any) => passenger.status !== "Pendiente") // Discard pending
+            .map((passenger: any) => ({
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: "FALTA",
+              image: passenger.user.photoUrl,
+              time: "FALTA",
+            }));
           setTrip({
             id: trip._id,
             users: trip.passengers.length,
-            userLimit: trip.capacity,
+            userLimit: trip.passengerLimit,
             start: trip.startpoint.name,
             end: trip.endpoint.name,
           });
+          setPendingPassengers(
+            trip.passengers
+              .filter((passenger: any) => passenger.status === "Pendiente")
+              .map((passenger: any) => ({
+                id: passenger.user._id,
+                name: passenger.user.name + " " + passenger.user.firstSurname,
+                price: "₡" + price,
+                phone: passenger.user.phone,
+                location: trip.startpoint.name,
+                time: trip.departure.split("T")[1]?.slice(0, 5),
+              }))
+          );
           setPassengers(mappedRequests);
-
-          if (mappedRequests.length === 0) {
-            router.replace("/(tabs)/ViajesConductor/sinProgramados");
-          }
         } else {
           setPassengers([]);
           router.replace("/(tabs)/ViajesConductor/sinProgramados");

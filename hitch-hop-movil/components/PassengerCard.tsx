@@ -1,27 +1,26 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Pressable } from "@/components/ui/pressable";
-import { Image } from "expo-image";
-import { ImageSourcePropType, StyleSheet } from "react-native";
-import { Phone, MapPin } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
+import { MapPin, Phone } from "lucide-react-native";
+import { StyleSheet } from "react-native";
 import { VStack } from "./ui/vstack";
-import { Button, ButtonText } from "@/components/ui/button";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
 
 type RideCardProps = {
   name: string;
   price: string;
   phone: string;
   location: string;
+  image: string;
 };
 
-export function PassengerCard({ name, price, phone, location }: RideCardProps) {
+export function PassengerCard({
+  name,
+  price,
+  phone,
+  location,
+  image,
+}: RideCardProps) {
   return (
     <Box
       style={{
@@ -49,7 +48,13 @@ export function PassengerCard({ name, price, phone, location }: RideCardProps) {
         }}
       >
         <Avatar size="xl">
-          <AvatarImage source={require("@/assets/images/image17.png")} />
+          <AvatarImage
+            source={
+              image
+                ? { uri: image } // <-- Use base64 if provided
+                : require("@/assets/images/carritoMeli.png")
+            }
+          />
         </Avatar>
         <VStack
           style={{
