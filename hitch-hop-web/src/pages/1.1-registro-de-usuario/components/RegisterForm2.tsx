@@ -15,7 +15,7 @@ import * as z from 'zod';
 // Esquema para la segunda etapa del registro
 const secondStepSchema = z.object({
   username: z.string().min(3, { message: 'Nombre de usuario debe tener al menos 3 caracteres' }),
-  userType: z.string().min(1, { message: 'Tipo de usuario es requerido' }),
+  rol: z.string().min(1, { message: 'Tipo de usuario es requerido' }),
   birthDate: z.date({ required_error: "Fecha de nacimiento es requerida" }),
   phone: z.string().min(8, { message: 'Teléfono debe tener al menos 8 dígitos' }),
   gender: z.string().min(1, { message: 'Género es requerido' }),
@@ -25,10 +25,12 @@ type SecondStepData = z.infer<typeof secondStepSchema>;
 
 interface RegisterForm2Props {
   onSubmit: (data: SecondStepData) => void;
-  onBack: () => void;
+  onBack: (data?: SecondStepData) => void;
   profileImage: string | null;
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   initialData?: Partial<SecondStepData>;
+  isSubmitting?: boolean;
+  parameters: any[];
 }
 
 export default function RegisterForm2({ 
@@ -36,13 +38,15 @@ export default function RegisterForm2({
   onBack, 
   profileImage, 
   onImageUpload, 
-  initialData 
+  initialData,
+  isSubmitting = false,
+  parameters
 }: RegisterForm2Props) {
   const form = useForm<SecondStepData>({
     resolver: zodResolver(secondStepSchema),
     defaultValues: {
       username: initialData?.username || '',
-      userType: initialData?.userType || '',
+      rol: initialData?.rol || '',
       phone: initialData?.phone || '',
       gender: initialData?.gender || '',
       birthDate: initialData?.birthDate,
@@ -220,12 +224,10 @@ export default function RegisterForm2({
                               <SelectTrigger className="w-full bg-[#FFFFFF] border-[#A5A3A3]">
                                 <SelectValue placeholder="Seleccionar" />
                               </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="male">Masculino</SelectItem>
-                              <SelectItem value="female">Femenino</SelectItem>
-                              <SelectItem value="other">Otro</SelectItem>
-                              <SelectItem value="prefer_not_to_say">Prefiero no decir</SelectItem>
+                            </FormControl>                            <SelectContent>
+                              {parameters.find(p => p.parameterName === "Géneros")?.parameterList?.map((option: string) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              )) || []}
                             </SelectContent>
                           </Select>
                           <div className="min-h-[20px]">
@@ -241,9 +243,9 @@ export default function RegisterForm2({
                 <div className="flex-1">
                   <FormField
                     control={form.control}
-                    name="userType"
+                    name="rol"
                     render={({ field }) => {
-                      const showAsterisk = !field.value || form.formState.errors.userType;
+                      const showAsterisk = !field.value || form.formState.errors.rol;
                       return (
                         <FormItem className="min-h-[100px]">
                           <FormLabel className="text-base md:text-lg font-medium">
@@ -254,10 +256,11 @@ export default function RegisterForm2({
                               <SelectTrigger className="w-full bg-[#FFFFFF] border-[#A5A3A3]">
                                 <SelectValue placeholder="Seleccionar" />
                               </SelectTrigger>
-                            </FormControl>
+                            </FormControl>                            
                             <SelectContent>
-                              <SelectItem value="passenger">Pasajero</SelectItem>
-                              <SelectItem value="driver">Conductor</SelectItem>
+                              {parameters.find(p => p.parameterName === "Rol")?.parameterList?.map((option: string) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              )) || []}
                             </SelectContent>
                           </Select>
                           <div className="flex items-center gap-1 mt-1">
@@ -275,22 +278,29 @@ export default function RegisterForm2({
                   />
                 </div>              </div>
 
-              <p className="text-base md:text-lg text-red-500 mt-4">* Información obligatoria</p>
-
-              {/* Botones */}
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-5 mt-6 pt-4">
-                <Button 
+              <p className="text-base md:text-lg text-red-500 mt-4">* Información obligatoria</p>              {/* Botones */}
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-5 mt-6 pt-4">                <Button 
                   type="button" 
-                  onClick={onBack}
-                  className="w-full sm:w-[110px] h-[48px] bg-[#7875F8] hover:bg-[#5e5bcf] text-white"
+                  onClick={() => {
+                    // Obtener los valores actuales del formulario y pasarlos al volver
+                    const currentValues = form.getValues();
+                    // Solo pasar los datos si al menos un campo tiene valor
+                    const hasAnyValue = Object.values(currentValues).some(value => 
+                      value !== undefined && value !== null && value !== ''
+                    );
+                    onBack(hasAnyValue ? currentValues : undefined);
+                  }}
+                  disabled={isSubmitting}
+                  className="w-full sm:w-[110px] h-[48px] bg-[#7875F8] hover:bg-[#5e5bcf] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Volver
                 </Button>
                 <Button 
                   type="submit"
-                  className="w-full sm:w-[151px] h-[48px] bg-[#7875F8] hover:bg-[#5e5bcf]"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-[151px] h-[48px] bg-[#7875F8] hover:bg-[#5e5bcf] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Crear perfil
+                  {isSubmitting ? 'Creando...' : 'Crear perfil'}
                 </Button>
               </div>
             </form>

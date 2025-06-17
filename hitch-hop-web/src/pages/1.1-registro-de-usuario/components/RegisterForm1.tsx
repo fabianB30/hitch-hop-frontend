@@ -37,9 +37,11 @@ type FirstStepData = z.infer<typeof firstStepSchema>;
 interface RegisterForm1Props {
   onNext: (data: FirstStepData) => void;
   initialData?: Partial<FirstStepData>;
+  parameters: any[];
+  institutions: any[];
 }
 
-export default function RegisterForm1({ onNext, initialData }: RegisterForm1Props) {
+export default function RegisterForm1({ onNext, initialData, parameters, institutions }: RegisterForm1Props) {
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FirstStepData>({
@@ -87,13 +89,13 @@ export default function RegisterForm1({ onNext, initialData }: RegisterForm1Prop
                   <SelectTrigger className="w-[288px] h-[40px] bg-[#FFFFFF] border-[#A5A3A3] flex items-center">
                     <SelectValue placeholder="Seleccionar" className="truncate" />
                   </SelectTrigger>
-                  </FormControl>
+                  </FormControl>                  
                   <SelectContent>
-                  <SelectItem value="cartago">Instituto Tecnológico de Costa Rica - Sede Central Cartago</SelectItem>
-                  <SelectItem value="sanjose">Instituto Tecnológico de Costa Rica - Sede San José</SelectItem>
-                  <SelectItem value="alajuela">Instituto Tecnológico de Costa Rica - Sede Alajuela</SelectItem>
-                  <SelectItem value="limon">Instituto Tecnológico de Costa Rica - Sede Limón</SelectItem>
-                  <SelectItem value="san_carlos">Instituto Tecnológico de Costa Rica - Sede San Carlos</SelectItem>
+                  {institutions.map((institution) => (
+                    <SelectItem key={institution._id} value={institution._id}>
+                      {institution.nombre}
+                    </SelectItem>
+                  ))}
                   </SelectContent>
                 </Select>
                 <div className="min-h-[20px]">
@@ -208,10 +210,11 @@ export default function RegisterForm1({ onNext, initialData }: RegisterForm1Prop
                   <SelectTrigger className="w-[288px] h-[40px] bg-[#FFFFFF] border-[#A5A3A3]">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
-                  </FormControl>
+                  </FormControl>                  
                   <SelectContent>
-                  <SelectItem value="cedula">Cédula</SelectItem>
-                  <SelectItem value="pasaporte">Pasaporte</SelectItem>
+                  {parameters.find(p => p.parameterName === "Tipo de identificación")?.parameterList?.map((option: string) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  )) || []}
                   </SelectContent>
                 </Select>
                 <div className="max-h-[3px]">
