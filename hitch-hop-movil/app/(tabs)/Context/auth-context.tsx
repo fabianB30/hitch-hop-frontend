@@ -37,10 +37,8 @@ interface AuthContextType {
   signUp: (userData: UserData) => Promise<void>;
   signIn: (userData: { username: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
-  updateUser: (newUser: User) => Promise<void>;
   loading: boolean;
   user: UserData | null;
-  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
   isAuthenticated: boolean;
   errors: string[];
 }
@@ -132,19 +130,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await AsyncStorage.removeItem("user");
   };
 
-  const updateUser = async (newUser: User) => {
-    try {
-      setUser(newUser);
-      setIsAuthenticated(true);
-      setErrors([]);
-      await AsyncStorage.setItem("user", JSON.stringify(newUser));
-    } catch (err) {
-      console.log("Error al actualizar usuario:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (errors.length > 0) {
       const timer = setTimeout(() => {
@@ -154,17 +139,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [errors]);
 
-  
   return (
     <AuthContext.Provider
       value={{
         signUp,
         signIn,
-        updateUser,
         logout,
         loading,
         user,
-        setUser,
         isAuthenticated,
         errors,
       }}
