@@ -82,11 +82,10 @@ export default function RegisterScreen() {
         // Registrar directamente (ya aceptó términos en paso 2)
         await handleFinishRegistration(completeData);
     };
-          const handleFinishRegistration = async (completeData: any) => {
         
+    const handleFinishRegistration = async (completeData: any) => {
         // Verificar que los términos han sido aceptados
         if (!termsAccepted) {
-            console.log('Error: Términos no aceptados');
             setSuccessMessage('Debe aceptar los términos y condiciones para continuar.');
             setShowAlertDialog(true);
             return;
@@ -96,7 +95,7 @@ export default function RegisterScreen() {
             // Preparar datos para el backend según el tipo User
             const registrationData = {
                 name: completeData.name,
-                firstSurname: completeData.lastName,
+                fisrtSurname: completeData.lastName,        // Usar lastName del step 1
                 secondSurname: completeData.secondLastName, // Usar secondLastName del step 1
                 username: completeData.username,
                 email: completeData.email,
@@ -110,45 +109,33 @@ export default function RegisterScreen() {
                 photoUrl: "",
                 phone: parseInt(completeData.phone) || 0,
                 type: "Usuario" as const,
-                role: completeData.rol === "Conductor" ? "Conductor" as const : "Pasajero" as const, 
+                role: completeData.rol === "Conductor" ? "Conductor" as const : "Pasajero" as const, // Usar 'rol' no 'userType'
                 vehicles: [],
                 notifications: []
             };
             
-            try {
-                const result = await signUp(registrationData);
-                // Verificar si el resultado es un objeto con propiedades de usuario (éxito)
-                if (result && typeof result === 'object' && result.email) {
-                    // regidirir a ventana de bienvenida correspondiente
-                    if(result.role === 'Conductor') {
-                        router.push('/Bienvenida/C_bienvenida');
-                    } else if(result.role === 'Pasajero') {
-                        router.push('/Bienvenida/P_bienvenida');
-                    }
-                    
-                } else if (result && typeof result === 'string') {
-                    // Si el resultado es un string, es un mensaje de error
-                    setSuccessMessage(result);
-                    setShowAlertDialog(true);
-                } else if (result === null) {
-                    // Si es null, mostrar mensaje genérico
-                    setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
-                    setShowAlertDialog(true);
-                } else {
-                    // Fallback para casos inesperados
-                    setSuccessMessage('Error inesperado durante el registro.');
-                    setShowAlertDialog(true);
+            // Llamar a la API de registro
+            const result = await signUp(registrationData);
+            // Verificar si el resultado es un objeto con propiedades de usuario (éxito)
+            if (result && typeof result === 'object' && result.email) {
+                // regidirir a ventana de bienvenida correspondiente
+                if(result.role === 'Conductor') {
+                    router.push('/Bienvenida/C_bienvenida');
+                } else if(result.role === 'Pasajero') {
+                    router.push('/Bienvenida/P_bienvenida');
                 }
-            } catch (signUpError) {
                 
-                // Si el error tiene un mensaje específico, mostrarlo
-                if (signUpError && typeof signUpError === 'object' && signUpError.message) {
-                    setSuccessMessage(signUpError.message);
-                } else if (typeof signUpError === 'string') {
-                    setSuccessMessage(signUpError);
-                } else {
-                    setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
-                }
+            } else if (result && typeof result === 'string') {
+                // Si el resultado es un string, es un mensaje de error
+                setSuccessMessage(result);
+                setShowAlertDialog(true);
+            } else if (result === null) {
+                // Si es null, mostrar mensaje genérico
+                setSuccessMessage('Error al registrar usuario. Por favor, inténtelo de nuevo.');
+                setShowAlertDialog(true);
+            } else {
+                // Fallback para casos inesperados
+                setSuccessMessage('Error inesperado durante el registro.');
                 setShowAlertDialog(true);
             }
 
