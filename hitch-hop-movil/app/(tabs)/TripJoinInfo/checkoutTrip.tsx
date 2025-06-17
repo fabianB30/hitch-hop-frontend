@@ -13,10 +13,12 @@ import { VStack } from "@/components/ui/vstack";
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
+import * as Font from 'expo-font';
 
 const {width, height} = Dimensions.get("window")
 
 const checkoutTrip = () => {
+    const [fontsLoaded, setFontsLoaded] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
     const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
     
@@ -27,41 +29,8 @@ const checkoutTrip = () => {
     const trip = JSON.parse(params.trip as string)
     const vehicleInformation = JSON.parse(params.additionalInfo as string)
     const selectedStop = JSON.parse(params.selectedStop as string)
-    console.log(selectedStop)
 
     const stopList = JSON.parse(params.stopList as string);
-    console.log(stopList)
-
-    /*
-    if (typeof rideInfo === 'string') {
-      parsedData = JSON.parse(rideInfo)
-    } else {
-      parsedData = null
-    }
-    if (typeof additionalInfo === 'string') {
-      additionalParsed = JSON.parse(additionalInfo)
-    } else {
-      additionalParsed = null
-    }
-  
-    if (!parsedData || !additionalParsed) {
-      return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
-    }
-
-    if (typeof selectedStop === 'string') {
-      if (selectedStop == '0') {
-        parsedStop = additionalParsed.start
-      } else {
-        parsedStop = additionalParsed.stops[parseInt(selectedStop) - 1]
-      }
-    } else {
-      parsedStop = null
-    }
-  
-    if (!parsedStop) {
-      return <Text style={{marginVertical: 'auto'}}>Error: No selected stop or param is invalid.</Text>
-    }
-    */
 
     function openLastModal() {
        setShowConfirmationModal(false);
@@ -83,8 +52,19 @@ const checkoutTrip = () => {
       }
     }, [showAcceptModal]);
 
+    useEffect(() => {
+      Font.loadAsync({
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      }).then(() => setFontsLoaded(true));
+    } , []);
+
+    if (!fontsLoaded) return null;
+
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <HitchHopHeader />
 
       <ImageBackground
@@ -106,14 +86,14 @@ const checkoutTrip = () => {
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
-            <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
             <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
-            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)]} isAtEnd={true}/>
+            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)]}/>
             <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
           </ScrollView>
 
@@ -121,8 +101,8 @@ const checkoutTrip = () => {
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4, alignItems: 'center'}}>
                 <Text style={styles.priceText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
-                <Users size={16} color='black' strokeWidth={3} />
-                <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
+                <Users strokeWidth={2.5} size={18} color='black'/>
+                <Text style={styles.detailText}>{trip.passengers.length}</Text>
               </HStack>    
             </View>     
             <Button onPress={() => setShowConfirmationModal(true)} style={[styles.button, styles.joinButton]}>
@@ -145,10 +125,10 @@ const checkoutTrip = () => {
                 </ModalBody>
                 <ModalFooter>
                   <Button style={[styles.button, styles.modalBackButton]} variant="outline" onPress={() => { setShowConfirmationModal(false) }}>
-                    <ButtonText style={{color: "#FFAB00"}}>Volver</ButtonText>
+                    <ButtonText style={{color: "#FFAB00", fontFamily: 'Exo-Medium', fontSize: 14}}>Volver</ButtonText>
                   </Button>
                   <Button style={[styles.button]} onPress={openLastModal}>
-                    <ButtonText>Aceptar</ButtonText>
+                    <ButtonText style={{fontFamily: 'Exo-Medium', fontSize: 14}}>Aceptar</ButtonText>
                   </Button>
                 </ModalFooter>
               </ModalContent>
@@ -209,6 +189,12 @@ const styles = StyleSheet.create({
     padding: 10 ,
     maxHeight: height * 0.6 
   },
+  detailText: {
+    color: '#000000',
+    fontFamily: 'Exo-Medium',
+    fontWeight: 500,
+    fontSize: 18,
+  },
   profilePic: {
     width: 72,
     height: 72,
@@ -220,14 +206,14 @@ const styles = StyleSheet.create({
   },
   carInfo: {
     fontSize: 14,
-    fontWeight: 'light',
-    fontFamily: 'Exo',
+    fontWeight: 300,
+    fontFamily: 'Exo-Light',
     color: '#171717', 
   },
   driverInfo: {
     fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'Exo',
+    fontWeight: 700,
+    fontFamily: 'Exo-Bold',
     color: '#171717',
   },
   rideDetails: {
@@ -265,34 +251,32 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     fontSize: 16,
-    fontWeight: 'normal'
   },
   modalButtonText: {
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     fontSize: 14,
-    fontWeight: 'medium'
+    fontWeight: 500
   },
   priceText: {
     marginRight: 10,
     color: '#171717',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
+    fontWeight: 500,
     fontSize: 18,
-    fontWeight: 'semibold'
   },
   boldText: {
     fontSize: 16,
-    fontWeight: 'bold',
     color: '#171717',
-    fontFamily: 'Exo',
-    textAlign: 'center'
+    fontFamily: 'Exo-Bold',
+    textAlign: 'center',
+    fontWeight: 800
   },
   normalText: {
     fontSize: 14,
-    fontWeight: 'normal',
     color: '#262627',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Regular',
     flex: 1
   },
 })

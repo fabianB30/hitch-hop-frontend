@@ -175,6 +175,7 @@ const searchMain = () => {
                         is24Hour={false}
                         onChange={onDateChange}
                         minimumDate={new Date()}
+                        minuteInterval={5}
                     />
                 )}
 
