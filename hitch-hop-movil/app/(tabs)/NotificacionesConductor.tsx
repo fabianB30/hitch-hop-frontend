@@ -90,7 +90,7 @@ export default function NotificacionesConductor (){
 
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;
-    //console.log(userId);
+    console.log(userId);
 
     // Conseguir notificaciones de usuario
     useEffect(() => {
@@ -105,7 +105,7 @@ export default function NotificacionesConductor (){
         };
         fetchNotifications();
     }, [userId]);
-    //console.log(notificaciones);
+    console.log(notificaciones);
 
     // Formateo para la hora
     const formatHour = (tripDate: string) => {
@@ -175,7 +175,7 @@ export default function NotificacionesConductor (){
                         
                         {notificaciones.map((notif) => {
                             return (
-                            <Card key={notif.tripDate} variant="filled" style={styles.cards}>
+                            <Card key={notif.timestamp} variant="filled" style={styles.cards}>
 
                                     <Text style={styles.cardHeadFont}>
                                         {notif.type === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}

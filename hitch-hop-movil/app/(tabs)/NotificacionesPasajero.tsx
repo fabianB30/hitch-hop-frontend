@@ -149,7 +149,7 @@ export default function NotificacionesConductor (){
                         
                         {notificaciones.map((notif) => {
                             return (
-                                <Card key={notif.tripDate} variant="filled" style={styles.cards}>
+                                <Card key={notif.timestamp} variant="filled" style={styles.cards}>
                                     <Text style={styles.cardHeadFont}>
                                         {notif.type === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
                                     </Text>
