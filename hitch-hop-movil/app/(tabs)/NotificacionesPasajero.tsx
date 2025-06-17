@@ -1,6 +1,5 @@
 import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Card } from "@/components/ui/card";
@@ -8,72 +7,106 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
+import { MapPin, ChevronLeft } from "lucide-react-native"
 import { ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { useAuth } from "./Context/auth-context";
+import { User, getNotificationsByUserRequest } from "@/interconnection/user";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-const notificaciones: any[] = [
-    {
-        id: 0,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "02:00pm"
-    },
-    {
-        id: 1,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 2,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 3,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 4,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 5,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 6,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 7,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 8,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    }
-]
+// const notificaciones: any[] = [
+//     {
+//         id: 0,
+//         tipo: "VA",
+//         lugar: "Estación del Pacífico",
+//         hora: "02:00pm"
+//     },
+//     {
+//         id: 1,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 2,
+//         tipo: "VA",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 3,
+//         tipo: "VA",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 4,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 5,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 6,
+//         tipo: "VA",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 7,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     },
+//     {
+//         id: 8,
+//         tipo: "VC",
+//         lugar: "Estación del Pacífico",
+//         hora: "12:50pm"
+//     }
+// ]
+
+
+type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
+    const { user } = useAuth() as {user: User | null};
+    
+    const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
+    const userId = user?._id;
+    //console.log(userId);
+
+    // Conseguir notificaciones de usuario
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (!userId) return;
+            const result = await getNotificationsByUserRequest(userId);
+            if (result) {
+                setNotificaciones(result);
+            } else {
+                setNotificaciones([]);
+            }
+        };
+        fetchNotifications();
+    }, [userId]);
+    //console.log(notificaciones);
+
+    // Formateo para la hora
+    const formatHour = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit'});
+    };
+
+
     return(
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
@@ -116,21 +149,21 @@ export default function NotificacionesConductor (){
                         
                         {notificaciones.map((notif) => {
                             return (
-                                <Card key={notif.id} variant="filled" style={styles.cards}>
+                                <Card key={notif.tripDate} variant="filled" style={styles.cards}>
                                     <Text style={styles.cardHeadFont}>
-                                        {notif.tipo === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
+                                        {notif.type === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
                                     </Text>
 
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={MapPin} size="md" />
                                         <Text size="sm" style={styles.lugarFechaFont}>
-                                            {notif.lugar}
+                                            {notif.place}
                                         </Text>
                                     </HStack>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon color="#404040" as={ClockIcon} size="md" />
                                         <Text size="sm" style={styles.horaFont}>
-                                            {notif.hora}
+                                            {formatHour(notif.tripDate || "")}
                                         </Text>
                                     </HStack>
                                 </Card>

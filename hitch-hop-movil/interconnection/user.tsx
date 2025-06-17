@@ -1,6 +1,7 @@
 import axios from './axios';
 
 export type User = {
+  _id: string,
   name: string;
   firstSurname: string;
   secondSurname: string;
@@ -19,9 +20,10 @@ export type User = {
   role: "Conductor" | "Pasajero";
   vehicles: string[]; // array id
   notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
+    type: "VA" | "VC" | "SP";
+    place: string;
+    timestamp: string;
+    tripDate?: string;
   }[];
 };
 
