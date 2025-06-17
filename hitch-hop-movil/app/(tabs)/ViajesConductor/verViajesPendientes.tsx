@@ -118,7 +118,7 @@ export default function VerViajesPendientes() {
       fetchTrips();
     }
   }, [user, router]);
-
+  
   if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;

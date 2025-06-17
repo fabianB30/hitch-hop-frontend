@@ -3,6 +3,10 @@ import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } fr
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 
+import { registerVehicleRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
+import { addCarsRequest } from '@/interconnection/user';
+
 export default function AgregarVehiculo() {
   const router = useRouter();
   const [marca, setMarca] = useState('');
@@ -11,10 +15,38 @@ export default function AgregarVehiculo() {
   const [color, setColor] = useState('');
   const [anio, setAnio] = useState('');
   const [foto, setFoto] = useState(null);
+  const { user,setUser } = useAuth();
 
-  const handleAgregar = () => {
-    // Aquí iría la lógica para guardar el vehículo
-    router.back();
+  const handleAgregar = async () => {
+      const vehicleData = { 
+        model: modelo, 
+        brand: marca, 
+        color: color, 
+        plate: placa,
+        year: anio
+      };
+    try {
+      const vehicle = await registerVehicleRequest(vehicleData);
+      console.log('Vehículo registrado:', vehicle);
+
+      if (user && vehicle) {
+        console.log('Usuario:', user);
+        await addCarsRequest(
+          { cars: [vehicle._id], email: user.email }
+        );
+        setUser({
+          ...user,
+          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
+        });
+        user.vehicles.push(vehicle._id); // Agregar el vehículo al array de vehículos del usuario actual para la sesion
+
+      }
+
+    } catch (error) {
+      console.error('Error al registrar el vehículo:', error);
+    }
+
+    router.push('/vehiculos')
   };
 
   return (
@@ -44,7 +76,7 @@ export default function AgregarVehiculo() {
       )}
       <TouchableOpacity
         style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => router.push('/vehiculos/vehiculoCreado')}
+        onPress={handleAgregar}
       >
         <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Agregar</Text>
       </TouchableOpacity>
