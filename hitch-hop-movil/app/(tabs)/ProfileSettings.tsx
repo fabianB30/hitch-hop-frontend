@@ -31,7 +31,7 @@ export default function ProfileSettings() {
   const { user , updateUser } = useAuth();
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const [editable, setEditable] = useState(false);
-  const [userData, setUserData] = useState(user);
+  
   const [backupData, setBackupData] = useState(user);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -47,6 +47,19 @@ export default function ProfileSettings() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSavedDialog, setShowSavedDialog] = useState(false);
   const router = useRouter();
+  const formatDate = (isoString: string): string => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  };
+  const [userData, setUserData] = useState({
+  ...user,
+  birthDate: formatDate(user.birthDate),
+});
+
   
   useEffect(() => {
     async function fetchData() {
@@ -112,7 +125,17 @@ export default function ProfileSettings() {
       }
       try {
         const userId = user._id;
-        const dataToUpdate = { ...userData };
+        const parseToISO = (friendlyDate: string): string => {
+          const [day, month, year] = friendlyDate.split(" / ").map(Number);
+          const date = new Date(year, month - 1, day);
+          return date.toISOString();
+        };
+
+        const dataToUpdate = {
+          ...userData,
+          birthDate: parseToISO(userData.birthDate),
+        };
+
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
 
