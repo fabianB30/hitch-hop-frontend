@@ -1,15 +1,14 @@
-import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter, useLocalSearchParams } from "expo-router";
 import { PendingRequestCard } from "@/components/PendingRequestCard";
+import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
-import { MoveRight, Users } from "lucide-react-native";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
-import { useEffect } from "react";
 import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { MoveRight } from "lucide-react-native";
+import { useEffect } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
@@ -17,19 +16,20 @@ export default function VerSolicitudesPendientes() {
   const { users, userLimit, actualPassengerNumber } = useLocalSearchParams();
   const usersList = users ? JSON.parse(users as string) : [];
   const userLimitNumber = userLimit ? Number(userLimit) : 0;
-  const passengerCount = actualPassengerNumber ? Number(actualPassengerNumber) : 0;
+  const passengerCount = actualPassengerNumber
+    ? Number(actualPassengerNumber)
+    : 0;
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
   const [fontsLoaded] = useFonts({
-    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
-    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
-    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
-    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
   });
   if (!fontsLoaded) return null;
-
 
   interface Requests {
     id: number;
@@ -38,6 +38,7 @@ export default function VerSolicitudesPendientes() {
     location: string;
     time: string;
     capacity: string;
+    image?: string; // base64
   }
 
   const requests: Requests[] = usersList.map((user: any, idx: number) => ({
@@ -47,6 +48,7 @@ export default function VerSolicitudesPendientes() {
     location: user.location,
     time: user.time,
     capacity: String(capacity),
+    image: user.image,
   }));
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function VerSolicitudesPendientes() {
       router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
   }, [requests, router]);
-  
+
   if (requests.length === 0) {
     return null;
   }
@@ -114,7 +116,7 @@ export default function VerSolicitudesPendientes() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: 'Exo-SemiBold',
+                  fontFamily: "Exo-SemiBold",
                   fontSize: 14,
                   fontWeight: "600",
                   color: "#171717",
@@ -127,19 +129,26 @@ export default function VerSolicitudesPendientes() {
             </Box>
           </HStack>
         </Box>
-        <Text style={
-          isFull
-            ? {
-                color: "#EF4444",
-                fontSize: 18,
-                fontFamily: 'Exo-SemiBold',
-                fontWeight: "600",
-                textAlign: "left",
-                left: 25,
-                zIndex: 10,
-              }
-            : styles.disponibles
-        }> {isFull ? "Sin espacios disponibles" : `Espacios disponibles: ${capacity} `} </Text>
+        <Text
+          style={
+            isFull
+              ? {
+                  color: "#EF4444",
+                  fontSize: 18,
+                  fontFamily: "Exo-SemiBold",
+                  fontWeight: "600",
+                  textAlign: "left",
+                  left: 25,
+                  zIndex: 10,
+                }
+              : styles.disponibles
+          }
+        >
+          {" "}
+          {isFull
+            ? "Sin espacios disponibles"
+            : `Espacios disponibles: ${capacity} `}{" "}
+        </Text>
         <Box
           style={{ height: "100%", paddingHorizontal: 20, marginBottom: 100 }}
         >
@@ -174,12 +183,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     right: 20,
     fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000',
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   title: {
@@ -251,7 +260,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: 'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontSize: 14,
     fontStyle: "normal",
     fontWeight: "600",
@@ -262,7 +271,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 18,
-    fontFamily: 'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,

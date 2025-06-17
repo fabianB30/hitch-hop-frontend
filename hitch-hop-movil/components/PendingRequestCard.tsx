@@ -1,23 +1,12 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Pressable } from "@/components/ui/pressable";
-import { Image } from "expo-image";
-import { ImageSourcePropType, StyleSheet } from "react-native";
-import { Clock, MapPin, Users, Ellipsis } from "lucide-react-native";
+import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
+import { Clock, Ellipsis, MapPin, Users } from "lucide-react-native";
+import { StyleSheet } from "react-native";
 import { VStack } from "./ui/vstack";
-import {
-  Button,
-  ButtonText,
-  ButtonIcon,
-  ButtonSpinner,
-} from "@/components/ui/button";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
 
 type RideCardProps = {
   id: number;
@@ -26,6 +15,7 @@ type RideCardProps = {
   location: string;
   time: string;
   capacity: string;
+  image?: string; // base64
 };
 
 export function PendingRequestCard({
@@ -34,6 +24,7 @@ export function PendingRequestCard({
   location,
   time,
   capacity,
+  image,
 }: RideCardProps) {
   const isFull = Number(capacity) <= 0;
   return (
@@ -68,7 +59,13 @@ export function PendingRequestCard({
         }}
       >
         <Avatar size="xl">
-          <AvatarImage source={require("@/assets/images/image17.png")} />
+          <AvatarImage
+            source={
+              image
+                ? { uri: image } // <-- Use base64 if provided
+                : require("@/assets/images/image17.png")
+            }
+          />
         </Avatar>
         <VStack
           style={{
@@ -217,13 +214,13 @@ export function PendingRequestCard({
             marginTop: 0,
           }}
         >
-          <ButtonText 
-            style={{ 
+          <ButtonText
+            style={{
               color: "#FEFEFF",
               fontWeight: "500",
               fontSize: 20,
-              wordWrap: 'break-word' 
-            }} 
+              wordWrap: "break-word",
+            }}
             onPress={() => {}}
           >
             Rechazar
@@ -236,7 +233,7 @@ export function PendingRequestCard({
           style={{
             backgroundColor: "#7875F8",
             marginTop: 0,
-            opacity: isFull ? 0.5 : 1, 
+            opacity: isFull ? 0.5 : 1,
           }}
           onPress={() => {
             if (!isFull) {
@@ -246,12 +243,12 @@ export function PendingRequestCard({
           }}
           disabled={isFull}
         >
-          <ButtonText 
+          <ButtonText
             style={{
               color: "#FEFEFF",
               fontWeight: "500",
               fontSize: 20,
-              wordWrap: 'break-word'
+              wordWrap: "break-word",
             }}
           >
             Aceptar

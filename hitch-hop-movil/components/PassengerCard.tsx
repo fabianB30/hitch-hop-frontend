@@ -52,7 +52,7 @@ export function PassengerCard({
             source={
               image
                 ? { uri: image } // <-- Use base64 if provided
-                : require("@/assets/images/carritoMeli.png")
+                : require("@/assets/images/image17.png")
             }
           />
         </Avatar>

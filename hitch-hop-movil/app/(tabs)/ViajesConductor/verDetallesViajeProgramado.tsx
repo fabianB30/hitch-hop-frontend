@@ -80,9 +80,10 @@ export default function VerDetallesViajeProgramado() {
               image: passenger.user.photoUrl,
               time: "FALTA",
             }));
+          setPassengers(mappedRequests);
           setTrip({
             id: trip._id,
-            users: trip.passengers.length,
+            users: mappedRequests.length,
             userLimit: trip.passengerLimit,
             start: trip.startpoint.name,
             end: trip.endpoint.name,
@@ -96,10 +97,10 @@ export default function VerDetallesViajeProgramado() {
                 price: "₡" + price,
                 phone: passenger.user.phone,
                 location: trip.startpoint.name,
+                image: passenger.user.photoUrl,
                 time: trip.departure.split("T")[1]?.slice(0, 5),
               }))
           );
-          setPassengers(mappedRequests);
         } else {
           setPassengers([]);
           router.replace("/(tabs)/ViajesConductor/sinProgramados");
@@ -171,7 +172,7 @@ export default function VerDetallesViajeProgramado() {
                   marginLeft: 2,
                 }}
               >
-                3/4
+                {trip ? trip.users + "/" + trip.userLimit : "..."}
               </Text>
             </Box>
           </HStack>
