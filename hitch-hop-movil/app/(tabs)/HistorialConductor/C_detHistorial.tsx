@@ -13,7 +13,7 @@ export default function C_detHistorial() {
   const { id } = useLocalSearchParams(); //Obtenemos la id del viaje desde los parametros
   
   const [trip, setTrip] = useState<any>(null);
-  const [vehicle, setVehicle] = useState<any>(null);₡
+  const [vehicle, setVehicle] = useState<any>(null);
 
   useEffect(() => {
     Font.loadAsync({
@@ -27,27 +27,19 @@ export default function C_detHistorial() {
     const fetchTrip = async () => {
 	try {
 	  const algoTrip = await getTripByIdRequest(id);
-	  console.log(algoTrip.stops);
+	  console.log(algoTrip)
+	  console.log(algoTrip.stops); 
+	  const [passengerPlaces, setPassengerPlaces] = useState<any[]>(null);
 	  setTrip(algoTrip);
 	  
 	  const algoVehicle = await getVehicleByIdRequest(algoTrip.vehicle);
 	  setVehicle(algoVehicle);
-			 
-	  const personasYlugares: {name: string, location:string}[] = [];
 
-	  /*Hay un problema bastante grande
-	  * El historial del prototipo dice en cual parada se recogio cada pasajero
-	  * Pero no he visto que eso se estuviera guardando de ninguna forma
-	  * No se que tan dificil sea agregar ese cambio por la parte en que se crean las paradas
-	  * Lo unico sque se me ocurre es dejar solo los pasajeros y paradas por separado
-	  * Es decir sin decir si fueron o no recojidos en ese lugar
-	  * Pero no se si cumple con los requerimientos*/
-
+    	  fetchTrip();
 	} catch (error) {
           console.error('Error while capturing a trip: ', error);
 	}
     };
-    fetchTrip();
   },[id]);
  
   //Esto DEBE ir luego de todos los useEffect para que siempre haga los mismos
