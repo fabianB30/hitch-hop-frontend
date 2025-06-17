@@ -91,7 +91,9 @@ export default function NotificacionesConductor (){
             if (!userId) return;
             const result = await getNotificationsByUserRequest(userId);
             if (result) {
-                setNotificaciones(result);
+                setNotificaciones(result); // Aquí lo que pasa es que result no tiene tipo, lo puede hacer mapeando como results.map
+                //puede agarrar de ejemplo los mappedRequest de verDetallesViajeProgramado algo así 
+                // const mappedRequests = trip.passengers.map((passenger: any) => ({
             } else {
                 setNotificaciones([]);
             }

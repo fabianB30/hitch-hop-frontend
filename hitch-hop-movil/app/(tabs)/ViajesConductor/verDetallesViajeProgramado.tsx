@@ -61,9 +61,20 @@ export default function VerDetallesViajeProgramado() {
           const mappedRequests = trip.passengers.map((passenger: any) => ({
             id: passenger.user._id,
             name: passenger.user.name + " " + passenger.user.secondSurname,
-            price: "₡" + price,
+            price: "₡" + price, 
             phone: passenger.user.phone,
-            location: "FALTA",
+            location: "FALTA", 
+            // Para poder arreglar debían observar el backend y ver los modelos
+            
+            // Arreglar location: if passenger.user.id se encuentra en trip.stops.passenger (esto es un array de ids) el stop es un array
+            // significa que el user está en ese lugar, tienen que ver en cada stop a ver en qué lugar está, ahí van a tener un objeto
+            // place y con place.name pueden obtener el nombre del lugar
+            
+            // Para obtener el punto de inicio y de salida es trip.startPoint y trip.endPoint
+            
+            // Instrucciones para el vehículo
+            // El trip da el vehículo, al vehículo le sacan el id y de ahí sacan la placa, el modelo y el color
+            // con la id backend/user/:carId/owner (falta hacer el servicio) y así obtiene el chofer
           }));
           setTrip({
             id: trip._id,
