@@ -1,16 +1,25 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
+import { deleteVehicleByIdRequest } from '@/interconnection/vehicle';
+import { useAuth } from '../Context/auth-context';
 
 export default function ConfirmarEliminacion() {
   const router = useRouter();
+  const [id, setId] = useState('1');
   const { marca, modelo } = useLocalSearchParams();
+  const { user, setUser } = useAuth();
 
   const handleCancelar = () => 
-    router.push('/(tabs)/vehiculos/vehiculoCreado');
+    router.push('/(tabs)/vehiculos');
   const handleAceptar = () => {
-    router.push('/(tabs)/vehiculos/sinVehiculos');
+    deleteVehicleByIdRequest(id);
+    setUser({
+          ...user,
+          vehicles: [...user.vehicles, vehicle._id] // Actualizar el estado del usuario con el nuevo vehículo
+        });
+    router.push('/(tabs)/vehiculos');
   };
 
   return (
