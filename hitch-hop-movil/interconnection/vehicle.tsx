@@ -33,6 +33,22 @@ export const registerVehicleRequest = async ( data: {
     }
 };
 
+export const getBrandVehicleRequest = async (id: string): Promise<any | null> => {
+    try {
+        const res = await axios.get(`/backend/vehicle/getModel/${id}`);
+        const dataVehicles = res.data.data;
+        if (dataVehicles) {
+            return dataVehicles;
+        } else {
+            console.error('Invalid response structure at getBrandVehicleRequest:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error at getBrandVehicleRequest: ', error);
+        return null;
+    }
+};
+
 export const getAllVehiclesRequest = async (): Promise<any[] | null> => {
     try {
         const res = await axios.get(`/backend/vehicle/get-all`);

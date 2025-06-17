@@ -8,42 +8,56 @@ import { router } from 'expo-router'
 
 const {width, height} = Dimensions.get('window')
 
-type tripDetailProp = {
-    avatar: number,
-    driverName: string,
-    details: string,
-    passengers: number,
-    price: number,
-    time: Date
-}
+export type tripDetailProp = {
+  _id: string;
+  arrival: string;
+  costPerPerson: number;
+  departure: string;
+  driver: any
+  startpoint: any
+  endpoint: any
+  passengers: any[]
+  paymethod: string;
+  stopPlaces: any[];
+  stops: any[];      
+};
 
 const TripDetailItem = (props: tripDetailProp) => {
-  return (
-    <TouchableOpacity onPress= {() => { router.push("/(tabs)/TripJoinInfo/tripInformation") }}>
+
+    //console.log(props.driver.photoUrl)
+
+    //Se define la descripción del punto de inicio
+    const startingPoint = props.startpoint.description.split(", ")
+    const startPointMsg = props.startpoint.name + ", " + startingPoint[startingPoint.length - 1]
+    
+    return (
+    <TouchableOpacity onPress= {() => { router.push({ 
+                                            pathname: "/(tabs)/TripJoinInfo/tripInformation",
+                                            params: { trip: JSON.stringify(props)} }); }}>
         <HStack style={styles.container}>
             <Image style={styles.image}
-                source={props.avatar}
+                source={{uri: props.driver.photoUrl}}
             />
 
             <VStack style={styles.tripInfo}>
                 <Text style={[styles.driver]}
                     numberOfLines={1}
                     ellipsizeMode='tail'
-                >{props.driverName}</Text>
+                >{props.driver.name}</Text>
                 <Text style={[styles.subtext]}>Punto de Partida:</Text>
                 <Text style={[styles.details]}
                     numberOfLines={2}
                     ellipsizeMode='tail'
-                >{props.details}</Text>
+                >{startPointMsg}</Text>
             </VStack>
 
             <VStack style={styles.rightColumn}>
                 <HStack style={{gap: 4, alignItems: 'center'}}>
                     <Users size={16} color='black' strokeWidth={3}/>
-                    <Text style={styles.regText}>{props.passengers}</Text>
+                    <Text style={styles.regText}>{props.passengers.length}</Text>
                 </HStack>
-                <Text style={styles.regText}>&#8353;{props.price}</Text>
-                <Text style={styles.regText}>{props.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                <Text style={styles.regText}>&#8353;{props.costPerPerson.toString()}</Text>
+                <Text style={styles.regText}>{new Date(props.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
             </VStack>
         </HStack>
     </TouchableOpacity>
@@ -61,9 +75,10 @@ container: {
     flex: 1
 },
 image: {
+    borderRadius: 50,
     width: height * 0.09,
     height: height * 0.09,
-    flex: 23
+    flex: 22
 },
 regText: {
     fontFamily: 'Exo',
@@ -91,7 +106,7 @@ details: {
 },
 rightColumn: {
     alignItems: 'flex-end',
-    flex: 22
+    flex: 25
 }
 })
 

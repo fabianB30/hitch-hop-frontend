@@ -1,5 +1,5 @@
 import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import { ImageBackground } from 'expo-image'
@@ -16,30 +16,21 @@ const selectPickupPoint = () => {
   const router = useRouter()
 
   const [selectedStop, setStop] = useState("0")
-  const { rideInfo } = useLocalSearchParams()
-  const { additionalInfo } = useLocalSearchParams()
-  let parsedData
-  let additionalParsed
+  const [stopsList, setStopsList] = useState<string[]>([])
+  const params = useLocalSearchParams()
 
-  if (typeof rideInfo === 'string') {
-    parsedData = JSON.parse(rideInfo)
-  } else {
-    parsedData = null
-  }
+  const trip = JSON.parse(params.trip as string)
 
-  if (typeof additionalInfo === 'string') {
-    additionalParsed = JSON.parse(additionalInfo)
-  } else {
-    additionalParsed = null
-  }
+  const vehicleInformation = JSON.parse(params.additionalInfo as string)
 
-  if (!parsedData || !additionalParsed) {
-    return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
-  }
+  useEffect(() => {
+      const stopList = [
+        trip.startpoint.name,
+        ...trip.stopPlaces.map((stop:any) => stop.name)
+      ]
+      setStopsList(stopList)
+    } , []);
 
-  const stops = additionalParsed.stops
-  stops.splice(0, 0, additionalParsed.start)
-  
   return (
     <SafeAreaView style={{flex: 1}}>
         <HitchHopHeader />
@@ -54,24 +45,24 @@ const selectPickupPoint = () => {
           <View style={styles.card}>
             <HStack style={{gap: 10}}>
               <Image 
-                source={additionalParsed.avatar}
+                source={{uri: trip.driver.photoUrl}}
                 style={styles.profilePic}
               />
 
               <View>
-                <Text style={styles.carInfo}>{additionalParsed.carBrand + " " + additionalParsed.carModel + " " + additionalParsed.carColor}</Text>
-                <Text style={styles.driverInfo}>{parsedData.driver}</Text>
+                <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+                <Text style={styles.driverInfo}>{trip.driver.name}</Text>
               </View>
             </HStack>
 
             <View style={styles.rideDetails}>
-              <Text style={{ color: '#171717'}}>{additionalParsed.date}</Text>
-              <Text style={{ color: '#171717'}}>{additionalParsed.time}</Text>
+              <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+              <Text style={{ color: '#171717'}}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
 
             <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
               <RadioGroup value={selectedStop} onChange={setStop}>
-                {stops.map((stop: string, index: number) => {
+                {stopsList.map((name: string, index: number) => {
                   return (
                     <Radio value={index.toString()} key={index}>
                       <RadioIndicator 
@@ -81,7 +72,7 @@ const selectPickupPoint = () => {
                           borderColor: selectedStop === index.toString() ? '#7875F8' : 'gray'
                         }}
                       />
-                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{stop}</RadioLabel>
+                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{name}</RadioLabel>
                     </Radio>
                   )
                 })}
@@ -92,9 +83,9 @@ const selectPickupPoint = () => {
               <View style={styles.rideDetails}>
                 <HStack style={{gap: 4}}>
                   <Users size={16} color='black' />
-                  <Text style={{ color: '#171717'}}>{parsedData.passengers.length}</Text>
+                  <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
                 </HStack>
-                <Text style={{ color: '#171717'}}>&#8353;{parsedData.costPerPerson}</Text>
+                <Text style={{ color: '#171717'}}>&#8353;{trip.costPerPerson}</Text>
               </View>
             </HStack>
             {/* End of Card View */}
@@ -105,9 +96,10 @@ const selectPickupPoint = () => {
               onPress={() => {router.push({
                 pathname: "/(tabs)/TripJoinInfo/checkoutTrip",
                 params: {
-                  rideInfo: rideInfo,
-                  additionalInfo: additionalInfo,
-                  selectedStop: selectedStop
+                  trip: params.trip,
+                  additionalInfo: params.additionalInfo,
+                  stopList: JSON.stringify(stopsList),
+                  selectedStop: JSON.stringify(selectedStop)
                 }
               })}}
             >

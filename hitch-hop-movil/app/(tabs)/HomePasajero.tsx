@@ -34,7 +34,7 @@ export default function HomePasajero() {
       </View>
       <Image source={require('@/assets/images/search.png')} style={styles.firstCharacter} />
       <Pressable
-        onPress={() => {}}
+        onPress={() => {router.push('./RouteSearch')}}
         style={{
           position: 'absolute',
           top: 210,

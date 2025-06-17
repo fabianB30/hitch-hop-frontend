@@ -80,7 +80,7 @@ export const deleteTripRequest = async (id): Promise<IJwtResponse | null> => {
     }
 };
 
-export const getTripsParams = async (data: any): Promise<Response[] | null> => {
+export const getTripsParams = async (data: any): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/trip/filter`, data);
         const dataTrip = res.data.data;

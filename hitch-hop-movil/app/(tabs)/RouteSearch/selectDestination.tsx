@@ -8,24 +8,16 @@ import { HStack } from '@/components/ui/hstack'
 import { Search, Subtitles } from 'lucide-react-native'
 import { ImageBackground } from 'expo-image'
 import { Input, InputField, InputSlot } from '@/components/ui/input'
-import { useForm } from '@/components/shared/SearchContext'
+import { useForm, Place } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
 import { getAllPlacesRequest } from '../../../interconnection/place'
 
-type DestinationType = {
+const { width, height } = Dimensions.get('window')
+
+export type DestinationType = {
     title: string,
     subtitle: string
 }
-
-type Place = {
-    __id: any,
-    name: string,
-    description: any,
-    longitude: any,
-    latitude: any,
-}
-
-const { width, height } = Dimensions.get('window')
 
 // Should get this from API
 const destinations = [
@@ -45,8 +37,9 @@ const selectDestination = () => {
     const [shownDestination, setShownDestinations] = useState<Place[]>([])
 
     const handleDestintationSelect = (dest: Place) => {
-        const varas = dest.description.split(", ")
-        setDestination(dest.name + ", " + varas[varas.length - 1])
+        setDestination(dest)
+        //const varas = dest.description.split(", ")
+        //dest.name + ", " + varas[varas.length - 1]
         router.back()
     }
 
@@ -67,7 +60,6 @@ const selectDestination = () => {
     }
 
     useEffect(() => {
-        //Esto se tiene que revisar mejor, pero de momento ya agarra los destinos
         async function fetchPlaces() {
             const data = await getAllPlacesRequest();
             
