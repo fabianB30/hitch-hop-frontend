@@ -120,7 +120,7 @@ const checkoutTrip = () => {
           <HStack style={{marginTop: 20}}>
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4, alignItems: 'center'}}>
-                <Text style={styles.priceText}>&#8353;{trip.costPerPerson}</Text>
+                <Text style={styles.priceText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
                 <Users size={16} color='black' strokeWidth={3} />
                 <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
               </HStack>    

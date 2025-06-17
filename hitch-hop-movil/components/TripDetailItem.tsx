@@ -1,10 +1,11 @@
 import { Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native'
-import React from 'react'
+import {useState, useEffect} from 'react'
 import { Proportions, Users } from 'lucide-react-native'
 import { useForm } from './shared/SearchContext'
 import { VStack } from '@/components/ui/vstack'
 import { HStack } from '@/components/ui/hstack'
 import { router } from 'expo-router'
+import * as Font from 'expo-font';
 
 const {width, height} = Dimensions.get('window')
 
@@ -23,13 +24,22 @@ export type tripDetailProp = {
 };
 
 const TripDetailItem = (props: tripDetailProp) => {
-
-    //console.log(props.driver.photoUrl)
+    const [fontsLoaded, setFontsLoaded] = useState(false);
 
     //Se define la descripción del punto de inicio
     const startingPoint = props.startpoint.description.split(", ")
     const startPointMsg = props.startpoint.name + ", " + startingPoint[startingPoint.length - 1]
     
+    useEffect(() => {
+        Font.loadAsync({
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+        }).then(() => setFontsLoaded(true));
+    }, [])
+
+    if (!fontsLoaded) return null;
+
     return (
     <TouchableOpacity onPress= {() => { router.push({ 
                                             pathname: "/(tabs)/TripJoinInfo/tripInformation",
@@ -56,7 +66,7 @@ const TripDetailItem = (props: tripDetailProp) => {
                     <Users size={16} color='black' strokeWidth={3}/>
                     <Text style={styles.regText}>{props.passengers.length}</Text>
                 </HStack>
-                <Text style={styles.regText}>&#8353;{props.costPerPerson.toString()}</Text>
+                <Text style={styles.regText}>{(props.costPerPerson === 0) ? "Gratis" : <>&#8353; {props.costPerPerson.toString()}</>}</Text>
                 <Text style={styles.regText}>{new Date(props.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
             </VStack>
         </HStack>
@@ -90,19 +100,20 @@ tripInfo: {
     flex: 58.5
 },
 driver: {
-    fontFamily: 'Montserrat',
+    fontFamily: 'Exo_Bold',
     fontSize: 24,
-    fontWeight: 'bold'
+    fontWeight: '700'
 },
 subtext: {
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     fontSize: 12,
-    fontWeight: 'medium',
+    fontWeight: '500',
 },
 details: {
-    fontFamily: 'Exo',
-    fontSize: 10,
-    fontWeight: 'normal'
+    fontFamily: 'Exo-Regular',
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#262627'
 },
 rightColumn: {
     alignItems: 'flex-end',

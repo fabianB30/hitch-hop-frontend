@@ -85,7 +85,7 @@ const selectPickupPoint = () => {
                   <Users size={16} color='black' />
                   <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
                 </HStack>
-                <Text style={{ color: '#171717'}}>&#8353;{trip.costPerPerson}</Text>
+                <Text style={{ color: '#171717'}}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
               </View>
             </HStack>
             {/* End of Card View */}

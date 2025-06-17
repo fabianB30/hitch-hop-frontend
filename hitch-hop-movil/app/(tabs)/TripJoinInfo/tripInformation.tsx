@@ -11,6 +11,7 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { useLocalSearchParams } from 'expo-router';
 import { getBrandVehicleRequest } from '@/interconnection/vehicle'
+import * as Font from 'expo-font';
 
 /*
 const getCarInfo = (id:string) => {
@@ -186,6 +187,7 @@ if (carInfo == null || startInfo == null || endInfo == null || stopsInfo == null
 const wh = Dimensions.get("window").height
 
 const tripInformation = () => {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [vehicleInformation, setVehicleInformation] = useState<any>({})
 
   const router = useRouter()
@@ -207,8 +209,13 @@ const tripInformation = () => {
           }
       }
       fetchVehicleInformation()
-      
+
+      Font.loadAsync({
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+      }).then(() => setFontsLoaded(true));
   }, [])
+
+  if (!fontsLoaded) return null;
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -250,7 +257,7 @@ const tripInformation = () => {
                 <Users size={16} color='black' />
                 <Text style={{ color: '#171717'}}>{trip.passengers.length}</Text>
               </HStack>
-              <Text style={{ color: '#171717'}}>&#8353;{trip.costPerPerson}</Text>
+              <Text style={{ color: '#171717'}}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
             </View>
 
             <Button style={styles.button}

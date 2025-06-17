@@ -110,7 +110,8 @@ const searchMain = () => {
     useEffect(() => {
         Font.loadAsync({
         'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
-        'Exo_Heading': require('@/assets/fonts/Exo-VariableFont_wght.ttf'),
+        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
         }).then(() => setFontsLoaded(true));
       }, [])
 
@@ -124,7 +125,7 @@ const searchMain = () => {
 
             {/* Main view */}
             <VStack style={styles.container}>
-                <Text style={styles.text}>Búsqueda de Rutas</Text>
+                <Text style={[styles.text, {fontFamily: 'Exo-SemiBold'}]}>Búsqueda de Rutas</Text>
 
                 <HStack style={styles.data}>
                     <VStack style={{flex: 2.4}}>
@@ -210,8 +211,8 @@ const searchMain = () => {
                 <TripDetailItem key={index} {...trip}/>))):
                 (<>
                     <Image source={require("@/assets/images/conductorFlorSquare.png")} style={styles.charaImage}/>
-                    <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
-                    <Text style={[styles.charaSubtext, styles.text]}>¡Encuentre su próximo viaje con nosotros!</Text>
+                    <Text style={[styles.text, styles.charaText]}>¿A dónde quieres ir?</Text>
+                    <Text style={[styles.charaSubtext]}>¡Encuentre su próximo viaje con nosotros!</Text>
                 </>)}
                 </ScrollView>
                 {/*Fin del ScrollView para las tarjetas*/}
@@ -234,7 +235,7 @@ const searchMain = () => {
                 </ModalBody>
                 <ModalFooter className="mx-auto">
                     <Button variant='outline' style={styles.modalBackButton} onPress={() => { setShowConfirmationModal(false)}}>
-                        <ButtonText style={{color: "#7875F8"}} >Regresar</ButtonText>
+                        <ButtonText style={{fontFamily: 'Exo-Medium', fontWeight: 500, color: "#7875F8"}} >Regresar</ButtonText>
                     </Button>   
                 </ModalFooter>
                 </ModalContent>
@@ -259,21 +260,21 @@ container: {
 text: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#262627',
+    color: '#000000',
     fontFamily: 'Exo-Medium',
 },
 boldText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: '#171717',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 normalText: {
     fontSize: 16,
-    fontWeight: 'normal',
+    fontWeight: '500',
     color: '#262627',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 data: {
@@ -284,18 +285,20 @@ data: {
 dataText: {
     marginBottom: 0.5,
     fontWeight: '700',
-    fontFamily: 'Exo_Heading',
+    fontFamily: 'Exo_Bold',
 },
 dataInput: {
     borderRadius: 8,
     paddingRight: 12,
+    borderColor: '#A5A3A3'
 },
 dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
     paddingRight: 12,
     borderRadius: 8,
-    paddingLeft: 12
+    paddingLeft: 12,
+    borderColor: '#A5A3A3'
 },
 charaImage: {
     marginHorizontal: 'auto',
@@ -306,11 +309,13 @@ charaImage: {
 charaText: {
     marginHorizontal: 'auto',
     fontSize: 24,
-    fontWeight: 'bold'
+    fontFamily: 'Exo-SemiBold',
+    fontWeight: '600'
 },
 charaSubtext: {
     marginHorizontal: 'auto',
     fontSize: 18,
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 button: {
