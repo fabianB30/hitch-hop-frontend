@@ -10,9 +10,6 @@ import { registerVehicleRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 import { addCarsRequest } from '@/interconnection/user';
 
-import { registerVehicleRequest } from '@/interconnection/vehicle';
-import { useAuth } from '../Context/auth-context';
-import { addCarsRequest } from '@/interconnection/user';
 
 export default function AgregarVehiculo() {
   const router = useRouter();
@@ -72,7 +69,7 @@ export default function AgregarVehiculo() {
       console.error('Error al registrar el vehículo:', error);
     }
 
-    router.push('/vehiculos')
+    router.push('/vehiculos');
   };
 
   return (

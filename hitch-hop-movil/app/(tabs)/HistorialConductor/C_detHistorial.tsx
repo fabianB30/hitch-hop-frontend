@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { getTripByIdRequest } from '@/interconnection/trip';
+import { getPlaceByIdRequest } from '@/interconnection/place'; 
+import { getVehicleByIdRequest } from '@/interconnection/vehicle';
 
 export default function C_detHistorial() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const { id } = useLocalSearchParams(); //Obtenemos la id del viaje desde los parametros
+  
+  const [trip, setTrip] = useState<any>(null);
+  const [vehicle, setVehicle] = useState<any>(null);₡
 
   useEffect(() => {
     Font.loadAsync({
@@ -15,7 +22,49 @@ export default function C_detHistorial() {
     }).then(() => setFontsLoaded(true));
   }, []);
 
-  if (!fontsLoaded) return null;
+ 
+  useEffect(()=>{
+    const fetchTrip = async () => {
+	try {
+	  const algoTrip = await getTripByIdRequest(id);
+	  console.log(algoTrip.stops);
+	  setTrip(algoTrip);
+	  
+	  const algoVehicle = await getVehicleByIdRequest(algoTrip.vehicle);
+	  setVehicle(algoVehicle);
+			 
+	  const personasYlugares: {name: string, location:string}[] = [];
+
+	  /*Hay un problema bastante grande
+	  * El historial del prototipo dice en cual parada se recogio cada pasajero
+	  * Pero no he visto que eso se estuviera guardando de ninguna forma
+	  * No se que tan dificil sea agregar ese cambio por la parte en que se crean las paradas
+	  * Lo unico sque se me ocurre es dejar solo los pasajeros y paradas por separado
+	  * Es decir sin decir si fueron o no recojidos en ese lugar
+	  * Pero no se si cumple con los requerimientos*/
+
+	} catch (error) {
+          console.error('Error while capturing a trip: ', error);
+	}
+    };
+    fetchTrip();
+  },[id]);
+ 
+  //Esto DEBE ir luego de todos los useEffect para que siempre haga los mismos
+  //Si no se hace por alguna razon da error
+  if (!fontsLoaded) return null; 
+  //Probablemente luego haya que cambiar esto  algo mas bonito
+  if (!trip || !vehicle) return (<Text>Cargando Viajes ...</Text>);
+  //Para obtener los datos del trip
+  const mesesAno = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  const departureDate = new Date(trip.departure);
+  const dia = departureDate.getDate();
+  const mes = mesesAno[departureDate.getMonth()];
+  const ano = departureDate.getFullYear();
+  const hora = departureDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
@@ -48,28 +97,28 @@ export default function C_detHistorial() {
             />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.subtitleCentered}>Viaje del 25 de febrero del 2025 a las 20:43</Text>
+            <Text style={styles.subtitleCentered}>Viaje del {dia} de {mes} del {ano} a las {hora}</Text>
             <Text style={styles.title}>Conductor</Text>
           </View>
         </View>
-
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.label}>Punto de Inicio</Text>
-          <Text style={styles.text}>C.22, San José, San Bosco</Text>
+	  {/*No se si los lugares deberian ser: [name, description] o solo [name]*/}
+          <Text style={styles.text}>{trip.startpoint.name}</Text>
 
           <Text style={styles.label}>Destino</Text>
-          <Text style={styles.text}>Calles 5 y 7, Avenida 9, Av 9, San José, Amón</Text>
+          <Text style={styles.text}>{trip.endpoint.name}</Text>
 
           <View style={styles.rowBetween}>
             <View>
               <Text style={styles.label}>Detalles del Auto</Text>
-              <Text style={styles.text}>Hyundai Santa Fe</Text>
-              <Text style={styles.text}>BXF132</Text>
-              <Text style={styles.text}>Gris</Text>
+              <Text style={styles.text}>{vehicle.brand}, {vehicle.model}</Text>
+              <Text style={styles.text}>{vehicle.plate}</Text>
+              <Text style={styles.text}>{vehicle.color}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={styles.label}>Costo</Text>
-              <Text style={styles.text}>₡2150</Text>
+              <Text style={styles.text}>₡{trip.costPerPerson}</Text>
             </View>
           </View>
 

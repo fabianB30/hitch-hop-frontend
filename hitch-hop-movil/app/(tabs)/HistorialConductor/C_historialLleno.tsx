@@ -3,11 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
+import { useAuth } from '../Context/auth-context';
+import { getTripsByUserRequest } from '@/interconnection/trip';
 
 export default function C_HistorialLleno() {
   const router = useRouter();
+  const { user } = useAuth();
   const [fontsLoaded, setFontsLoaded] = useState(false);
-
+  const [viajes, setViajes] = useState<any[]>([]); 
+ 
   useEffect(() => {
     Font.loadAsync({
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
@@ -17,15 +21,16 @@ export default function C_HistorialLleno() {
     }).then(() => setFontsLoaded(true));
   }, []);
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    const fetchViajes = async () => {
+      const trips = await getTripsByUserRequest(user._id, true, "all");
+      setViajes(trips);
+      //console.log("Viajes del conductor:", trips);
+    }
+    fetchViajes();
+  },[user]);
 
-  const viajes = [
-    { fecha: '25 de febrero del 2025', hora: '20:43' },
-    { fecha: '4 de febrero del 2025', hora: '8:43' },
-    { fecha: '14 de enero del 2025', hora: '19:13' },
-    { fecha: '5 de enero del 2025', hora: '9:00' },
-    { fecha: '4 de enero del 2025', hora: '8:43' },
-  ];
+  if (!fontsLoaded) return null;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
@@ -47,7 +52,8 @@ export default function C_HistorialLleno() {
         />
       </View>
 
-      {/* Contenido principal */}
+      
+        {/* Contenido principal */}
       <View style={styles.content}>
         {/* Encabezado */}
         <View style={styles.header}>
@@ -63,32 +69,59 @@ export default function C_HistorialLleno() {
             <Text style={styles.subtitulo}>Conductor</Text>
           </View>
         </View>
+        
+        {(viajes.length != 0)? (
 
-        {/* Lista de viajes */}
-        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-          {viajes.map((viaje, idx) => (
-            <View key={idx} style={styles.card}>
-              {/* Barra lateral */}
-              <View style={styles.sideBar} />
+        /* Lista de viajes */
+          <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
 
-              {/* Texto del viaje */}
-              <View style={{ flex: 1, marginLeft: 19 }}>
-                <Text style={styles.viajeTexto}>
-                  Viaje del {viaje.fecha} a las {viaje.hora}
-                </Text>
-              </View>
+            {viajes.map((viaje, idx) => {
+              const departureDate = new Date(viaje.departure);
+              const fecha = departureDate.toLocaleDateString('es-CR');
+              const hora = departureDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              return (
+                <View key={idx} style={styles.card}>
+                  {/* Barra lateral */}
+                  <View style={styles.sideBar} />
 
-              {/* Botón Detalles */}
-              <TouchableOpacity
-                style={styles.boton}
-                onPress={() => router.push("/(tabs)/HistorialConductor/C_detHistorial")}
-              >
-                <Text style={styles.botonTexto}>Detalles</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </ScrollView>
+                  {/* Texto del viaje */}
+                  <View style={{ flex: 1, marginLeft: 19 }}>
+                    <Text style={styles.viajeTexto}>
+                      Viaje del {fecha || "ERROR"} a las {hora || "ERROR"}
+                    </Text>
+                  </View>
+
+                  {/* Botón Detalles */}
+                  <TouchableOpacity
+                    style={styles.boton}
+                    onPress={() => router.push({
+			    pathname: "/(tabs)/HistorialConductor/C_detHistorial",
+			    params: {id: viaje._id},
+		    })}
+                  >
+                    <Text style={styles.botonTexto}>Detalles</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </ScrollView> 
+        ) : (
+          /* Imagen del personaje */
+          <View>
+            <Image
+              source={require('@/assets/images/gatoautosConductor.png')}
+              style={{ width: 500, height: 600, marginVertical: 16, marginTop: -90, marginLeft: 10 }}
+              resizeMode="contain"
+            />
+          
+            {/* Texto vacío */}
+            <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>
+              No hay viajes registrados como conductor
+            </Text>
+          </View>
+        )}  
       </View>
+      
 
     </View> 
   );
@@ -169,5 +202,12 @@ const styles = StyleSheet.create({
     color: '#FFAB00',
     fontFamily: 'exo.medium',
     fontSize: 13,
+  },
+    emptyText: {
+    fontSize: 20,
+    color: '#181718',
+    textAlign: 'center',
+    fontFamily: 'Exo-Regular',
+    marginTop: 8,
   },
 });
