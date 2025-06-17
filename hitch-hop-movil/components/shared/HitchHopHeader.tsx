@@ -1,12 +1,23 @@
 import { View, Text, Pressable, StyleSheet, Image, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
-import React from 'react'
+import { useState, useEffect } from 'react'
+import * as Font from 'expo-font';
 
 const { width, height} = Dimensions.get('window')
 
 const HitchHopHeader = () => {
     const router = useRouter();
+    const [fontsLoaded, setFontsLoaded] = useState(false);
 
+    useEffect(() => {
+        Font.loadAsync({
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+        }).then(() => setFontsLoaded(true));
+        }, [])
+
+    if (!fontsLoaded) return null;
+    
     return (
         <View style={styles.mainView}>
             <Pressable onPress={() => router.back()} style={styles.backArrow}>
@@ -32,10 +43,9 @@ const styles = StyleSheet.create ({
         zIndex: 11,
     },
     hitchhopText: {
-        color: "black",
+        color: '#000',
         fontSize: 20,
-        fontFamily: "Montserrat",
-        fontWeight: "800",
+        fontFamily: "Montserrat-ExtraBold",
         textAlign: "right",
         zIndex: 3,
         marginBottom: 20

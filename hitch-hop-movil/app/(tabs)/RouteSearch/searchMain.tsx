@@ -17,6 +17,7 @@ import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, Moda
 import TripDetailItem from '@/components/TripDetailItem'
 import { getAllTripsRequest, getTripsParams } from '../../../interconnection/trip'
 import {useAuth} from '../Context/auth-context'
+import * as Font from 'expo-font';
 
 const {width, height} = Dimensions.get("window")
 
@@ -27,6 +28,8 @@ const searchMain = () => {
     
     const { date, setDate, destination} = useForm()
     
+    const [fontsLoaded, setFontsLoaded] = useState(false);
+
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
     const [msgError, setMsgError] = useState(false)
@@ -104,7 +107,16 @@ const searchMain = () => {
         }
     }, [destination])
 
-  return (
+    useEffect(() => {
+        Font.loadAsync({
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Exo_Heading': require('@/assets/fonts/Exo-VariableFont_wght.ttf'),
+        }).then(() => setFontsLoaded(true));
+      }, [])
+
+    if (!fontsLoaded) return null;
+
+    return (
       <ImageBackground
       source={require("@/assets/images/pattern-background-main.png")}>
             <SafeAreaView>
@@ -116,7 +128,7 @@ const searchMain = () => {
 
                 <HStack style={styles.data}>
                     <VStack style={{flex: 2.4}}>
-                        <Text style={[styles.dataText, styles.text]}>Fecha</Text>
+                        <Text style={[styles.text, styles.dataText]}>Fecha</Text>
                         <TouchableOpacity
                             onPress={() => showDatepicker()}
                         >
@@ -135,7 +147,7 @@ const searchMain = () => {
                         </TouchableOpacity>
                     </VStack>
                     <VStack style={{flex: 1.9}}>
-                        <Text style={[styles.dataText, styles.text]}>Hora</Text>
+                        <Text style={[styles.text, styles.dataText]}>Hora</Text>
                         <TouchableOpacity
                             onPress={() => showTimepicker()}
                         >
@@ -166,7 +178,7 @@ const searchMain = () => {
                 )}
 
                 <VStack>
-                    <Text style={[styles.dataText, styles.text, msgError && {color: 'red'}]}>Destino</Text>
+                    <Text style={[styles.text, styles.dataText, msgError && {color: 'red'}]}>Destino</Text>
                     <TouchableOpacity
                         onPress= {() => {
                             router.push('/RouteSearch/selectDestination')
@@ -246,9 +258,9 @@ container: {
 },
 text: {
     fontSize: 20,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: '#262627',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
 },
 boldText: {
     fontSize: 20,
@@ -270,8 +282,9 @@ data: {
     marginBottom: 8.5
 },
 dataText: {
-    fontWeight: 'bold',
     marginBottom: 0.5,
+    fontWeight: '700',
+    fontFamily: 'Exo_Heading',
 },
 dataInput: {
     borderRadius: 8,
