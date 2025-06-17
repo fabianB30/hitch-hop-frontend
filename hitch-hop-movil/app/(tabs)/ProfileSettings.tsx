@@ -18,6 +18,7 @@ import { getParameterByNameRequest } from '../../interconnection/paremeter';
 import { getAllInstitutionsRequest } from '../../interconnection/institution';
 import { changePasswordRequest } from '../../interconnection/user';
 import { Pressable } from "@/components/ui/pressable";
+import * as ImageManipulator from 'expo-image-manipulator';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 
 
@@ -135,32 +136,43 @@ export default function ProfileSettings() {
   };
 
   const handleEditPhoto = async () => {
-    // Permisos
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Se requieren permisos para acceder a tus fotos.');
-      return;
-    }
-    // Abre la galería de imágenes
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-      base64: true,
-    });
+  // Permisos
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Se requieren permisos para acceder a tus fotos.');
+    return;
+  }
+  // Abre la galería de imágenes
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1, 
+    base64: false,
+  });
 
-    //Base 64
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const asset = result.assets[0];
-      if (asset.base64) {
-        setUserData({
-          ...userData,
-          photoUrl: `data:image/jpeg;base64,${asset.base64}`,
-        });
+  if (!result.canceled && result.assets && result.assets.length > 0) {
+    const asset = result.assets[0];
+
+    // Comprimir y redimensionar la imagen
+    const manipResult = await ImageManipulator.manipulateAsync(
+      asset.uri,
+      [
+        { resize: { width: 400, height: 400 } }, // Ajustar el tamaño
+      ],
+      {
+        compress: 0.5,
+        format: ImageManipulator.SaveFormat.JPEG,
+        base64: true,
       }
-    }
-  };
+    );
+
+    setUserData({
+      ...userData,
+      photoUrl: `data:image/jpeg;base64,${manipResult.base64}`,
+    });
+  }
+};
 
   // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
