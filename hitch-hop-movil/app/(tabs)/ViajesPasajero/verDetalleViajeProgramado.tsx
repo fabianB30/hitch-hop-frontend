@@ -2,7 +2,7 @@ import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { RideCard } from "@/components/RideCard";
 import { VStack } from "@/components/ui/vstack";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,12 +17,35 @@ import {
 } from "@/components/ui/avatar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CancelPopup from "@/components/cancelPopUp";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getTripByIdRequest } from "../../../interconnection/trip";
+import { useFonts } from "expo-font";
 
 export default function VerDetalleViajeProgramado() {
   const router = useRouter();
+  const { rideId } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [showPopup, setShowPopup] = useState(false);
+  const [trip, setTrip] = useState<any>(null);
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+  });
+  if (!fontsLoaded) return null;
+
+  useEffect(() => {
+    async function fetchTrip() {
+      if (!rideId) return;
+      const data = await getTripByIdRequest(rideId);
+      if (data) setTrip(data);
+    }
+    fetchTrip();
+  }, [rideId]);
+
+  if (!trip) return null;
 
   return (
     <ImageBackground
@@ -86,9 +109,9 @@ export default function VerDetalleViajeProgramado() {
                   justifyContent: "center",
                 }}
               >
-                <Text style={styles.title}>Adrian Zamora</Text>
-                <Text style={styles.carData}>ABC-123</Text>
-                <Text style={styles.carData}>Toyota Camry - Blanco</Text>
+                <Text style={styles.title}>{trip?.driver?.name || "Conductor"} {trip?.driver?.firstSurname || ""}</Text>
+                <Text style={[{fontSize: 16}, styles.lightFont]}>ABC-123</Text>
+                <Text style={[{fontSize: 12}, styles.lightFont]}>Toyota Camry - Blanco</Text>
               </VStack>
             </Box>
             <Box
@@ -99,7 +122,7 @@ export default function VerDetalleViajeProgramado() {
               }}
             >
               <Users size={24} color="black" />
-              <Text style={styles.capacity}>4</Text>
+              <Text style={[styles.mediumFont, {fontSize: 20}]}>{trip?.passengerLimit ?? 4}</Text>
             </Box>
           </HStack>
           <VStack style={{ gap: 20, marginBottom: 24, marginTop: 10 }}>
@@ -108,16 +131,16 @@ export default function VerDetalleViajeProgramado() {
             <Box style={{ width: 32, alignItems: "center" }}>
               <Phone size={24} color="black" />
             </Box>
-            <Text style={[styles.capacity, { marginLeft: 8, flex: 1 }]}>9514-7485</Text>
-            <Text style={styles.capacity}>Tarifa: ₡1500</Text>
+            <Text style={[styles.mediumFont, { marginLeft: 8, flex: 1, fontSize:16 }]}>{trip?.driver?.phone || "No disponible"}</Text>
+            <Text style={[styles.mediumFont, {fontSize: 16}]}>Tarifa: ₡{trip?.costPerPerson ?? "0"}</Text>
           </HStack>
 
           <HStack style={{ alignItems: "center" }}>
             <Box style={{ width: 32, alignItems: "center" }}>
               <Clock size={24} color="black" />
             </Box>
-            <Text style={[styles.capacity, { marginLeft: 8, flex: 1 }]}>Sáb. 12 de Abr, 2025.</Text>
-            <Text style={styles.capacity}>11:55 AM</Text>
+            <Text style={[styles.mediumFont, { marginLeft: 8, flex: 1, fontSize: 16 }]}>{trip ? trip.departure.split("T")[0] : ""}</Text>
+            <Text style={[styles.mediumFont, {fontSize: 16}]}>{trip ? trip.departure.split("T")[1]?.slice(0,5) : ""}</Text>
           </HStack>
         </VStack>
           <Divider className="my-0.5" />
@@ -138,9 +161,9 @@ export default function VerDetalleViajeProgramado() {
                 maxWidth: "50%",
               }}
             >
-              <Text style={styles.title}>Partida</Text>
+              <Text style={[styles.mediumFont, {fontSize: 18}]}>Partida</Text>
               <Text style={styles.carData}>
-                Tecnológico de Costa Rica, San Jose, av. 9
+                {trip?.startpoint?.name || ""}
               </Text>
             </VStack>
             <VStack
@@ -151,9 +174,9 @@ export default function VerDetalleViajeProgramado() {
                 maxWidth: "50%",
               }}
             >
-              <Text style={styles.title}>Destino</Text>
+              <Text style={[styles.mediumFont, {fontSize: 18}]}>Destino</Text>
               <Text style={styles.carData}>
-                Tecnológico de Costa Rica, Cartago
+                {trip?.endpoint?.name || ""}
               </Text>
             </VStack>
           </HStack>
@@ -167,8 +190,9 @@ export default function VerDetalleViajeProgramado() {
             }}
           >
             <MapPinCheck size={24} color="black" />
-            <Text style={styles.title}>Punto de Inicio</Text>
+            <Text style={[styles.mediumFont, {fontSize: 18}]}>Punto de Inicio</Text>
           </Box>
+          {/* Hay que cambiar esto probablemente, pero no hay manera de ver cual es el punto de partida del usuario*/}
           <Text style={styles.carData}>Alianza Francesa, San José Av. 7.</Text>
 
           <Box
@@ -195,7 +219,7 @@ export default function VerDetalleViajeProgramado() {
             }}
             onPress={() => setShowPopup(true)}
           >
-            <ButtonText style={{ color: "#FEFEFF" }}>Cancelar</ButtonText>
+            <ButtonText style={styles.buttonText}>Cancelar</ButtonText>
           </Button>
         </Box>
       </ScrollView>
@@ -228,40 +252,48 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 44,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
-    zIndex: 3,
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
+    zIndex: 10,
   },
   title: {
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontSize: 20,
-    fontStyle: "normal",
     fontWeight: "700",
     color: "#171717",
     textAlign: "left",
     zIndex: 3,
   },
-  capacity: {
-    fontFamily: "Exo",
-    fontSize: 20,
-    fontStyle: "normal",
+  mediumFont: {
+    fontFamily: 'exo.medium',
     fontWeight: "500",
     color: "#171717",
     textAlign: "left",
   },
-  carData: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+  lightFont: {
+    fontFamily: 'exo.medium',
     fontWeight: "300",
     color: "#171717",
     textAlign: "left",
+    zIndex: 3,
+  },
+  carData: {
+    fontFamily: 'Exo-Regular',
+    fontSize: 16,
+    fontStyle: "normal",
+    fontWeight: "400",
+    color: "#171717",
+    textAlign: "left",
+  },
+  buttonText: {
+    color: "#FEFEFF",
+    fontSize: 16,
+    fontFamily: 'exo.medium',
+    fontWeight: "500",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

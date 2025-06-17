@@ -8,13 +8,26 @@ import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from '../Context/auth-context';
+import { getTripsByUserRequest } from '../../../interconnection/trip';
+import { useFonts } from "expo-font";
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
+  const { user } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  const [rides, setRides] = useState<Ride[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const insets = useSafeAreaInsets();
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+  });
 
     const handleCancelPress = (rideId: number) => {
       setRideToCancel(rideId);
@@ -47,41 +60,64 @@ export default function VerDetallesViajesAceptados() {
     end: string;
   }
 
-  const rides: Ride[] = [
-    {
-      id: 1,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Adrián Zamora",
-      car: "Toyota Camry",
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
+  // Hacen un manejo algo así, eso le retorna la lista de lo que ocupan
+  /*useEffect(() => {
+    async function fetchData() {
+      try {
+        const trips = await getTripsByUserRequest(userId, false, status);
+        if (trips) setTrips(trips);
+      } catch (error) {
+        console.error("Error al obtener viajes:", error);
+      }
+    }
 
-    {
-      id: 2,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Juan Pérez",
-      car: "Chevrolet Spark",
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
+    fetchData();
+  }, []);*/
 
   useEffect(() => {
-    if (rides.length == 0) {
-      router.replace("/(tabs)/ViajesPasajero/sinViajes");
-    }
-  }, [rides, router]);
+    async function fetchRides() {
+      try {
+        const trips = await getTripsByUserRequest(user._id, false, "Aprobado");
+        if (trips) {
+          const mappedRides = trips.map((trip: any) => ({
+            id: trip._id,
+            avatar: require("@/assets/images/avatar1.png"),
+            name: trip.driver?.name || "Nombre Conductor",
+            car: "Modelo Auto",
+            price: `₡${trip.costPerPerson}`,
+            date: trip.departure.split("T")[0],
+            time: trip.departure.split("T")[1]?.slice(0,5),
+            start: trip.startpoint?.name || "",
+            end: trip.endpoint?.name || "",
+          }));
+          setRides(mappedRides);
 
+          // Si no hay rides, redirige
+          if (mappedRides.length === 0) {
+            router.replace("/(tabs)/ViajesPasajero/sinViajes");
+          }
+        } else {
+          // Si trips es null o undefined, también redirige
+          setRides([]);
+          router.replace("/(tabs)/ViajesPasajero/sinViajes");
+        }
+      } catch (error) {
+        console.error("Error al obtener viajes:", error);
+        setRides([]);
+        router.replace("/(tabs)/ViajesPasajero/sinViajes");
+      }
+    }
+
+    if (user?._id) {
+      fetchRides();
+    }
+  }, [user, router]);
+
+  if (!fontsLoaded) return null;
   if (rides.length === 0) {
     return null;
   }
+  
   return (
     <ImageBackground
       source={require("@/assets/images/fondoDefault.png")}
@@ -89,7 +125,7 @@ export default function VerDetallesViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)/ViajesPasajero")}
+        onPress={() => router.back()}
         style={styles.backArrow}
       >
         <Image
@@ -138,7 +174,10 @@ export default function VerDetallesViajesAceptados() {
             {...ride}
             onCancel={() => handleCancelPress(ride.id)}
             onDetails={() => {
-              router.push("/(tabs)/ViajesPasajero/verDetalleViajeProgramado");
+              console.log("Detalles del viaje:", ride);
+              router.push({pathname: "/(tabs)/ViajesPasajero/verDetalleViajeProgramado",
+              params: { rideId: ride.id }
+              });
             }}
           />
         ))}
@@ -164,14 +203,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
     overlay: {
@@ -185,7 +222,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -223,8 +260,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: 'exo.medium',
     fontWeight: "500",
   },
   cardsScroll: {

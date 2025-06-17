@@ -1,6 +1,5 @@
 import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions, TouchableOpacity } from "react-native";
 import { Text } from "@/components/ui/text";
@@ -8,6 +7,8 @@ import { StyleSheet } from 'react-native';
 import { Icon } from "@/components/ui/icon";
 import { ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { getParameterByNameRequest } from "@/interconnection/paremeter";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -15,6 +16,20 @@ const imageWidth = windowWidth + 62;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.4;
 const headerHeight = windowHeight * 0.15;
+
+// const [tiposId, setTiposId] = useState<string[]>([]);
+
+//  useEffect(() => {
+//     async function fetchTiposId() {
+//       try {
+//         const param = await getParameterByNameRequest("Tipo de identificación");
+//         if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
+//       } catch (error) {
+//         console.error("Error al obtener tipos de identificación:", error);
+//       }
+//     }
+//     fetchTiposId();
+//   }, []);
 
 export default function GestionPerfil(){
   const router = useRouter();
@@ -50,10 +65,10 @@ export default function GestionPerfil(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <Text style={styles.buttonTextHitch}>Información personal</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/home")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/VentanaInicial")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.replace("/VentanaInicial")}>
                 <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
               </TouchableOpacity>
             </VStack>

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from "axios";
 
 const instance = axios.create({
     // acá colocan la ip que les tira la terminal cuando ejecutan npx expo start, pero mantienen el puerto

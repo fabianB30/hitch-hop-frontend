@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Image, Dimensions } from 'react-native'
+import { View, Text, Pressable, StyleSheet, Image, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useState, useEffect } from 'react'
 import * as Font from 'expo-font';
@@ -49,9 +50,16 @@ const styles = StyleSheet.create ({
         textAlign: "right",
         zIndex: 3,
         marginBottom: 20
+        marginBottom: 20
     },
     mainView: {
         width: '100%',
+        height: height * 0.11,
+        paddingLeft: width * 0.05,
+        paddingRight: width * 0.05,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
         height: height * 0.11,
         paddingLeft: width * 0.05,
         paddingRight: width * 0.05,

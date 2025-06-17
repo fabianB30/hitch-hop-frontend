@@ -5,15 +5,21 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+import { useAuth } from '@/Context/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const {signIn } = useAuth();
+  const navigate = useNavigate();
+  
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     
@@ -30,9 +36,36 @@ const Login: React.FC = () => {
       return;
     }
     
-    console.log("Login attempt:", { email, password, rememberMe });
-  };
+    try {
+      const user = await signIn({ email: email, password: password});
+      // Navegar a la pantalla principal
+      if (user) {
+        if (user.type === 'Inactivo - User' || user.type === 'Inactivo - Admin') {
+          setError('Cuenta inactiva. Por favor, contacte a soporte.');
+          return;
+        } 
 
+        if (user == 'contrasena incorrecta') {
+          setError('Contraseña incorrecta. Por favor, inténtelo de nuevo.');
+          return;
+        } else if (user == 'No hay una cuenta asociada al correo') {
+          setError('El correo no se encuentra registrado. Por favor regístrese en la app y inténtelo de nuevo.');
+          return;
+        }
+
+        if (user.type === 'Administrador'){
+          navigate("/bienvenida");
+        } else if (user.type === 'Usuario') { // Si es usuario, redirigir a la pantalla de descarga de la app
+          navigate("/download-app");
+        }
+
+        
+      }
+    } catch (error) {
+      setError('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
+    }
+  };
+  
   // Manejador para el cambio del checkbox
   const handleCheckboxChange = (checked: boolean) => {
     setRememberMe(checked);
@@ -67,7 +100,8 @@ const Login: React.FC = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-          </div>          <div className="flex flex-col w-full max-w-[440px] mb-4">
+          </div>          
+          <div className="flex flex-col w-full max-w-[440px] mb-4">
             <label htmlFor="password" className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
               Contraseña
             </label>
@@ -123,7 +157,7 @@ const Login: React.FC = () => {
           </Button>
 
           <span className="w-[371px] h-[32px] mt-[32px] mb-4 text-[16px] font-semibold leading-[100%] font-exo text-center">
-            ¿No tienes una cuenta? <a href="/register" className="text-blue-500">Registra una cuenta</a>
+            ¿No tienes una cuenta? <a href="/registro" className="text-blue-500">Registra una cuenta</a>
           </span>
         </form>
       </div>
