@@ -3,7 +3,7 @@ import CancelRideSuccess from "@/components/CancelRideSuccess";
 import { RideCardDriver } from "@/components/RideCardDriver";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
-import { getTripsByUserRequest } from "@/interconnection/trip";
+import { getTripsByUserRequest, deleteTripRequest } from "@/interconnection/trip";
 import { useFonts } from "expo-font";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -51,11 +51,16 @@ export default function VerViajesAceptados() {
     setModalVisible(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Lógica para cancelar el viaje con selectedRequestId
+  const handleConfirmCancel = async () => {
+    if (selectedRequestId) {
+      const result = await deleteTripRequest(selectedRequestId);
+      if (result) {
+        setRequests(prev => prev.filter(r => r.id !== selectedRequestId));
+        setSuccessVisible(true);
+      }
+    }
     setModalVisible(false);
     setSelectedRequestId(null);
-    setSuccessVisible(true);
   };
 
   const handleCloseSuccess = () => {

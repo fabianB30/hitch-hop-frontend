@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
 import { useAuth } from "../Context/auth-context";
-import { getTripsByUserRequest } from "../../../interconnection/trip";
+import { getTripsByUserRequest, deleteTripRequest } from "../../../interconnection/trip";
 import { useFonts } from "expo-font";
 
 export default function VerViajesPendientes() {
@@ -53,11 +53,16 @@ export default function VerViajesPendientes() {
     setModalVisible(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Lógica para cancelar el viaje con selectedRequestId
+  const handleConfirmCancel = async () => {
+    if (selectedRequestId) {
+      const result = await deleteTripRequest(selectedRequestId);
+      if (result) {
+        setRequests(prev => prev.filter(r => r.id !== selectedRequestId));
+        setSuccessVisible(true);
+      }
+    }
     setModalVisible(false);
     setSelectedRequestId(null);
-    setSuccessVisible(true);
   };
 
   const handleCloseSuccess = () => {
@@ -113,7 +118,7 @@ export default function VerViajesPendientes() {
       fetchTrips();
     }
   }, [user, router]);
-  
+
   if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;
