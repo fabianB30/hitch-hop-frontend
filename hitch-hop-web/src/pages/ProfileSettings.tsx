@@ -261,26 +261,47 @@ const ProfileSettings: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64String = ev.target?.result as string;
-      setUserData((prev) => ({ ...prev, foto: base64String }));
-
-      // Guardar la imagen en base64 en la base de datos
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
       try {
+        const compressedBase64 = await compressImage(file, 200, 0.7);
+        setUserData((prev) => ({ ...prev, foto: compressedBase64 }));
+
         const userId = user._id;
-        await updateUserRequest(userId, { ...user, photoKey: base64String, photoUrl: base64String });
-        await updateUser({ ...user, photoKey: base64String, photoUrl: base64String });
+        await updateUserRequest(userId, { ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
+        await updateUser({ ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
       } catch (error) {
-        console.error("Error guardando la imagen:", error);
+        console.error("Error al comprimir la imagen:", error);
       }
+    }
+ };
+
+ // Función para comprimir imágenes
+ const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    img.onload = () => {
+      // Calcular nuevas dimensiones manteniendo la proporción
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+
+      // Dibujar imagen redimensionada
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Convertir a base64 con compresión
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressedDataUrl);
     };
-    reader.readAsDataURL(file);
-  }
+
+    img.src = URL.createObjectURL(file);
+  });
 };
+
 
   return (
     <div className="min-h-screen w-full bg-white flex">
