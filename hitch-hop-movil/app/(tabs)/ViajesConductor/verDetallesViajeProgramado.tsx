@@ -38,6 +38,7 @@ export default function VerDetallesViajeProgramado() {
         users: JSON.stringify(pendingPassengers),
         userLimit: trip ? trip.userLimit : 0,
         actualPassengerNumber: trip ? trip.users : 0,
+        tripIdParam: trip ? trip.id : 0,
       },
     });
   };

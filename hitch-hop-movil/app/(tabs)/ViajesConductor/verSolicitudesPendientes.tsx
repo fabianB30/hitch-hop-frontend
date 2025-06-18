@@ -7,18 +7,20 @@ import { useFonts } from "expo-font";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MoveRight } from "lucide-react-native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
 
-  const { users, userLimit, actualPassengerNumber } = useLocalSearchParams();
+  const { users, userLimit, actualPassengerNumber, tripIdParam } =
+    useLocalSearchParams();
   const usersList = users ? JSON.parse(users as string) : [];
   const userLimitNumber = userLimit ? Number(userLimit) : 0;
   const passengerCount = actualPassengerNumber
     ? Number(actualPassengerNumber)
     : 0;
+  const tripId = tripIdParam ? String(tripIdParam) : "0";
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
@@ -41,25 +43,54 @@ export default function VerSolicitudesPendientes() {
     image?: string; // base64
   }
 
-  const requests: Requests[] = usersList.map((user: any, idx: number) => ({
-    id: user.id,
-    name: user.name,
-    price: user.price,
-    location: user.location,
-    time: user.time,
-    capacity: String(capacity),
-    image: user.image,
-  }));
+  // Use state for requests
+  const [requests, setRequests] = useState<Requests[]>(
+    usersList.map((user: any, idx: number) => ({
+      id: user.id,
+      name: user.name,
+      price: user.price,
+      location: user.location,
+      time: user.time,
+      capacity: String(capacity),
+      image: user.image,
+    }))
+  );
 
   useEffect(() => {
-    console.log(requests);
-    if (requests.length == 0) {
-      router.replace("/(tabs)/ViajesConductor/sinProgramados");
-    }
+    // if (requests.length == 0) {
+    //   router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    // }
   }, [requests, router]);
 
-  if (requests.length === 0) {
-    return null;
+  // if (requests.length === 0) {
+  //   return null;
+  // }
+
+  async function handleAccept(tripId: String, requestId: number) {
+    console.log(
+      `(FALSO: es de prueba) Accepted request with passengerId: ${requestId}, tripId: ${tripId}`
+    );
+    setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    // Descomentar bloque para activar la función real
+    //--------------------------------------------------
+    // const res = await updatePassangerStatusRequest(
+    //   tripId,
+    //   requestId,
+    //   "Aprobado"
+    // );
+    // if (res) {
+    //   setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    // } else {
+    //   console.error("No se pudo actualizar el estado del pasajero.");
+    // }
+    //--------------------------------------------------
+  }
+
+  function handleReject(tripId: String, requestId: number) {
+    console.log(
+      `(FALSO: es de prueba) Rejected request with passengerId: ${requestId}, tripId: ${tripId}`
+    );
+    setRequests((prev) => prev.filter((req) => req.id !== requestId));
   }
 
   return (
@@ -156,9 +187,28 @@ export default function VerSolicitudesPendientes() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.cardsContainer}
           >
-            {requests.map((request) => (
-              <PendingRequestCard key={request.id} {...request} />
-            ))}
+            {requests.length === 0 ? (
+              <Text
+                style={{
+                  fontFamily: "Exo-SemiBold",
+                  fontSize: 20,
+                  color: "#171717",
+                  textAlign: "center",
+                  marginTop: 40,
+                }}
+              >
+                No hay solicitudes pendientes
+              </Text>
+            ) : (
+              requests.map((request) => (
+                <PendingRequestCard
+                  key={request.id}
+                  {...request}
+                  onAccept={() => handleAccept(tripId, request.id)}
+                  onReject={() => handleReject(tripId, request.id)}
+                />
+              ))
+            )}
           </ScrollView>
         </Box>
       </Box>

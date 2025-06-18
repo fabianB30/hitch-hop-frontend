@@ -16,6 +16,8 @@ type RideCardProps = {
   time: string;
   capacity: string;
   image?: string; // base64
+  onAccept?: () => void; // <-- Add
+  onReject?: () => void; // <-- Add
 };
 
 export function PendingRequestCard({
@@ -25,6 +27,8 @@ export function PendingRequestCard({
   time,
   capacity,
   image,
+  onAccept,
+  onReject,
 }: RideCardProps) {
   const isFull = Number(capacity) <= 0;
   return (
@@ -213,6 +217,7 @@ export function PendingRequestCard({
             backgroundColor: "#F87171",
             marginTop: 0,
           }}
+          onPress={onReject} // <-- Call reject handler
         >
           <ButtonText
             style={{
@@ -221,7 +226,6 @@ export function PendingRequestCard({
               fontSize: 20,
               wordWrap: "break-word",
             }}
-            onPress={() => {}}
           >
             Rechazar
           </ButtonText>
@@ -235,12 +239,7 @@ export function PendingRequestCard({
             marginTop: 0,
             opacity: isFull ? 0.5 : 1,
           }}
-          onPress={() => {
-            if (!isFull) {
-              () => console.log("Accepted request");
-              // handleAccept();
-            }
-          }}
+          onPress={!isFull ? onAccept : undefined} // <-- Call accept handler if not full
           disabled={isFull}
         >
           <ButtonText
