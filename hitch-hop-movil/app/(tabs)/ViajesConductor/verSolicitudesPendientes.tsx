@@ -13,14 +13,22 @@ import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
 
-  const { users, userLimit, actualPassengerNumber, tripIdParam } =
-    useLocalSearchParams();
+  const {
+    users,
+    userLimit,
+    actualPassengerNumber,
+    tripIdParam,
+    startParam,
+    endParam,
+  } = useLocalSearchParams();
   const usersList = users ? JSON.parse(users as string) : [];
   const userLimitNumber = userLimit ? Number(userLimit) : 0;
   const passengerCount = actualPassengerNumber
     ? Number(actualPassengerNumber)
     : 0;
   const tripId = tripIdParam ? String(tripIdParam) : "0";
+  const start = startParam ? String(startParam) : "Empty";
+  const end = endParam ? String(endParam) : "Empty";
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
@@ -131,9 +139,7 @@ export default function VerSolicitudesPendientes() {
             }}
           >
             <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
-              <Text style={styles.start}>
-                Tecnológico de Costa Rica, San José Av. 9.
-              </Text>
+              <Text style={styles.start}>{start}</Text>
             </Box>
             <Box
               style={{
@@ -155,7 +161,7 @@ export default function VerSolicitudesPendientes() {
                   maxWidth: "90%",
                 }}
               >
-                Tecnológico de Costa Rica, Cartago
+                {end}
               </Text>
             </Box>
           </HStack>

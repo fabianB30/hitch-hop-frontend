@@ -39,6 +39,8 @@ export default function VerDetallesViajeProgramado() {
         userLimit: trip ? trip.userLimit : 0,
         actualPassengerNumber: trip ? trip.users : 0,
         tripIdParam: trip ? trip.id : 0,
+        startParam: trip ? trip.start : "Empty",
+        endParam: trip ? trip.end : "Empty",
       },
     });
   };
