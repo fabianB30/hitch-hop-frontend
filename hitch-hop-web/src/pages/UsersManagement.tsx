@@ -1,3 +1,6 @@
+// Funcionalidad realizada por Carlos Cabrera y Diego Duran
+// Ventana de administración de Usuarios donde un administrador puede ver, filtrar y editar usuarios.
+
 import React, { useState, useEffect} from "react";
 import { Input } from "@/components/ui/input";
 import { Select,SelectTrigger,SelectContent,SelectItem,SelectValue,} from "@/components/ui/select";
@@ -22,6 +25,8 @@ const UsersManagement: React.FC = () => {
   const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [refreshUsers, setRefreshUsers] = useState(false);
+
+  // Carga los datos iniciales de instituciones y tipos de usuario
   useEffect(() => {
     async function fetchData() {
       try {
@@ -40,6 +45,7 @@ const UsersManagement: React.FC = () => {
     fetchData();
   }, []);
 
+  // Refresca la lista de usuarios
   useEffect(() => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
@@ -60,6 +66,7 @@ const UsersManagement: React.FC = () => {
     fetchUsers();
   }, [refreshUsers]);
 
+  // Carga la lista de usuarios para mostrar en la tabla
   useEffect(() => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
@@ -80,15 +87,49 @@ const UsersManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
+  // Filtro para buscar los usuarios
   const filteredUsers = users.filter((user) => {
     const matchUsername = !searchUsername || user.username.toLowerCase().includes(searchUsername.toLowerCase());
     const matchEmail = !searchEmail || user.email.toLowerCase().includes(searchEmail.toLowerCase());
-    const matchType = filterType === "Todos" || user.type === filterType;
     const matchInst = filterInstitution === "Todas" || user.institutionId === filterInstitution;
+
+    let matchType = true;
+    if (filterType === "Administrador") {
+      matchType = user.type === "Administrador";
+    } else if (filterType === "Conductor") {
+      matchType = user.type === "Usuario" && user.role === "Conductor";
+    } else if (filterType === "Pasajero") {
+      matchType = user.type === "Usuario" && user.role === "Pasajero";
+    } else if (filterType === "Inactivo - User") {
+      matchType = user.type === "Inactivo - User";
+    } else if (filterType === "Inactivo - Admin") {
+      matchType = user.type === "Inactivo - Admin";
+    } 
     return matchUsername && matchEmail && matchType && matchInst;
   });
 
-  // Si se selecciona un usuario, muestra sus detalles
+  // Funcion para obtener el rol del Usuario
+  const getUserRoleLabel = (user: any) => {
+  if (user.type === "Administrador") return "Administrador";
+  if (user.type === "Usuario") {
+    if (user.role === "Conductor") return "Usuario - Conductor";
+    if (user.role === "Pasajero") return "Usuario - Pasajero";
+    return "Usuario indefinido";
+  }
+  return user.type;
+};
+
+// Filtra por tipo y rol de usuario
+const userRoleFilterOptions = [
+  { value: "Todos", label: "Todos" },
+  { value: "Conductor", label: "Usuario - Conductor" },
+  { value: "Pasajero", label: "Usuario - Pasajero" },
+  { value: "Administrador", label: "Administrador" },
+  { value: "Inactivo - User", label: "Inactivo - User" },
+  { value: "Inactivo - Admin", label: "Inactivo - Admin" },
+];
+
+  // Si se selecciona un usuario, muestra sus detalles abriendo el componente de información del usuario
   if (selectedUser) {
     return (
       <UserDetailsView
@@ -103,7 +144,7 @@ const UsersManagement: React.FC = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-white">
-      {/* Filters */}
+      {/* Filtros en parte superior */}
       <div className="flex flex-col gap-2 max-w-[1184px] mx-auto pt-12 pb-2">
         <div className="flex flex-row justify-between items-center mb-2">
           <span className="text-[30px] font-bold font-exo">Lista de Usuarios</span>
@@ -135,9 +176,8 @@ const UsersManagement: React.FC = () => {
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Todos">Todos</SelectItem>
-                {tiposUsuario.map((type) => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                {userRoleFilterOptions.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -160,7 +200,7 @@ const UsersManagement: React.FC = () => {
         
       </div>
 
-      {/* Table */}
+      {/* Tabla con los usuarios existentes */}
       <div className="max-w-[1108px] mx-auto mt-8">
         <div className="relative">
           <div className="absolute w-full h-[644px] bg-[#ECECFF] rounded-[30px] z-0" />
@@ -191,7 +231,7 @@ const UsersManagement: React.FC = () => {
                   <div className="text-black font-exo font-medium text-base truncate">{user.email}</div>
                   <div className="flex items-center">
                     <span className={`px-3 py-1 rounded-lg font-exo font-semibold text-xs ${user.type === "Administrador" ? "bg-[#FFD700]" : "bg-[#ADA7FF]"}`}>
-                      {user.type}
+                      {getUserRoleLabel(user)}
                     </span>
                   </div>
                   <div className="text-[#8886D7] font-exo text-base">{user.date}</div>
@@ -229,6 +269,8 @@ const UsersManagement: React.FC = () => {
       type: user.type || "",
     });
     const [vehicles, setVehicles] = useState<any[]>([]);
+
+    // Carga los vehículos del usuario
     useEffect(() => {
     async function fetchVehicles() {
       if (user.vehicles && user.vehicles.length > 0) {
@@ -244,6 +286,7 @@ const UsersManagement: React.FC = () => {
     fetchVehicles();
   }, [user.vehicles]);
    
+  // Validación de los datos del formulario
   const validateUserData = (data: typeof form) => {
     const errors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -254,11 +297,11 @@ const UsersManagement: React.FC = () => {
     if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
     if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
       errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
-  }
+    }
 
-  setFieldErrors(errors);
-  return Object.keys(errors).length === 0;
- };
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
     // Estado de la cuenta y dialog de desactivación
     const isInitiallyActive = user.type === "Administrador" || user.type === "Usuario";
@@ -290,7 +333,7 @@ const UsersManagement: React.FC = () => {
       setEditMode(false);
     };
 
-    // Guardar cambios
+    // Guardar cambios en la base
     const handleSave = async () => {
       const isValid = validateUserData(form);
       if (!isValid) {
@@ -318,6 +361,7 @@ const UsersManagement: React.FC = () => {
       }
     };
     
+    // Maneja el click del switch para activar/desactivar la cuenta
     const handleSwitchClick = async () => {
       if (accountActive) {
         setShowDialog(true);
@@ -334,6 +378,7 @@ const UsersManagement: React.FC = () => {
       }
    };
 
+    // Maneja la confirmación de desactivación de cuenta
     const handleConfirmDeactivate = async () => {
       let newType = form.type;
       if (form.type === "Administrador") newType = "Inactivo - Admin";
