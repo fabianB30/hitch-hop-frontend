@@ -31,6 +31,8 @@ import { changePasswordRequest } from '../../interconnection/user';
 import { Pressable } from "@/components/ui/pressable";
 import * as ImageManipulator from 'expo-image-manipulator';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
+import { useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //    MAIN FUNCTION
@@ -107,6 +109,24 @@ export default function ProfileSettings() {
   }));
 
   //////////////////////////////////////////////////////////////////////////////////////
+  // Reload user data when the screen is opened
+  useFocusEffect(
+    React.useCallback(() => {
+      async function reloadUser() {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUserData({
+            ...parsedUser,
+            birthDate: formatDate(parsedUser.birthDate),
+          });
+        }
+      }
+      reloadUser();
+    }, [])
+  );
+
+  //////////////////////////////////////////////////////////////////////////////////////
   // Check every text field to verify it has the proper format and values
   const validateUserData = (data: typeof initialUser) => {
     const errors: Record<string, string> = {};
@@ -171,11 +191,7 @@ export default function ProfileSettings() {
        };
 
         await updateUserRequest(userId, dataToUpdate);
-        
-        //await updateUser({
-        //  ...userWithoutNotifications,
-       //   ...dataToUpdate,
-       // });
+        await updateUser(dataToUpdate);
 
       } catch (error) {
         console.error("Error updating user:", error);
