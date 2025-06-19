@@ -151,14 +151,31 @@ export default function ProfileSettings() {
           const date = new Date(year, month - 1, day);
           return date.toISOString();
         };
-
+        const { password, ...restUser } = user;
         const dataToUpdate = {
-          ...userData,
+          ...restUser,
+          name: userData.name,
+          firstSurname: userData.firstSurname,
+          secondSurname: userData.secondSurname,
+          email: userData.email,
+          phone: userData.phone,
+          identificationTypeId: userData.identificationTypeId,
+          identificationNumber: userData.identificationNumber,
           birthDate: parseToISO(userData.birthDate),
-        };
+          institutionId: userData.institutionId,
+          genre: userData.genre,
+          username: userData.username,
+          role: userData.role,
+          type: userData.type,
+          photoUrl: userData.photoUrl,
+       };
 
         await updateUserRequest(userId, dataToUpdate);
-        await updateUser(dataToUpdate);
+        
+        //await updateUser({
+        //  ...userWithoutNotifications,
+       //   ...dataToUpdate,
+       // });
 
       } catch (error) {
         console.error("Error updating user:", error);
