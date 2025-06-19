@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop } from "@/components/ui/alert-dialog";
 import { Text } from '@/components/ui/text';
 import { TouchableOpacity } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import TyCScreen from './components/TyC';
 import RegisterStep1 from './components/RegisterStep1';
@@ -158,58 +157,53 @@ export default function RegisterScreen() {
             setSuccessMessage('Error al registrar usuario. Por favor, verifique su conexión a internet e inténtelo de nuevo.');
             setShowAlertDialog(true);
         }
-    };    return (
-        <KeyboardAwareScrollView 
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-            enableOnAndroid={true}
-        >
-            <View style={{ flex: 1 }}>
-                <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
-                    <AlertDialogBackdrop className="bg-black/80" />
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <Text className="text-[18px] text-black" style={{ fontFamily: 'Exo_600SemiBold' }}>
-                                Registro
-                            </Text>
-                        </AlertDialogHeader>
-                        <AlertDialogBody className="mb-5 top-5">
-                            <Text className="text-[16px] text-gray-700" style={{ fontFamily: 'Exo_400Regular' }}>
-                                {successMessage}
-                            </Text>
-                        </AlertDialogBody>
-                        <AlertDialogFooter>
-                            <TouchableOpacity onPress={handleClose} className="px-4 py-2 rounded-lg bg-[#7875F8]">
-                                <Text className="text-white" style={{ fontFamily: 'Exo_400Regular' }}>Aceptar</Text>
-                            </TouchableOpacity>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+    };
 
-                {currentStep === 1 && (
-                    <RegisterStep1 
-                        initialData={firstFormData}
-                        onNext={handleStep1Next} 
-                    />
-                )}           
-                
-                {currentStep === 2 && (
-                    <TyCScreen 
-                        onAccept={handleTermsAccept}
-                        onReject={handleTermsReject}
-                    />
-                )}
+    return (
+        <View style={{ flex: 1 }}>
+            <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
+                <AlertDialogBackdrop className="bg-black/80" />
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <Text className="text-[18px] text-black" style={{ fontFamily: 'Exo_600SemiBold' }}>
+                            Registro
+                        </Text>
+                    </AlertDialogHeader>
+                    <AlertDialogBody className="mb-5 top-5">
+                        <Text className="text-[16px] text-gray-700" style={{ fontFamily: 'Exo_400Regular' }}>
+                            {successMessage}
+                        </Text>
+                    </AlertDialogBody>
+                    <AlertDialogFooter>
+                        <TouchableOpacity onPress={handleClose} className="px-4 py-2 rounded-lg bg-[#7875F8]">
+                            <Text className="text-white" style={{ fontFamily: 'Exo_400Regular' }}>Aceptar</Text>
+                        </TouchableOpacity>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
-                {currentStep === 3 && (
-                    <RegisterStep2 
-                        firstFormData={firstFormData}
-                        secondFormData={secondFormData}
-                        onBack={handleStep2Back}
-                        onFinish={handleStep2Next}
-                    />
-                )}
-            </View>
-        </KeyboardAwareScrollView>
+            {currentStep === 1 && (
+                <RegisterStep1 
+                    initialData={firstFormData}
+                    onNext={handleStep1Next} 
+                />
+            )}           
+            
+            {currentStep === 2 && (
+                <TyCScreen 
+                    onAccept={handleTermsAccept}
+                    onReject={handleTermsReject}
+                />
+            )}
+
+            {currentStep === 3 && (
+                <RegisterStep2 
+                    firstFormData={firstFormData}
+                    secondFormData={secondFormData}
+                    onBack={handleStep2Back}
+                    onFinish={handleStep2Next}
+                />
+            )}
+        </View>
     );
 }
