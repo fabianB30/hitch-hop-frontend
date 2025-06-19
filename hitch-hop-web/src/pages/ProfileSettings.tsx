@@ -193,8 +193,10 @@ const ProfileSettings: React.FC = () => {
           const [day, month, year] = userData.fechaNacimiento.split("/").map(s => s.trim());
           birthDateISO = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
         }
+        const { password, ...restUser } = user;
+
         const dataToUpdate: User = {
-          ...user,
+          ...restUser,
           name: userData.nombre,
           firstSurname: userData.primerApellido,
           secondSurname: userData.segundoApellido,
