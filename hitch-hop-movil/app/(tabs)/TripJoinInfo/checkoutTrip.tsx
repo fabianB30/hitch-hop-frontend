@@ -14,6 +14,8 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import * as Font from 'expo-font';
+import { addStopToTripRequest, addPassangerToTripRequest } from '../../../interconnection/trip'
+import { useAuth } from '../Context/auth-context'
 
 const {width, height} = Dimensions.get("window")
 
@@ -22,6 +24,7 @@ const checkoutTrip = () => {
     const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
     const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
     
+    const { user } = useAuth()
     const router = useRouter()
 
     const params = useLocalSearchParams()
@@ -32,9 +35,11 @@ const checkoutTrip = () => {
 
     const stopList = JSON.parse(params.stopList as string);
 
-    function openLastModal() {
-       setShowConfirmationModal(false);
-       setShowAcceptModal(true);
+    async function openLastModal() {
+      const addPassenger = await addPassangerToTripRequest(user._id, trip._id);
+      const addStop = await addStopToTripRequest(trip._id, selectedStop)
+      setShowConfirmationModal(false);
+      setShowAcceptModal(true);
     }
     
     useEffect(() => {
@@ -86,8 +91,8 @@ const checkoutTrip = () => {
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>

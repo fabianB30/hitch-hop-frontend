@@ -42,7 +42,7 @@ const searchMain = () => {
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
         if (selectedDate) {
             if (mode === 'date') {
-                const newDate = new Date(
+                const newDate  = new Date(
                     selectedDate.getFullYear(),
                     selectedDate.getMonth(),
                     selectedDate.getDate(),
@@ -50,7 +50,8 @@ const searchMain = () => {
                     date.getMinutes(),
                     date.getSeconds()
                 )
-                setDate(newDate)
+                //const newDateUtcLiteral = pickerDateToUtcLiteral(combinedDate);
+                setDate(newDate);
             } else if (mode === 'time') {
                 const newDate = new Date(
                     date.getFullYear(),
@@ -60,7 +61,8 @@ const searchMain = () => {
                     selectedDate.getMinutes(),
                     selectedDate.getSeconds()
                 )
-                setDate(newDate)
+                //const newDateUtcLiteral = pickerDateToUtcLiteral(combinedDate);
+                setDate(newDate);
             }
         }
         setShow(false)
@@ -79,9 +81,12 @@ const searchMain = () => {
     const searchTrips = async () => {
 
         setMsgError(false)
-
+        const utcDate = dateToUtcDate(date)
+        const StartDate = new Date(utcDate.getTime() - 30 * 60 * 1000)
+        const EndDate = new Date(utcDate.getTime() + 30 * 60 * 1000)
         const queryData = {
-            "endDate": date,
+            "startDate": StartDate,
+            "endDate": EndDate,
             "institutionId": "6841390cb2cce04f89706f02", //user.institutionId
             "endpoint": destination._id
         }
@@ -100,14 +105,37 @@ const searchMain = () => {
         (!destination.name) ? setMsgError(true) : searchTrips(); 
     }
 
+    const dateToUtcDate = (pickerDate: Date): Date => {
+    const offset = pickerDate.getTimezoneOffset();
+    return new Date(pickerDate.getTime() - offset * 60 * 1000);
+    }
+
+    const roundDate = (date: Date) => {
+        const minutes = date.getMinutes();
+        const remainder = minutes % 15;
+        const diff = remainder === 0 ? 0 : 15 - remainder;
+
+        const roundedDate = new Date(date);
+        roundedDate.setMinutes(minutes + diff);
+        roundedDate.setSeconds(0);
+        roundedDate.setMilliseconds(0);
+
+        return roundedDate;
+    }
+
     useEffect(() => {
         if(destination.name){
             const description = destination.description.split(", ")
             setDestinationMsg(destination.name + ", " + description[description.length - 1])
         }
+
     }, [destination])
 
     useEffect(() => {
+        const roundedDateUtcLiteral = roundDate(date); // redondea en UTC literal
+
+        setDate(roundedDateUtcLiteral);
+
         Font.loadAsync({
         'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
         'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
@@ -175,7 +203,7 @@ const searchMain = () => {
                         is24Hour={false}
                         onChange={onDateChange}
                         minimumDate={new Date()}
-                        minuteInterval={5}
+                        minuteInterval={15}
                     />
                 )}
 
