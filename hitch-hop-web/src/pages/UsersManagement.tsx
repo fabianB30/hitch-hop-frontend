@@ -1,3 +1,6 @@
+// Funcionalidad realizada por Carlos Cabrera y Diego Duran
+// Ventana de administración de Usuarios donde un administrador puede ver, filtrar y editar usuarios.
+
 import React, { useState, useEffect} from "react";
 import { Input } from "@/components/ui/input";
 import { Select,SelectTrigger,SelectContent,SelectItem,SelectValue,} from "@/components/ui/select";
@@ -22,6 +25,8 @@ const UsersManagement: React.FC = () => {
   const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [refreshUsers, setRefreshUsers] = useState(false);
+
+  // Carga los datos iniciales de instituciones y tipos de usuario
   useEffect(() => {
     async function fetchData() {
       try {
@@ -40,6 +45,7 @@ const UsersManagement: React.FC = () => {
     fetchData();
   }, []);
 
+  // Refresca la lista de usuarios
   useEffect(() => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
@@ -60,6 +66,7 @@ const UsersManagement: React.FC = () => {
     fetchUsers();
   }, [refreshUsers]);
 
+  // Carga la lista de usuarios para mostrar en la tabla
   useEffect(() => {
     async function fetchUsers() {
       const data = await getAllUsersRequest();
@@ -80,7 +87,7 @@ const UsersManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-  // Filtra los usuarios
+  // Filtro para buscar los usuarios
   const filteredUsers = users.filter((user) => {
     const matchUsername = !searchUsername || user.username.toLowerCase().includes(searchUsername.toLowerCase());
     const matchEmail = !searchEmail || user.email.toLowerCase().includes(searchEmail.toLowerCase());
@@ -101,7 +108,7 @@ const UsersManagement: React.FC = () => {
     return matchUsername && matchEmail && matchType && matchInst;
   });
 
-  // Obtiene el rol del Usuario
+  // Funcion para obtener el rol del Usuario
   const getUserRoleLabel = (user: any) => {
   if (user.type === "Administrador") return "Administrador";
   if (user.type === "Usuario") {
@@ -122,7 +129,7 @@ const userRoleFilterOptions = [
   { value: "Inactivo - Admin", label: "Inactivo - Admin" },
 ];
 
-  // Si se selecciona un usuario, muestra sus detalles
+  // Si se selecciona un usuario, muestra sus detalles abriendo el componente de información del usuario
   if (selectedUser) {
     return (
       <UserDetailsView
@@ -137,7 +144,7 @@ const userRoleFilterOptions = [
 
   return (
     <div className="relative w-full min-h-screen bg-white">
-      {/* Filters */}
+      {/* Filtros en parte superior */}
       <div className="flex flex-col gap-2 max-w-[1184px] mx-auto pt-12 pb-2">
         <div className="flex flex-row justify-between items-center mb-2">
           <span className="text-[30px] font-bold font-exo">Lista de Usuarios</span>
@@ -193,7 +200,7 @@ const userRoleFilterOptions = [
         
       </div>
 
-      {/* Table */}
+      {/* Tabla con los usuarios existentes */}
       <div className="max-w-[1108px] mx-auto mt-8">
         <div className="relative">
           <div className="absolute w-full h-[644px] bg-[#ECECFF] rounded-[30px] z-0" />
@@ -262,6 +269,8 @@ const userRoleFilterOptions = [
       type: user.type || "",
     });
     const [vehicles, setVehicles] = useState<any[]>([]);
+
+    // Carga los vehículos del usuario
     useEffect(() => {
     async function fetchVehicles() {
       if (user.vehicles && user.vehicles.length > 0) {
@@ -277,6 +286,7 @@ const userRoleFilterOptions = [
     fetchVehicles();
   }, [user.vehicles]);
    
+  // Validación de los datos del formulario
   const validateUserData = (data: typeof form) => {
     const errors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -287,11 +297,11 @@ const userRoleFilterOptions = [
     if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
     if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
       errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
-  }
+    }
 
-  setFieldErrors(errors);
-  return Object.keys(errors).length === 0;
- };
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
     // Estado de la cuenta y dialog de desactivación
     const isInitiallyActive = user.type === "Administrador" || user.type === "Usuario";
@@ -323,7 +333,7 @@ const userRoleFilterOptions = [
       setEditMode(false);
     };
 
-    // Guardar cambios
+    // Guardar cambios en la base
     const handleSave = async () => {
       const isValid = validateUserData(form);
       if (!isValid) {
@@ -351,6 +361,7 @@ const userRoleFilterOptions = [
       }
     };
     
+    // Maneja el click del switch para activar/desactivar la cuenta
     const handleSwitchClick = async () => {
       if (accountActive) {
         setShowDialog(true);
@@ -367,6 +378,7 @@ const userRoleFilterOptions = [
       }
    };
 
+    // Maneja la confirmación de desactivación de cuenta
     const handleConfirmDeactivate = async () => {
       let newType = form.type;
       if (form.type === "Administrador") newType = "Inactivo - Admin";

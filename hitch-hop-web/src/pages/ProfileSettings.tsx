@@ -1,3 +1,6 @@
+// Funcionalidad realizada por Carlos Cabrera y Diego Duran
+// Ventana de gestión de perfil del usuario, donde el usuario puede editar la información de su cuenta
+
 import React, { useRef, useState, useEffect } from "react";
 import Imagen1 from "../assets/1.6-DefaultPFP.png";
 import { Button } from "../components/ui/button";
@@ -16,6 +19,7 @@ import { getAllInstitutionsRequest } from '@/interconnection/institution';
 import { updateUserRequest } from "@/interconnection/user";
 import { changePasswordRequest } from "@/interconnection/user";
 
+// Definicion de datos del usuario
 const initialUser = {
   nombre: "",
   primerApellido: "",
@@ -32,6 +36,7 @@ const initialUser = {
   foto: Imagen1,
 };
 
+// Componente principal 
 const ProfileSettings: React.FC = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [editable, setEditable] = useState(false);
@@ -72,6 +77,7 @@ const ProfileSettings: React.FC = () => {
       }
     : initialUser;
 
+  // Carga los datos del usuario al iniciar
   useEffect(() => {
     if (user) {
       let fechaNacimiento = user.birthDate || "";
@@ -122,24 +128,27 @@ const ProfileSettings: React.FC = () => {
     fetchOptions();
   }, []);
   
-
+  // Valida errores al cambiar datos
   useEffect(() => {
     const validationErrors = validateUserData(userData);
     setErrors(validationErrors);
   }, [userData]);
 
+  // Formatea la fecha a formato dd/mm/yyyy
   function formatDate(date: Date) {
     return date
       ? `${String(date.getDate()).padStart(2, "0")} / ${String(date.getMonth() + 1).padStart(2, "0")} / ${date.getFullYear()}`
       : "";
   }
 
+  // Parsea la fecha a objeto Date
   function parseDate(str: string) {
     const [day, month, year] = str.split("/").map((s) => parseInt(s.trim(), 10));
     if (!day || !month || !year) return null;
     return new Date(year, month - 1, day);
   }
 
+  // Validación de datos del usuario
   const validateUserData = (data: typeof initialUser) => {
     const newErrors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -166,7 +175,7 @@ const ProfileSettings: React.FC = () => {
     return newErrors;
   };
 
-  // Guardar los datos del usuario
+  // Guardar los cambios del usuario
   const toggleEdit = async () => {
     if (!editable) {
       setBackupData(userData);
@@ -261,6 +270,7 @@ const ProfileSettings: React.FC = () => {
     fileInputRef.current?.click();
   };
 
+  // Maneja el cambio de foto de perfil
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -537,6 +547,7 @@ const ProfileSettings: React.FC = () => {
   );
 };
 
+// Componente para los inputs del perfil
 function ProfileInput({ label, value, onChange, editable = false, as, options, type = "text", error }: {
   label: string;
   value: string;
