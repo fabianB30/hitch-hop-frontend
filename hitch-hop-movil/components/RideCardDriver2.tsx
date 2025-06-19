@@ -1,3 +1,7 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente RideCardDriver que muestra la información de un viaje 
+// con solicitudes pendientes para el conductor.
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Image } from "expo-image";
@@ -9,6 +13,7 @@ import { MoveRight, Users } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 
+// Define los datos que se reciben
 type PendingRequestCardProps = {
   name: string;
   price: string;

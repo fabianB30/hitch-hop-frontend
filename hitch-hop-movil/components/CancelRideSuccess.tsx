@@ -1,3 +1,6 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// // Contiene el código que muestra un modal de éxito al eliminar un viaje.
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
