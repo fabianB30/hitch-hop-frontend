@@ -1,3 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// FUNCIONALIDAD HECHA POR CARLOS CABRERA Y DIEGO DURÁN
+// 
+// DESCRIPCIÓN: Pantalla de configuración del perfil del usuario; 
+// donde se puede editar la información personal, 
+// cambiar la contraseña y subir una foto de perfil.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// IMPORTS
 import React, { useRef, useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -21,8 +32,12 @@ import { Pressable } from "@/components/ui/pressable";
 import * as ImageManipulator from 'expo-image-manipulator';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    MAIN FUNCTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export default function ProfileSettings() {
+  ///    Setters and Variables
   const [tiposId, setTiposId] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState([]);
   const [genres, setGenres] = useState<string[]>([]);
@@ -61,6 +76,9 @@ export default function ProfileSettings() {
 });
 
   
+  //////////////////////////////////////////////////////////////////////////////////////
+  ///    Initial User Data
+  //  Here all the information is fetched from the backend and fed to special variables
   useEffect(() => {
     async function fetchData() {
       try {
@@ -88,6 +106,8 @@ export default function ProfileSettings() {
     value: inst._id
   }));
 
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Check every text field to verify it has the proper format and values
   const validateUserData = (data: typeof initialUser) => {
     const errors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -113,6 +133,7 @@ export default function ProfileSettings() {
     return Object.keys(errors).length === 0;
  };
 
+  //////////////////////////////////////////////////////////////////////////////////////
   // editar y llamar al backend
   const toggleEdit = async () => {
     if (!editable) {
@@ -148,16 +169,19 @@ export default function ProfileSettings() {
     }
   };
 
+  // Cancel edition and revert changes
   const cancelEdit = () => {
     setUserData(backupData);
     setEditable(false);
     setFieldErrors({});
   };
 
+  // Set UserData according to the input fields
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData({ ...userData, [key]: value });
   };
 
+  // Update the user photo, special compression is applied
   const handleEditPhoto = async () => {
   // Permisos
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -174,29 +198,19 @@ export default function ProfileSettings() {
     base64: false,
   });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    const asset = result.assets[0];
-
-    // Comprimir y redimensionar la imagen
-    const manipResult = await ImageManipulator.manipulateAsync(
-      asset.uri,
-      [
-        { resize: { width: 400, height: 400 } }, // Ajustar el tamaño
-      ],
-      {
-        compress: 0.5,
-        format: ImageManipulator.SaveFormat.JPEG,
-        base64: true,
+    // Base 64
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        setUserData({
+          ...userData,
+          photoUrl: `data:image/jpeg;base64,${asset.base64}`,
+        });
       }
-    );
+    }
+  };
 
-    setUserData({
-      ...userData,
-      photoUrl: `data:image/jpeg;base64,${manipResult.base64}`,
-    });
-  }
-};
-
+  
   // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
@@ -211,6 +225,7 @@ export default function ProfileSettings() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////////////
   // Maneja el cambio de contraseña
   const handleChangePassword = async () => {
     setCurrentPasswordError(false);
@@ -256,7 +271,8 @@ export default function ProfileSettings() {
     setShowSavedDialog(true);
   };
 
-  
+  //////////////////////////////////////////////////////////////////////////////////////
+  // CUERPO DE LA PANTALLA
   return (
     <View style={{ flex: 1,  width: "100%" }}>
     <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
@@ -585,6 +601,10 @@ function ProfileInput({
     </View>
   );
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+// STYLES AND GRAPHICS
+//////////////////////////////////////////////////////////////////////////////////////
 
 const styles = StyleSheet.create({
   container: {
