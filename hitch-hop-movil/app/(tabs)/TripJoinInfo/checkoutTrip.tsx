@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import * as Font from 'expo-font';
-import { addStopToTripRequest, addPassangerToTripRequest } from '../../../interconnection/trip'
+import { addUserToStop, addPassangerToTripRequest } from '../../../interconnection/trip'
 import { useAuth } from '../Context/auth-context'
 
 const {width, height} = Dimensions.get("window")
@@ -32,12 +32,14 @@ const checkoutTrip = () => {
     const trip = JSON.parse(params.trip as string)
     const vehicleInformation = JSON.parse(params.additionalInfo as string)
     const selectedStop = JSON.parse(params.selectedStop as string)
-
     const stopList = JSON.parse(params.stopList as string);
 
+    console.log(stopList)
+    console.log(stopList[Number(selectedStop)]._id)
+
     async function openLastModal() {
-      const addPassenger = await addPassangerToTripRequest(user._id, trip._id);
-      const addStop = await addStopToTripRequest(trip._id, selectedStop)
+      const addPassenger = await addPassangerToTripRequest(trip._id, user._id);
+      const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
       setShowConfirmationModal(false);
       setShowAcceptModal(true);
     }
@@ -98,7 +100,7 @@ const checkoutTrip = () => {
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
             <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
-            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)]}/>
+            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)].name}/>
             <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
           </ScrollView>
 
@@ -107,7 +109,7 @@ const checkoutTrip = () => {
               <HStack style={{gap: 4, alignItems: 'center'}}>
                 <Text style={styles.priceText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
                 <Users strokeWidth={2.5} size={18} color='black'/>
-                <Text style={styles.detailText}>{trip.passengers.length}</Text>
+                <Text style={styles.detailText}>{trip.passengerLimit}</Text>
               </HStack>    
             </View>     
             <Button onPress={() => setShowConfirmationModal(true)} style={[styles.button, styles.joinButton]}>

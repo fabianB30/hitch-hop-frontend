@@ -26,9 +26,13 @@ const selectPickupPoint = () => {
   const vehicleInformation = JSON.parse(params.additionalInfo as string)
 
   useEffect(() => {
-      const stopList = [
-        trip.startpoint.name,
-        ...trip.stopPlaces.map((stop:any) => stop.name)
+      const stopList = [{
+        _id: trip.startpoint._id,
+        name: trip.startpoint.name, 
+      },
+        ...trip.stopPlaces.map((stop:any) => ({
+          _id: stop._id,
+          name: stop.name}))
       ]
       setStopsList(stopList)
 
@@ -73,7 +77,7 @@ const selectPickupPoint = () => {
 
             <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
               <RadioGroup value={selectedStop} onChange={setStop}>
-                {stopsList.map((name: string, index: number) => {
+                {stopsList.map((stop: any, index: number) => {
                   return (
                     <Radio style={{marginBottom: 20}} value={index.toString()} key={index}>
                       <RadioIndicator 
@@ -83,7 +87,7 @@ const selectPickupPoint = () => {
                           borderColor: selectedStop === index.toString() ? '#7875F8' : 'gray'
                         }}
                       />
-                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{name}</RadioLabel>
+                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{stop.name}</RadioLabel>
                     </Radio>
                   )
                 })}
@@ -94,7 +98,7 @@ const selectPickupPoint = () => {
               <View style={styles.rideDetails}>
                 <HStack style={{gap: 4}}>
                   <Users strokeWidth={2.5} size={18} color='black' />
-                  <Text style={styles.detailText}>{trip.passengers.length}</Text>
+                  <Text style={styles.detailText}>{trip.passengerLimit}</Text>
                 </HStack>
                 <Text style={styles.detailText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
               </View>

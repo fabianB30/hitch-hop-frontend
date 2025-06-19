@@ -142,6 +142,21 @@ export const addStopToTripRequest = async (id: string, place: string): Promise<I
     }
 };
 
+export const addUserToStop = async (id: string, placeId: string, user: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = axios.post(`/backend/trip/${id}/stops/${placeId}/users`, {user});
+        const data = res.data.data;
+        if (data) {
+            return data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
 export const addPassangerToTripRequest = async (id: string, user: string): Promise<IJwtResponse | null> => {
     try {
         const res = axios.post(`/backend/trip/${id}/passengers`, {user});

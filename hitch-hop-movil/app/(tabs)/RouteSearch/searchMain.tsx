@@ -78,6 +78,9 @@ const searchMain = () => {
         showMode('time')
     }
 
+    const filterTrips = async () => {
+        
+    }
     const searchTrips = async () => {
 
         setMsgError(false)
@@ -94,7 +97,8 @@ const searchMain = () => {
         const data = await getTripsParams(queryData);
 
         if(data && data.length > 0){
-            setShownTrips(data); 
+            const availableTrips = data.filter((trip:any) => trip.passengers.length < trip.passengerLimit);
+            setShownTrips(availableTrips); 
         } else{
             setShowConfirmationModal(true);
         }   
@@ -228,7 +232,7 @@ const searchMain = () => {
                     </TouchableOpacity>
                 </VStack>
                 
-                {msgError && <Text style={{color: 'red'}}>Algunos campos se encuentran vacíos*</Text>}
+                {msgError && <Text style={{color: 'red', marginTop: -15}}>Algunos campos se encuentran vacíos*</Text>}
 
                 {/*Inicio del ScrollView para las tarjetas*/}
                 <ScrollView

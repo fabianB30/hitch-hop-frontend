@@ -87,7 +87,7 @@ const tripInformation = () => {
             <View style={styles.rideDetails}>
               <HStack style={{gap: 4}}>
                 <Users strokeWidth={2.5} size={18} color='black' />
-                <Text style={styles.detailText}>{trip.passengers.length}</Text>
+                <Text style={styles.detailText}>{trip.passengerLimit}</Text>
               </HStack>
               <Text style={styles.detailText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
             </View>
