@@ -14,7 +14,7 @@ import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import * as Font from 'expo-font';
-import { addUserToStop, addPassangerToTripRequest } from '../../../interconnection/trip'
+import { addUserToStop, addPassengerToTripRequest } from '../../../interconnection/trip'
 import { useAuth } from '../Context/auth-context'
 
 const {width, height} = Dimensions.get("window")
@@ -34,12 +34,13 @@ const checkoutTrip = () => {
     const selectedStop = JSON.parse(params.selectedStop as string)
     const stopList = JSON.parse(params.stopList as string);
 
-    console.log(stopList)
-    console.log(stopList[Number(selectedStop)]._id)
+    console.log(stopList[Number(selectedStop)])
 
     async function openLastModal() {
-      const addPassenger = await addPassangerToTripRequest(trip._id, user._id);
       const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
+      const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
+      console.log(addPassenger)
+      console.log(addStop)
       setShowConfirmationModal(false);
       setShowAcceptModal(true);
     }

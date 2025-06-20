@@ -18,6 +18,7 @@ import TripDetailItem from '@/components/TripDetailItem'
 import { getAllTripsRequest, getTripsParams } from '../../../interconnection/trip'
 import {useAuth} from '../Context/auth-context'
 import * as Font from 'expo-font';
+import { getPathWithConventionsCollapsed } from 'expo-router/build/fork/getPathFromState-forks'
 
 const {width, height} = Dimensions.get("window")
 
@@ -78,11 +79,7 @@ const searchMain = () => {
         showMode('time')
     }
 
-    const filterTrips = async () => {
-        
-    }
     const searchTrips = async () => {
-
         setMsgError(false)
         const utcDate = dateToUtcDate(date)
         const StartDate = new Date(utcDate.getTime() - 30 * 60 * 1000)
@@ -90,14 +87,18 @@ const searchMain = () => {
         const queryData = {
             "startDate": StartDate,
             "endDate": EndDate,
-            "institutionId": "6841390cb2cce04f89706f02", //user.institutionId
+            "institutionId": user.institutionId, //"6841390cb2cce04f89706f02", 
             "endpoint": destination._id
         }
 
         const data = await getTripsParams(queryData);
+ 
+        const availableTrips = data.filter((trip:any) => 
+            trip.passengers.length < trip.passengerLimit && 
+            trip.passengers.every((passenger:any) => passenger.user !== user._id)
+        );
 
-        if(data && data.length > 0){
-            const availableTrips = data.filter((trip:any) => trip.passengers.length < trip.passengerLimit);
+        if(availableTrips && availableTrips.length > 0){
             setShownTrips(availableTrips); 
         } else{
             setShowConfirmationModal(true);
