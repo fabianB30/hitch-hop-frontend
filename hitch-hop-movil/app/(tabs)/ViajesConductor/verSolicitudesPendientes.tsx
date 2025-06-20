@@ -9,9 +9,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { MoveRight } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const {
     users,

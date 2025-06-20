@@ -160,10 +160,10 @@ export default function VerDetalleViajeProgramado() {
                 }}
               >
                 <Text style={styles.title}>{trip?.driver?.name || "Conductor"} {trip?.driver?.firstSurname || ""}</Text>
-                <Text style={[{fontSize: 16}, styles.lightFont]}>{vehicle?.plate ?? "No indicado"}</Text>
+                <Text style={[{fontSize: 16}, styles.lightFont]}>{vehicle?.plate ?? "Cargando.."}</Text>
                 <Text style={[{fontSize: 13}, styles.lightFont]}>{vehicle
                 ? `${vehicle.brand} ${vehicle.model}\n${vehicle.color}`
-                : "No indicado"}</Text>
+                : "Cargando.."}</Text>
               </VStack>
             </Box>
             <Box

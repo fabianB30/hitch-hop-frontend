@@ -56,7 +56,11 @@ export default function VerViajesAceptados() {
       const result = await deleteTripRequest(selectedRequestId);
       if (result) {
         setRequests(prev => prev.filter(r => r.id !== selectedRequestId));
-        setSuccessVisible(true);
+        if (requests.length !== 0) {
+          setSuccessVisible(true);
+        } else {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
       }
     }
     setModalVisible(false);

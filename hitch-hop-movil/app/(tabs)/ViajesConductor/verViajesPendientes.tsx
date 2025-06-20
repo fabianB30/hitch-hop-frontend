@@ -69,6 +69,11 @@ export default function VerViajesPendientes() {
       const result = await deleteTripRequest(selectedRequestId);
       if (result) {
         setRequests((prev) => prev.filter((r) => r.id !== selectedRequestId));
+        if (requests.length !== 0) {
+          setSuccessVisible(true);
+        } else {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
         setSuccessVisible(true);
       }
     }

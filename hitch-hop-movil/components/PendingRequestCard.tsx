@@ -92,7 +92,7 @@ export function PendingRequestCard({
               alignContent: "flex-end",
               flexShrink: 1,
               flexWrap: "nowrap",
-              marginTop: 4, // add a little space from the name
+              marginTop: 8, // add a little space from the name
               maxWidth: "100%",
             }}
           >
@@ -100,9 +100,9 @@ export function PendingRequestCard({
             <Text
               style={[
                 styles.location,
-                { maxWidth: 140, marginLeft: 4, flexShrink: 1, flexGrow: 1 },
+                { marginLeft: 4, flexShrink: 1, flexGrow: 1 },
               ]}
-              numberOfLines={2}
+              numberOfLines={5}
               ellipsizeMode="tail"
             >
               {location}
@@ -116,7 +116,7 @@ export function PendingRequestCard({
               alignContent: "flex-end",
               flexShrink: 1,
               flexWrap: "nowrap",
-              marginTop: 4, // add a little space from the name
+              marginTop: 6, // add a little space from the name
               maxWidth: "100%",
             }}
           >
@@ -135,28 +135,12 @@ export function PendingRequestCard({
           <HStack
             style={{
               flex: 1,
-              marginTop: 4,
+              marginTop: 6,
               justifyContent: "space-between",
               alignItems: "flex-start",
               gap: 20,
             }}
           >
-            <Text
-              style={[
-                styles.price,
-                {
-                  maxWidth: 140,
-                  marginLeft: 4,
-                  lineHeight: 22, // Should be >= fontSize (18)
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {price}
-            </Text>
             <Box
               style={{
                 flexDirection: "row",
@@ -169,6 +153,23 @@ export function PendingRequestCard({
                 maxWidth: "100%",
               }}
             >
+              <Text
+                style={[
+                  styles.price,
+                  {
+                    maxWidth: 140,
+                    marginLeft: 4,
+                    lineHeight: 22, // Should be >= fontSize (18)
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: 20,
+                  },
+                ]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {price}
+              </Text>
               <Users size={18} color="black" />
               <Text
                 style={[
@@ -260,7 +261,7 @@ export function PendingRequestCard({
 
 const styles = StyleSheet.create({
   name: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Bold",
     fontSize: 18,
     fontStyle: "normal",
     fontWeight: "700",
@@ -269,32 +270,28 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   time: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 16,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "right",
   },
   price: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 18,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "right",
-    // No paddingTop
   },
   location: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 14,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "left",
     flexShrink: 1,
     flexWrap: "wrap",
-    lineHeight: 16,
+    lineHeight: 20,
     paddingTop: 0,
     paddingBottom: 0,
   },

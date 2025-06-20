@@ -198,7 +198,7 @@ export function RideCardDriver2({
             }} 
             onPress={() => onDetails(users)}
           >
-            Detalles {">"}
+            Solicitudes {">"}
           </ButtonText>
         </Button>
       </HStack>

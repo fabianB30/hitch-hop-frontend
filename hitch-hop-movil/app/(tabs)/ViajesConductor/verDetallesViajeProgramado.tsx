@@ -12,11 +12,17 @@ import { MoveRight, Users } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { useAuth } from "../Context/auth-context";
+import { CancelRideModal } from "@/components/cancelRide";
+import CancelRideSucess from "@/components/CancelRideSuccess";
+import { deleteTripRequest } from "@/interconnection/trip";
 
 export default function VerDetallesViajeProgramado() {
   const router = useRouter();
   const { tripId } = useLocalSearchParams();
   const { user } = useAuth();
+  const [showPopup, setShowPopup] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const [fontsLoaded] = useFonts({
     "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
     "exo.medium": require("@/assets/fonts/exo.medium.otf"),
@@ -28,6 +34,31 @@ export default function VerDetallesViajeProgramado() {
 
   // boolean if ride is full
   var isFull = false;
+  
+  const handleConfirmCancel = async () => {
+    console.log("Confirm cancel tripId:", tripId);
+    if (tripId) {
+      try {
+        setShowPopup(false);
+        const result = await deleteTripRequest(tripId);
+        if (result) {
+          setShowPopup(false);
+          router.push("/(tabs)/ViajesConductor/verViajesAceptados");
+        } else {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+      } catch (error) {
+        setSuccessMessage("Hubo un error al cancelar la solicitud.");
+        setShowSuccessPopup(true);
+      }
+      setShowPopup(false);
+    }
+  };
+  
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  }
 
   //Esto no funciona, la página recibe parámetros para crear las cards
   const handlePendingRequests = () => {
@@ -74,15 +105,20 @@ export default function VerDetallesViajeProgramado() {
         if (trip) {
           const mappedRequests = trip.passengers
             .filter((passenger: any) => passenger.status !== "Pendiente") // Discard pending
-            .map((passenger: any) => ({
+            .map((passenger: any) => {
+              const userStop = trip.stops?.find((stop: any) => 
+                stop.passengersId?.includes(passenger.user._id)
+              );
+            return {
               id: passenger.user._id,
               name: passenger.user.name + " " + passenger.user.firstSurname,
               price: "₡" + price,
               phone: passenger.user.phone,
-              location: "FALTA",
+              location: userStop ? userStop.place.name : "No asignado",
               image: passenger.user.photoUrl,
               time: "FALTA",
-            }));
+            };
+          });
           setPassengers(mappedRequests);
           setTrip({
             id: trip._id,
@@ -277,12 +313,23 @@ export default function VerDetallesViajeProgramado() {
                 zIndex: 10,
                 alignSelf: "center",
               }}
+              onPress={() => setShowPopup(true)}
             >
               <ButtonText style={styles.buttonText}>Cancelar</ButtonText>
             </Button>
           </ScrollView>
         </Box>
       </Box>
+      <CancelRideModal
+        visible={showPopup}
+        onCancel={() => setShowPopup(false)}
+        onConfirm={handleConfirmCancel}
+      />
+      <CancelRideSucess
+        visible={showSuccessPopup}
+        onClose={handleCloseSuccessPopup}
+        message={successMessage}
+      />
     </ImageBackground>
   );
 }
@@ -325,7 +372,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 16,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "400",
     textAlign: "left",
     zIndex: 10,
