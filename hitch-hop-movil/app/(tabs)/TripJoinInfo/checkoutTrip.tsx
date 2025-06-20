@@ -47,6 +47,16 @@ const checkoutTrip = () => {
       setShowAcceptModal(true);
     }
     
+    function leaveToMenu() {
+      setShowAcceptModal(false);
+      router.push('/HomePasajero')
+    }
+
+    function goToPendingRequests() {
+      setShowAcceptModal(false);
+      router.push('/HomePasajero')
+    }
+
     useEffect(() => {
       if (showAcceptModal) {
         const backAction = () => {
@@ -159,10 +169,10 @@ const checkoutTrip = () => {
                 </ModalBody>
                 <ModalFooter>
                   <VStack className="mx-auto">
-                    <Button style={[styles.button]} className="mb-5" onPress={() => {}}>
+                    <Button style={[styles.button]} className="mb-5" onPress={goToPendingRequests}>
                       <ButtonText style={styles.modalButtonText}>Ver mis solicitudes pendientes</ButtonText>
                     </Button  >
-                    <Button style={[styles.button, styles.modalBackButton]} variant='outline' className="mb-2" onPress={() => {setShowAcceptModal(false)}}>
+                    <Button style={[styles.button, styles.modalBackButton]} variant='outline' className="mb-2" onPress={leaveToMenu}>
                       <ButtonText style={[styles.modalButtonText, {color: "#FFAB00"}]}>Volver al menú principal</ButtonText>
                     </Button>
                   </VStack>
