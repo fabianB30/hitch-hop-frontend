@@ -1,20 +1,20 @@
+import { CancelRideModal } from "@/components/cancelRide";
+import CancelRideSucess from "@/components/CancelRideSuccess";
 import { PassengerCard } from "@/components/PassengerCard";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import { getTripByIdRequest } from "@/interconnection/trip";
+import { deleteTripRequest, getTripByIdRequest } from "@/interconnection/trip";
+import { useFocusEffect } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MoveRight, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { useAuth } from "../Context/auth-context";
-import { CancelRideModal } from "@/components/cancelRide";
-import CancelRideSucess from "@/components/CancelRideSuccess";
-import { deleteTripRequest } from "@/interconnection/trip";
 
 export default function VerDetallesViajeProgramado() {
   const router = useRouter();
@@ -22,7 +22,9 @@ export default function VerDetallesViajeProgramado() {
   const { user } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined
+  );
   const [fontsLoaded] = useFonts({
     "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
     "exo.medium": require("@/assets/fonts/exo.medium.otf"),
@@ -34,7 +36,7 @@ export default function VerDetallesViajeProgramado() {
 
   // boolean if ride is full
   var isFull = false;
-  
+
   const handleConfirmCancel = async () => {
     console.log("Confirm cancel tripId:", tripId);
     if (tripId) {
@@ -55,10 +57,10 @@ export default function VerDetallesViajeProgramado() {
       setShowPopup(false);
     }
   };
-  
+
   const handleCloseSuccessPopup = () => {
     setShowSuccessPopup(false);
-  }
+  };
 
   //Esto no funciona, la página recibe parámetros para crear las cards
   const handlePendingRequests = () => {
@@ -97,18 +99,18 @@ export default function VerDetallesViajeProgramado() {
   }
   const [trip, setTrip] = useState<Trip | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const trip = await getTripByIdRequest(tripId as string);
-        const price = trip.costPerPerson;
-        if (trip) {
-          const mappedRequests = trip.passengers
-            .filter((passenger: any) => passenger.status !== "Pendiente") // Discard pending
-            .map((passenger: any) => {
-              const userStop = trip.stops?.find((stop: any) => 
-                stop.passengersId?.includes(passenger.user._id)
-              );
+  // Move fetchData outside of useEffect so it can be reused
+  const fetchData = async () => {
+    try {
+      const trip = await getTripByIdRequest(tripId as string);
+      const price = trip.costPerPerson;
+      if (trip) {
+        const mappedRequests = trip.passengers
+          .filter((passenger: any) => passenger.status === "Aprobado")
+          .map((passenger: any) => {
+            const userStop = trip.stops?.find((stop: any) =>
+              stop.passengersId?.includes(passenger.user._id)
+            );
             return {
               id: passenger.user._id,
               name: passenger.user.name + " " + passenger.user.firstSurname,
@@ -119,42 +121,51 @@ export default function VerDetallesViajeProgramado() {
               time: "FALTA",
             };
           });
-          setPassengers(mappedRequests);
-          setTrip({
-            id: trip._id,
-            users: mappedRequests.length,
-            userLimit: trip.passengerLimit,
-            start: trip.startpoint.name,
-            end: trip.endpoint.name,
-          });
-          setPendingPassengers(
-            trip.passengers
-              .filter((passenger: any) => passenger.status === "Pendiente")
-              .map((passenger: any) => ({
-                id: passenger.user._id,
-                name: passenger.user.name + " " + passenger.user.firstSurname,
-                price: "₡" + price,
-                phone: passenger.user.phone,
-                location: trip.startpoint.name,
-                image: passenger.user.photoUrl,
-                time: trip.departure.split("T")[1]?.slice(0, 5),
-              }))
-          );
-        } else {
-          setPassengers([]);
-          router.replace("/(tabs)/ViajesConductor/sinProgramados");
-        }
-      } catch (error) {
+        setPassengers(mappedRequests);
+        setTrip({
+          id: trip._id,
+          users: mappedRequests.length,
+          userLimit: trip.passengerLimit,
+          start: trip.startpoint.name,
+          end: trip.endpoint.name,
+        });
+        setPendingPassengers(
+          trip.passengers
+            .filter((passenger: any) => passenger.status === "Pendiente")
+            .map((passenger: any) => ({
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: trip.startpoint.name,
+              image: passenger.user.photoUrl,
+              time: trip.departure.split("T")[1]?.slice(0, 5),
+            }))
+        );
+      } else {
         setPassengers([]);
-        console.log(tripId);
         router.replace("/(tabs)/ViajesConductor/sinProgramados");
       }
+    } catch (error) {
+      setPassengers([]);
+      console.log(tripId);
+      router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
+  };
 
+  useEffect(() => {
     if (user?._id) {
       fetchData();
     }
   }, [user, router]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchData();
+      }
+    }, [user, tripId])
+  );
 
   return (
     <ImageBackground

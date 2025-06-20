@@ -3,6 +3,7 @@ import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
+import { updatePassangerStatusRequest } from "@/interconnection/trip";
 import { useFonts } from "expo-font";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -72,35 +73,30 @@ export default function VerSolicitudesPendientes() {
     // }
   }, [requests, router]);
 
-  // if (requests.length === 0) {
-  //   return null;
-  // }
-
   async function handleAccept(tripId: String, requestId: number) {
-    console.log(
-      `(FALSO: es de prueba) Accepted request with passengerId: ${requestId}, tripId: ${tripId}`
+    const res = await updatePassangerStatusRequest(
+      tripId,
+      requestId,
+      "Aprobado"
     );
-    setRequests((prev) => prev.filter((req) => req.id !== requestId));
-    // Descomentar bloque para activar la función real
-    //--------------------------------------------------
-    // const res = await updatePassangerStatusRequest(
-    //   tripId,
-    //   requestId,
-    //   "Aprobado"
-    // );
-    // if (res) {
-    //   setRequests((prev) => prev.filter((req) => req.id !== requestId));
-    // } else {
-    //   console.error("No se pudo actualizar el estado del pasajero.");
-    // }
-    //--------------------------------------------------
+    if (res) {
+      setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    } else {
+      console.error("No se pudo actualizar el estado del pasajero.");
+    }
   }
 
-  function handleReject(tripId: String, requestId: number) {
-    console.log(
-      `(FALSO: es de prueba) Rejected request with passengerId: ${requestId}, tripId: ${tripId}`
+  async function handleReject(tripId: String, requestId: number) {
+    const res = await updatePassangerStatusRequest(
+      tripId,
+      requestId,
+      "Rechazado"
     );
-    setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    if (res) {
+      setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    } else {
+      console.error("No se pudo actualizar el estado del pasajero.");
+    }
   }
 
   return (
