@@ -40,7 +40,7 @@ interface RegisterStep2Props {
     onFinish: (completeData: any) => void;
 }
 
-export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {    
+export default function RegisterStep2({ firstFormData, secondFormData, onBack, onFinish }: RegisterStep2Props) {
     const [fontsLoaded] = useFonts({
         Exo_400Regular,
         Exo_700Bold,
@@ -66,7 +66,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const [generos, setGeneros] = useState<string[]>([]);
     const [roles, setRoles] = useState<string[]>([]);
     const [loadingParameters, setLoadingParameters] = useState(true);
-    
+
     // Estados para almacenar los IDs de los parámetros
     const [identificationTypesData, setIdentificationTypesData] = useState<any>(null);
     const [generosData, setGenerosData] = useState<any>(null);
@@ -79,10 +79,10 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 console.log('Cargando parámetros desde la API...');
                 const parameters = await getAllParametersRequest();
                 console.log('Parámetros recibidos:', parameters);
-                
+
                 if (parameters) {
                     // Buscar y cargar tipos de identificación
-                    const identificationParam = parameters.find(param => 
+                    const identificationParam = parameters.find(param =>
                         param.parameterName === 'Tipo de identificación'
                     );
                     if (identificationParam) {
@@ -94,7 +94,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                     }
 
                     // Buscar y cargar géneros
-                    const genderParam = parameters.find(param => 
+                    const genderParam = parameters.find(param =>
                         param.parameterName === 'Géneros'
                     );
                     if (genderParam) {
@@ -106,7 +106,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                     }
 
                     // Buscar y cargar roles
-                    const roleParam = parameters.find(param => 
+                    const roleParam = parameters.find(param =>
                         param.parameterName === 'Rol'
                     );
                     if (roleParam) {
@@ -149,7 +149,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             console.error('Error al comprimir imagen:', error);
             throw error;
         }
-    };   
+    };
 
     // Función para manejar el cambio de tipo de identificación
     const handleIdentificationTypeChange = (selectedType: string) => {
@@ -208,7 +208,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const openCamera = async () => {
         try {
             const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-            
+
             if (permissionResult.granted === false) {
                 setErrorMessage("Se requieren permisos de cámara para tomar fotos");
                 setShowAlertDialog(true);
@@ -236,7 +236,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     const openGallery = async () => {
         try {
             const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            
+
             if (permissionResult.granted === false) {
                 setErrorMessage("Se requieren permisos para acceder a la galería");
                 setShowAlertDialog(true);
@@ -264,11 +264,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
         try {
             // Comprimir la imagen antes de convertirla a base64
             const compressedBase64 = await compressImage(imageUri, 200, 0.7);
-            
+
             // Guardar base64 comprimido para enviar al backend
             setBase64Image(compressedBase64);
             setAvatar(compressedBase64);
-            
+
         } catch (error) {
             console.error('Error al procesar imagen:', error);
             setErrorMessage('Error al procesar la imagen. Por favor, inténtelo de nuevo.');
@@ -285,11 +285,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('es-ES');
-    };    
+    };
     const validateForm = () => {
         // Verificar la condición completa
         const isFormValid = !(!phone || !identificationType || !identificationNumber || !rol || !genre);
-        
+
         // Verificar campos obligatorios
         if (!phone || !identificationType || !identificationNumber || !rol || !genre) {
             let missingFields = [];
@@ -298,7 +298,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             if (!identificationNumber) missingFields.push('número de identificación');
             if (!rol) missingFields.push('tipo de usuario');
             if (!genre) missingFields.push('género');
-            
+
             setErrorMessage(`Faltan los siguientes campos obligatorios: ${missingFields.join(', ')}.`);
             setShowAlertDialog(true);
             return false;
@@ -309,7 +309,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
         if (!phonePattern.test(phone)) {
             setErrorMessage('El número de teléfono debe tener 8 dígitos.');
             setShowAlertDialog(true);
-            return false;        
+            return false;
         }
         // Validar identificación según el tipo
         if (identificationType === 'Cédula') {
@@ -337,7 +337,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             birthDate: birthDate.toISOString(),
         };
         onBack(currentSecondFormData);
-    };    const handleFinishRegistration = async () => {
+    }; const handleFinishRegistration = async () => {
         if (!validateForm()) return;
 
         setLoading(true);
@@ -353,7 +353,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                 rol: rol,
                 genre: genre,
                 birthDate: birthDate.toISOString(),
-            }; 
+            };
             onFinish(completeRegistrationData);
 
         } catch (error) {
@@ -362,7 +362,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
             setShowAlertDialog(true);
         } finally {
             setLoading(false);
-        }    };
+        }
+    };
 
     // Mostrar pantalla de carga mientras se cargan los parámetros
     if (loadingParameters) {
@@ -376,31 +377,29 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
     }
 
     return (
-        <KeyboardAwareScrollView 
+        <KeyboardAwareScrollView
             style={{ flex: 1, backgroundColor: '#fff' }}
-            contentContainerStyle={{ flexGrow: 1, padding: 0 }}
+            contentContainerStyle={{ paddingBottom: 60 }}
             enableOnAndroid={true}
-            enableAutomaticScroll={true}
-            extraHeight={120}
-            extraScrollHeight={120}
+            extraScrollHeight={100}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
         >
             <View className="flex-1 items-center">
                 <StatusBar style="light" />
                 <ImageBackground
                     source={require('@/assets/images/fondo-HitchHop.png')}
-                    className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px]"
+                    className="absolute inset-0 w-full h-[588px] left-[0px] top-[-53px]"
                     resizeMode="contain"
                 />
-                
+
                 <View className="absolute justify-center items-center h-[80px] w-[270px] top-[2px]">
                     <Text className="text-[24px] text-gray-800 text-center mb-1 top-[17px]" style={{ fontFamily: 'Exo_700Bold' }}>
                         Personaliza tu perfil
                     </Text>
                 </View>
 
-                <View className="top-[110px] w-[360px] h-[722px] items-center bg-white rounded-[30px]">
+                <View className="top-[110px] w-full items-center bg-white rounded-[30px] pb-10">
                     <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
                         <AlertDialogBackdrop className="bg-black/80" />
                         <AlertDialogContent>
@@ -422,8 +421,8 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                         </AlertDialogContent>
                     </AlertDialog>
 
-                    <View className="absolute -top-10 transform -translate-x-[105px] z-10">
-                        <View className="relative">                            
+                    <View className="flex-row w-full px-6 mb-0 mt-[10px]">
+                        <View className="relative">
                             <Avatar
                                 className="w-[96px] h-[96px] rounded-full bg-[#ECECFF] justify-center items-center overflow-hidden"
                                 style={{
@@ -453,10 +452,10 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     />
                                 )}
                             </Avatar>
-                            
+
                             {/* Botón de cámara en la esquina del avatar */}
-                            <TouchableOpacity 
-                                className="w-[34px] h-[34px] rounded-full bg-[#FFC750] justify-center items-center absolute"
+                            <TouchableOpacity
+                                className="w-[34px] h-[34px] rounded-full bg-[#FFC750] justify-center items-center absolute -bottom-1 -right-1"
                                 style={{
                                     bottom: -2,
                                     right: -2,
@@ -468,7 +467,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     shadowOpacity: 0.25,
                                     shadowRadius: 3.84,
                                     elevation: 5,
-                                }}                                
+                                }}
                                 onPress={showImagePickerOptions}
                             >
                                 <Camera size={20} color="#000000" />
@@ -477,21 +476,21 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                     </View>
 
 
-                    <FormControl className='top-[10px]'>
+                    <FormControl className='top-[-70px]'>
                         {/* Nombre de Usuario */}
-                        <View className="flex-row ml-[87px]"> 
+                        <View className="flex-row ml-[87px]">
                             <View className="flex-col">
                                 <View className="flex-row mb-2">
                                     <Text className="text-[19px] text-black" style={{ fontFamily: 'Exo_700Bold' }}>
                                         Nombre de usuario
-                                    </Text>                                    
+                                    </Text>
                                     {username === '' && (
                                         <Text className="text-[20px] text-red-500 ml-1" style={{ fontFamily: 'Exo_700Bold' }}>
                                             *
                                         </Text>
                                     )}
                                 </View>
-                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[170px]">
+                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                     <InputField
                                         value={username}
                                         onChangeText={setUsername}
@@ -513,7 +512,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                     value={phone}
                                     onChangeText={setPhone}
@@ -541,7 +540,6 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                 selectedValue={identificationType}
                                 onValueChange={handleIdentificationTypeChange}
                                 placeholder="Seleccionar"
-                                className="w-[264px]"
                             />
                         </View>
 
@@ -557,7 +555,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                     value={identificationNumber}
                                     onChangeText={setIdentificationNumber}
@@ -579,13 +577,13 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>                            
+                            </View>
                             <Select
                                 options={roles}
                                 selectedValue={rol}
                                 onValueChange={handleRolChange}
                                 placeholder="Seleccionar"
-                                className="w-[264px] border border-gray-300 rounded-lg bg-white"
+                                className=" border border-gray-300 rounded-lg bg-white"
                             />
                         </View>
 
@@ -600,13 +598,12 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                            </View>                              
+                            </View>
                             <Select
                                 options={generos}
                                 selectedValue={genre}
                                 onValueChange={handleGenreChange}
                                 placeholder="Seleccionar"
-                                className="w-[264px]"
                             />
                         </View>
 
@@ -621,11 +618,11 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                         *
                                     </Text>
                                 )}
-                                
+
                             </View>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 onPress={() => setShowDatePicker(true)}
-                                className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px] justify-center px-3"
+                                className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] justify-center px-3"
                             >
                                 <Text className="text-base text-gray-800">
                                     {formatDate(birthDate)}
@@ -647,21 +644,20 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                             * Información obligatoria
                         </Text>
 
-                        {/* Buttons */}                        
-                        <View className="flex-row justify-center items-center mb-6 top-[5px] mr-7 ml-2">
-                            <TouchableOpacity 
-                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
+                        {/* Buttons */}
+                        <View className="flex-row justify-center items-center mb-2 top-[5px] mr-7 ml-2">
+                            <TouchableOpacity
+                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[50px]"
                                 onPress={handleBackWithData}
                             >
                                 <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
                                     Volver
                                 </Text>
                             </TouchableOpacity>
-                                
-                            <TouchableOpacity 
-                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${
-                                    loading ? 'opacity-70' : ''
-                                }`}
+
+                            <TouchableOpacity
+                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${loading ? 'opacity-70' : ''
+                                    }`}
                                 onPress={handleFinishRegistration}
                                 disabled={loading}
                             >
@@ -670,7 +666,7 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                    </FormControl>          
+                    </FormControl>
                 </View>
             </View>
         </KeyboardAwareScrollView>

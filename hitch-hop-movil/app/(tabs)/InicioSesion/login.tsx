@@ -46,7 +46,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const user = await signIn({ email: email, password: password});
+      const user = await signIn({ email: email, password: password });
       // Navegar a la pantalla principal
       if (user.name) {
         if (user.type === 'Inactivo - User' || user.type === 'Inactivo - Admin') {
@@ -54,24 +54,24 @@ export default function LoginScreen() {
           setShowAlertDialog(true);
           return;
         }
-        
-        if (user.role === 'Pasajero'){
+
+        if (user.role === 'Pasajero') {
           console.log(user.name);
           router.push('../HomePasajero');
         } else {
           router.push('../HomeConductor');
         }
       } else {
-        if(user === 'contrasena incorrecta'){
+        if (user === 'contrasena incorrecta') {
           setErrorMessage('Usuario o contraseña incorrectos. Por favor, inténtelo de nuevo.');
           setShowAlertDialog(true);
         }
-        if(user === 'No hay una cuenta asociada al correo'){
+        if (user === 'No hay una cuenta asociada al correo') {
           setErrorMessage('No hay una cuenta asociada al correo ingresado. Por favor, verifique su correo o cree una cuenta nueva.');
           setShowAlertDialog(true);
         }
       }
-      
+
 
     } catch (error) {
       console.error('Login error:', error);
@@ -101,11 +101,11 @@ export default function LoginScreen() {
         <StatusBar style="light" />
         <ImageBackground
           source={require('@/assets/images/fondo-HitchHop.png')}
-          className="absolute inset-0 w-full h-full"
+          className="absolute top-0 left-0 w-full h-[300px] "
           resizeMode="cover"
         />
         {/* Logo*/}
-        <View className="absolute justify-center items-center h-[80px] w-[270px] top-[80px]">
+        <View className="absolute justify-center items-center h-[80px] w-[270px] top-[60px]">
           <ImageBackground
             source={require('@/assets/images/logo-HitchHop.png')}
             className="w-[270px] h-[80px]"
@@ -114,7 +114,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Login Card */}
-        <View className="top-[200px] w-[360px] h-[622px] items-center bg-white rounded-[30px] ">
+        <View className="w-full flex-1 items-center bg-white rounded-t-[30px] top-[180px]">
           <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
             <AlertDialogBackdrop className="bg-black/80" />
             <AlertDialogContent>
@@ -136,7 +136,7 @@ export default function LoginScreen() {
           <Text className="text-[30px] text-gray-800 text-center mb-8 top-[27px]" style={{ fontFamily: 'Exo_700Bold' }}>
             Iniciar Sesión
           </Text>
-          <FormControl className='top-[62px]'>
+          <FormControl className='top-[45px]'>
             {/* Email Field */}
             <View className="mb-5">
               <View className="flex-row mb-2">
@@ -212,12 +212,12 @@ export default function LoginScreen() {
             </View>
 
             {/* Buttons */}
-            <View className="flex-row justify-center items-center mb-6 top-[67px]  mr-7 ml-2">
+            <View className="flex-row justify-center items-center mb-6 top-[55px]  mr-7 ml-2">
               <TouchableOpacity
-                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
+                className="flex-1 py-3 rounded-lg items-center w-[90px] h-[50px]"
                 onPress={() => router.push("/VentanaInicial")}
               >
-                <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
+                <Text className="text-[16px]  text-[#7875F8] " style={{ fontFamily: 'Exo_500Medium' }}>
                   Volver
                 </Text>
               </TouchableOpacity>
@@ -235,11 +235,11 @@ export default function LoginScreen() {
             </View>
           </FormControl>
           {/* Register link */}
-          <View className="items-center top-[210px]">
-            <Text className="text-[16px] text-black" style={{ fontFamily: 'Exo_500Medium' }}>
+          <View className="items-center top-[140px]">
+            <Text className="text-[13px] text-black" style={{ fontFamily: 'Exo_500Medium' }}>
               ¿No tienes cuenta?{' '}
               <Text
-                className="text-[15px] text-[#7875F8]"
+                className="text-[12px] text-[#7875F8]"
                 style={{ fontFamily: 'Exo_500Medium' }}
                 onPress={() => router.push("/Register/register")}
               >

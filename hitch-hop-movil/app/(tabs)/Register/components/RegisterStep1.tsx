@@ -153,7 +153,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                 <StatusBar style="light" />
                 <ImageBackground
                     source={require('@/assets/images/fondo-HitchHop.png')}
-                    className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
+                    className="absolute inset-0 w-full h-[588px] left-[0px] top-[-53px] "
                     resizeMode="contain"
                 />
                 {/* Logo*/}
@@ -166,7 +166,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                 </View>
 
                 {/* Register Card */}
-                <View className="top-[130px] w-[360px] h-[722px] items-center bg-white rounded-[30px] ">
+                <View style={{marginTop: 130, width: '100%', backgroundColor: 'white', borderRadius: 30, paddingVertical: 20, paddingHorizontal: 25, alignItems: 'center',}}>
                     <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
                         <AlertDialogBackdrop className="bg-black/80" />
                         <AlertDialogContent>
@@ -206,7 +206,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                 selectedValue={institution}
                                 onValueChange={handleInstitutionChange}
                                 placeholder="Selecciona una institución"
-                                className="w-[264px]"
+
                             />
                         </View>
                         {/* Correo Institucional Field */}
@@ -221,7 +221,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                 value={email}
                                 onChangeText={setEmail}
@@ -244,7 +244,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                 value={name}
                                 onChangeText={setName}
@@ -266,7 +266,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                         </Text>
                                     )}
                                 </View>
-                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[128px]">
+                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[153px]">
                                     <InputField
                                     value={lastName}
                                     onChangeText={setLastName}
@@ -285,7 +285,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                         </Text>
                                     )}
                                 </View>
-                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[128px]">
+                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[153px]">
                                     <InputField
                                     value={secondLastName}
                                     onChangeText={setSecondLastName}
@@ -307,7 +307,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50  h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50  h-[44px] ">
                                 <InputField
                                 value={password}
                                 onChangeText={setPassword}
@@ -334,9 +334,9 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                         </View>
                         
                         {/* Buttons */}
-                        <View className="flex-row justify-center items-center mb-6 top-[5px]  mr-7 ml-2">
+                        <View className="flex-row justify-center items-center mb-6 top-[10px]  mr-7 ml-2">
                             <TouchableOpacity 
-                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
+                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[60px]"
                                 onPress={() => router.push("/VentanaInicial")}
                             >
                                 <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
@@ -345,7 +345,7 @@ export default function RegisterStep1({initialData, onNext }: RegisterStep1Props
                             </TouchableOpacity>
                                 
                             <TouchableOpacity 
-                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${
+                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[50px] ${
                                 loading ? 'opacity-70' : ''
                                 }`}
                                 onPress={handleRegister}

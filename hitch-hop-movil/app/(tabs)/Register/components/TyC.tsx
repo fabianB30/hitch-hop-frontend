@@ -46,8 +46,8 @@ export default function TyCScreen({ onAccept, onReject }: TyCProps) {
                     source={require('@/assets/images/TyC-background.png')}
                     style={{
                         position: 'absolute',
-                        width: 360,
-                        height: 588,
+                        width: '100%',
+                        height: '100%',
                         top: -69
                     }}
                     resizeMode="contain"
@@ -75,7 +75,7 @@ export default function TyCScreen({ onAccept, onReject }: TyCProps) {
                         position: 'absolute',
                         top: 90,
                         width: 312,
-                        height: 599,
+                        height: 500,
                         alignItems: 'center',
                         backgroundColor: 'white',
                         borderRadius: 15,
@@ -93,7 +93,7 @@ export default function TyCScreen({ onAccept, onReject }: TyCProps) {
                 ]}>
                     {/* Contenido scrollable */}
                     <ScrollView 
-                        style={styles.scrollContainer}
+                        style={{ flex: 1 }}
                         contentContainerStyle={styles.scrollContent}
                         onScroll={handleScroll}
                         scrollEventThrottle={16}
