@@ -157,7 +157,7 @@ export default function VerSolicitudesPendientes() {
                   fontSize: 14,
                   fontWeight: "600",
                   color: "#171717",
-                  textAlign: "right",
+                  textAlign: "left",
                   maxWidth: "90%",
                 }}
               >

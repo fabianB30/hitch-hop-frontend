@@ -85,7 +85,7 @@ export default function VerViajesPendientes() {
       try {
         const trips = await getTripsByUserRequest(user._id, true, "all");
         if (trips) {
-          const mappedRequests = trips.map((trip: any) => {
+          const mappedRequests: Requests[] = trips.map((trip: any) => {
             // Solo pasajeros pendientes
             const pendingPassengers =
               trip.passengers
@@ -109,6 +109,12 @@ export default function VerViajesPendientes() {
               start: trip.startpoint?.name || "",
               end: trip.endpoint?.name || "",
             };
+          });
+
+          mappedRequests.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
           });
 
           setRequests(mappedRequests);

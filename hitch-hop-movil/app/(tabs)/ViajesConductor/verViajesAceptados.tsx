@@ -72,7 +72,7 @@ export default function VerViajesAceptados() {
       try {
         const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
         if (trips) {
-          const mappedRequests = trips.map((trip: any) => ({
+          const mappedRequests: Requests[] =trips.map((trip: any) => ({
             id: trip._id,
             users:
               trip.passengers?.filter((p: any) => p.status === "Aprobado")
@@ -84,6 +84,12 @@ export default function VerViajesAceptados() {
             start: trip.startpoint?.name || "",
             end: trip.endpoint?.name || "",
           }));
+
+          mappedRequests.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+          });
           setRequests(mappedRequests);
 
           if (mappedRequests.length === 0) {

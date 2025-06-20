@@ -60,26 +60,12 @@ export default function VerDetallesViajesAceptados() {
     end: string;
   }
 
-  // Hacen un manejo algo así, eso le retorna la lista de lo que ocupan
-  /*useEffect(() => {
-    async function fetchData() {
-      try {
-        const trips = await getTripsByUserRequest(userId, false, status);
-        if (trips) setTrips(trips);
-      } catch (error) {
-        console.error("Error al obtener viajes:", error);
-      }
-    }
-
-    fetchData();
-  }, []);*/
-
   useEffect(() => {
     async function fetchRides() {
       try {
         const trips = await getTripsByUserRequest(user._id, false, "Aprobado");
         if (trips) {
-          const mappedRides = trips.map((trip: any) => ({
+          const mappedRides: Ride[] = trips.map((trip: any) => ({
             id: trip._id,
             avatar: require("@/assets/images/avatar1.png"),
             name: trip.driver?.name || "Nombre Conductor",
@@ -90,6 +76,13 @@ export default function VerDetallesViajesAceptados() {
             start: trip.startpoint?.name || "",
             end: trip.endpoint?.name || "",
           }));
+
+          mappedRides.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+          });
+
           setRides(mappedRides);
 
           // Si no hay rides, redirige

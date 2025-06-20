@@ -67,7 +67,7 @@ export default function viajesPendientes() {
       try {
         const trips = await getTripsByUserRequest(user._id, false, "Pendiente");
         if (trips) {
-          const mappedRides = trips.map((trip: any) => ({
+          const mappedRides: Ride[] = trips.map((trip: any) => ({
             id: trip._id,
             avatar: require("@/assets/images/avatar1.png"),
             name: trip.driver?.name || "Nombre Conductor",
@@ -78,6 +78,13 @@ export default function viajesPendientes() {
             start: trip.startpoint?.name || "",
             end: trip.endpoint?.name || "",
           }));
+
+          mappedRides.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+          });
+
           setRides(mappedRides);
 
           // Si no hay rides, redirige
