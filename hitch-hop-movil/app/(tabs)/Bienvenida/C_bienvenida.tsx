@@ -30,7 +30,7 @@ export default function CBienvenidaScreen() {
 
             <ImageBackground
             source={require('@/assets/images/Vector1.png')}
-            className="absolute w-[360px] h-[1000px] top-[-120px] z-0"
+            className="absolute w-full h-[1000px] top-[-120px] z-0"
             resizeMode="contain"
             />
             <ImageBackground
@@ -62,7 +62,7 @@ export default function CBienvenidaScreen() {
                 </Text>
 
                 <TouchableOpacity
-                    className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[122px] h-[47px] mt-10`}
+                    className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[200px] h-[50px] mt-10`}
                     onPress={() => router.push("/vehiculos/sinVehiculos")}
                 >
                     <Text className="text-[16px] text-white" style={{ fontFamily: 'Exo_500Medium' }}>
@@ -71,7 +71,7 @@ export default function CBienvenidaScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    className="flex-1 py-3 rounded-lg items-center w-[140px] h-[40px] mt-3"
+                    className="flex-1 py-3 rounded-lg items-center w-[200px] h-[60px] mt-2"
                     onPress={() => router.push("/HomeConductor")}
                 >
                     <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>

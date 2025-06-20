@@ -1,3 +1,6 @@
+// Funcionalidad realizada por Carlos Cabrera y Diego Duran
+// Ventana de gestión de perfil del usuario, donde el usuario puede editar la información de su cuenta
+
 import React, { useRef, useState, useEffect } from "react";
 import Imagen1 from "../assets/1.6-DefaultPFP.png";
 import { Button } from "../components/ui/button";
@@ -16,6 +19,7 @@ import { getAllInstitutionsRequest } from '@/interconnection/institution';
 import { updateUserRequest } from "@/interconnection/user";
 import { changePasswordRequest } from "@/interconnection/user";
 
+// Definicion de datos del usuario
 const initialUser = {
   nombre: "",
   primerApellido: "",
@@ -32,6 +36,7 @@ const initialUser = {
   foto: Imagen1,
 };
 
+// Componente principal 
 const ProfileSettings: React.FC = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [editable, setEditable] = useState(false);
@@ -72,6 +77,7 @@ const ProfileSettings: React.FC = () => {
       }
     : initialUser;
 
+  // Carga los datos del usuario al iniciar
   useEffect(() => {
     if (user) {
       let fechaNacimiento = user.birthDate || "";
@@ -122,24 +128,27 @@ const ProfileSettings: React.FC = () => {
     fetchOptions();
   }, []);
   
-
+  // Valida errores al cambiar datos
   useEffect(() => {
     const validationErrors = validateUserData(userData);
     setErrors(validationErrors);
   }, [userData]);
 
+  // Formatea la fecha a formato dd/mm/yyyy
   function formatDate(date: Date) {
     return date
       ? `${String(date.getDate()).padStart(2, "0")} / ${String(date.getMonth() + 1).padStart(2, "0")} / ${date.getFullYear()}`
       : "";
   }
 
+  // Parsea la fecha a objeto Date
   function parseDate(str: string) {
     const [day, month, year] = str.split("/").map((s) => parseInt(s.trim(), 10));
     if (!day || !month || !year) return null;
     return new Date(year, month - 1, day);
   }
 
+  // Validación de datos del usuario
   const validateUserData = (data: typeof initialUser) => {
     const newErrors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -166,7 +175,7 @@ const ProfileSettings: React.FC = () => {
     return newErrors;
   };
 
-  // Guardar los datos del usuario
+  // Guardar los cambios del usuario
   const toggleEdit = async () => {
     if (!editable) {
       setBackupData(userData);
@@ -184,8 +193,10 @@ const ProfileSettings: React.FC = () => {
           const [day, month, year] = userData.fechaNacimiento.split("/").map(s => s.trim());
           birthDateISO = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
         }
+        const { password, ...restUser } = user;
+
         const dataToUpdate: User = {
-          ...user,
+          ...restUser,
           name: userData.nombre,
           firstSurname: userData.primerApellido,
           secondSurname: userData.segundoApellido,
@@ -261,26 +272,48 @@ const ProfileSettings: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64String = ev.target?.result as string;
-      setUserData((prev) => ({ ...prev, foto: base64String }));
-
-      // Guardar la imagen en base64 en la base de datos
+  // Maneja el cambio de foto de perfil
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
       try {
+        const compressedBase64 = await compressImage(file, 200, 0.7);
+        setUserData((prev) => ({ ...prev, foto: compressedBase64 }));
+
         const userId = user._id;
-        await updateUserRequest(userId, { ...user, photoKey: base64String, photoUrl: base64String });
-        await updateUser({ ...user, photoKey: base64String, photoUrl: base64String });
+        await updateUserRequest(userId, { ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
+        await updateUser({ ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
       } catch (error) {
-        console.error("Error guardando la imagen:", error);
+        console.error("Error al comprimir la imagen:", error);
       }
+    }
+ };
+
+ // Función para comprimir imágenes
+ const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    img.onload = () => {
+      // Calcular nuevas dimensiones manteniendo la proporción
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+
+      // Dibujar imagen redimensionada
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Convertir a base64 con compresión
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressedDataUrl);
     };
-    reader.readAsDataURL(file);
-  }
+
+    img.src = URL.createObjectURL(file);
+  });
 };
+
 
   return (
     <div className="min-h-screen w-full bg-white flex">
@@ -516,6 +549,7 @@ const ProfileSettings: React.FC = () => {
   );
 };
 
+// Componente para los inputs del perfil
 function ProfileInput({ label, value, onChange, editable = false, as, options, type = "text", error }: {
   label: string;
   value: string;

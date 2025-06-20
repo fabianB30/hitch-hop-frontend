@@ -1,3 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// FUNCIONALIDAD HECHA POR CARLOS CABRERA Y DIEGO DURÁN
+// 
+// DESCRIPCIÓN: Pantalla de configuración del perfil del usuario; 
+// donde se puede editar la información personal, 
+// cambiar la contraseña y subir una foto de perfil.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// IMPORTS
 import React, { useRef, useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -18,10 +29,15 @@ import { getParameterByNameRequest } from '../../interconnection/paremeter';
 import { getAllInstitutionsRequest } from '../../interconnection/institution';
 import { changePasswordRequest } from '../../interconnection/user';
 import { Pressable } from "@/components/ui/pressable";
+import * as ImageManipulator from 'expo-image-manipulator';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    MAIN FUNCTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export default function ProfileSettings() {
+  ///    Setters and Variables
   const [tiposId, setTiposId] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState([]);
   const [genres, setGenres] = useState<string[]>([]);
@@ -30,7 +46,7 @@ export default function ProfileSettings() {
   const { user , updateUser } = useAuth();
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const [editable, setEditable] = useState(false);
-  const [userData, setUserData] = useState(user);
+  
   const [backupData, setBackupData] = useState(user);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -46,7 +62,23 @@ export default function ProfileSettings() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSavedDialog, setShowSavedDialog] = useState(false);
   const router = useRouter();
+  const formatDate = (isoString: string): string => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  };
+  const [userData, setUserData] = useState({
+  ...user,
+  birthDate: formatDate(user.birthDate),
+});
+
   
+  //////////////////////////////////////////////////////////////////////////////////////
+  ///    Initial User Data
+  //  Here all the information is fetched from the backend and fed to special variables
   useEffect(() => {
     async function fetchData() {
       try {
@@ -74,6 +106,8 @@ export default function ProfileSettings() {
     value: inst._id
   }));
 
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Check every text field to verify it has the proper format and values
   const validateUserData = (data: typeof initialUser) => {
     const errors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -99,6 +133,7 @@ export default function ProfileSettings() {
     return Object.keys(errors).length === 0;
  };
 
+  //////////////////////////////////////////////////////////////////////////////////////
   // editar y llamar al backend
   const toggleEdit = async () => {
     if (!editable) {
@@ -111,9 +146,36 @@ export default function ProfileSettings() {
       }
       try {
         const userId = user._id;
-        const dataToUpdate = { ...userData };
+        const parseToISO = (friendlyDate: string): string => {
+          const [day, month, year] = friendlyDate.split(" / ").map(Number);
+          const date = new Date(year, month - 1, day);
+          return date.toISOString();
+        };
+        const { password, ...restUser } = user;
+        const dataToUpdate = {
+          ...restUser,
+          name: userData.name,
+          firstSurname: userData.firstSurname,
+          secondSurname: userData.secondSurname,
+          email: userData.email,
+          phone: userData.phone,
+          identificationTypeId: userData.identificationTypeId,
+          identificationNumber: userData.identificationNumber,
+          birthDate: parseToISO(userData.birthDate),
+          institutionId: userData.institutionId,
+          genre: userData.genre,
+          username: userData.username,
+          role: userData.role,
+          type: userData.type,
+          photoUrl: userData.photoUrl,
+       };
+
         await updateUserRequest(userId, dataToUpdate);
-        await updateUser(dataToUpdate);
+        
+        //await updateUser({
+        //  ...userWithoutNotifications,
+       //   ...dataToUpdate,
+       // });
 
       } catch (error) {
         console.error("Error updating user:", error);
@@ -124,33 +186,36 @@ export default function ProfileSettings() {
     }
   };
 
+  // Cancel edition and revert changes
   const cancelEdit = () => {
     setUserData(backupData);
     setEditable(false);
     setFieldErrors({});
   };
 
+  // Set UserData according to the input fields
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData({ ...userData, [key]: value });
   };
 
+  // Update the user photo, special compression is applied
   const handleEditPhoto = async () => {
-    // Permisos
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Se requieren permisos para acceder a tus fotos.');
-      return;
-    }
-    // Abre la galería de imágenes
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-      base64: true,
-    });
+  // Permisos
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Se requieren permisos para acceder a tus fotos.');
+    return;
+  }
+  // Abre la galería de imágenes
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1, 
+    base64: false,
+  });
 
-    //Base 64
+    // Base 64
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const asset = result.assets[0];
       if (asset.base64) {
@@ -162,6 +227,7 @@ export default function ProfileSettings() {
     }
   };
 
+  
   // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
@@ -176,6 +242,7 @@ export default function ProfileSettings() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////////////
   // Maneja el cambio de contraseña
   const handleChangePassword = async () => {
     setCurrentPasswordError(false);
@@ -221,7 +288,8 @@ export default function ProfileSettings() {
     setShowSavedDialog(true);
   };
 
-  
+  //////////////////////////////////////////////////////////////////////////////////////
+  // CUERPO DE LA PANTALLA
   return (
     <View style={{ flex: 1,  width: "100%" }}>
     <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
@@ -341,7 +409,6 @@ export default function ProfileSettings() {
           )}
         </View>
         <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
-        <ProfileInput label="Tipo de usuario" value={userData.type} editable={editable} onChange={v => handleChange("type", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
         <ProfileInput label="Rol" value={userData.role} editable={editable} onChange={v => handleChange("role", v)} options={roles} />
     </View>
@@ -550,6 +617,10 @@ function ProfileInput({
     </View>
   );
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+// STYLES AND GRAPHICS
+//////////////////////////////////////////////////////////////////////////////////////
 
 const styles = StyleSheet.create({
   container: {
