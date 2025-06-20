@@ -153,11 +153,11 @@ export const addUserToStop = async (id: string, placeId: string, user: string): 
         }
     } catch (error) {
         const status = error.response.status;
-        if(status === 400){
-            const message = "Ese usuario ya está agregado"
+        if(status === 404){
+            const message = "Esa parada no existe"
             return message
         }
-        
+
         console.error('http request error: ', error);
         return null;
     }

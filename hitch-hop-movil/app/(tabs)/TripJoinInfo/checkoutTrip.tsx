@@ -38,8 +38,10 @@ const checkoutTrip = () => {
 
     async function openLastModal() {
       const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
-      const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
-      console.log(addPassenger)
+      if(addStop){
+        const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
+        console.log(addPassenger)
+      }
       console.log(addStop)
       setShowConfirmationModal(false);
       setShowAcceptModal(true);
