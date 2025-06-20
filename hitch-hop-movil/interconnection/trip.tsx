@@ -99,7 +99,7 @@ export const deleteTripRequest = async (id): Promise<IJwtResponse | null> => {
 
 export const updatePassangerStatusRequest = async (id, userId, status): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.patch(`/backend/trip/${id}/passengers/${userId}/status`, {status});
+        const res = await axios.patch(`/backend/trip/${id}/passengers/${userId}/status`, {status});
         const data = res.data.data;
         if (data) {
             return data;
@@ -174,7 +174,7 @@ export const getTripPassengersRequest = async (id: string, user: string): Promis
 
 export const cancelPassengerTripRequest = async (id: string, userId: string): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.put(`/backend/trips/${id}/cancel/${userId}`);
+        const res = await axios.put(`/backend/trips/${id}/cancel/${userId}`);
         const data = res.data.data;
         if (data) {
             return data;

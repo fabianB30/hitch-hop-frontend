@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { Pressable } from "@/components/ui/pressable";
 import { Box } from "@/components/ui/box";
 import { useRouter } from "expo-router";
+import { useAuth } from '../Context/auth-context';
 import { RideCard } from "@/components/RideCard";
 import { VStack } from "@/components/ui/vstack";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ import { useFonts } from "expo-font";
 
 export default function verDetalleViajePendiente() {
   const router = useRouter();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const [showPopup, setShowPopup] = useState(false);
   const [fontsLoaded] = useFonts({

@@ -1,5 +1,5 @@
 // Creado por Daniel
-// Ediciones: Daniel
+// Ediciones: Daniel, Xotchil
 // Contiene el código del componente RideCard que muestra la información de un viaje para los pasajeros.
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
@@ -148,7 +148,7 @@ export function RideCard({
           flexWrap: 'wrap',
           flex: 1,
         }}>
-          {startLabel}: {start}
+          {startLabel}
         </Text>
       </Box>
       <Box style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 4 }}>

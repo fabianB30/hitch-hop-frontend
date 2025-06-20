@@ -17,16 +17,24 @@ import {
 } from "@/components/ui/avatar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CancelPopup from "@/components/cancelPopUp";
+import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import React, { useEffect, useState } from "react";
-import { getTripByIdRequest } from "../../../interconnection/trip";
+import { getTripByIdRequest, updatePassangerStatusRequest } from "../../../interconnection/trip";
+import { getVehicleByIdRequest } from "@/interconnection/vehicle";
 import { useFonts } from "expo-font";
+import { useAuth } from '../Context/auth-context';
 
 export default function VerDetalleViajeProgramado() {
   const router = useRouter();
-  const { rideId } = useLocalSearchParams();
+  const { user } = useAuth();
+  const { rideId, source, userStop } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [showPopup, setShowPopup] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const [trip, setTrip] = useState<any>(null);
+  const [vehicle, setVehicle] = useState<any>(null);
+  const [userStopName, setUserStopName] = useState<string>("No asignado");
   const [fontsLoaded] = useFonts({
     'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
     'exo.medium': require('@/assets/fonts/exo.medium.otf'),
@@ -36,6 +44,38 @@ export default function VerDetalleViajeProgramado() {
   });
   if (!fontsLoaded) return null;
 
+  const pageTitle =
+    source === "pendiente"
+      ? "Detalles de Viaje Pendiente"
+      : "Detalles de Viaje Programado";
+
+  const handleConfirmCancel = async () => {
+    if (rideId && user?._id) {
+      try {
+        const res = await updatePassangerStatusRequest(rideId, user._id, "Cancelado");
+        if (res) {
+          setShowPopup(false);
+          if (source === "aceptado") {
+            router.push("/(tabs)/ViajesPasajero/verDetallesViajesAceptados");
+          } else {
+            router.push("/(tabs)/ViajesPasajero/viajesPendientes");
+          }
+        } else {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+      } catch (error) {
+        setSuccessMessage("Hubo un error al cancelar la solicitud.");
+        setShowSuccessPopup(true);
+      }
+      setShowPopup(false);
+    }
+  };
+
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  }
+
   useEffect(() => {
     async function fetchTrip() {
       if (!rideId) return;
@@ -44,6 +84,16 @@ export default function VerDetalleViajeProgramado() {
     }
     fetchTrip();
   }, [rideId]);
+
+  useEffect(() => {
+    async function fetchVehicle() {
+      if (trip?.vehicle) {
+        const data = await getVehicleByIdRequest(trip.vehicle);
+        if (data) setVehicle(data);
+      }
+    }
+    fetchVehicle();
+  }, [trip?.vehicle]);
 
   if (!trip) return null;
 
@@ -82,7 +132,7 @@ export default function VerDetalleViajeProgramado() {
               alignSelf: "center",
             }}
           >
-            <Text style={styles.title}>Detalles de Viaje Programado</Text>
+            <Text style={styles.title}>{pageTitle}</Text>
           </Box>
           <HStack
             style={{
@@ -110,8 +160,10 @@ export default function VerDetalleViajeProgramado() {
                 }}
               >
                 <Text style={styles.title}>{trip?.driver?.name || "Conductor"} {trip?.driver?.firstSurname || ""}</Text>
-                <Text style={[{fontSize: 16}, styles.lightFont]}>ABC-123</Text>
-                <Text style={[{fontSize: 12}, styles.lightFont]}>Toyota Camry - Blanco</Text>
+                <Text style={[{fontSize: 16}, styles.lightFont]}>{vehicle?.plate ?? "No indicado"}</Text>
+                <Text style={[{fontSize: 13}, styles.lightFont]}>{vehicle
+                ? `${vehicle.brand} ${vehicle.model}\n${vehicle.color}`
+                : "No indicado"}</Text>
               </VStack>
             </Box>
             <Box
@@ -193,7 +245,7 @@ export default function VerDetalleViajeProgramado() {
             <Text style={[styles.mediumFont, {fontSize: 18}]}>Punto de Inicio</Text>
           </Box>
           {/* Hay que cambiar esto probablemente, pero no hay manera de ver cual es el punto de partida del usuario*/}
-          <Text style={styles.carData}>Alianza Francesa, San José Av. 7.</Text>
+          <Text style={styles.carData}>{userStop}</Text>
 
           <Box
             style={{
@@ -226,10 +278,12 @@ export default function VerDetalleViajeProgramado() {
       <CancelPopup
         visible={showPopup}
         onCancel={() => setShowPopup(false)}
-        onConfirm={() => {
-          setShowPopup(false);
-          router.back();
-        }}
+        onConfirm={handleConfirmCancel}
+      />
+      <CancelSuccessPopup
+        visible={showSuccessPopup}
+        onClose={handleCloseSuccessPopup}
+        message={successMessage}
       />
     </ImageBackground>
   );

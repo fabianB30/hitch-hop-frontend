@@ -9,7 +9,7 @@ import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from '@/components/CancelSuccessPopUp';
 import React, { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getTripsByUserRequest } from '@/interconnection/trip';
+import { getTripsByUserRequest, updatePassangerStatusRequest } from '@/interconnection/trip';
 import { useAuth } from '../Context/auth-context';
 import { useFonts } from "expo-font";
 
@@ -21,6 +21,7 @@ export default function viajesPendientes() {
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
   const [rides, setRides] = useState<Ride[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const insets = useSafeAreaInsets();
   const [fontsLoaded] = useFonts({
     'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
@@ -36,12 +37,31 @@ export default function viajesPendientes() {
     setShowPopup(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Pendiente la lógica para cancelar el viaje
-    setShowPopup(false);
-    setRideToCancel(null);
-    //Debería ir un if para validar si se canceló correctamente
-    setShowSuccessPopup(true);
+  const handleConfirmCancel = async () => {
+    if (rideToCancel !== null && user?._id) {
+      try {
+        const res = await updatePassangerStatusRequest(rideToCancel, user._id, "Cancelado");
+        if (res) {
+          setRides((prev) => {
+            const updatedRides = prev.filter((ride) => ride.id !== rideToCancel);
+            if (updatedRides.length === 0) {
+              router.replace("/(tabs)/ViajesPasajero/sinViajes");
+            } else {
+              setShowSuccessPopup(true);
+            }
+            return updatedRides;
+          });
+        } else {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+      } catch {
+        setSuccessMessage("Hubo un error al cancelar la solicitud.");
+        setShowSuccessPopup(true);
+      }
+      setShowPopup(false);
+      setRideToCancel(null);
+    }
   };
 
   const handleClosePopup = () => {
@@ -60,6 +80,7 @@ export default function viajesPendientes() {
     time: string;
     start: string;
     end: string;
+    stopName?: string;
   }
 
   useEffect(() => {
@@ -67,25 +88,37 @@ export default function viajesPendientes() {
       try {
         const trips = await getTripsByUserRequest(user._id, false, "Pendiente");
         if (trips) {
-          const mappedRides: Ride[] = trips.map((trip: any) => ({
-            id: trip._id,
-            avatar: require("@/assets/images/avatar1.png"),
-            name: trip.driver?.name || "Nombre Conductor",
-            car: "Modelo Auto",
-            price: `₡${trip.costPerPerson}`,
-            date: trip.departure.split("T")[0],
-            time: trip.departure.split("T")[1]?.slice(0,5),
-            start: trip.startpoint?.name || "",
-            end: trip.endpoint?.name || "",
-          }));
+          const mappedRides: Ride[] = trips.map((trip: any) => {
+            const userStop = trip.stops?.find((stop: any) =>
+              stop.passengersId?.includes(user._id)
+            );
+            return {
+              id: trip._id,
+              avatar: require("@/assets/images/avatar1.png"),
+              name: trip.driver?.name || "Nombre Conductor",
+              car: "Modelo Auto",
+              price: `₡${trip.costPerPerson}`,
+              date: trip.departure.split("T")[0],
+              time: trip.departure.split("T")[1]?.slice(0,5),
+              start: trip.startpoint?.name || "",
+              end: trip.endpoint?.name || "",
+              stopName: userStop ? userStop.place.name : "Parada no encontrada",
+            };
+          });
 
-          mappedRides.sort((a, b) => {
+          const now = new Date();
+          const filteredRides = mappedRides.filter((ride) => {
+            const rideDateTime = new Date(`${ride.date}T${ride.time}`);
+            return rideDateTime.getTime() >= now.getTime();
+          });
+
+          filteredRides.sort((a, b) => {
             const dateA = new Date(`${a.date}T${a.time}`);
             const dateB = new Date(`${b.date}T${b.time}`);
             return dateA.getTime() - dateB.getTime();
           });
 
-          setRides(mappedRides);
+          setRides(filteredRides);
 
           // Si no hay rides, redirige
           if (mappedRides.length === 0) {
@@ -154,6 +187,7 @@ export default function viajesPendientes() {
       <CancelSuccessPopup
         visible={showSuccessPopup}
         onClose={() => setShowSuccessPopup(false)}
+        message={successMessage}
       />
       <ScrollView
         style={styles.cardsScroll}
@@ -178,10 +212,13 @@ export default function viajesPendientes() {
             </Box>
             <RideCard
                 {...ride}
-                startLabel="Parada solicitada"
+                startLabel={`Parada solicitada: ${ride.stopName || "No disponible"}`}
                 onCancel={() => handleCancelPress(ride.id)}
                 onDetails={() => {
-                  router.push("/(tabs)/ViajesPasajero/verDetalleViajePendiente");
+                  console.log("Detalles del viaje:", ride);
+                  router.push({pathname: "/(tabs)/ViajesPasajero/verDetalleViajeProgramado",
+                  params: { rideId: ride.id, source: "pendiente", userStop: ride.stopName }
+                  });
                 }}
             />
             </React.Fragment>

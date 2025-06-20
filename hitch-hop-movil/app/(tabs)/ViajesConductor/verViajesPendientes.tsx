@@ -111,13 +111,19 @@ export default function VerViajesPendientes() {
             };
           });
 
-          mappedRequests.sort((a, b) => {
+          const now = new Date();
+          const filteredRequests = mappedRequests.filter((req) => {
+            const tripDateTime = new Date(`${req.date}T${req.time}`);
+            return tripDateTime.getTime() >= now.getTime();
+          });
+
+          filteredRequests.sort((a, b) => {
             const dateA = new Date(`${a.date}T${a.time}`);
             const dateB = new Date(`${b.date}T${b.time}`);
             return dateA.getTime() - dateB.getTime();
           });
 
-          setRequests(mappedRequests);
+          setRequests(filteredRequests);
 
           if (mappedRequests.length === 0) {
             router.replace("/(tabs)/ViajesConductor/sinProgramados");
