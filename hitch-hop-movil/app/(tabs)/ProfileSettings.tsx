@@ -1,8 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// FUNCIONALIDAD HECHA POR CARLOS CABRERA Y DIEGO DURÁN
+// 
+// DESCRIPCIÓN: Pantalla de configuración del perfil del usuario; 
+// donde se puede editar la información personal, 
+// cambiar la contraseña y subir una foto de perfil.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// IMPORTS
 import React, { useRef, useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Input, InputField, InputSlot, InputError } from '@/components/ui/input';
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop } from "@/components/ui/alert-dialog";
 import { useRouter } from "expo-router";
 import { Camera } from "lucide-react-native";
 import { ChevronLeft } from "lucide-react-native";
@@ -15,81 +27,71 @@ import { updateUserRequest, User } from '../../interconnection/user';
 import { useAuth } from './Context/auth-context';
 import { getParameterByNameRequest } from '../../interconnection/paremeter';
 import { getAllInstitutionsRequest } from '../../interconnection/institution';
+import { changePasswordRequest } from '../../interconnection/user';
+import { Pressable } from "@/components/ui/pressable";
+import * as ImageManipulator from 'expo-image-manipulator';
 const ImagenBG = require("/assets/images/1.5-BG_ProfileSettings.png");
-//const ImagenPFP = require("../../../assets/images/1.5-DefaultPFP.png");
 
-
-// Esquema real de la base de datos, se los dejo como referencia
-/*export type User = {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  institutionId: string;
-  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
-  identificationNumber?: number;
-  birthDate: string;
-  genre?: "Masculino" | "Femenino" | "Otro";
-  photoKey?: string;
-  photoUrl?: string;
-  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
-  role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
-  notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
-  }[];
-};*/
-
-// Esto era de ustedes, pueden eliminarlo
-/*type User = {
-  name: string;
-  firstSurname: string;
-  secondSurname: string;
-  email: string;
-  institucion: string;
-  identificationTypeId: string;
-  identificationNumber: string;
-  birthDate: string;
-  phone: string;
-  genre: string;
-  username: string;
-  type: string;
-  photoKey: string | null;
-};*/
-
-/*const initialUser: User = {
-  name: "Juan",
-  firstSurname: "Rodríguez",
-  secondSurname: "Chaves",
-  email: "juan@estudiantec.cr",
-  institucion: "Tecnológico de Costa Rica",
-  identificationTypeId: "Cédula",
-  identificationNumber: "116032348",
-  birthDate: "27 / 02 / 2003",
-  phone: "83017776",
-  genre: "Masculino",
-  username: "juanRC02",
-  type: "Administrador",
-  photoKey: null,
-};*/
-
-//const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
-//const instituciones = ["Tecnológico de Costa Rica"];
-const genres = ["Masculino", "Femenino", "Otro"];
-const tiposUsuario = ["Administrador", "Usuario"];
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    MAIN FUNCTION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export default function ProfileSettings() {
+  ///    Setters and Variables
   const [tiposId, setTiposId] = useState<string[]>([]);
   const [instituciones, setInstituciones] = useState([]);
-  const { user } = useAuth();
+  const [genres, setGenres] = useState<string[]>([]);
+  const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+  const { user , updateUser } = useAuth();
+  const [passwordChangeError, setPasswordChangeError] = useState("");
+  const [editable, setEditable] = useState(false);
+  
+  const [backupData, setBackupData] = useState(user);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPasswordError, setCurrentPasswordError] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSavedDialog, setShowSavedDialog] = useState(false);
+  const router = useRouter();
+  const formatDate = (isoString: string): string => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  };
+  const [userData, setUserData] = useState({
+  ...user,
+  birthDate: formatDate(user.birthDate),
+});
+
+  
+  //////////////////////////////////////////////////////////////////////////////////////
+  ///    Initial User Data
+  //  Here all the information is fetched from the backend and fed to special variables
   useEffect(() => {
     async function fetchData() {
       try {
-        const param = await getParameterByNameRequest("Tipo de identificación");
+        const paramId = await getParameterByNameRequest("Tipo de identificación");
+        const paramGenero = await getParameterByNameRequest("Géneros");
+        const paramTipoUsuario = await getParameterByNameRequest("Tipo de Usuario");
+        const paramRol = await getParameterByNameRequest("Rol");
         const resInstitutions = await getAllInstitutionsRequest();
-        if (param) setTiposId(param.parameterList);
+
+        if (paramId) setTiposId(paramId.parameterList);
+        if (paramGenero) setGenres(paramGenero.parameterList);
+        if (paramTipoUsuario) setTiposUsuario(paramTipoUsuario.parameterList);
+        if (paramRol) setRoles(paramRol.parameterList);
         if (resInstitutions) setInstituciones(resInstitutions);
       } catch (error) {
         console.error("Error al obtener opciones:", error);
@@ -104,87 +106,129 @@ export default function ProfileSettings() {
     value: inst._id
   }));
 
-  const [editable, setEditable] = useState(false);
-  const [userData, setUserData] = useState(user);
-  const [backupData, setBackupData] = useState(user);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [currentPasswordError, setCurrentPasswordError] = useState(false);
-  const [newPasswordError, setNewPasswordError] = useState(false);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const router = useRouter();
-
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Check every text field to verify it has the proper format and values
   const validateUserData = (data: typeof initialUser) => {
-  const errors: Record<string, string> = {};
-  const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    const errors: Record<string, string> = {};
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
-  if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
-  if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
-  if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
-  if (!/^\d{9}$/.test(String(data.identificationNumber))) errors.identificationNumber = "El número de ID debe tener 9 dígitos.";
-  if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
-  if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
-    errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
-  }
+    if (!nameRegex.test(data.name)) errors.name = "El nombre solo puede contener letras.";
+    if (!nameRegex.test(data.firstSurname)) errors.firstSurname = "El primer apellido solo puede contener letras.";
+    if (!nameRegex.test(data.secondSurname)) errors.secondSurname = "El segundo apellido solo puede contener letras.";
 
-  setFieldErrors(errors);
-  return Object.keys(errors).length === 0;
+    if (data.identificationTypeId === "Cédula" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "La cédula debe tener 9 dígitos.";
+    } else if (data.identificationTypeId === "DIMEX" && !/^\d{12}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "El DIMEX debe tener 12 dígitos.";
+    } else if (data.identificationTypeId === "Pasaporte" && !/^\d{9}$/.test(String(data.identificationNumber))) {
+      errors.identificationNumber = "El pasaporte debe tener 9 dígitos.";
+    }
+
+    if (!/^\d{8}$/.test(String(data.phone))) errors.phone = "El teléfono debe tener 8 dígitos.";
+    if (!/^.+@(itcr\.ac\.cr|estudiantec\.cr)$/.test(data.email)) {
+      errors.email = "El correo debe terminar en @itcr.ac.cr o @estudiantec.cr.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
  };
 
-  const toggleEdit = () => {
-  if (!editable) {
-    //const userUpdate = await updateUserRequest(user.id, user);
-    setBackupData(userData);
-    setEditable(true);
-  
-  } else {
-    const isValid = validateUserData(userData);
-    if (!isValid) {
-      return;
-    }
-    setEditable(false);
-    setFieldErrors({});
-  }
-};
+  //////////////////////////////////////////////////////////////////////////////////////
+  // editar y llamar al backend
+  const toggleEdit = async () => {
+    if (!editable) {
+      setBackupData(userData);
+      setEditable(true);
+    } else {
+      const isValid = validateUserData(userData);
+      if (!isValid) {
+        return;
+      }
+      try {
+        const userId = user._id;
+        const parseToISO = (friendlyDate: string): string => {
+          const [day, month, year] = friendlyDate.split(" / ").map(Number);
+          const date = new Date(year, month - 1, day);
+          return date.toISOString();
+        };
+        const { password, ...restUser } = user;
+        const dataToUpdate = {
+          ...restUser,
+          name: userData.name,
+          firstSurname: userData.firstSurname,
+          secondSurname: userData.secondSurname,
+          email: userData.email,
+          phone: userData.phone,
+          identificationTypeId: userData.identificationTypeId,
+          identificationNumber: userData.identificationNumber,
+          birthDate: parseToISO(userData.birthDate),
+          institutionId: userData.institutionId,
+          genre: userData.genre,
+          username: userData.username,
+          role: userData.role,
+          type: userData.type,
+          photoUrl: userData.photoUrl,
+       };
 
+        await updateUserRequest(userId, dataToUpdate);
+        
+        //await updateUser({
+        //  ...userWithoutNotifications,
+       //   ...dataToUpdate,
+       // });
+
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
+      setEditable(false);
+      setFieldErrors({});
+      setShowSavedDialog(true);
+    }
+  };
+
+  // Cancel edition and revert changes
   const cancelEdit = () => {
     setUserData(backupData);
     setEditable(false);
     setFieldErrors({});
   };
 
+  // Set UserData according to the input fields
   const handleChange = (key: keyof typeof userData, value: string) => {
     setUserData({ ...userData, [key]: value });
   };
 
+  // Update the user photo, special compression is applied
   const handleEditPhoto = async () => {
-  // Pide permisos si es necesario
+  // Permisos
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
-    alert('Se requieren permisos para acceder a tus photoKeys.');
+    alert('Se requieren permisos para acceder a tus fotos.');
     return;
   }
-
-  // Abre la galería
+  // Abre la galería de imágenes
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
     aspect: [1, 1],
-    quality: 0.7,
+    quality: 1, 
+    base64: false,
   });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    setUserData({ ...userData, photoKey: result.assets[0].uri });
-  }
-};
- // Convierte la fecha de nacimiento a objeto Date
+    // Base 64
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.base64) {
+        setUserData({
+          ...userData,
+          photoUrl: `data:image/jpeg;base64,${asset.base64}`,
+        });
+      }
+    }
+  };
+
+  
+  // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
     return new Date(year, month - 1, day);
@@ -198,38 +242,57 @@ export default function ProfileSettings() {
     }
   };
 
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Maneja el cambio de contraseña
+  const handleChangePassword = async () => {
+    setCurrentPasswordError(false);
+    setNewPasswordError(false);
+    setConfirmPasswordError(false);
+    setPasswordChangeError("");
 
-const handleChangePassword = () => {
-  let hasError = false;
-  setCurrentPasswordError(false);
-  setNewPasswordError(false);
-  setConfirmPasswordError(false);
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    let hasError = false;
 
-  // mínimo 8 caracteres, al menos 1 mayúscula, 1 minúscula y 1 número
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!currentPassword) {
+      setCurrentPasswordError(true);
+      hasError = true;
+    }
+    if (!passwordRegex.test(newPassword)) {
+      setNewPasswordError(true);
+      hasError = true;
+    }
+    if (newPassword !== confirmPassword) {
+      setConfirmPasswordError(true);
+      hasError = true;
+    }
+    if (hasError) return;
 
-  if (!currentPassword) {
-    setCurrentPasswordError(true);
-    hasError = true;
-  }
-  if (!passwordRegex.test(newPassword)) {
-    setNewPasswordError(true);
-    hasError = true;
-  }
-  if (newPassword !== confirmPassword) {
-    setConfirmPasswordError(true);
-    hasError = true;
-  }
-  if (hasError) return;
+    const result = await changePasswordRequest({
+      email: user.email,
+      currentPassword,
+      newPassword,
+    });
 
-  setShowPasswordModal(false);
-  setCurrentPassword("");
-  setNewPassword("");
-  setConfirmPassword("");
-};
+    if (!result.success) {
+      setPasswordChangeError(result.msg || "Error desconocido.");
+      if (result.msg?.toLowerCase().includes("actual")) {
+        setCurrentPasswordError(true);
+      }
+      return;
+    }
 
+    setShowPasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowSavedDialog(true);
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // CUERPO DE LA PANTALLA
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={{ flex: 1,  width: "100%" }}>
+    <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
       {/* Imagen de fondo superior */}
       <View style={styles.backgroundContainer}>  
         <Image source={ImagenBG} style={styles.backgroundImage} resizeMode="cover" />
@@ -240,9 +303,15 @@ const handleChangePassword = () => {
         {/* Botón de regresar arriba*/}
         <TouchableOpacity
           style={styles.backBtnAbsolute}
-          onPress={() => {
-            // Navegar a pantalla principal
-          }}
+          onPress={() =>{
+              if (user?.role === "Conductor") {
+                router.replace("/GestionPerfilConductor");
+              } else if (user?.role === "Pasajero") {
+                router.replace("/GestionPerfilPasajero");
+              } else {
+                router.back();
+              }
+            }}
         >
           <ChevronLeft color="black" size={35} />
         </TouchableOpacity>
@@ -251,9 +320,9 @@ const handleChangePassword = () => {
           <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
             <Image
               source={
-                userData.photoKey
-                  ? { uri: userData.photoKey }
-                  : require("@/assets/images/iconPrimary.png")
+                userData.photoUrl
+                  ? { uri: userData.photoUrl }
+                  : require('@/assets/images/iconPrimary.png')
               }
               style={styles.avatar}
             />
@@ -294,12 +363,13 @@ const handleChangePassword = () => {
           </View>
         )}
 
-      <View style={styles.formSection}>
-        <ProfileInput label="name de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="name" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
+        {/* Información del usuario */}
+        <View style={styles.formSection}>
+        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
+        <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
         <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
         <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />
-        <ProfileInput label="email institucional" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
+        <ProfileInput label="Correo" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
         <ProfileInput label="Teléfono" value={String(userData.phone)} editable={editable} onChange={v => handleChange("phone", Number(v))} error={fieldErrors.phone} />
         <ProfileInput label="Tipo de ID" value={userData.identificationTypeId} editable={editable} onChange={v => handleChange("identificationTypeId", v)} options={tiposId} />
         <ProfileInput label="Número de ID" value={String(userData.identificationNumber)} editable={editable} onChange={v => handleChange("identificationNumber", Number(v))} error={fieldErrors.identificationNumber} />
@@ -319,7 +389,7 @@ const handleChangePassword = () => {
               <InputField
                 value={userData.birthDate || ""}
                 placeholder="Selecciona una fecha"
-                editable={false} // No editable, solo abre el picker
+                editable={false}
                 pointerEvents="none"
                 style={{ color: userData.birthDate ? "#222" : "#888" }}
               />
@@ -339,9 +409,9 @@ const handleChangePassword = () => {
           )}
         </View>
         <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
-        <ProfileInput label="Tipo de usuario" value={userData.type} editable={editable} onChange={v => handleChange("type", v)} options={tiposUsuario} />
         <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
-      </View>
+        <ProfileInput label="Rol" value={userData.role} editable={editable} onChange={v => handleChange("role", v)} options={roles} />
+    </View>
     </View>
     {/* Modal para cambiar contraseña */}
     <Modal
@@ -375,9 +445,9 @@ const handleChangePassword = () => {
               )}
             </TouchableOpacity>
           </Input>
-          {currentPasswordError && (
-            <InputError>Debes ingresar tu contraseña actual.</InputError>
-          )}
+          {passwordChangeError ? (
+            <Text style={{ color: "red", marginBottom: 8 }}>{passwordChangeError}</Text>
+          ) : null}
 
           <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
             <InputField
@@ -427,7 +497,6 @@ const handleChangePassword = () => {
             <InputError>Las contraseñas no coinciden.</InputError>
           )}
 
-          {/* Formato esperado de la contraseña */}
           <View
             style={{
               backgroundColor: "#F5F5F5",
@@ -439,15 +508,17 @@ const handleChangePassword = () => {
               gap: 8,
             }}
           >
-          <Info color="#787878" size={20} style={{ marginTop: 2 }} />
-          <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
-            Mínimo 8 caracteres, con al menos{"\n"}
-            1 letra mayúscula, 1 letra minúscula, y 1 número.
-          </Text>
-        </View>
+            <Info color="#787878" size={20} style={{ marginTop: 2 }} />
+            <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
+              Mínimo 8 caracteres, con al menos{"\n"}
+              1 letra mayúscula, 1 letra minúscula, y 1 número.
+            </Text>
+          </View>
         </ModalBody>
         <ModalFooter>
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => {
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => {
               setShowPasswordModal(false);
               setCurrentPassword("");
               setNewPassword("");
@@ -456,25 +527,49 @@ const handleChangePassword = () => {
               setNewPasswordError(false);
               setConfirmPasswordError(false);
               setShowCurrentPassword(false);
-              setShowNewPassword(false);          
+              setShowNewPassword(false);
               setShowConfirmPassword(false);
-            }}>
+              setPasswordChangeError("");
+            }}
+          >
             <Text style={styles.cancelBtnText}>Volver</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.saveBtn} onPress={() => {
-              handleChangePassword();
-              setShowCurrentPassword(false);   
-              setShowNewPassword(false);          
-              setShowConfirmPassword(false);     
-            }}>
+          <TouchableOpacity
+            style={styles.saveBtn}
+            onPress={handleChangePassword}
+          >
             <Text style={styles.saveBtnText}>Confirmar</Text>
           </TouchableOpacity>
         </ModalFooter>
       </ModalContent>
     </Modal>
-        </ScrollView>
-      );
-    }
+  </ScrollView>
+
+  {/* AlertDialog de confirmación de guardado */}
+  <AlertDialog isOpen={showSavedDialog} onClose={() => setShowSavedDialog(false)}>
+    <AlertDialogBackdrop />
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 12 }}>
+          ¡Cambios guardados!
+        </Text>
+      </AlertDialogHeader>
+      <AlertDialogBody>
+        <Text style={{ marginBottom: 24 }}>Tu información se guardó correctamente.</Text>
+      </AlertDialogBody>
+      <AlertDialogFooter>
+        <Pressable
+          onPress={() => setShowSavedDialog(false)}
+          style={{ padding: 8, backgroundColor: "#7875F8", borderRadius: 8, minWidth: 100, alignItems: "center"   }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>Aceptar</Text>
+        </Pressable>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+  </View>
+ );
+}
 
 function ProfileInput({
   label,
@@ -523,13 +618,18 @@ function ProfileInput({
   );
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+// STYLES AND GRAPHICS
+//////////////////////////////////////////////////////////////////////////////////////
+
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    //paddingHorizontal: 0,padding: 24,
     paddingBottom: 70,
     backgroundColor: "#fff",
     flexGrow: 1,
-    alignItems: "center",
+    //alignItems: "center",
+    width: "100%",
   },
   backgroundContainer: {
     width: "100%",
@@ -549,7 +649,7 @@ const styles = StyleSheet.create({
     color: "white",
     letterSpacing: 1,
     fontFamily: "Exo",
-    textShadowColor: "#7875F8", // Color del borde
+    textShadowColor: "#7875F8",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
@@ -603,7 +703,7 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: "#fff",
     borderRadius: 24,
-    marginTop: -60, // Para que suba sobre la imagen
+    marginTop: -60,
     padding: 24,
     width: "100%",
     shadowColor: "#000",

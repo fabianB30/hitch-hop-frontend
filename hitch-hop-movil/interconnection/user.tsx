@@ -1,6 +1,13 @@
 import axios from './axios';
 
+export interface IJwtResponse {
+  token: string;
+  user: User;
+  refreshToken?: string;
+}
+
 export type User = {
+  _id: string,
   name: string;
   firstSurname: string;
   secondSurname: string;
@@ -17,11 +24,12 @@ export type User = {
   phone?: number;
   type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
   role: "Conductor" | "Pasajero";
-  vehicles: string[]; // array id
+  vehicles: string[];
   notifications: {
-    title: string;
-    subtitle: string;
-    timestamp?: string;
+    type: "VA" | "VC" | "SP";
+    place: string;
+    timestamp: string;
+    tripDate?: string;
   }[];
 };
 
@@ -29,36 +37,34 @@ export type User = {
 export const registerRequest = async (data : User): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/register`, data);
+        
         const dataUser = res.data.data;
         if (dataUser) {
             return dataUser;
         } else {
-            console.error('Invalid response structure:', res);
-            return null;
+            return res.data.msg;
         }
-    } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+    } catch (error: any) {
+        return error.response?.data.msg;
     }
 };
 
-export const loginRequest = async (data: {email, password}): Promise<IJwtResponse | null> => {
+export const loginRequest = async (data: { email: string; password: string }): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/login`, data);
-        const dataUser = res.data.data;
-        if (dataUser) {
-            return dataUser;
+        const user = res.data.data;
+        if (user) {
+            return user;
         } else {
-            console.error('Invalid response structure:', res);
-            return null;
+            return res.data.msg;
         }
-    } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+        
+    } catch (error: any) {
+        return error.response?.data.msg;
     }
 };
 
-export const addCarsRequest = async (data: {cars:any, email:any}): Promise<IJwtResponse | null> => {
+export const addCarsRequest = async (data: { cars: any[]; email: string }): Promise<IJwtResponse | null> => {
     try {
         const res = await axios.post(`/backend/user/addCars`, data);
         const dataUser = res.data.data;
@@ -74,7 +80,7 @@ export const addCarsRequest = async (data: {cars:any, email:any}): Promise<IJwtR
     }
 };
 
-export const updateUserRequest = async (id: string, data : User): Promise<IJwtResponse | null> => {
+export const updateUserRequest = async (id: string, data : User): Promise<any | null> => {
     try {
         const res = await axios.put(`/backend/user/update/${id}`, data);
         const dataPlace = res.data.data;
@@ -104,5 +110,26 @@ export const getNotificationsByUserRequest = async (id: string): Promise<IJwtRes
         console.error('http request error: ', error);
         return null;
     }
+};
+
+export const changePasswordRequest = async (
+  data: { email: string; currentPassword: string; newPassword: string }
+): Promise<{ success: boolean; msg?: string }> => {
+  try {
+    const res = await axios.post(`/backend/user/update-password`, data);
+
+    console.log("Password change response:", res.data);
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    } else {
+      return { success: false, msg: res.data?.msg || "Respuesta inesperada del servidor." };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      msg: error.response?.data?.msg || "Error al cambiar contraseña.",
+    };
+  }
 };
 

@@ -37,8 +37,7 @@ export const registerRequest = async (data : User): Promise<IJwtResponse | null>
             return null;
         }
     } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+        return error.response?.data.msg;
     }
 };
 
@@ -53,8 +52,7 @@ export const loginRequest = async (data: {email, password}): Promise<IJwtRespons
             return null;
         }
     } catch (error) {
-        console.error('http request error: ', error);
-        return null;
+        return error.response?.data.msg;
     }
 };
 
@@ -90,9 +88,9 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
     }
 };
 
-export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
+export const getAllUsersRequest = async (): Promise<User[] | null> => {
     try {
-        const res = await axios.put(`/backend/users"`);
+        const res = await axios.get('/backend/users');
         const dataUsers = res.data.data;
         if (dataUsers) {
             return dataUsers;
@@ -104,4 +102,25 @@ export const getAllUsersRequest = async (): Promise<IJwtResponse | null> => {
         console.error('http request error: ', error);
         return null;
     }
+};
+
+export const changePasswordRequest = async (
+  data: { email: string; currentPassword: string; newPassword: string }
+): Promise<{ success: boolean; msg?: string }> => {
+  try {
+    const res = await axios.post(`/backend/user/update-password`, data);
+
+    console.log("Password change response:", res.data);
+
+    if (res.status === 200 || res.status === 201) {
+      return { success: true };
+    } else {
+      return { success: false, msg: res.data?.msg || "Respuesta inesperada del servidor." };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      msg: error.response?.data?.msg || "Error al cambiar contraseña.",
+    };
+  }
 };

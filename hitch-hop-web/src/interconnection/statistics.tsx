@@ -112,3 +112,19 @@ export const statisticsTripsByHourRangeRequest = async (): Promise<IJwtResponse 
         return null;
 	}
 }
+
+export const filteredTripCountByMonthRequest = async (data: {institutionId: string, startDate: string, endDate: string, hourStart: string, hourEnd: string}): Promise<IJwtResponse | null> => {
+	try {
+		const res = await axios.post(`/backend/statistics/trips/by-month`, data);
+		const statistics = res.data.data;
+		if (statistics) {
+			return statistics;
+		} else{
+			console.error('Invalid response structure:', res);
+	            return null;
+		}
+	} catch (error) {
+		console.error('http request error: ', error);
+        return null;
+	}
+}

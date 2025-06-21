@@ -1,17 +1,48 @@
-import React, {createContext, useState, useContext, useEffect, ReactNode} from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { registerRequest, loginRequest, User } from "../../../interconnection/user";
+import { registerRequest, loginRequest } from "../../../interconnection/user";
+
+export type User = {
+  name: string;
+  firstSurname: string;
+  secondSurname: string;
+  username: string;
+  email: string;
+  password: string;
+  institutionId: string;
+  identificationTypeId?: "Cedula" | "DIMEX" | "Pasaporte";
+  identificationNumber?: number;
+  birthDate: string;
+  genre?: "Masculino" | "Femenino" | "Otro";
+  photoKey?: string;
+  photoUrl?: string;
+  phone?: number;
+  type: "Administrador" | "Usuario" | "Inactivo - Admin" | "Inactivo - User";
+  role: "Conductor" | "Pasajero";
+  vehicles: string[]; // array id
+  notifications: {
+    title: string;
+    subtitle: string;
+    timestamp?: string;
+  }[];
+};
 
 interface AuthContextType {
-  signUp: (userData: User) => Promise<void>;
-  signIn: (userData: { email: string; password: string }) => Promise<void>;
+  signUp: (userData: UserData) => Promise<void>;
+  signIn: (userData: { username: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
   user: UserData | null;
-  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
   isAuthenticated: boolean;
   errors: string[];
 }
+
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -28,7 +59,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const storedUser = await AsyncStorage.getItem("user");
         if (storedUser) {
-          const parsedUser: User = JSON.parse(storedUser);
+          const parsedUser: UserData = JSON.parse(storedUser);
           setUser(parsedUser);
           setIsAuthenticated(true);
         }
@@ -51,18 +82,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadUser();
   }, []);
 
-  const signUp = async (userData: User) => {
+  const signUp = async (userData: UserData) => {
     setLoading(true);
     try {
       const res = await registerRequest(userData);
-      if (res) {
-        const newUser: User = res;
-        setUser(newUser);
-        setIsAuthenticated(true);
-        setErrors([]);
-        await AsyncStorage.setItem("user", JSON.stringify(newUser));
-        return newUser;
-      }
+      const newUser: UserData = res;
+      setUser(newUser);
+      setIsAuthenticated(true);
+      setErrors([]);
+      await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      return newUser;
     } catch (error: any) {
       if (error.response?.data?.messages) {
         setErrors(error.response.data.messages);
@@ -78,16 +107,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       const res = await loginRequest(credentials);
-      if (res) {
-        const newUser: User = res;
-        setUser(newUser);
-        setIsAuthenticated(true);
-        setErrors([]);
-        await AsyncStorage.setItem("user", JSON.stringify(newUser));
-        return newUser;
-      } else {
-        throw new Error('No se recibió respuesta del servidor');
-      }
+      const newUser: UserData = res;
+      setUser(newUser);
+      setIsAuthenticated(true);
+      setErrors([]);
+      await AsyncStorage.setItem("user", JSON.stringify(newUser));
+      return newUser;
     } catch (error: any) {
       if (error.response?.data?.messages) {
         setErrors(error.response.data.messages);
@@ -122,7 +147,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         loading,
         user,
-        setUser,
         isAuthenticated,
         errors,
       }}

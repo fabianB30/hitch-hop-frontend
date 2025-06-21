@@ -10,19 +10,30 @@ import { Select } from '@/components/ui/select';
 import {AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogBody, AlertDialogBackdrop, } from "@/components/ui/alert-dialog"
 import { useFonts, Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { useRouter } from "expo-router";
+import { getAllInstitutionsRequest } from '@/interconnection/institution';
 
 interface RegisterStep1Props {
+    initialData?: {
+        email: string;
+        password: string;
+        institution: string;
+        institutionId: string;
+        name: string;
+        lastName: string;
+        secondLastName: string;
+    };
     onNext: (data: {
         email: string;
         password: string;
         institution: string;
+        institutionId: string;
         name: string;
         lastName: string;
         secondLastName: string;
     }) => void;
 }
 
-export default function RegisterStep1({ onNext }: RegisterStep1Props) {
+export default function RegisterStep1({initialData, onNext }: RegisterStep1Props) {
     const router = useRouter();
     const [fontsLoaded] = useFonts({
         Exo_400Regular,
@@ -30,13 +41,16 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
         Exo_500Medium,
         Exo_600SemiBold,
     });
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [institution, setInstitution] = useState('');
-    const [institutions, setInstitutions] = useState<{ nombre: string }[]>([]);
-    const [name, setName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [secondLastName, setSecondLastName] = useState('');
+    // Inicializar estados con datos previos si existen
+    const [email, setEmail] = useState(initialData?.email || '');
+    const [password, setPassword] = useState(initialData?.password || '');
+    const [institution, setInstitution] = useState(initialData?.institution || '');
+    const [institutionId, setInstitutionId] = useState(initialData?.institutionId || '');
+    const [institutions, setInstitutions] = useState<{ _id: string; nombre: string }[]>([]);
+    const [name, setName] = useState(initialData?.name || '');
+    const [lastName, setLastName] = useState(initialData?.lastName || '');
+    const [secondLastName, setSecondLastName] = useState(initialData?.secondLastName || '');
+
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showAlertDialog, setShowAlertDialog] = useState(false);
@@ -44,24 +58,46 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
     const handleClose = () => setShowAlertDialog(false)
 
     useEffect(() => {
-        fetchInstitutions();
+        async function loadSelects() {
+            try {
+                const result = await getAllInstitutionsRequest();
+                
+                if (result && result.length > 0) {
+                    setInstitutions(result);
+                } else {
+                    setInstitutions([]);
+                }
+                
+            } catch (error) {
+                console.error("Error al obtener instituciones:", error);
+                setInstitutions([]);
+            }
+        }
+        loadSelects();
     }, []);
 
-    const fetchInstitutions = async () => {
-        try {
-            const response = await fetch('http://192.168.1.2:3000/backend/institution/get-all');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    // Efecto para sincronizar institutionId cuando se cargan las instituciones
+    useEffect(() => {
+        if (initialData?.institution && institutions.length > 0 && !institutionId) {
+            const selectedInstitution = institutions.find(inst => inst.nombre === initialData.institution);
+            if (selectedInstitution) {
+                setInstitutionId(selectedInstitution._id);
             }
-            const result = await response.json();
-            
-            if (result.data && result.data.length > 0) {
-                setInstitutions(result.data);
-                setInstitution(result.data[0].nombre);
-            }
-        } catch (error) {
-            console.error('Error fetching institutions:', error);
+        }
+    }, [institutions, initialData?.institution, institutionId]);
+
+    // Función para manejar el cambio de institución
+    const handleInstitutionChange = (selectedName: string) => {
+        setInstitution(selectedName);
+        
+        // Encontrar el ID correspondiente al nombre seleccionado
+        const selectedInstitution = institutions.find(inst => inst.nombre === selectedName);
+        
+        if (selectedInstitution) {
+            setInstitutionId(selectedInstitution._id);
+        } else {
+            console.error('No se encontró la institución:', selectedName);
+            setInstitutionId('');
         }
     };
 
@@ -91,6 +127,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
             email,
             password,
             institution,
+            institutionId,
             name,
             lastName,
             secondLastName,
@@ -116,7 +153,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                 <StatusBar style="light" />
                 <ImageBackground
                     source={require('@/assets/images/fondo-HitchHop.png')}
-                    className="absolute inset-0 w-[360px] h-[588px] left-[0px] top-[-53px] "
+                    className="absolute inset-0 w-full h-[588px] left-[0px] top-[-53px] "
                     resizeMode="contain"
                 />
                 {/* Logo*/}
@@ -129,7 +166,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                 </View>
 
                 {/* Register Card */}
-                <View className="top-[130px] w-[360px] h-[722px] items-center bg-white rounded-[30px] ">
+                <View style={{marginTop: 130, width: '100%', backgroundColor: 'white', borderRadius: 30, paddingVertical: 20, paddingHorizontal: 25, alignItems: 'center',}}>
                     <AlertDialog isOpen={showAlertDialog} onClose={handleClose} size="md">
                         <AlertDialogBackdrop className="bg-black/80" />
                         <AlertDialogContent>
@@ -167,9 +204,9 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                             <Select
                                 options={institutions.map(inst => inst.nombre)}
                                 selectedValue={institution}
-                                onValueChange={setInstitution}
+                                onValueChange={handleInstitutionChange}
                                 placeholder="Selecciona una institución"
-                                className="w-[264px]"
+
                             />
                         </View>
                         {/* Correo Institucional Field */}
@@ -184,7 +221,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                 value={email}
                                 onChangeText={setEmail}
@@ -207,7 +244,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px]">
                                 <InputField
                                 value={name}
                                 onChangeText={setName}
@@ -229,7 +266,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                                         </Text>
                                     )}
                                 </View>
-                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[128px]">
+                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[153px]">
                                     <InputField
                                     value={lastName}
                                     onChangeText={setLastName}
@@ -248,7 +285,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                                         </Text>
                                     )}
                                 </View>
-                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[128px]">
+                                <Input className="border border-gray-300 rounded-lg bg-gray-50 h-[44px] w-[153px]">
                                     <InputField
                                     value={secondLastName}
                                     onChangeText={setSecondLastName}
@@ -270,7 +307,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                                     </Text>
                                 )}
                             </View>
-                            <Input className="border border-gray-300 rounded-lg bg-gray-50  h-[44px] w-[264px]">
+                            <Input className="border border-gray-300 rounded-lg bg-gray-50  h-[44px] ">
                                 <InputField
                                 value={password}
                                 onChangeText={setPassword}
@@ -297,9 +334,9 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                         </View>
                         
                         {/* Buttons */}
-                        <View className="flex-row justify-center items-center mb-6 top-[5px]  mr-7 ml-2">
+                        <View className="flex-row justify-center items-center mb-6 top-[10px]  mr-7 ml-2">
                             <TouchableOpacity 
-                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[40px]"
+                                className="flex-1 py-3 rounded-lg items-center w-[70px] h-[60px]"
                                 onPress={() => router.push("/VentanaInicial")}
                             >
                                 <Text className="text-[16px] text-[#7875F8]" style={{ fontFamily: 'Exo_500Medium' }}>
@@ -308,7 +345,7 @@ export default function RegisterStep1({ onNext }: RegisterStep1Props) {
                             </TouchableOpacity>
                                 
                             <TouchableOpacity 
-                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${
+                                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[50px] ${
                                 loading ? 'opacity-70' : ''
                                 }`}
                                 onPress={handleRegister}

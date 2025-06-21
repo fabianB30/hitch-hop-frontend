@@ -7,13 +7,26 @@ import { RideCardDriver2 } from "@/components/RideCardDriver2";
 import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
+import { useAuth } from "../Context/auth-context";
+import { getTripsByUserRequest } from "../../../interconnection/trip";
+import { useFonts } from "expo-font";
 
-export default function VerViajesAceptados() {
+export default function VerViajesPendientes() {
+  const { user } = useAuth();
   const router = useRouter();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const [successVisible, setSuccessVisible] = useState(false);
+  const [requests, setRequests] = useState<Requests[]>([]);
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+  });
 
   type PendingRequestCard = {
     id: number;
@@ -35,81 +48,6 @@ export default function VerViajesAceptados() {
     end: string;
   }
 
-  const requests: Requests[] = [
-    {
-      id: 1,
-      users: [
-        {
-            id: 1,
-            name: "Tatiana Lobo",
-            price: "₡1500",
-            location: "Estación del Atlántico",
-            time: "11:55 am",
-        },
-        {
-            id: 2,
-            name: "Ana Gómez",
-            price: "₡1500",
-            location: "Cartago",
-            time: "11:35 AM",
-        },
-    ],
-      userLimit: 4,
-      actualPassengerNumber: 4,
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      users: [
-        {
-            id: 1,
-            name: "Carlos Ruiz",
-            price: "₡2000",
-            location: "Tres Ríos",
-            time: "12:00 PM",
-        },
-        {
-            id: 2,
-            name: "María López",
-            price: "₡2000",
-            location: "San Pedro",
-            time: "12:10 PM",
-        },
-        {
-            id: 3,
-            name: "Luis Fernández",
-            price: "₡2000",
-            location: "Curridabat",
-            time: "12:15 PM",
-        },
-      ],
-      userLimit: 4,
-      actualPassengerNumber: 2,
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 3,
-      users: [],
-      userLimit: 4,
-      actualPassengerNumber: 0,
-      price: "₡2200",
-      date: "07 de Abr, 2025.",
-      time: "7:55 AM",
-      start: "Cristo de Sabanilla.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
-
   const handleCancel = (requestId: number) => {
     setSelectedRequestId(requestId);
     setModalVisible(true);
@@ -127,11 +65,56 @@ export default function VerViajesAceptados() {
   };
 
   useEffect(() => {
-    if (requests.length == 0) {
-      router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    async function fetchTrips() {
+      try {
+        const trips = await getTripsByUserRequest(user._id, true, "all");
+        if (trips) {
+          const mappedRequests = trips.map((trip: any) => {
+            // Solo pasajeros pendientes
+            const pendingPassengers = trip.passengers
+              ?.filter((p: any) => p.status === "Pendiente")
+              .map((p: any) => ({
+                id: p.user._id,
+                name: p.user.name,
+                price: `₡${trip.costPerPerson}`,
+                location: trip.startpoint?.name || "",
+                time: trip.departure.split("T")[1]?.slice(0, 5) || "",
+              })) ?? [];
+
+            return {
+              id: trip._id,
+              users: pendingPassengers,
+              userLimit: trip.passengerLimit,
+              actualPassengerNumber: pendingPassengers.length,
+              price: `₡${trip.costPerPerson}`,
+              date: trip.departure.split("T")[0],
+              time: trip.departure.split("T")[1]?.slice(0, 5),
+              start: trip.startpoint?.name || "",
+              end: trip.endpoint?.name || "",
+            };
+          });
+
+          setRequests(mappedRequests);
+
+          if (mappedRequests.length === 0) {
+            router.replace("/(tabs)/ViajesConductor/sinProgramados");
+          }
+        } else {
+          setRequests([]);
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      } catch (error) {
+        setRequests([]);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
     }
-  }, [requests, router]);
+
+    if (user?._id) {
+      fetchTrips();
+    }
+  }, [user, router]);
   
+  if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;
   }
@@ -143,7 +126,7 @@ export default function VerViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)/ViajesConductor")}
+        onPress={() => router.back()}
         style={styles.backArrow}
       >
         <Image
@@ -159,7 +142,7 @@ export default function VerViajesAceptados() {
       <Text style={styles.title}>Viajes Programados</Text>
 
       <Box style={styles.buttonsContainer}>
-        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
+        <Pressable onPress={() => router.replace('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
         <Pressable style={styles.pendientesButton}>
@@ -222,14 +205,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   overlay: {
@@ -243,7 +224,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: "Exo",
+    fontFamily:'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -281,8 +262,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: 'exo.medium',
     fontWeight: "500",
   },
   cardsScroll: {
