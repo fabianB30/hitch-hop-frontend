@@ -11,9 +11,13 @@ export default function C_detHistorial() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const { id } = useLocalSearchParams(); //Obtenemos la id del viaje desde los parametros
+  const [tripLoaded, setTripLoaded] = useState(false);
   
   const [trip, setTrip] = useState<any>(null);
   const [vehicle, setVehicle] = useState<any>(null);
+  const [tripDate, setTripDate] = useState<{dia: number, mes:string, ano:number, hora:string}|null>(null);
+  const [passengersPickup, setPassengersPickup] = useState<{name: string, location:string, photo?:string}[]>([]);
+
 
   useEffect(() => {
     Font.loadAsync({
@@ -27,38 +31,60 @@ export default function C_detHistorial() {
     const fetchTrip = async () => {
 	try {
 	  const algoTrip = await getTripByIdRequest(id);
-	  console.log(algoTrip)
-	  console.log(algoTrip.stops); 
-	  const [passengerPlaces, setPassengerPlaces] = useState<any[]>(null);
 	  setTrip(algoTrip);
 	  
 	  const algoVehicle = await getVehicleByIdRequest(algoTrip.vehicle);
 	  setVehicle(algoVehicle);
 
-    	  fetchTrip();
+	  //Combinamos cada pasajero con su parada respectiva
+	  const pickUp: {name: string, location:string}[] = [];
+
+	  /*No se como lo puedo hacer mas rapido, esto esta haciendo la arga lenta*/
+	  for(const stop of algoTrip.stops){
+	    for (const passengerId of stop.passengersId){
+	      const passenger = algoTrip.passengers.find(p => p.user._id === passengerId);
+	      if (passenger) {
+		pickUp.push({
+		  name: passenger.user.name + " " + passenger.user.firstSurname + " " + passenger.user.secondSurname || "",
+		  location: stop.place.name || "Ubicación desconocida",
+		  photo: passenger.user.photoKey,
+		});
+	      }
+	    }
+	  }
+	  console.log("pisk up:", pickUp);
+	  setPassengersPickup(pickUp);
+
 	} catch (error) {
           console.error('Error while capturing a trip: ', error);
 	}
     };
+    fetchTrip();
   },[id]);
+
+  useEffect(() => {
+      if (trip && vehicle && passengersPickup){
+        //Para obtener los datos del trip
+        const mesesAno = [
+          'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+	];
+        const departureDate = new Date(trip.departure);
+        const dia = departureDate.getDate();
+        const mes = mesesAno[departureDate.getMonth()];
+        const ano = departureDate.getFullYear();
+        const hora = departureDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+	setTripDate({dia, mes, ano, hora});
+	setTripLoaded(true);
+      }
+  }, [trip, vehicle]);
  
   //Esto DEBE ir luego de todos los useEffect para que siempre haga los mismos
   //Si no se hace por alguna razon da error
   if (!fontsLoaded) return null; 
-  //Probablemente luego haya que cambiar esto  algo mas bonito
-  if (!trip || !vehicle) return (<Text>Cargando Viajes ...</Text>);
-  //Para obtener los datos del trip
-  const mesesAno = [
-    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-  ];
-  const departureDate = new Date(trip.departure);
-  const dia = departureDate.getDate();
-  const mes = mesesAno[departureDate.getMonth()];
-  const ano = departureDate.getFullYear();
-  const hora = departureDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  return (
+  
+  return tripLoaded? (
     <View style={{ flex: 1, backgroundColor: '#f5f3ff' }}>
       {/* Fondo superior con logo */}
       <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
@@ -89,7 +115,7 @@ export default function C_detHistorial() {
             />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.subtitleCentered}>Viaje del {dia} de {mes} del {ano} a las {hora}</Text>
+            <Text style={styles.subtitleCentered}>Viaje del {tripDate?.dia} de {tripDate?.mes} del {tripDate?.ano} a las {tripDate?.hora}</Text>
             <Text style={styles.title}>Conductor</Text>
           </View>
         </View>
@@ -120,23 +146,14 @@ export default function C_detHistorial() {
             <Text style={styles.label}>Lugar de recogida</Text>
           </View>
 
-          {[
-            {
-              name: 'Esteban Herrera Solís',
-              location: '75 metros Oeste del Hospital de Niños, San José',
-            },
-            {
-              name: 'Mariano Torres Monge',
-              location: 'Av. 4, San José, Merced',
-            },
-            {
-              name: 'Carolina Salas Guardia',
-              location: 'Cementerio Extranjero, C.20, San José, Santa Lucía',
-            },
-          ].map((p, idx) => (
+          {passengersPickup.map((p, idx) => (
             <View key={idx} style={styles.passengerRow}>
               <Image
-                source={require('@/assets/images/avatar1.png')}
+                source={
+		  p.photo
+		  ? {uri: p.photo}
+		  : require('@/assets/images/avatar1.png')
+		}
                 style={styles.avatar}
               />
               <Text style={[styles.text, { width: 128 }]}>{p.name}</Text>
@@ -146,7 +163,44 @@ export default function C_detHistorial() {
         </ScrollView>
       </View>
     </View>
-  );  
+  ) : (
+    /*Dura un poco en cargar esta pagina entonces puse esto, no se si esta bien puesto*/ 
+    <View style={styles.contatiner}>
+      
+      {/* Fondo superior con logo */}
+      <View style={{ width: '100%', height: 140, position: 'absolute', top: 0, left: 0 }}>
+        <Image
+          source={require('@/assets/images/HHlogo.png')}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+          }}
+          resizeMode="cover"
+        />
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/*Imagen del personaje*/}
+      <View>
+        <Image
+          source={require('@/assets/images/gatoautosConductor.png')}
+          style={{ width: 500, height: 600, marginVertical: 16, marginTop: 100, marginLeft: 10 }}
+          resizeMode="contain"
+        />
+          
+        {/* Texto vacío */}
+        <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>
+          Cargando Viaje...
+	</Text>
+      </View>
+    </View>
+  )
+
 }
 
 const styles = StyleSheet.create({
@@ -220,5 +274,12 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     marginRight: 8,
     marginBottom: 12,
-  }
+  },
+  emptyText: {
+    fontSize: 20,
+    color: '#181718',
+    textAlign: 'center',
+    fontFamily: 'Exo-Regular',
+    marginTop: 8,
+  },
 })
