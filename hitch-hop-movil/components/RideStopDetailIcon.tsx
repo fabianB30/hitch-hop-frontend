@@ -1,32 +1,34 @@
 import { StyleSheet, Pressable } from 'react-native'
-import React from 'react'
+import { useState, useEffect }from 'react'
 import { Text } from './ui/text'
 import { HStack } from './ui/hstack'
 import { VStack } from './ui/vstack'
 import { Dot } from 'lucide-react-native'
 import { SquarePen } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
+import * as Font from 'expo-font';
 
 type RideDetailProp = {
     stopType: string,
     detail: string,
-    isAtEnd: boolean,
 }
 
 const RideStopDetail = (props: RideDetailProp) => {
+    const [fontsLoaded, setFontsLoaded] = useState(false);
     const router = useRouter()
-
-    let styles
-
-    if (props.isAtEnd) {
-        styles = styleEnds
-    } else {
-        styles = styleMid
-    }
 
     function goBack() {
         router.back()
     }
+
+    useEffect(() => {
+        Font.loadAsync({
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+        }).then(() => setFontsLoaded(true));
+    }, [])
+
+    if (!fontsLoaded) return null;
 
   return (
     <HStack>
@@ -46,40 +48,20 @@ const RideStopDetail = (props: RideDetailProp) => {
   )
 }
 
-const styleEnds = StyleSheet.create({
+const styles = StyleSheet.create({
     stopName: {
         fontSize: 16,
-        //Originalmente estaba en semibold, pero no en teléfono se ve distinto al Figma :/
-        //fontWeight: 'semibold'
-        fontWeight: 'bold',
+        fontWeight: 600,
         color: '#171717',
-        fontFamily: 'Exo',
+        fontFamily: 'Exo-Semibold',
         flex: 1
     },
     stopDetail: {
         marginBottom: 10,
         fontSize: 14,
-        fontWeight: 'normal',
+        fontWeight: 400,
         color: '#262627',
-        fontFamily: 'Exo',
-        flex: 1
-    },
-})
-
-const styleMid = StyleSheet.create({
-    stopName: {
-        fontSize: 12,
-        fontWeight: 'semibold',
-        color: '#171717',
-        fontFamily: 'Exo',
-        flex: 1
-    },
-    stopDetail: {
-        marginTop: -4,
-        fontSize: 10,
-        fontWeight: 'semibold',
-        color: '#171717',
-        fontFamily: 'Exo',
+        fontFamily: 'Exo-Regular',
         flex: 1
     },
 })

@@ -11,6 +11,7 @@ import { Input, InputField, InputSlot } from '@/components/ui/input'
 import { useForm, Place } from '@/components/shared/SearchContext'
 import { useRouter } from 'expo-router'
 import { getAllPlacesRequest } from '../../../interconnection/place'
+import * as Font from 'expo-font';
 
 const { width, height } = Dimensions.get('window')
 
@@ -19,18 +20,9 @@ export type DestinationType = {
     subtitle: string
 }
 
-// Should get this from API
-const destinations = [
-    {title: "Tecnológico de Costa Rica", subtitle: "Avenida 9, Barrio Amón, San José"},
-    {title: "Instituto Nacional de Seguros", subtitle: "Avenida 7, Calle 9, San José"},
-    {title: "Hospital Calderón Guardia", subtitle: "Avenida 7, Aranjuez, San José"},
-    {title: "Parque España", subtitle: "Avenida 7, Calles 9, C. 11, San José"},
-    {title: "Parque Morazán", subtitle: "Avenida 3,Calles 9 y, C. 5, San José"},
-    {title: "Parque Nacional", subtitle: "Avenida 3, Calles 15 y, C. 19, San José"},
-]
-
 const selectDestination = () => {
     const router = useRouter()
+    const [fontsLoaded, setFontsLoaded] = useState(false);
 
     const { setDestination } = useForm()
     const [allDestinations, setAllDestinations] = useState<Place[]>([])
@@ -38,8 +30,6 @@ const selectDestination = () => {
 
     const handleDestintationSelect = (dest: Place) => {
         setDestination(dest)
-        //const varas = dest.description.split(", ")
-        //dest.name + ", " + varas[varas.length - 1]
         router.back()
     }
 
@@ -69,10 +59,16 @@ const selectDestination = () => {
             }
         }
         fetchPlaces()
+        Font.loadAsync({
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+        }).then(() => setFontsLoaded(true));
     }, [])
 
+    
+    if (!fontsLoaded) return null;
+
   return (
-         <ImageBackground
+    <ImageBackground
         source={require("@/assets/images/pattern-background-main.png")}>
     <SafeAreaView>
             <HitchHopHeader />
@@ -81,7 +77,7 @@ const selectDestination = () => {
                 <Text style={styles.text}>Punto de Partida</Text>
 
                 <Input style={styles.dataInputLong}>
-                    <InputField onChangeText={handleSearch}/>
+                    <InputField placeholder="Ingresa el punto de partida" onChangeText={handleSearch}/>
                     <InputSlot>
                         <Search size={14} color='black' strokeWidth={3} />
                     </InputSlot>
@@ -108,15 +104,17 @@ container: {
 },
 text: {
     fontSize: 20,
-    fontWeight: 'semibold',
-    color: '#262627',
-    fontFamily: 'Exo',
+    fontWeight: '700',
+    color: '#171717',
+    fontFamily: 'Exo_Bold',
 },
 dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
     paddingRight: 12,
-    borderRadius: 8
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#535252',
 },
 bottomView: {
     maxHeight: height * 0.69

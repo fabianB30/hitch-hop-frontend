@@ -142,9 +142,9 @@ export const addStopToTripRequest = async (id: string, place: string): Promise<I
     }
 };
 
-export const addPassangerToTripRequest = async (id: string, user: string): Promise<IJwtResponse | null> => {
+export const addUserToStop = async (id: string, placeId: string, user: string): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.post(`/backend/trip/${id}/passengers`, {user});
+        const res = await axios.post(`/backend/trip/${id}/stops/${placeId}/users`, {user});
         const data = res.data.data;
         if (data) {
             return data;
@@ -152,6 +152,33 @@ export const addPassangerToTripRequest = async (id: string, user: string): Promi
             return null;
         }
     } catch (error) {
+        const status = error.response.status;
+        if(status === 404){
+            const message = "Esa parada no existe"
+            return message
+        }
+
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
+export const addPassengerToTripRequest = async (id: string, user: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.post(`/backend/trip/${id}/passengers`, {user});
+        const data = res.data.data;
+        if (data) {
+            return data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        const status = error.response.status;
+        if(status === 400){
+            const message = "Ese usuario ya está agregado"
+            return message
+        }
+        
         console.error('http request error: ', error);
         return null;
     }
