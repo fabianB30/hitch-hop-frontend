@@ -104,7 +104,7 @@ export default function SidebarAdmin() {
                           <div
                             className="flex flex-col gap-1 rounded-lg"
                             style={{
-                              backgroundColor: "var(--Primary-primary0, #ECECFF)",
+                              backgroundColor: "var(--Primary-primary0,rgb(255, 255, 255))",
                               alignSelf: "stretch",
                               padding: "0px 16px 0px 8px",
                             }}
