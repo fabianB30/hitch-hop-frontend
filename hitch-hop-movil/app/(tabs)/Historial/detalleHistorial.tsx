@@ -7,16 +7,34 @@ import { getTripByIdRequest } from '@/interconnection/trip';
 import { getPlaceByIdRequest } from '@/interconnection/place'; 
 import { getVehicleByIdRequest } from '@/interconnection/vehicle';
 
-export default function C_detHistorial() {
+/*Esta página muestra el detalle de un solo viaje individual
+* Esto es para cumplir el requisito de tener un registro de todos los viajes hechos y que el usuario pueda ver sus propios viajes registrados
+* Está generalizada, es decir que se usa en el caso de ser conductor o poasajero, esta información se le pasa por parámetro a la página
+* La página se adapta dependiendo de este parámetro
+* También toma como parámetro un id que corresponde al específico viaje que se está visualizando
+*
+* Se puede acceder a esta desde /(tabs)/Historial/historialLLeno
+*
+* Esta página fue trabajada por:
+*	Laura Amador
+*	Óscar Obando
+*	Mariano Mayorga
+*
+*
+* */
+
+export default function detalleHistorial() {
   const router = useRouter();
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const { id } = useLocalSearchParams(); //Obtenemos la id del viaje desde los parametros
+  const { id, isDriver } = useLocalSearchParams(); //Obtenemos la id del viaje desde los parametros y si  es o no conductor
+  const isDriverBool = isDriver === "true";
   const [tripLoaded, setTripLoaded] = useState(false);
   
   const [trip, setTrip] = useState<any>(null);
   const [vehicle, setVehicle] = useState<any>(null);
   const [tripDate, setTripDate] = useState<{dia: number, mes:string, ano:number, hora:string}|null>(null);
   const [passengersPickup, setPassengersPickup] = useState<{name: string, location:string, photo?:string}[]>([]);
+  const [driver, setDriver] = useState<{name: string, photo?: string} | null>(null);
 
 
   useEffect(() => {
@@ -30,9 +48,18 @@ export default function C_detHistorial() {
   useEffect(()=>{
     const fetchTrip = async () => {
 	try {
+	  //Se trae los detalles del viaje
 	  const algoTrip = await getTripByIdRequest(id);
 	  setTrip(algoTrip);
+
+	  //Nos traemos al conductor
+	  const algoDriver = {
+	  	name: algoTrip.driver.name + " " + algoTrip.driver.firstSurname + " " + algoTrip.driver.secondSurname || "",
+		photo: algoTrip.driver.photoKey
+	  };
+	  setDriver(algoDriver);
 	  
+	  //Nos traemos el vehiculo del viaje
 	  const algoVehicle = await getVehicleByIdRequest(algoTrip.vehicle);
 	  setVehicle(algoVehicle);
 
@@ -52,7 +79,6 @@ export default function C_detHistorial() {
 	      }
 	    }
 	  }
-	  console.log("pisk up:", pickUp);
 	  setPassengersPickup(pickUp);
 
 	} catch (error) {
@@ -107,7 +133,10 @@ export default function C_detHistorial() {
       {/* Contenido principal */}
       <View style={styles.contentContainer}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/HistorialConductor/C_historialLleno')}>
+          <TouchableOpacity onPress={() => router.push({
+		  pathname: '/(tabs)/Historial/historialLleno',
+		  params: {isDriver: isDriverBool}
+	  })}>
             <Image
               source={require('@/assets/images/flechaback.png')}
               style={{ width: 32, height: 32 }}
@@ -116,18 +145,42 @@ export default function C_detHistorial() {
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.subtitleCentered}>Viaje del {tripDate?.dia} de {tripDate?.mes} del {tripDate?.ano} a las {tripDate?.hora}</Text>
-            <Text style={styles.title}>Conductor</Text>
+	    
+	    {/*Si el usuario es el conductor se muestra el titulo de "Conductor", si no mostyramos al conductor y su foto correcpondiente*/}
+	    {isDriverBool? (
+		    <Text style={styles.title}>Conductor</Text>
+	    ) : (
+	      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+
+                <Image
+                  source={
+			  driver.photo
+			  ? {uri: driver.photo}
+			  : require('@/assets/images/avatar1.png')}
+                  style={{ width: 36, height: 36, borderRadius: 18, marginRight: 8, marginLeft: 0, zIndex: 1 }}
+                />
+                <View>
+                  <Text style={styles.subtitle}>Conductor</Text>
+                  <Text style={styles.text}>{driver.name}</Text>
+                </View>
+              </View>
+            )}
           </View>
         </View>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.label}>Punto de Inicio</Text>
-	  {/*No se si los lugares deberian ser: [name, description] o solo [name]*/}
-          <Text style={styles.text}>{trip.startpoint.name}</Text>
+	{/*Si el usuario es el conductor se muestra punto de inicio y destino, si no lo es simplemente se omite este bloque*/}
+	{ isDriverBool && ( 
+	  <View>
+            <Text style={styles.label}>Punto de Inicio</Text>
+  	    {/*No se si los lugares deberian ser: [name, description] o solo [name]*/}
+            <Text style={styles.text}>{trip.startpoint.name}</Text>
 
-          <Text style={styles.label}>Destino</Text>
-          <Text style={styles.text}>{trip.endpoint.name}</Text>
-
-          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Destino</Text>
+            <Text style={styles.text}>{trip.endpoint.name}</Text>
+          </View>
+	)}
+          
+	  <View style={styles.rowBetween}>
             <View>
               <Text style={styles.label}>Detalles del Auto</Text>
               <Text style={styles.text}>{vehicle.brand}, {vehicle.model}</Text>
@@ -146,6 +199,7 @@ export default function C_detHistorial() {
             <Text style={styles.label}>Lugar de recogida</Text>
           </View>
 
+	  {/*Mostramos la foto, nombre y lugar de recogida de cada pasajero*/}
           {passengersPickup.map((p, idx) => (
             <View key={idx} style={styles.passengerRow}>
               <Image
@@ -186,12 +240,18 @@ export default function C_detHistorial() {
       </View>
 
       {/*Imagen del personaje*/}
-      <View>
-        <Image
-          source={require('@/assets/images/gatoautosConductor.png')}
-          style={{ width: 500, height: 600, marginVertical: 16, marginTop: 100, marginLeft: 10 }}
-          resizeMode="contain"
-        />
+      <View style={{flex:1, alignItems: 'center'}}>
+       <Image
+        source={require('@/assets/images/gatoautosConductor.png')}
+        style={{
+          width: 500,
+          height: 500,
+          marginVertical: 16,
+          marginTop: 100,
+        }}
+        resizeMode="contain"
+      />
+
           
         {/* Texto vacío */}
         <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>

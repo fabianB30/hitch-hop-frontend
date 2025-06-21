@@ -1,16 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Font from 'expo-font';
 import { useAuth } from '../Context/auth-context';
 import { getTripsByUserRequest } from '@/interconnection/trip';
 
-export default function C_HistorialLleno() {
+/*Esta página muestra una lista de los viajes hechos por un usuario
+* Está hecha de forma genérica de tal forma que se le pasa por parametro si se quieren ver los viajes hechos como pasajero o los hehcos como conductor
+* Se puede seleccionar uno de los viajes en la lista mostrada a través del botón de "Detalles"
+* Si no se encuentra ningún viaje se muestra en pantalla un mensaje indicando esto
+*
+* Una vez se selleciona se pasa a la página /(tabs)/Historial/detalleHistorial para mostrar el detalle del viaje seleccionado
+* A dicha página se le debe pasar por parámetro si el usuario es el conductor o un pasajero
+*
+* Esta página puede ser accesada desde /(tabs)/HistorialMain
+*
+* Esta página fue trabajada por:
+* 	Laura Amador
+* 	Óscar Obando
+* 	Mariano Mayorga
+*
+* */
+
+export default function Historial() {
   const router = useRouter();
   const { user } = useAuth();
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [viajes, setViajes] = useState<any[]>([]); 
+  const { isDriver } = useLocalSearchParams();
+  //Por alguna razon los parametrops son automaticamente convertidos a string
+  //Entonces estoy haciendo esto
+  const isDriverBool = isDriver === "true";
  
   useEffect(() => {
     Font.loadAsync({
@@ -23,7 +44,7 @@ export default function C_HistorialLleno() {
 
   useEffect(() => {
     const fetchViajes = async () => {
-      const trips = await getTripsByUserRequest(user._id, true, "all");
+      const trips = await getTripsByUserRequest(user._id, isDriverBool, "all");
       setViajes(trips);
       //console.log("Viajes del conductor:", trips);
     }
@@ -66,7 +87,12 @@ export default function C_HistorialLleno() {
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.titulo}>Historial</Text>
-            <Text style={styles.subtitulo}>Conductor</Text>
+	    {isDriverBool ? (
+              <Text style={styles.subtitulo}>Conductor</Text>
+	    ) : (
+	      <Text style={styles.subtitulo}>Pasajero</Text>
+            )
+	    }
           </View>
         </View>
         
@@ -95,8 +121,8 @@ export default function C_HistorialLleno() {
                   <TouchableOpacity
                     style={styles.boton}
                     onPress={() => router.push({
-			    pathname: "/(tabs)/HistorialConductor/C_detHistorial",
-			    params: {id: viaje._id},
+			    pathname: "/(tabs)/Historial/detalleHistorial",
+			    params: {id: viaje._id, isDriver: isDriver},
 		    })}
                   >
                     <Text style={styles.botonTexto}>Detalles</Text>
@@ -107,18 +133,29 @@ export default function C_HistorialLleno() {
           </ScrollView> 
         ) : (
           /* Imagen del personaje */
-          <View>
-            <Image
-              source={require('@/assets/images/gatoautosConductor.png')}
-              style={{ width: 500, height: 600, marginVertical: 16, marginTop: -90, marginLeft: 10 }}
-              resizeMode="contain"
-            />
-          
-            {/* Texto vacío */}
-            <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>
-              No hay viajes registrados como conductor
-            </Text>
-          </View>
+         <View style={{ flex: 1, alignItems: 'center' }}>
+  <Image
+    source={require('@/assets/images/gatoautosConductor.png')}
+    style={{
+      width: 500,
+      height: 500,
+      marginVertical: 16,
+      marginTop: 0,
+      marginLeft: 10,
+    }}
+    resizeMode="contain"
+  />
+  { isDriverBool? (
+     <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>
+       No hay viajes registrados como conductor
+     </Text>
+  ):(
+    <Text style={[styles.emptyText, { marginTop: -130, paddingHorizontal: 40 }]}>
+      No hay viajes registrados como pasajero
+    </Text>
+  )}
+  
+</View> 
         )}  
       </View>
       
