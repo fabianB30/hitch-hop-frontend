@@ -92,7 +92,7 @@ export const updateUserRequest = async (id: string, data : User): Promise<any | 
         }
     } catch (error) {
         console.error('http request error: ', error);
-        return null;
+        throw error;
     }
 };
 

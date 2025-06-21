@@ -84,7 +84,7 @@ export const updateUserRequest = async (id: string, data : User): Promise<IJwtRe
         }
     } catch (error) {
         console.error('http request error: ', error);
-        return null;
+        throw error;
     }
 };
 

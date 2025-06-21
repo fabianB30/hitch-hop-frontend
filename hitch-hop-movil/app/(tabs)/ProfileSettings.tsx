@@ -192,13 +192,42 @@ export default function ProfileSettings() {
 
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
+        setEditable(false);
+        setFieldErrors({});
+        setShowSavedDialog(true);
 
       } catch (error) {
         console.error("Error updating user:", error);
+        // Manejar errores específicos
+        if (error.response) {
+          console.log("Error response:", error.response);
+          const { status, data } = error.response;
+          if (status === 409) {
+            // Si el error es por username duplicado
+            if (data.msg && data.msg.includes("username")) {
+              setFieldErrors(prev => ({
+                ...prev,
+                username: "Este nombre de usuario ya está en uso"
+              }));
+              return; 
+            }
+            // Si el error es por email duplicado
+            else if (data.msg && data.msg.includes("email")) {
+              setFieldErrors(prev => ({
+                ...prev,
+                email: "Este correo electrónico ya está en uso"
+              }));
+              return; 
+            }
+          } else {
+            // Para otros errores HTTP
+            alert(`Error: ${data.msg || "Hubo un problema al actualizar tus datos."}`);
+          }
+        } else {
+          alert("Hubo un problema de conexión. Inténtalo de nuevo.");
+        }
       }
-      setEditable(false);
-      setFieldErrors({});
-      setShowSavedDialog(true);
+      
     }
   };
 
@@ -381,7 +410,7 @@ export default function ProfileSettings() {
 
         {/* Información del usuario */}
         <View style={styles.formSection}>
-        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
+        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} error={fieldErrors.username} />
         <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
         <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
         <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />

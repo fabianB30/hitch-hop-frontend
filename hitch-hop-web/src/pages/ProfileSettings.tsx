@@ -215,12 +215,36 @@ const ProfileSettings: React.FC = () => {
 
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
+        setEditable(false);
+        setShowSavedDialog(true);
 
       } catch (error) {
         console.error("Error updating user:", error);
-      }
-      setEditable(false);
-      setShowSavedDialog(true);
+        if (error.response) {
+          const { status, data } = error.response;
+          if (status === 409) {
+            // Si el error es por username duplicado
+            if (data.msg && data.msg.includes("username")) {
+              setErrors(prev => ({
+                ...prev,
+                username: "Este nombre de usuario ya está en uso"
+              }));
+              return;
+            }
+            // Si el error es por email duplicado
+            else if (data.msg && data.msg.includes("email")) {
+              setErrors(prev => ({
+                ...prev,
+                correo: "Este correo electrónico ya está en uso"
+              }));
+              return;
+            }
+          }
+          alert(`Error: ${data.msg || "Hubo un problema al actualizar tus datos."}`);
+        } else {
+          alert("Hubo un problema de conexión. Inténtalo de nuevo.");
+        }
+      } 
     }
   };
 

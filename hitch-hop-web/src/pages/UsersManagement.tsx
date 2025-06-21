@@ -358,6 +358,32 @@ const userRoleFilterOptions = [
         setFieldErrors({});
       } catch (error) {
         console.error("Error al guardar usuario:", error);
+        if (error.response) {
+          console.log("Error response:", error.response);
+          const { status, data } = error.response;
+          if (status === 409) {
+            // Si el error es por username duplicado
+            if (data.msg && data.msg.includes("username")) {
+              setFieldErrors(prev => ({
+                ...prev,
+                username: "Este nombre de usuario ya está en uso"
+              }));
+              return;
+            }
+            // Si el error es por email duplicado
+            else if (data.msg && data.msg.includes("email")) {
+              setFieldErrors(prev => ({
+                ...prev,
+                email: "Este correo electrónico ya está en uso"
+              }));
+              return;
+            }
+          } else {
+            alert(`Error: ${data.msg || "Hubo un problema al actualizar los datos."}`);
+          }
+        } else {
+          alert("Hubo un problema de conexión. Inténtalo de nuevo.");
+        }
       }
     };
     
@@ -429,6 +455,9 @@ const userRoleFilterOptions = [
                   value={form.username}
                   onChange={handleChange}
                 />
+                {fieldErrors.username && (
+                    <div className="text-red-500 text-xs">{fieldErrors.username}</div>
+                )}
               </div>
               <div>
                 <Label className="text-lg">Correo Electrónico</Label>
