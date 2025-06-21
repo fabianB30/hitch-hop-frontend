@@ -1,3 +1,8 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente CancelPopup que muestra un modal de confirmación 
+// para cancelar la solicitud de un viaje.
+
 import React from 'react';
 import { Modal, Dimensions, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
