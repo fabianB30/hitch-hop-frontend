@@ -127,7 +127,7 @@ export default function NotificacionesConductor() {
             </Box>
         </Box>
     )
-}
+} 
 
 //Estilos utilizados para cada componente
 
