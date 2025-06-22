@@ -1,3 +1,7 @@
+// Autores: Fabián Bustos 
+// Página de bienvenida de admin, primera vista que se muestra al iniciar sesión
+// desde acá el usuario puede acceder a los diferentes módulos de administración
+
 import logo from "@/assets/logo.png";
 import Boton1 from "@/assets/mainBtn1.svg";
 import Boton2 from "@/assets/mainBtn2.svg";
@@ -6,17 +10,37 @@ import Boton4 from "@/assets/mainBtn4.svg";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useAuth } from "@/Context/auth-context";
+import { useNavigate } from "react-router-dom";
 
 export default function Bienvenida() {
+  const { logout } = useAuth(); // función de logout de admin
+  
+  const navigate = useNavigate();
+
+  /*
+   * Cierra la sesión de un usuario, y navega a página inicial de donde puede iniciar otra sesión
+   */
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+      console.log("Usuario logged out");
+      navigate("/");
+      
+    } catch (error) {
+      console.error("Error al hacer logout", error);
+    }
+  }
+
   return (
     
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
     {/* todo usa flex */}
 
       {/* columna izquierda */}
-      <div className="w-2/5  p-8 flex flex-col gap-6 text-center">
+      <div className="w-[35%] max-w-[500px] p-8 flex flex-col gap-6 text-center">
         {/* logo y bienvenido message */}
-        {/* podria estar mejor acomodado :P  */}
+        {/* ya está un poco más responsive  */}
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             <img src={logo} alt="Logo HitchHop" className="w-[44px] h-auto" />
@@ -27,7 +51,7 @@ export default function Bienvenida() {
               HitchHop
             </span>
           </div>
-          <h1 className="text-5xl font-bold max-w-md">
+          <h1 className="text-4xl xl:text-5xl font-bold max-w-md">
             Bienvenido a la página de administración
           </h1>
         </div>
@@ -37,11 +61,11 @@ export default function Bienvenida() {
 
         {/* Centered content: Description and Button */}
         <div className="flex flex-col gap-4 max-w-md self-center items-center">
-          <p className="text-xl font-medium">
+          <p className="text-lg xl:text-xl font-medium">
             Desde aquí podrá gestionar usuarios, actualizar su perfil, realizar
             consultas y acceder a estadísticas clave del sistema.
           </p>
-          <p className="text-xl font-medium">
+          <p className="text-lg xl:text-xl font-medium">
             Todo lo que necesita para mantener el control, en un mismo lugar.
           </p>
         </div>
@@ -52,17 +76,21 @@ export default function Bienvenida() {
         <div className="flex-grow" />
 
         <div className="flex justify-center">
-          <Button className="bg-[color:var(--primary-300)] w-[166px]">
-            <LogOut />
+          <Button 
+            className="bg-[color:var(--primary-300)] px-6 py-3 text-lg"
+            onClick={handleLogout}
+            >
+            <LogOut className="mr-2"/>
             Cerrar Sesión
           </Button>
         </div>
       </div>
 
       {/* columna derecha */}
-      <div className="w-3/5 p-8">
+      <div className="flex-1 p-8">
+
         <div className="flex items-center justify-center">
-          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:gap-12 w-full max-w-[800px]">
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:gap-12 w-full max-w-[1000px]">
 
           {/* no tienen el punto ese blanco en el centro pero ni se nota y lo hace menos usable :P */}
 

@@ -1,3 +1,7 @@
+// Autores: Fabián Bustos
+// Es componente padre, adjunto en la ruta / para que sea renderizado por todas sus rutas hijas
+// de esta forma aparece en múltiples páginas sin necesidad de importarlo ni incluirlo 
+// Utilizado principalmente para funciones de navegación 
 import {  Home, User, Search,  Users, ChartNoAxesColumnIncreasing } from "lucide-react";
 import {
   Sidebar,
@@ -11,12 +15,13 @@ import {
   SidebarProvider,
   SidebarFooter
 } from "@/components/ui/sidebar";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
+import { useAuth } from "@/Context/auth-context";
 
-// lista de dirs del sidebar
+// lista de directorios del sidebar
 const items = [
   { title: "Inicio", url: "/bienvenida", icon: Home },
   { title: "Gestión de Usuarios", url: "/users-management", icon: Users },
@@ -42,9 +47,13 @@ const items = [
 
 
 export default function SidebarAdmin() {
-  const location = useLocation();
+  const location = useLocation(); // provee ubicacion actual para resaltarla en sidebar 
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  const { logout } = useAuth(); // funcion de context de autenticación 
+
+  const navigate = useNavigate(); // se usa para ir a página inicial después de logout
 
   const toggleMenu = (title: string) => {
     setOpenMenus((prev) => ({
@@ -52,6 +61,18 @@ export default function SidebarAdmin() {
       [title]: !prev[title],
     }));
   };
+
+  // maneja función de logout
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+      console.log("Usuario logged out");
+      navigate("/");
+      
+    } catch (error) {
+      console.error("Error al hacer logout", error);
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -160,12 +181,16 @@ export default function SidebarAdmin() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="bg-[color:var(--primary-300)]">
-                <Button className="mx-1 bg-white text-[color:var(--primary-400)] px-[45px] hover:bg-[color:var(--secondary-100)] hover:text-white">
+                <Button 
+                  className="mx-1 bg-white text-[color:var(--primary-400)] px-[45px] hover:bg-[color:var(--secondary-100)] hover:text-white"
+                  onClick={handleLogout}
+                >
                   <LogOut />
                   Cerrar Sesión
                 </Button>
         </SidebarFooter>
       </Sidebar>
+      {/* Se usa para enviar sidebar a todos los componentes hijos*/}
       <div className="flex-1 p-4">
         <Outlet />
       </div>
