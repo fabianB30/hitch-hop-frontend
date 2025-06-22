@@ -7,12 +7,13 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, ChevronLeft } from "lucide-react-native"
+import { MapPin } from "lucide-react-native"
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuth } from "./Context/auth-context";
 import { User, getNotificationsByUserRequest } from "@/interconnection/user";
 
+//Medidas de ancho y alto de la ventana para componentes
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
@@ -25,7 +26,6 @@ export default function NotificacionesConductor (){
     
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;
-    //console.log(userId);
 
     // Conseguir notificaciones de usuario
     useEffect(() => {
@@ -40,7 +40,6 @@ export default function NotificacionesConductor (){
         };
         fetchNotifications();
     }, [userId]);
-    //console.log(notificaciones);
 
     // Formateo para la hora
     const formatHour = (timestamp: string) => {

@@ -4,65 +4,52 @@ import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
-import { ChevronLeft } from "lucide-react-native";
-import { Icon } from "@/components/ui/icon";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { getParameterByNameRequest } from "@/interconnection/paremeter";
 import { useAuth } from './Context/auth-context';
 
+//Medidas de ancho y alto de la ventana para componentes
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
-const imageWidth = windowWidth + 62;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
-const headerHeight = windowHeight * 0.15;
-
-// const [tiposId, setTiposId] = useState<string[]>([]);
-
-//  useEffect(() => {
-//     async function fetchTiposId() {
-//       try {
-//         const param = await getParameterByNameRequest("Tipo de identificación");
-//         if (param) {setTiposId(param.parameterList); console.log(param.parameterList);};
-//       } catch (error) {
-//         console.error("Error al obtener tipos de identificación:", error);
-//       }
-//     }
-//     fetchTiposId();
-//   }, []);
 
 export default function GestionPerfilConductor(){
   const { logout } = useAuth();
   const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
+      {/* Espacio para barra de notificaciones sin obstrucciones visuales */}
       <Box style={{height: 30}}/>  
 
       <Box style={styles.header}>
-          <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.06}}>
-            <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
-          </Box>
 
-          <Box style={styles.fotoPerfilFondo}>
-            <Image
-              source={require("@/assets/images/iconPrimary.png")}
-              style={styles.iconPrimary}
-            />
-          </Box>
+        <Box style={styles.fotoPerfilFondo}>
+          <Image
+            source={require("@/assets/images/iconPrimary.png")}
+            style={styles.iconPrimary}
+          />
+        </Box>
 
-          <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
-            <Text style={styles.appTitulo}>
-              HitchHop
-            </Text>  
-          </Box>
+        {/* Titulo HitchHop superior derecho */}
+        <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
+          <Text style={styles.appTitulo}>
+            HitchHop
+          </Text>  
+        </Box>
       </Box>
 
       <Box style={{flex: 1, top: 0, left: 0, zIndex: 1}}>
+        {/* Fondo de la ventana */}
         <Image style={styles.fondo} source={require("@/assets/images/gestionPerfilFondo.png")} resizeMode="contain"/>
+        
         <Box style={{marginTop: 108, flex: 1, alignItems: "center"}}>
+          {/* Imagen superior del contenedor de los botones */}
           <Image style={styles.boxTopIcon} source={require("@/assets/images/boxTopIcon.png")}/>
+
+          {/* Contenedor de los botones */}
           <Box style={styles.boxHitch}>
+
+            {/* Separador vertical de los botones */}
             <VStack style={{gap: 15, alignItems: "center", marginTop: 40}}>
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/ProfileSettings")}>
                 <Text style={styles.buttonTextHitch}>Información personal</Text>
@@ -84,6 +71,7 @@ export default function GestionPerfilConductor(){
     );
 }
 
+//Estilos utilizados para cada componente
 const styles = StyleSheet.create({
   buttonHitch: {
     width: boxWidth - 65,

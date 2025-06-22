@@ -19,7 +19,7 @@ export default function VentanaIncial() {
   const router = useRouter();
   return (
   <Box style={{ flex: 1, backgroundColor: "white" }}>
-    {/* Imagen */}
+    {/* Imagend de fondo */}
     <Box style={{ width: "100%", height: imageHeight }}>
       <Image
         source={require("@/assets/images/fondo.png")}
@@ -31,7 +31,7 @@ export default function VentanaIncial() {
         }}
       />
       </Box>
-    {/* Logo centrado */}
+    {/* Box donde se encuentra el titulo */}
     <Box
       style={{
         position: "absolute",
@@ -42,6 +42,7 @@ export default function VentanaIncial() {
         zIndex: 1,
       }}
     >
+      {/* Titulo Hitchop con bordeado */}
       <Svg height={titleSize + 30} width={windowWidth}>
         <SvgText
           stroke="#8886D7"
@@ -69,6 +70,7 @@ export default function VentanaIncial() {
         zIndex: 2,
       }}
     >
+      {/* Texto de bienvenida */}
       <Text
         style={{
           color: "black",
@@ -80,6 +82,7 @@ export default function VentanaIncial() {
       >
         Bienvenido (a)
       </Text>
+      {/* Texto recomendativo */}
       <Text
         style={{
           color: "black",
@@ -92,6 +95,7 @@ export default function VentanaIncial() {
         Regístrese para poder disfrutar de sus viajes a un salto de distancia
       </Text>
       <HStack space="md" style={{ justifyContent: "center", gap: 13 }}>
+        {/* Boton de Inicio de Sesion */}
         <TouchableOpacity
           style={{
             borderColor: "#7875F8",
@@ -113,6 +117,7 @@ export default function VentanaIncial() {
             Iniciar sesión
           </Text>
         </TouchableOpacity>
+        {/* Boton de Registro */}
         <TouchableOpacity
           style={{
             backgroundColor: "#7875F8",
