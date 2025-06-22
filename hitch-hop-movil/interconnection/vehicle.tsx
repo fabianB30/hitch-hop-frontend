@@ -20,8 +20,7 @@ export const registerVehicleRequest = async ( data: {
 
     try {
         const res = await axios.post(`/backend/vehicle/register`, data);
-        console.log('Data all vehicles:', res);
-        const dataVehicle = res.data.data;
+        const dataVehicle = res.data.vehicle;
         if (dataVehicle) {
             return dataVehicle;
         } else {

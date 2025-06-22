@@ -70,7 +70,7 @@ export default function GestionPerfilConductor(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/vehiculos/agregarVehiculo")}>
                 <Text style={styles.buttonTextHitch}>Vehículos</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.buttonHitch} onPress={() => {logout(); router.replace("/VentanaInicial");}}>

@@ -14,7 +14,6 @@ export default function AgregarVehiculo() {
   const router = useRouter();
   const { user, setUser } = useAuth();
 
-
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [marca, setMarca] = useState('');
   const [modelo, setModelo] = useState('');
@@ -46,14 +45,14 @@ export default function AgregarVehiculo() {
   };
 
   const handleAgregar = async () => {
-    const vehicleData = {
-      model: modelo,
-      brand: marca,
-      color: color,
-      plate: placa,
-      year: anio,
-      userId: user._id
-    };
+      const vehicleData = { 
+        model: modelo, 
+        brand: marca, 
+        color: color, 
+        plate: placa,
+        year: anio,
+        userId: user._id
+      };
     try {
       const vehicle = await registerVehicleRequest(vehicleData);
       //console.log('Vehículo registrado:', vehicle);
