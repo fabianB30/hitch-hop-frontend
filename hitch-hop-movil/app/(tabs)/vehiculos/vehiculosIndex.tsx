@@ -116,7 +116,7 @@ export default function VehiculosIndex() {
 
                     <View style={styles.card}>
                       <View style={styles.sideStripe} />
-                      <Image source={{ uri: item.foto }} style={styles.image} />
+                      <Image source={{ uri: `data:image/jpeg;base64,${item.photoUrl}` }} style={styles.image} />
                       <View style={styles.info}>
                         <Text style={styles.name}>{item.brand} {item.model}</Text>
                         <View style={styles.actions}>
