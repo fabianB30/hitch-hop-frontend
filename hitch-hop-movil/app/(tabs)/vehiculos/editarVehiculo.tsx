@@ -9,7 +9,6 @@ import { useAuth } from '../Context/auth-context';
 
 export default function EditarVehiculo() {
   const router = useRouter();
-  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const { id } = useLocalSearchParams();;
   const [brand, setMarca] = useState('Hyundai');
@@ -17,7 +16,7 @@ export default function EditarVehiculo() {
   const [plate, setPlaca] = useState('BTR-932');
   const [color, setColor] = useState('Gris');
   const [anio, setAnio] = useState('2019');
-  const [foto, setFoto] = useState(null);
+  const [foto, setFoto] = useState<string | null>(null);
   const { user, setUser } = useAuth();
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export default function EditarVehiculo() {
               setPlaca(data.plate);
               setColor(data.color);
               setAnio(data.year);
-              //setFoto(data.foto);
+              setFoto(data.photoKey);
             } else {
                console.log('Error mamadisimo que no deberia pasar, id:', id);
             }

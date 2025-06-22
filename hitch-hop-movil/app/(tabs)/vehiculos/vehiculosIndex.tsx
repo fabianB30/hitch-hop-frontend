@@ -215,6 +215,7 @@ export default function VehiculosIndex() {
         </View>
       </Modal>
 
+      {/*Modal información vehículo*/}
       <Modal transparent visible={infoModal.visible} animationType="fade">
         <View style={styles.modalOverlay}>
 

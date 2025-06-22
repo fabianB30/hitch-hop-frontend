@@ -15,6 +15,7 @@ export const registerVehicleRequest = async ( data: {
         color: string, 
         plate: string,
         year: string,
+	photoKey?:string,
         userId: string
     }): Promise<any | null> => {
 
