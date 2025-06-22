@@ -8,18 +8,6 @@ export default function HomeConductor() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const router = useRouter();
 
-  const dataPrueba = {
-    startpoint: "68462f9accc5871f7e93839b",  // Usando el mismo ID para prueba
-    endpoint: "68462f9accc5871f7e93839b",
-    departure: "2025-07-01T10:00:00.000Z",
-    arrival: "2025-07-01T14:00:00.000Z",
-    stops: [],
-    passengers: [],
-    driver: "68462f9accc5871f7e93839b",
-    paymethod: "Gratuito",
-    costPerPerson: 0,
-  };
-
   useEffect(() => {
     Font.loadAsync({
       'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
