@@ -17,73 +17,44 @@ export default function VehiculosIndex() {
   const [showCreated, setShowCreated] = useState(params?.created === 'true');
   const [infoModal, setInfoModal] = useState<{ visible: boolean; vehiculo: any | null }>({ visible: false, vehiculo: null, });
 
+  const USE_PLACEHOLDER = false;
 
-  /*   useEffect(() => {
-      const fetchVehicles = async () => {
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
         const all = await getAllVehiclesRequest();
         if (!all) return;
-  
+
         const mine = all.filter((v: any) => user.vehicles.includes(v._id));
         setVehicles(mine);
-  
-        if (mine.length === 0) {
-          router.replace('/(tabs)/vehiculos/sinVehiculos');
-        }
-      };
-      fetchVehicles();
-    }, [user]);
-  
-    const confirmDelete = (id: string, label: string) => {
-      setDeleteModal({ visible: true, id, label });
-    }; 
-  
-    
-  
-    const handleDelete = async () => {
-      if (!deleteModal.id) return;
+      } catch (error) {
+        console.error("Error al cargar vehículos:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, [user]);
+
+  const confirmDelete = (id: string, label: string) => {
+    setDeleteModal({ visible: true, id, label });
+  };
+
+  const handleDelete = async () => {
+    if (!deleteModal.id) return;
+    try {
       await deleteVehicleByIdRequest(deleteModal.id);
       setUser({
         ...user,
         vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
       });
       setVehicles(prev => prev.filter(v => v._id !== deleteModal.id));
+    } catch (error) {
+      console.error("Error al eliminar vehículo:", error);
+    } finally {
       setDeleteModal({ visible: false });
-    }; */
-
-  const USE_PLACEHOLDER = true; // 🔧 Cambia aquí para alternar datos placeholder
-
-  useEffect(() => {
-    const loadVehicles = async () => {
-      if (USE_PLACEHOLDER) {
-        setVehicles([
-          { _id: 'demo1', brand: 'Hyundai', model: 'Santa Fe', foto: 'https://www.hyundaicr.com/images/modelos/all-new-santa-fe/colors/blanco-cremoso-mate-wwm.webp' },
-          { _id: 'demo2', brand: 'Toyota', model: 'RAV4', foto: 'https://via.placeholder.com/96' },
-          { _id: 'demo3', brand: 'Ford', model: 'Escape', foto: 'https://via.placeholder.com/96' },
-          { _id: 'demo4', brand: 'Kia', model: 'Sorento', foto: 'https://via.placeholder.com/96' },
-        ]);
-      } else {
-        const all = await getAllVehiclesRequest();
-        const mine = all?.filter((v: any) => user.vehicles.includes(v._id)) || [];
-        setVehicles(mine);
-      }
-    };
-    loadVehicles();
-  }, [user]);
-
-  const confirmDelete = (id: string, label: string) => setDeleteModal({ visible: true, id, label });
-
-  const handleDelete = async () => {
-    if (!deleteModal.id) return;
-    if (!USE_PLACEHOLDER) {
-      await deleteVehicleByIdRequest(deleteModal.id);
-      setUser({
-        ...user,
-        vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
-      });
     }
-    setVehicles(prev => prev.filter(v => v._id !== deleteModal.id));
-    setDeleteModal({ visible: false });
   };
+  
   useEffect(() => {
     Font.loadAsync({
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
