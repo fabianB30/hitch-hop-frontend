@@ -1,3 +1,7 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente CancelRideModal que muestra un modal de confirmación
+// para cancelar un viaje.
 import React from "react";
 import { View, Dimensions, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
   title: {
     color: "black",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "center",
     marginBottom: 40,
@@ -87,13 +91,13 @@ const styles = StyleSheet.create({
   buttonTextYes: {
     color: "#FEFEFF",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
   buttonTextNo: {
     color: "#FEFEFF",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
 });

@@ -1,19 +1,42 @@
-import { ImageBackground, View, ScrollView, StyleSheet, Text } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
-import { RideCardDriver } from "@/components/RideCardDriver";
-import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
+import { RideCardDriver } from "@/components/RideCardDriver";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
+import {
+  deleteTripRequest,
+  getTripsByUserRequest,
+} from "@/interconnection/trip";
+import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useState } from "react";
+import {
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerViajesAceptados() {
   const router = useRouter();
-
+  const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null
+  );
+  const [requests, setRequests] = useState<Requests[]>([]);
   const [successVisible, setSuccessVisible] = useState(false);
+  const [fontsLoaded] = useFonts({
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
+    "Exo-Light": require("@/assets/fonts/Exo-Light.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
+  });
 
   interface Requests {
     id: number;
@@ -26,52 +49,85 @@ export default function VerViajesAceptados() {
     end: string;
   }
 
-  const requests: Requests[] = [
-    {
-      id: 1,
-      users: 2,
-      userLimit: 4,
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      users: 3,
-      userLimit: 4,
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
-
   const handleCancel = (requestId: number) => {
     setSelectedRequestId(requestId);
     setModalVisible(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Lógica para cancelar el viaje con selectedRequestId
+  const handleConfirmCancel = async () => {
+    if (selectedRequestId) {
+      const result = await deleteTripRequest(selectedRequestId);
+      if (result) {
+        setRequests((prev) => prev.filter((r) => r.id !== selectedRequestId));
+        if (requests.length !== 0) {
+          setSuccessVisible(true);
+        } else {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      }
+    }
     setModalVisible(false);
     setSelectedRequestId(null);
-    setSuccessVisible(true);
   };
 
   const handleCloseSuccess = () => {
     setSuccessVisible(false);
   };
 
-  useEffect(() => {
-    if (requests.length == 0) {
+  // Move fetchTrips outside useEffect so it can be reused
+  const fetchTrips = async () => {
+    try {
+      const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
+      if (trips) {
+        const mappedRequests: Requests[] = trips.map((trip: any) => ({
+          id: trip._id,
+          users:
+            trip.passengers?.filter((p: any) => p.status === "Aprobado")
+              .length ?? 0,
+          userLimit: 4,
+          price: `₡${trip.costPerPerson}`,
+          date: trip.departure.split("T")[0],
+          time: trip.departure.split("T")[1]?.slice(0, 5),
+          start: trip.startpoint?.name || "",
+          end: trip.endpoint?.name || "",
+        }));
+
+        const now = new Date();
+        const filteredRequests = mappedRequests.filter((req) => {
+          const tripDateTime = new Date(`${req.date}T${req.time}`);
+          return tripDateTime.getTime() >= now.getTime();
+        });
+
+        filteredRequests.sort((a, b) => {
+          const dateA = new Date(`${a.date}T${a.time}`);
+          const dateB = new Date(`${b.date}T${b.time}`);
+          return dateA.getTime() - dateB.getTime();
+        });
+        setRequests(filteredRequests);
+
+        if (mappedRequests.length === 0) {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      } else {
+        setRequests([]);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
+    } catch (error) {
+      setRequests([]);
       router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
-  }, [requests, router]);
-  
+  };
+
+  // Replace useEffect with useFocusEffect
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchTrips();
+      }
+    }, [user, router])
+  );
+
+  if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;
   }
@@ -82,10 +138,7 @@ export default function VerViajesAceptados() {
       style={styles.background}
       resizeMode="cover"
     >
-      <Pressable
-        onPress={() => router.push("/(tabs)/ViajesConductor")}
-        style={styles.backArrow}
-      >
+      <Pressable onPress={() => router.back()} style={styles.backArrow}>
         <Image
           source={require("@/assets/images/backArrow.png")}
           style={{ width: 30, height: 30 }}
@@ -102,7 +155,12 @@ export default function VerViajesAceptados() {
         <Pressable style={styles.aprobadosButton}>
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
-        <Pressable onPress={() => router.push('/(tabs)/ViajesConductor/verViajesPendientes')} style={styles.pendientesButton}>
+        <Pressable
+          onPress={() =>
+            router.replace("/(tabs)/ViajesConductor/verViajesPendientes")
+          }
+          style={styles.pendientesButton}
+        >
           <Text style={styles.buttonText}>Por aprobar</Text>
         </Pressable>
       </Box>
@@ -129,7 +187,10 @@ export default function VerViajesAceptados() {
             {...request}
             onCancel={() => handleCancel(request.id)}
             onDetails={() =>
-              router.push("/(tabs)/ViajesConductor/verDetallesViajeProgramado")
+              router.push({
+                pathname: "/(tabs)/ViajesConductor/verDetallesViajeProgramado",
+                params: { tripId: request.id },
+              })
             }
           />
         ))}
@@ -156,13 +217,11 @@ const styles = StyleSheet.create({
   },
   hitchhopText: {
     position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   overlay: {
@@ -176,7 +235,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -214,8 +273,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: "exo.medium",
     fontWeight: "500",
   },
   cardsScroll: {

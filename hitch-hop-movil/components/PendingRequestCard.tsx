@@ -1,23 +1,12 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Pressable } from "@/components/ui/pressable";
-import { Image } from "expo-image";
-import { ImageSourcePropType, StyleSheet } from "react-native";
-import { Clock, MapPin, Users, Ellipsis } from "lucide-react-native";
+import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
+import { Clock, Ellipsis, MapPin, Users } from "lucide-react-native";
+import { StyleSheet } from "react-native";
 import { VStack } from "./ui/vstack";
-import {
-  Button,
-  ButtonText,
-  ButtonIcon,
-  ButtonSpinner,
-} from "@/components/ui/button";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
 
 type RideCardProps = {
   id: number;
@@ -26,6 +15,9 @@ type RideCardProps = {
   location: string;
   time: string;
   capacity: string;
+  image?: string; // base64
+  onAccept?: () => void; // <-- Add
+  onReject?: () => void; // <-- Add
 };
 
 export function PendingRequestCard({
@@ -34,6 +26,9 @@ export function PendingRequestCard({
   location,
   time,
   capacity,
+  image,
+  onAccept,
+  onReject,
 }: RideCardProps) {
   const isFull = Number(capacity) <= 0;
   return (
@@ -68,7 +63,13 @@ export function PendingRequestCard({
         }}
       >
         <Avatar size="xl">
-          <AvatarImage source={require("@/assets/images/image17.png")} />
+          <AvatarImage
+            source={
+              image
+                ? { uri: image } // <-- Use base64 if provided
+                : require("@/assets/images/image17.png")
+            }
+          />
         </Avatar>
         <VStack
           style={{
@@ -91,7 +92,7 @@ export function PendingRequestCard({
               alignContent: "flex-end",
               flexShrink: 1,
               flexWrap: "nowrap",
-              marginTop: 4, // add a little space from the name
+              marginTop: 8, // add a little space from the name
               maxWidth: "100%",
             }}
           >
@@ -99,9 +100,9 @@ export function PendingRequestCard({
             <Text
               style={[
                 styles.location,
-                { maxWidth: 140, marginLeft: 4, flexShrink: 1, flexGrow: 1 },
+                { marginLeft: 4, flexShrink: 1, flexGrow: 1 },
               ]}
-              numberOfLines={2}
+              numberOfLines={5}
               ellipsizeMode="tail"
             >
               {location}
@@ -115,7 +116,7 @@ export function PendingRequestCard({
               alignContent: "flex-end",
               flexShrink: 1,
               flexWrap: "nowrap",
-              marginTop: 4, // add a little space from the name
+              marginTop: 6, // add a little space from the name
               maxWidth: "100%",
             }}
           >
@@ -134,28 +135,12 @@ export function PendingRequestCard({
           <HStack
             style={{
               flex: 1,
-              marginTop: 4,
+              marginTop: 6,
               justifyContent: "space-between",
               alignItems: "flex-start",
               gap: 20,
             }}
           >
-            <Text
-              style={[
-                styles.price,
-                {
-                  maxWidth: 140,
-                  marginLeft: 4,
-                  lineHeight: 22, // Should be >= fontSize (18)
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                },
-              ]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {price}
-            </Text>
             <Box
               style={{
                 flexDirection: "row",
@@ -168,6 +153,23 @@ export function PendingRequestCard({
                 maxWidth: "100%",
               }}
             >
+              <Text
+                style={[
+                  styles.price,
+                  {
+                    maxWidth: 140,
+                    marginLeft: 4,
+                    lineHeight: 22, // Should be >= fontSize (18)
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: 20,
+                  },
+                ]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {price}
+              </Text>
               <Users size={18} color="black" />
               <Text
                 style={[
@@ -216,15 +218,15 @@ export function PendingRequestCard({
             backgroundColor: "#F87171",
             marginTop: 0,
           }}
+          onPress={onReject} // <-- Call reject handler
         >
-          <ButtonText 
-            style={{ 
+          <ButtonText
+            style={{
               color: "#FEFEFF",
               fontWeight: "500",
               fontSize: 20,
-              wordWrap: 'break-word' 
-            }} 
-            onPress={() => {}}
+              wordWrap: "break-word",
+            }}
           >
             Rechazar
           </ButtonText>
@@ -236,22 +238,17 @@ export function PendingRequestCard({
           style={{
             backgroundColor: "#7875F8",
             marginTop: 0,
-            opacity: isFull ? 0.5 : 1, 
+            opacity: isFull ? 0.5 : 1,
           }}
-          onPress={() => {
-            if (!isFull) {
-              () => console.log("Accepted request");
-              // handleAccept();
-            }
-          }}
+          onPress={!isFull ? onAccept : undefined} // <-- Call accept handler if not full
           disabled={isFull}
         >
-          <ButtonText 
+          <ButtonText
             style={{
               color: "#FEFEFF",
               fontWeight: "500",
               fontSize: 20,
-              wordWrap: 'break-word'
+              wordWrap: "break-word",
             }}
           >
             Aceptar
@@ -264,7 +261,7 @@ export function PendingRequestCard({
 
 const styles = StyleSheet.create({
   name: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Bold",
     fontSize: 18,
     fontStyle: "normal",
     fontWeight: "700",
@@ -273,32 +270,28 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   time: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 16,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "right",
   },
   price: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 18,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "right",
-    // No paddingTop
   },
   location: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 14,
-    fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
     textAlign: "left",
     flexShrink: 1,
     flexWrap: "wrap",
-    lineHeight: 16,
+    lineHeight: 20,
     paddingTop: 0,
     paddingBottom: 0,
   },

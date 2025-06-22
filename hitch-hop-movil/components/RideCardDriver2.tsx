@@ -1,3 +1,7 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente RideCardDriver que muestra la información de un viaje 
+// con solicitudes pendientes para el conductor.
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Image } from "expo-image";
@@ -9,6 +13,7 @@ import { MoveRight, Users } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 
+// Define los datos que se reciben
 type PendingRequestCardProps = {
   name: string;
   price: string;
@@ -85,7 +90,7 @@ export function RideCardDriver2({
 
       <HStack
         style={{
-          alignItems: "stretch",
+          alignItems: "center", 
           justifyContent: "space-between",
           marginBottom: 10,
           width: "100%",
@@ -95,31 +100,38 @@ export function RideCardDriver2({
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50, 
           }}
         >
-          <Text style={styles.mediumFont}>{date}</Text>
-          <Text style={styles.BigFont}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 16, lineHeight: 20}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50,
           }}
         >
           <Box
             style={{
               flexDirection: "row",
-              alignItems: "flex-end",
+              alignItems: "flex-start",
               gap: 4,
               marginRight: 10,
               alignSelf: "flex-end",
+              maxWidth: 180,
             }}
           >
-            <Users size={24} color="black" />
+            <Users size={20} color="black" />
             <Text style={styles.mediumFont2}>
               Solicitudes pendientes: {users.length}
             </Text>
           </Box>
-          <Text style={styles.BigFont}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -150,8 +162,8 @@ export function RideCardDriver2({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
-              fontFamily: 'Exo', 
+              fontSize: 16, 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word'
             }} 
@@ -179,14 +191,14 @@ export function RideCardDriver2({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
-              fontFamily: 'Exo', 
+              fontSize: 16, 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word'
             }} 
             onPress={() => onDetails(users)}
           >
-            Detalles {">"}
+            Solicitudes {">"}
           </ButtonText>
         </Button>
       </HStack>
@@ -196,44 +208,39 @@ export function RideCardDriver2({
 
 const styles = StyleSheet.create({
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
   },
   end: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
-    textAlign: "right",
+    textAlign: "left",
   },
   mediumFont: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+    fontFamily: 'exo.medium',
+    fontWeight: "400",
+    color: "#171717",
+    textAlign: "center",
+  },
+  regularFont: {
+    fontFamily: 'Exo-Regular',
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
   },
   mediumFont2: {
-    fontFamily: "Exo",
+    fontFamily: 'exo.medium',
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "center",
-  },
-  BigFont: {
-    fontFamily: "Exo",
-    fontSize: 24,
-    fontStyle: "normal",
-    fontWeight: "500",
-    color: "#171717",
-    textAlign: "center",
-    paddingTop: 5,
+    flexShrink: 1, 
+    flexWrap: "wrap",
+    maxWidth: 140,
   },
 });

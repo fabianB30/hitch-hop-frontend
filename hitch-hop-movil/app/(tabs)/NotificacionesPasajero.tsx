@@ -1,6 +1,5 @@
 import { Box } from "@/components/ui/box";
 import { Image } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Dimensions } from "react-native";
 import { Card } from "@/components/ui/card";
@@ -8,85 +7,60 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
+import { MapPin, ChevronLeft } from "lucide-react-native"
 import { ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { useAuth } from "./Context/auth-context";
+import { User, getNotificationsByUserRequest } from "@/interconnection/user";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-const notificaciones: any[] = [
-    {
-        id: 0,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "02:00pm"
-    },
-    {
-        id: 1,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 2,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 3,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 4,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 5,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 6,
-        tipo: "VA",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 7,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    },
-    {
-        id: 8,
-        tipo: "VC",
-        lugar: "Estación del Pacífico",
-        hora: "12:50pm"
-    }
-]
+type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
+    const { user } = useAuth() as {user: User | null};
+    
+    const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
+    const userId = user?._id;
+    //console.log(userId);
+
+    // Conseguir notificaciones de usuario
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if (!userId) return;
+            const result = await getNotificationsByUserRequest(userId);
+            if (result) {
+                setNotificaciones(result);
+            } else {
+                setNotificaciones([]);
+            }
+        };
+        fetchNotifications();
+    }, [userId]);
+    //console.log(notificaciones);
+
+    // Formateo para la hora
+    const formatHour = (timestamp: string) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit', timeZone: 'UTC'});
+    };
+
+
     return(
+        //Fondo de ventana
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
                 <Image style={styles.fondo} source={require("@/assets/images/fondoNotificaciones.png")} resizeMode="cover"/>
             </Box>
-        
+
+            {/* Espacio para barra de notificaciones sin obstrucciones visuales */}
             <Box style={{height: 30}}/> 
 
+            {/* Titulo HitchHop */}
             <Box style={styles.header}>
-                <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-                    <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
-                </Box>
-    
                 <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
                     <Text style={styles.appTitulo}>
                         HitchHop
@@ -94,12 +68,17 @@ export default function NotificacionesConductor (){
                 </Box>
             </Box>
             
+            {/* Titulo de Notificaciones */}
             <Box style={{left: windowWidth*0.04, marginTop: 15}}>
                 <Text style={styles.tituloNotif}>
                     Notificaciones
                 </Text>
             </Box>
+
+            {/* Cartas de las notificaciones */}
             <Box style={{width: windowWidth, height: windowHeight*0.86, alignContent: "center", alignItems: "center"}}>
+                
+                {/* Ver si hay o no hay notificaciones para mostrar */}
                 {notificaciones.length === 0 ? (
                     <Box style={styles.noNotifs}>
                         <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain"/>
@@ -111,26 +90,32 @@ export default function NotificacionesConductor (){
                         </Text>
                     </Box>
                 ) : (
+                // Contenedor scroll de las notificaciones
                 <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 40}} horizontal={false} style={styles.scroll}>
+                    
+                    {/* Contenedor vertical de las notificaciones */}
                     <VStack space="lg" style={styles.notifBox}>
                         
+                        {/* Metodo para mostrar notificaciones */}
                         {notificaciones.map((notif) => {
                             return (
-                                <Card key={notif.id} variant="filled" style={styles.cards}>
+                                <Card key={notif.timestamp} variant="filled" style={styles.cards}>
                                     <Text style={styles.cardHeadFont}>
-                                        {notif.tipo === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
+                                        {/* Titulo de notificacion segun tipo de notificacion */}
+                                        {notif.type === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
                                     </Text>
 
+                                    {/* Cuerpo de la carta */}
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={MapPin} size="md" />
                                         <Text size="sm" style={styles.lugarFechaFont}>
-                                            {notif.lugar}
+                                            {notif.place}
                                         </Text>
                                     </HStack>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon color="#404040" as={ClockIcon} size="md" />
                                         <Text size="sm" style={styles.horaFont}>
-                                            {notif.hora}
+                                            {formatHour(notif.tripDate || "")}
                                         </Text>
                                     </HStack>
                                 </Card>
@@ -144,6 +129,8 @@ export default function NotificacionesConductor (){
     )
 }
 
+//Estilos utilizados para cada componente
+
 const styles = StyleSheet.create({
     header: {
         height: windowHeight*0.11,
@@ -153,10 +140,6 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         position: "relative",
         zIndex: 2
-    },
-    backArrow: {
-        width: 30,
-        height: 30
     },
     buttonTextHitch: {
         fontFamily: "Exo_600SemiBold",

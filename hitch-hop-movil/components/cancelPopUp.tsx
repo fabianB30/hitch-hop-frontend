@@ -1,3 +1,8 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente CancelPopup que muestra un modal de confirmación 
+// para cancelar la solicitud de un viaje.
+
 import React from 'react';
 import { Modal, Dimensions, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -55,7 +60,7 @@ const styles = StyleSheet.create({
   title: {
     color: 'black',
     fontSize: 18,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-SemiBold',
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 30,
@@ -86,13 +91,13 @@ const styles = StyleSheet.create({
   yesText: {
     color: '#FEFEFF',
     fontSize: 18,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Regular',
     fontWeight: '500',
   },
   noText: {
     color: '#FEFEFF',
     fontSize: 18,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Regular',
     fontWeight: '500',
   },
 });

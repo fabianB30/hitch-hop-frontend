@@ -1,10 +1,23 @@
-import { View, Text, Pressable, StyleSheet, Image } from 'react-native'
+import { View, Text, Pressable, StyleSheet, Image, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
-import React from 'react'
+import { useState, useEffect } from 'react'
+import * as Font from 'expo-font';
+
+const { width, height} = Dimensions.get('window')
 
 const HitchHopHeader = () => {
     const router = useRouter();
+    const [fontsLoaded, setFontsLoaded] = useState(false);
 
+    useEffect(() => {
+        Font.loadAsync({
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+        }).then(() => setFontsLoaded(true));
+        }, [])
+
+    if (!fontsLoaded) return null;
+    
     return (
         <View style={styles.mainView}>
             <Pressable onPress={() => router.back()} style={styles.backArrow}>
@@ -25,27 +38,26 @@ const HitchHopHeader = () => {
 
 const styles = StyleSheet.create ({
     backArrow: {
-        position: "absolute",
-        top: 60,
-        left: 24,
         width: 30,
         height: 30,
         zIndex: 11,
     },
     hitchhopText: {
-        position: "absolute",
-        top: 44,
-        right: 24,
-        color: "black",
+        color: '#000',
         fontSize: 20,
-        fontFamily: "Montserrat",
-        fontWeight: "800",
+        fontFamily: "Montserrat-ExtraBold",
         textAlign: "right",
         zIndex: 3,
+        marginBottom: 20
     },
     mainView: {
         width: '100%',
-        height: 122,
+        height: height * 0.11,
+        paddingLeft: width * 0.05,
+        paddingRight: width * 0.05,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     },
 });
 

@@ -1,5 +1,5 @@
 import { StyleSheet, Image, View, ScrollView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import HitchHopHeader from "@/components/shared/HitchHopHeader"
 import { ImageBackground } from 'expo-image'
@@ -9,39 +9,45 @@ import { HStack} from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/radio'
+import * as Font from 'expo-font';
 
 const wh = Dimensions.get("window").height
 
-const seleccionRecogida = () => {
+const selectPickupPoint = () => {
   const router = useRouter()
 
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [selectedStop, setStop] = useState("0")
-  const { rideInfo } = useLocalSearchParams()
-  const { additionalInfo } = useLocalSearchParams()
-  let parsedData
-  let additionalParsed
+  const [stopsList, setStopsList] = useState<string[]>([])
+  const params = useLocalSearchParams()
 
-  if (typeof rideInfo === 'string') {
-    parsedData = JSON.parse(rideInfo)
-  } else {
-    parsedData = null
-  }
+  const trip = JSON.parse(params.trip as string)
 
-  if (typeof additionalInfo === 'string') {
-    additionalParsed = JSON.parse(additionalInfo)
-  } else {
-    additionalParsed = null
-  }
+  const vehicleInformation = JSON.parse(params.additionalInfo as string)
 
-  if (!parsedData || !additionalParsed) {
-    return <Text style={{marginVertical: 'auto'}}>Error: Ride information is missing or invalid.</Text>
-  }
+  useEffect(() => {
+      const stopList = [{
+        _id: trip.startpoint._id,
+        name: trip.startpoint.name, 
+      },
+        ...trip.stopPlaces.map((stop:any) => ({
+          _id: stop._id,
+          name: stop.name}))
+      ]
+      setStopsList(stopList)
 
-  const stops = additionalParsed.stops
-  stops.splice(0, 0, additionalParsed.start)
-  
+      Font.loadAsync({
+        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      }).then(() => setFontsLoaded(true));
+    } , []);
+
+    if (!fontsLoaded) return null;
+
   return (
-    <SafeAreaView style={{flex: 1, marginBottom: 50}}>
+    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
         <HitchHopHeader />
 
         <ImageBackground
@@ -54,26 +60,26 @@ const seleccionRecogida = () => {
           <View style={styles.card}>
             <HStack style={{gap: 10}}>
               <Image 
-                source={additionalParsed.avatar}
+                source={{uri: trip.driver.photoUrl}}
                 style={styles.profilePic}
               />
 
               <View>
-                <Text style={styles.carInfo}>{additionalParsed.carBrand + " " + additionalParsed.carModel + " " + additionalParsed.carColor}</Text>
-                <Text style={styles.driverInfo}>{parsedData.driver}</Text>
+                <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+                <Text style={styles.driverInfo}>{trip.driver.name}</Text>
               </View>
             </HStack>
 
             <View style={styles.rideDetails}>
-              <Text style={{ color: '#171717'}}>{additionalParsed.date}</Text>
-              <Text style={{ color: '#171717'}}>{additionalParsed.time}</Text>
+              <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
+              <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
             </View>
 
             <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
               <RadioGroup value={selectedStop} onChange={setStop}>
-                {stops.map((stop: string, index: number) => {
+                {stopsList.map((stop: any, index: number) => {
                   return (
-                    <Radio value={index.toString()} key={index}>
+                    <Radio style={{marginBottom: 20}} value={index.toString()} key={index}>
                       <RadioIndicator 
                         style={{
                           backgroundColor: selectedStop === index.toString() ? '#7875F8' : 'white',
@@ -81,7 +87,7 @@ const seleccionRecogida = () => {
                           borderColor: selectedStop === index.toString() ? '#7875F8' : 'gray'
                         }}
                       />
-                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{stop}</RadioLabel>
+                      <RadioLabel style={styles.radioText} numberOfLines={1} ellipsizeMode="tail">{stop.name}</RadioLabel>
                     </Radio>
                   )
                 })}
@@ -91,10 +97,10 @@ const seleccionRecogida = () => {
             <HStack style={{marginTop: 20}}>
               <View style={styles.rideDetails}>
                 <HStack style={{gap: 4}}>
-                  <Users size={16} color='black' />
-                  <Text style={{ color: '#171717'}}>{parsedData.passengers.length}</Text>
+                  <Users strokeWidth={2.5} size={18} color='black' />
+                  <Text style={styles.detailText}>{trip.passengerLimit}</Text>
                 </HStack>
-                <Text style={{ color: '#171717'}}>&#8353;{parsedData.costPerPerson}</Text>
+                <Text style={styles.detailText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
               </View>
             </HStack>
             {/* End of Card View */}
@@ -103,11 +109,12 @@ const seleccionRecogida = () => {
           <View style={styles.buttons}>
             <Button style={[styles.button, styles.confirmButton]}
               onPress={() => {router.push({
-                pathname: "/(tabs)/InfoUnirseViaje/checkoutViaje",
+                pathname: "/(tabs)/TripJoinInfo/checkoutTrip",
                 params: {
-                  rideInfo: rideInfo,
-                  additionalInfo: additionalInfo,
-                  selectedStop: selectedStop
+                  trip: params.trip,
+                  additionalInfo: params.additionalInfo,
+                  stopList: JSON.stringify(stopsList),
+                  selectedStop: JSON.stringify(selectedStop)
                 }
               })}}
             >
@@ -145,6 +152,12 @@ const styles = StyleSheet.create({
     padding: 10,
     maxHeight: wh * 0.42
   },
+  detailText: {
+    color: '#000000',
+    fontFamily: 'Exo-Medium',
+    fontWeight: 500,
+    fontSize: 18,
+  },
   profilePic: {
     width: 72,
     height: 72,
@@ -152,14 +165,14 @@ const styles = StyleSheet.create({
   },
   carInfo: {
     fontSize: 14,
-    fontWeight: 'light',
-    fontFamily: 'Exo',
+    fontWeight: 300,
+    fontFamily: 'Exo-Light',
     color: '#171717', 
   },
   driverInfo: {
     fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'Montserrat',
+    fontWeight: 700,
+    fontFamily: 'Exo-Bold',
     color: '#171717',
   },
   rideDetails: {
@@ -168,8 +181,7 @@ const styles = StyleSheet.create({
   title: {
     color: 'white',
     fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'Montserrat',
+    fontFamily: 'Exo_Bold',
     zIndex: 1,
     marginHorizontal: 'auto',
     marginTop: 15,
@@ -199,9 +211,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FBFBFB',
   },
   text: {
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-SemiBold',
     fontSize: 24,
-    fontWeight: 'semibold',
   },
   confirmText: {
     color: '#FEFEFF'
@@ -210,11 +221,11 @@ const styles = StyleSheet.create({
     color: '#7875F8'
   },
   radioText: {
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Regular',
     fontSize: 16,
-    fontWeight: 'normal',
+    fontWeight: 400,
     flex: 1
   }
 })
 
-export default seleccionRecogida
+export default selectPickupPoint

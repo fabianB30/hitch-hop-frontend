@@ -1,3 +1,6 @@
+// Creado por Daniel
+// Ediciones: Daniel, Xotchil
+// Contiene el código del componente RideCard que muestra la información de un viaje para los pasajeros.
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Image } from "expo-image";
@@ -35,7 +38,6 @@ export function RideCard({
     <Box
       style={{
         width: '100%',
-        minHeight: 230,
         marginBottom: 24,
         backgroundColor: '#ECECFF',
         borderRadius: 12,
@@ -46,167 +48,156 @@ export function RideCard({
         shadowOpacity: 0.1,
         shadowRadius: 10,
         padding: 16,
-        position: 'relative',
       }}
     >
-      {/* Avatar */}
-      <Image
-        source={avatar}
-        style={{
-          width: 68,
-          height: 68,
-          position: 'absolute',
-          left: 10,
-          top: 10,
-          borderRadius: 34,
-        }}
-      />
-      {/* Name */}
-      <Text
-        style={{
-          position: 'absolute',
-          left: 82,
-          top: 10,
-          color: '#171717',
-          fontSize: 24,
-          fontFamily: 'Exo',
-          fontWeight: '700',
-          letterSpacing: 0.2,
-        }}
-      >
-        {name}
-      </Text>
-      {/* Car */}
-      <Text
-        style={{
-          position: 'absolute',
-          left: 82,
-          top: 42,
-          color: '#171717',
-          fontSize: 14,
-          fontFamily: 'Exo',
-          fontWeight: '300',
-        }}
-      >
-        {car}
-      </Text>
-      {/* Price */}
-      <Text
-        style={{
-          position: 'absolute',
-          left: 82,
-          top: 87,
-          color: '#171717',
-          fontSize: 18,
-          fontFamily: 'Exo',
-          fontWeight: '500',
-        }}
-      >
-        {price}
-      </Text>
-      {/* Date */}
-      <Box style={{ position: 'absolute', left: 185, top: 89, flexDirection: 'row', alignItems: 'center', width: 117 }}>
+      {/* Avatar y datos principales */}
+      <Box style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 }}>
         <Image
-          source={require('@/assets/icons/clock.svg')}
-          style={{ width: 14, height: 14, marginRight: 4 }}
-        />
-        <Text
+          source={avatar}
           style={{
-            color: 'black',
-            fontSize: 12,
-            fontFamily: 'Exo',
-            fontWeight: '500',
-            flex: 1,
+            width: 68,
+            height: 68,
+            borderRadius: 34,
+            marginRight: 12,
           }}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {date}
+        />
+        <Box style={{ flex: 1 }}>
+          <Text style={{
+            color: '#171717',
+            fontSize: 24,
+            fontFamily: 'Exo-Bold',
+            fontWeight: '700',
+            letterSpacing: 0.2,
+          }}>
+            {name}
+          </Text>
+          <Text style={{
+            color: '#171717',
+            fontSize: 14,
+            fontFamily: 'Exo-Light',
+            fontWeight: '300',
+            marginTop: 2,
+          }}>
+            {car}
+          </Text>
+          <Box
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: 8,
+              marginTop: 4,
+            }}
+          >
+            {/* Precio */}
+            <Text
+              style={{
+                color: '#171717',
+                fontSize: 18,
+                fontFamily: 'exo.medium',
+                fontWeight: '500',
+                marginTop: 2,
+                flex: 1,
+              }}
+            >
+              {price}
+            </Text>
+            {/* Fecha y hora */}
+            <Box style={{ alignItems: 'flex-start', flex: 1, justifyContent: 'center'}}>
+              <Box style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                <Image
+                  source={require('@/assets/icons/clock.svg')}
+                  style={{ width: 14, height: 14, marginRight: 4 }}
+                />
+                <Text style={{
+                  color: 'black',
+                  fontSize: 12,
+                  fontFamily: 'exo.medium',
+                  fontWeight: '500',
+                  textAlign: 'left',
+                  flexShrink: 1,
+                }}>
+                  {date}
+                </Text>
+              </Box>
+              <Text style={{
+                color: 'black',
+                fontSize: 12,
+                fontFamily: 'exo.medium',
+                fontWeight: '500',
+                marginTop: 2,
+                textAlign: 'center',
+                width: '100%',
+              }}>
+                {time}
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Paradas y destino */}
+      <Box style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 }}>
+        <MapPinCheck size={16} color="black" strokeWidth={3} style={{ marginRight: 4, marginTop: 2 }} />
+        <Text style={{
+          color: '#262627',
+          fontSize: 12,
+          fontFamily: 'Exo-Regular',
+          fontWeight: '400',
+          flexShrink: 1,
+          flexWrap: 'wrap',
+          flex: 1,
+        }}>
+          {startLabel}
         </Text>
       </Box>
-      {/* Time */}
-      <Text
-        style={{
-          position: 'absolute',
-          left: 223,
-          top: 105,
-          textAlign: 'right',
-          color: 'black',
-          fontSize: 12,
-          fontFamily: 'Exo',
-          fontWeight: '500',
-        }}
-      >
-        {time}
-      </Text>
-      {/* Start Icon & Text */}
-      <Box style={{ position: 'absolute', left: 27, top: 132, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
-        <MapPinCheck size={16} color="black" strokeWidth={3} style={{ marginRight: 4 }} />
-      </Box>
-      <Text
-        style={{
-          position: 'absolute',
-          left: 49,
-          top: 134,
+      <Box style={{ flexDirection: 'row', alignItems: 'flex-start', marginTop: 4 }}>
+        <MapPin size={16} color="black" strokeWidth={3} style={{ marginRight: 4, marginTop: 2 }} />
+        <Text style={{
           color: '#262627',
           fontSize: 12,
-          fontFamily: 'Exo',
+          fontFamily: 'Exo-Regular',
           fontWeight: '400',
-        }}
-      >
-        {startLabel}: {start}
-      </Text>
-      {/* End Icon & Text */}
-      <Box style={{ position: 'absolute', left: 27, top: 155, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
-        <MapPin size={16} color="black" strokeWidth={3} style={{ marginRight: 4 }} />
+          flexShrink: 1,
+          flexWrap: 'wrap',
+          flex: 1,
+        }}>
+          Destino: {end}
+        </Text>
       </Box>
-      <Text
-        style={{
-          position: 'absolute',
-          left: 51,
-          top: 157,
-          color: '#262627',
-          fontSize: 12,
-          fontFamily: 'Exo',
-          fontWeight: '400',
-        }}
-      >
-        Destino: {end}
-      </Text>
+
+      {/* Botones */}
       <Box
         style={{
-            position: 'absolute',
-            left: 30,
-            right: 30,
-            top: 191,
-            flexDirection: 'row',
-            gap: 20,
+          flexDirection: 'row',
+          gap: 20,
+          marginTop: 16,
         }}
-        >
+      >
         <Pressable
-            style={{
+          style={{
             width: 100,
             height: 30,
             backgroundColor: '#F87171',
             borderRadius: 8,
             justifyContent: 'center',
             alignItems: 'center',
-            }}
-            onPress={onCancel}
+          }}
+          onPress={onCancel}
         >
-            <Text
+          <Text
             style={{
-                color: '#FEFEFF',
-                fontSize: 20,
-                fontFamily: 'Exo',
-                fontWeight: '500',
+              color: '#FEFEFF',
+              fontSize: 16,
+              fontFamily: 'Exo-Regular',
+              fontWeight: '500',
             }}
-            >
+          >
             Cancelar
-            </Text>
+          </Text>
         </Pressable>
         <Pressable
-            style={{
+          style={{
             flex: 1,
             height: 30,
             backgroundColor: '#7875F8',
@@ -215,25 +206,25 @@ export function RideCard({
             alignItems: 'center',
             flexDirection: 'row',
             gap: 8,
-            }}
-            onPress={onDetails}
+          }}
+          onPress={onDetails}
         >
-            <Text
+          <Text
             style={{
-                color: '#FEFEFF',
-                fontSize: 20,
-                fontFamily: 'Exo',
-                fontWeight: '500',
+              color: '#FEFEFF',
+              fontSize: 16,
+              fontFamily: 'Exo-Regular',
+              fontWeight: '500',
             }}
-            >
+          >
             Detalles
-            </Text>
-            <Image
+          </Text>
+          <Image
             source={require('@/assets/icons/rightChevron.svg')}
             style={{ width: 16, height: 16, marginRight: 4 }}
-            />
+          />
         </Pressable>
-        </Box>
+      </Box>
     </Box>
   );
 }

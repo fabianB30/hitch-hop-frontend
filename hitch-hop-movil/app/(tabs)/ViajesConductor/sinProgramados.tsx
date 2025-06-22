@@ -1,11 +1,20 @@
 import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image } from 'react-native';
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
+import { useFonts } from "expo-font";
+import { useAuth } from '../Context/auth-context';
 
 export default function sinViajes() {
 
   const router = useRouter();
+  const { user } = useAuth();
   const { width } = Dimensions.get('window');
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+  });
+  if (!fontsLoaded) return null;
 
    return (
     <ImageBackground
@@ -65,13 +74,11 @@ const styles = StyleSheet.create({
   },
   hitchhopText: {
     position: 'absolute',
-    top: 40,
-    right: 24,
-    color: 'black',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: 'Montserrat',
-    fontWeight: '800',
-    textAlign: 'right',
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   overlay: {
@@ -99,14 +106,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'black',
     fontSize: 24,
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-SemiBold',
     fontWeight: '600',
   },
   subtitle: {
     textAlign: 'center',
     color: 'black',
     fontSize: 18,
-    fontFamily: 'Exo',
+    fontFamily: 'exo.medium',
     fontWeight: '500',
   },
   button: {
@@ -121,7 +128,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FEFEFF',
     fontSize: 20,
-    fontFamily: 'Exo',
+    fontFamily: 'exo.medium',
     fontWeight: '500',
     textAlign: 'center',
   },

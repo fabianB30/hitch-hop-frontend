@@ -61,7 +61,7 @@ export default function EditarVehiculo() {
         console.error('Error al editar el vehículo:', error);
       }
   
-      router.push('/vehiculos')
+      router.push('/vehiculos/vehiculosIndex')
     };
 
 

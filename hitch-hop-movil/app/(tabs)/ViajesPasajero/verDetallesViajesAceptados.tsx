@@ -8,27 +8,60 @@ import { RideCard } from "@/components/RideCard";
 import CancelPopup from '@/components/cancelPopUp';
 import CancelSuccessPopup from "@/components/CancelSuccessPopUp";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getTripsByUserRequest } from '../../../interconnection/trip';
+import { useAuth } from '../Context/auth-context';
+import { getTripsByUserRequest, updatePassangerStatusRequest } from '../../../interconnection/trip';
+import { useFonts } from "expo-font";
 
 export default function VerDetallesViajesAceptados() {
   const router = useRouter();
+  const { user } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const [rideToCancel, setRideToCancel] = useState<number | null>(null);
+  const [rides, setRides] = useState<Ride[]>([]);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined);
   const insets = useSafeAreaInsets();
+  const [fontsLoaded] = useFonts({
+    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
+    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
+    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+  });
 
     const handleCancelPress = (rideId: number) => {
       setRideToCancel(rideId);
       setShowPopup(true);
     };
   
-    const handleConfirmCancel = () => {
-      // Pendiente la lógica para cancelar el viaje
-      setShowPopup(false);
-      setRideToCancel(null);
-      // Debería ir un if para validar si se canceló correctamente
-      setShowSuccessPopup(true);
+    const handleConfirmCancel = async () => {
+      if (rideToCancel !== null && user?._id) {
+        try {
+          const res = await updatePassangerStatusRequest(rideToCancel, user._id, "Cancelado");
+          if (res) {
+            setRides((prev) => {
+              const updatedRides = prev.filter((ride) => ride.id !== rideToCancel);
+              if (updatedRides.length === 0) {
+                router.replace("/(tabs)/ViajesPasajero/sinViajes");
+              } else {
+                setShowSuccessPopup(true);
+              }
+              return updatedRides;
+            });
+          } else {
+            setSuccessMessage("Hubo un error al cancelar la solicitud.");
+            setShowSuccessPopup(true);
+          }
+        } catch {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+        setShowPopup(false);
+        setRideToCancel(null);
+      }
     };
+    
   
     const handleClosePopup = () => {
       setShowPopup(false);
@@ -46,58 +79,72 @@ export default function VerDetallesViajesAceptados() {
     time: string;
     start: string;
     end: string;
+    stopName?: string;
   }
 
-  // Hacen un manejo algo así, eso le retorna la lista de lo que ocupan
-  /*useEffect(() => {
-    async function fetchData() {
+  useEffect(() => {
+    async function fetchRides() {
       try {
-        const trips = await getTripsByUserRequest(userId, false, status);
-        if (trips) setTrips(trips);
+        const trips = await getTripsByUserRequest(user._id, false, "Aprobado");
+        if (trips) {
+          const mappedRides: Ride[] = trips.map((trip: any) => {
+            const userStop = trip.stops?.find((stop: any) =>
+              stop.passengersId?.includes(user._id)
+            );
+            return {
+              id: trip._id,
+              avatar: require("@/assets/images/avatar1.png"),
+              name: trip.driver?.name || "Nombre Conductor",
+              car: "Modelo Auto",
+              price: `₡${trip.costPerPerson}`,
+              date: trip.departure.split("T")[0],
+              time: trip.departure.split("T")[1]?.slice(0,5),
+              start: trip.startpoint?.name || "",
+              end: trip.endpoint?.name || "",
+              stopName: userStop ? userStop.place.name : "Parada no encontrada",
+            };
+          });
+
+          const now = new Date();
+          const filteredRides = mappedRides.filter((ride) => {
+            const rideDateTime = new Date(`${ride.date}T${ride.time}`);
+            return rideDateTime.getTime() >= now.getTime();
+          });
+
+          filteredRides.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+          });
+
+          setRides(filteredRides);
+
+          // Si no hay rides, redirige
+          if (mappedRides.length === 0) {
+            router.replace("/(tabs)/ViajesPasajero/sinViajes");
+          }
+        } else {
+          // Si trips es null o undefined, también redirige
+          setRides([]);
+          router.replace("/(tabs)/ViajesPasajero/sinViajes");
+        }
       } catch (error) {
         console.error("Error al obtener viajes:", error);
+        setRides([]);
+        router.replace("/(tabs)/ViajesPasajero/sinViajes");
       }
     }
 
-    fetchData();
-  }, []);*/
-
-
-  const rides: Ride[] = [
-    {
-      id: 1,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Adrián Zamora",
-      car: "Toyota Camry",
-      price: "₡1500",
-      date: "11 de Abr, 2025.",
-      time: "11:55 AM",
-      start: "Alianza Francesa, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-
-    {
-      id: 2,
-      avatar: require("@/assets/images/avatar1.png"),
-      name: "Juan Pérez",
-      car: "Chevrolet Spark",
-      price: "₡2000",
-      date: "14 de Abr, 2025.",
-      time: "11:50 AM",
-      start: "INS, San José Av. 7.",
-      end: "Tecnológico de Costa Rica, Cartago.",
-    },
-  ];
-
-  useEffect(() => {
-    if (rides.length == 0) {
-      router.replace("/(tabs)/ViajesPasajero/sinViajes");
+    if (user?._id) {
+      fetchRides();
     }
-  }, [rides, router]);
+  }, [user, router]);
 
+  if (!fontsLoaded) return null;
   if (rides.length === 0) {
     return null;
   }
+  
   return (
     <ImageBackground
       source={require("@/assets/images/fondoDefault.png")}
@@ -105,7 +152,7 @@ export default function VerDetallesViajesAceptados() {
       resizeMode="cover"
     >
       <Pressable
-        onPress={() => router.push("/(tabs)/ViajesPasajero")}
+        onPress={() => router.back()}
         style={styles.backArrow}
       >
         <Image
@@ -139,6 +186,7 @@ export default function VerDetallesViajesAceptados() {
       <CancelSuccessPopup
         visible={showSuccessPopup}
         onClose={() => setShowSuccessPopup(false)}
+        message={successMessage}
       />
       <ScrollView
         style={styles.cardsScroll}
@@ -152,9 +200,13 @@ export default function VerDetallesViajesAceptados() {
           <RideCard
             key={ride.id}
             {...ride}
+            startLabel={`Parada solicitada: ${ride.stopName || "No disponible"}`}
             onCancel={() => handleCancelPress(ride.id)}
             onDetails={() => {
-              router.push("/(tabs)/ViajesPasajero/verDetalleViajeProgramado");
+              console.log("Detalles del viaje:", ride);
+              router.push({pathname: "/(tabs)/ViajesPasajero/verDetalleViajeProgramado",
+              params: { rideId: ride.id, source: "aceptado", userStop: ride.stopName }
+              });
             }}
           />
         ))}
@@ -180,14 +232,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
     overlay: {
@@ -201,7 +251,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily: "Exo",
+    fontFamily: 'Exo-SemiBold',
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -239,8 +289,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: 'exo.medium',
     fontWeight: "500",
   },
   cardsScroll: {

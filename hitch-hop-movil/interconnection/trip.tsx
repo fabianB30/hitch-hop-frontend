@@ -99,7 +99,7 @@ export const deleteTripRequest = async (id): Promise<IJwtResponse | null> => {
 
 export const updatePassangerStatusRequest = async (id, userId, status): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.patch(`/backend/trip/${id}/passengers/${userId}/status`, {status});
+        const res = await axios.patch(`/backend/trip/${id}/passengers/${userId}/status`, {status});
         const data = res.data.data;
         if (data) {
             return data;
@@ -142,9 +142,9 @@ export const addStopToTripRequest = async (id: string, place: string): Promise<I
     }
 };
 
-export const addPassangerToTripRequest = async (id: string, user: string): Promise<IJwtResponse | null> => {
+export const addUserToStop = async (id: string, placeId: string, user: string): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.post(`/backend/trip/${id}/passengers`, {user});
+        const res = await axios.post(`/backend/trip/${id}/stops/${placeId}/users`, {user});
         const data = res.data.data;
         if (data) {
             return data;
@@ -152,6 +152,33 @@ export const addPassangerToTripRequest = async (id: string, user: string): Promi
             return null;
         }
     } catch (error) {
+        const status = error.response.status;
+        if(status === 404){
+            const message = "Esa parada no existe"
+            return message
+        }
+
+        console.error('http request error: ', error);
+        return null;
+    }
+};
+
+export const addPassengerToTripRequest = async (id: string, user: string): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.post(`/backend/trip/${id}/passengers`, {user});
+        const data = res.data.data;
+        if (data) {
+            return data;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        const status = error.response.status;
+        if(status === 400){
+            const message = "Ese usuario ya está agregado"
+            return message
+        }
+        
         console.error('http request error: ', error);
         return null;
     }
@@ -174,7 +201,7 @@ export const getTripPassengersRequest = async (id: string, user: string): Promis
 
 export const cancelPassengerTripRequest = async (id: string, userId: string): Promise<IJwtResponse | null> => {
     try {
-        const res = axios.put(`/backend/trips/${id}/cancel/${userId}`);
+        const res = await axios.put(`/backend/trips/${id}/cancel/${userId}`);
         const data = res.data.data;
         if (data) {
             return data;
@@ -198,6 +225,21 @@ export const getTripsParamsRequest = async (data: {startDate: string, endDate: s
         }
     } catch (error) {
         console.error('http request error: ', error);
+        return null;
+    }
+};
+export const getTripsParams = async (data: any): Promise<IJwtResponse | null> => {
+    try {
+        const res = await axios.post(`/backend/trip/filter`, data);
+        const dataTrip = res.data.data;
+        if (dataTrip) {
+            return dataTrip;
+        } else {
+            console.error('Invalid response structure at getTripsParams:', res);
+            return null;
+        }
+    } catch (error) {
+        console.error('http request error at getTripsParams: ', error);
         return null;
     }
 };

@@ -1,50 +1,171 @@
-import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
+import { CancelRideModal } from "@/components/cancelRide";
+import CancelRideSucess from "@/components/CancelRideSuccess";
 import { PassengerCard } from "@/components/PassengerCard";
-import { HStack } from "@/components/ui/hstack";
-import { MoveRight, Users } from "lucide-react-native";
-import { Text } from "@/components/ui/text";
+import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import { deleteTripRequest, getTripByIdRequest } from "@/interconnection/trip";
+import { useFocusEffect } from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { MoveRight, Users } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerDetallesViajeProgramado() {
   const router = useRouter();
+  const { tripId } = useLocalSearchParams();
+  const { user } = useAuth();
+  const [showPopup, setShowPopup] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined
+  );
+  const [fontsLoaded] = useFonts({
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
+  });
+  if (!fontsLoaded) return null;
 
   // boolean if ride is full
   var isFull = false;
 
-  //Esto no funciona, la página recibe parámetros para crear las cards
-  const handlePendingRequests = () => {
-    router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
+  const handleConfirmCancel = async () => {
+    console.log("Confirm cancel tripId:", tripId);
+    if (tripId) {
+      try {
+        setShowPopup(false);
+        const result = await deleteTripRequest(tripId);
+        if (result) {
+          setShowPopup(false);
+          router.push("/(tabs)/ViajesConductor/verViajesAceptados");
+        } else {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+      } catch (error) {
+        setSuccessMessage("Hubo un error al cancelar la solicitud.");
+        setShowSuccessPopup(true);
+      }
+      setShowPopup(false);
+    }
   };
 
-  const passengers = [
-    {
-      id: 1,
-      name: "Robert Schumann",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7.",
-    },
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  };
 
-    {
-      id: 2,
-      name: "Johannes Brahms",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7.",
-    },
+  //Esto no funciona, la página recibe parámetros para crear las cards
+  const handlePendingRequests = () => {
+    console.log(trip, pendingPassengers);
+    router.push({
+      pathname: "/(tabs)/ViajesConductor/verSolicitudesPendientes",
+      params: {
+        users: JSON.stringify(pendingPassengers),
+        userLimit: trip ? trip.userLimit : 0,
+        actualPassengerNumber: trip ? trip.users : 0,
+        tripIdParam: trip ? trip.id : 0,
+        startParam: trip ? trip.start : "Empty",
+        endParam: trip ? trip.end : "Empty",
+      },
+    });
+  };
 
-    {
-      id: 3,
-      name: "Jan Sibelius",
-      price: "₡1500",
-      phone: "8888-8888",
-      location: "INS, San José Av. 7. Calle 2",
-    },
-  ];
+  interface Passenger {
+    id: string;
+    name: string;
+    price: string;
+    phone: string;
+    location: string;
+    image: string;
+    time: string;
+  }
+  const [passengers, setPassengers] = useState<Passenger[]>([]);
+  const [pendingPassengers, setPendingPassengers] = useState<Passenger[]>([]);
+
+  interface Trip {
+    id: number;
+    users: number;
+    userLimit: number;
+    start: string;
+    end: string;
+  }
+  const [trip, setTrip] = useState<Trip | null>(null);
+
+  // Move fetchData outside of useEffect so it can be reused
+  const fetchData = async () => {
+    try {
+      const trip = await getTripByIdRequest(tripId as string);
+      const price = trip.costPerPerson;
+      if (trip) {
+        const mappedRequests = trip.passengers
+          .filter((passenger: any) => passenger.status === "Aprobado")
+          .map((passenger: any) => {
+            const userStop = trip.stops?.find((stop: any) =>
+              stop.passengersId?.includes(passenger.user._id)
+            );
+            return {
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: userStop ? userStop.place.name : "No asignado",
+              image: passenger.user.photoUrl,
+              time: "FALTA",
+            };
+          });
+        setPassengers(mappedRequests);
+        setTrip({
+          id: trip._id,
+          users: mappedRequests.length,
+          userLimit: trip.passengerLimit,
+          start: trip.startpoint.name,
+          end: trip.endpoint.name,
+        });
+        setPendingPassengers(
+          trip.passengers
+            .filter((passenger: any) => passenger.status === "Pendiente")
+            .map((passenger: any) => ({
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: trip.startpoint.name,
+              image: passenger.user.photoUrl,
+              time: trip.departure.split("T")[1]?.slice(0, 5),
+            }))
+        );
+      } else {
+        setPassengers([]);
+        router.replace("/(tabs)/ViajesConductor/sinProgramados");
+      }
+    } catch (error) {
+      setPassengers([]);
+      console.log(tripId);
+      router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchData();
+    }
+  }, [user, router]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchData();
+      }
+    }, [user, tripId])
+  );
 
   return (
     <ImageBackground
@@ -93,7 +214,7 @@ export default function VerDetallesViajeProgramado() {
               <Users size={24} color="black" />
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: "Exo-Regular",
                   fontSize: 16,
                   fontWeight: "400",
                   color: "#171717",
@@ -101,7 +222,7 @@ export default function VerDetallesViajeProgramado() {
                   marginLeft: 2,
                 }}
               >
-                3/4
+                {trip ? trip.users + "/" + trip.userLimit : "..."}
               </Text>
             </Box>
           </HStack>
@@ -117,7 +238,7 @@ export default function VerDetallesViajeProgramado() {
           >
             <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
               <Text style={styles.start}>
-                Tecnológico de Costa Rica, San José Av. 9.
+                {trip ? trip.start : "Cargando..."}
               </Text>
             </Box>
             <Box
@@ -132,15 +253,14 @@ export default function VerDetallesViajeProgramado() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: "Exo-SemiBold",
                   fontSize: 12,
-                  fontStyle: "normal",
                   fontWeight: "400",
                   color: "#171717",
-                  textAlign: "right",
+                  textAlign: "left",
                 }}
               >
-                Tecnológico de Costa Rica, Cartago
+                {trip ? trip.end : "Cargando..."}
               </Text>
             </Box>
           </HStack>
@@ -172,7 +292,7 @@ export default function VerDetallesViajeProgramado() {
                 }}
               >
                 <ButtonText
-                  style={{ color: "#FEFEFF" }}
+                  style={styles.buttonText}
                   onPress={handlePendingRequests}
                 >
                   Solicitudes Pendientes
@@ -204,12 +324,23 @@ export default function VerDetallesViajeProgramado() {
                 zIndex: 10,
                 alignSelf: "center",
               }}
+              onPress={() => setShowPopup(true)}
             >
-              <ButtonText style={{ color: "#FEFEFF" }}>Cancelar</ButtonText>
+              <ButtonText style={styles.buttonText}>Cancelar</ButtonText>
             </Button>
           </ScrollView>
         </Box>
       </Box>
+      <CancelRideModal
+        visible={showPopup}
+        onCancel={() => setShowPopup(false)}
+        onConfirm={handleConfirmCancel}
+      />
+      <CancelRideSucess
+        visible={showSuccessPopup}
+        onClose={handleCloseSuccessPopup}
+        message={successMessage}
+      />
     </ImageBackground>
   );
 }
@@ -232,20 +363,18 @@ const styles = StyleSheet.create({
   },
   hitchhopText: {
     position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   title: {
     left: 25,
     color: "#171717",
     fontSize: 20,
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,
@@ -254,7 +383,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 16,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "400",
     textAlign: "left",
     zIndex: 10,
@@ -291,8 +420,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FEFEFF",
-    fontSize: 18,
-    fontFamily: "Exo",
+    fontSize: 16,
+    fontFamily: "Exo-Regular",
     fontWeight: "500",
   },
   cardsScroll: {
@@ -310,9 +439,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
