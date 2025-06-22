@@ -1,3 +1,7 @@
+// Autores: Anthony Guevara
+// Modal para seleccionar el método de pago y costo de una ruta
+// Llamado en la página del formulario de publicación de rutas
+
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { CheckSquare } from 'lucide-react-native';
@@ -22,12 +26,23 @@ export default function SelectPaymentModal({
   onConfirm,
   initialPaymentMethods = [],
   initialCost = '',
-}: Readonly<SelectPaymentModalProps>) {
-  // Initialize payment methods
+}: Readonly<SelectPaymentModalProps>) {  // Initialize payment methods
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    { id: 'gratuito', name: 'Gratuito', selected: initialPaymentMethods.includes('Gratuito') },
-    { id: 'sinpe', name: 'SINPE Movil', selected: initialPaymentMethods.includes('SINPE Movil') },
-    { id: 'efectivo', name: 'Efectivo', selected: initialPaymentMethods.includes('Efectivo') },
+    { 
+      id: 'gratuito', 
+      name: 'Gratuito', 
+      selected: initialPaymentMethods.includes('Gratuito') 
+    },
+    { 
+      id: 'sinpe', 
+      name: 'SINPE Movil', 
+      selected: initialPaymentMethods.includes('Sinpe') || initialPaymentMethods.includes('SINPE Movil')
+    },
+    { 
+      id: 'efectivo', 
+      name: 'Efectivo', 
+      selected: initialPaymentMethods.includes('Efectivo') 
+    },
   ]);
   
   const [cost, setCost] = useState(initialCost);

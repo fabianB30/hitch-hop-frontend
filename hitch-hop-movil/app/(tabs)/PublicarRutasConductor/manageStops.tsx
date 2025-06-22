@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+// Autores: Anthony Guevara
+// Pagina para manejar las paradas a realizar en un viaje
+// Llamada desde el formulario de publicación de rutas con 
+// los ClickableInputs
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LucideSearch, LucideX, LucideChevronUp, LucideChevronDown } from 'lucide-react-native';
+import { getAllPlacesRequest } from '@/interconnection/place';
 
 // Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
 const flechaBack = require("@/assets/images/flechaback.png");
 const logoHeader = require("@/assets/images/HHLogoDisplay.png");
+
+interface Place {
+  _id: string;
+  name: string;
+  description?: string;
+  longitude: number;
+  latitude: number;
+}
 
 export default function ManageStops() {
   const { 
@@ -30,44 +43,57 @@ export default function ManageStops() {
     contextCostoPasajero?: string;
     contextFecha?: string;
     contextHora?: string;
-  }>();const router = useRouter();
+  }>();  const router = useRouter();
   const insets = useSafeAreaInsets();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStops, setSelectedStops] = useState<string[]>(
     currentStops ? currentStops.split(',').map(stop => stop.trim()).filter(Boolean) : []
   );
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
-  // Mock locations for demonstration - this would come from an API
-  const [locations] = useState([
-    'Universidad de Costa Rica, San José',
-    'Universidad Nacional, Heredia',
-    'Instituto Tecnológico de Costa Rica, Cartago',
-    'Universidad Estatal a Distancia, San José',
-    'Universidad Técnica Nacional, Alajuela',
-    'Centro Comercial Multiplaza, Escazú',
-    'Hospital México, San José',
-    'Aeropuerto Juan Santamaría, Alajuela',
-    'Estadio Nacional, San José',
-    'Teatro Nacional, San José',
-    'Mall San Pedro, San José',
-    'Terminal de Buses MUSOC, San José',
-    'Parque Central, Alajuela',
-    'Hospital San Juan de Dios, San José',
-    'Centro Comercial Lincoln Plaza, San José'
-  ]);
+  // Fetch all places when component mounts
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+        const result = await getAllPlacesRequest();
+        if (result && Array.isArray(result)) {
+          setPlaces(result);
+        } else {
+          console.error('Failed to fetch places or invalid response format');
+          setPlaces([]);
+          setLoadError('Error al cargar las ubicaciones. Intente nuevamente.');
+        }
+      } catch (error) {
+        console.error('Error fetching places:', error);
+        setPlaces([]);
+        setLoadError('Error de conexión. Verifique su conexión a internet.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Filter locations based on search query and exclude already selected stops
+    fetchPlaces();
+  }, []);
+  
+  // Filter places based on search query and exclude already selected stops
   const filteredLocations = searchQuery.trim() 
-    ? locations.filter(location => 
-        location.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !selectedStops.includes(location)
-      )
+    ? places.filter(place => {
+        const query = searchQuery.toLowerCase();
+        const nameMatch = place.name.toLowerCase().includes(query);
+        const descriptionMatch = place.description?.toLowerCase().includes(query);
+        const locationName = place.name;
+        return (nameMatch || descriptionMatch) && !selectedStops.includes(locationName);
+      }).slice(0, 20) // Limit to 20 results for performance
     : [];
-
-  const handleLocationAdd = (location: string) => {
-    if (!selectedStops.includes(location)) {
-      setSelectedStops(prev => [...prev, location]);
+  const handleLocationAdd = (place: Place) => {
+    const locationName = place.name;
+    if (!selectedStops.includes(locationName)) {
+      setSelectedStops(prev => [...prev, locationName]);
     }
     setSearchQuery(''); // Clear search after adding
   };
@@ -105,12 +131,67 @@ export default function ManageStops() {
       }
     });
   };
-
   const handleCancel = () => {
-    router.back();
-  };
-  // Separate function to render search results
+    router.replace({
+      pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
+      params: { 
+        // Preserve other values from context without changing stops
+        selectedOrigin: contextOrigin ?? '',
+        selectedDestination: contextDestination ?? '',
+        selectedStops: currentStops ?? '', // Keep original stops, don't change them
+        contextVehiculo: contextVehiculo ?? '',
+        contextAsientosDisponibles: contextAsientosDisponibles ?? '',
+        contextMetodoPago: contextMetodoPago ?? '',
+        contextCostoPasajero: contextCostoPasajero ?? '',
+        contextFecha: contextFecha ?? '',
+        contextHora: contextHora ?? ''
+      }
+    });
+  };  // Separate function to render search results
   const renderSearchResults = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#7875F8" />
+          <Text style={styles.loadingText}>Cargando ubicaciones...</Text>
+        </View>
+      );
+    }
+
+    if (loadError) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.placeholder}>{loadError}</Text>
+          <TouchableOpacity 
+            onPress={() => {
+              // Retry loading places
+              setLoadError(null);
+              setIsLoading(true);
+              const fetchPlaces = async () => {
+                try {
+                  const result = await getAllPlacesRequest();
+                  if (result && Array.isArray(result)) {
+                    setPlaces(result);
+                  } else {
+                    setLoadError('Error al cargar las ubicaciones. Intente nuevamente.');
+                  }
+                } catch (error) {
+                  console.error('Error retrying places fetch:', error);
+                  setLoadError('Error de conexión. Verifique su conexión a internet.');
+                } finally {
+                  setIsLoading(false);
+                }
+              };
+              fetchPlaces();
+            }}
+            style={styles.retryButton}
+          >
+            <Text style={styles.retryButtonText}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
     if (searchQuery.trim() === '') {
       return (
         <Text style={styles.placeholder}>
@@ -138,16 +219,21 @@ export default function ManageStops() {
           nestedScrollEnabled={true}
           keyboardShouldPersistTaps="handled"
         >
-          {filteredLocations.map((location) => (
+          {filteredLocations.map((place) => (
             <TouchableOpacity
-              key={location}
+              key={place._id}
               style={styles.locationItem}
-              onPress={() => handleLocationAdd(location)}
+              onPress={() => handleLocationAdd(place)}
               activeOpacity={0.7}
             >
               <Text style={styles.locationText}>
-                {location}
+                {place.name}
               </Text>
+              {place.description && (
+                <Text style={styles.locationDescription}>
+                  {place.description}
+                </Text>
+              )}
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -173,7 +259,7 @@ export default function ManageStops() {
 
       {/* Flecha back */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={handleCancel}>
           <Image
             source={flechaBack}
             style={styles.flechaBack}
@@ -450,11 +536,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   resultsHeader: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 5,
-    paddingHorizontal: 20,
   },
   locationItem: {
     backgroundColor: '#F8F8F8',
@@ -554,20 +638,19 @@ const styles = StyleSheet.create({
   // Scrollable search results
   searchResultsScrollView: {
     maxHeight: 200, // Limit height for search results
-  },
-  buttonsContainer: {
+  },  buttonsContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 24,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingBottom: 20,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    gap: 12,
+    gap: 15,
     zIndex: 10,
   },
   cancelButton: {
@@ -575,7 +658,7 @@ const styles = StyleSheet.create({
     borderColor: '#7875F8',
     borderWidth: 1,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
   },
   cancelButtonText: {
@@ -587,12 +670,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#7875F8',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
-  },
-  confirmButtonText: {
+  },confirmButtonText: {
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  // Loading and error states
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#7875F8',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  locationDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+    fontStyle: 'italic',
   },
 });

@@ -1,10 +1,15 @@
+// Autores: Anthony Guevara
+// Formulario para publicar rutas como conductor
+// Componente principal de la página de publicación de rutas
+// Llama y utiliza a: ClickableInput, SelectPaymentModal, DateTimeModal, RouteSuccessModal
+
 // Import React
 import React, { useEffect, useState, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Input Fields Components
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 // Removed unused imports from @/components/ui/input
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select";
@@ -15,6 +20,12 @@ import ClickableInput from '@/components/ClickableInput';
 import RouteSuccessModal from '@/components/RouteSuccessModal';
 import { LucideCalendarDays, LucideChevronRight } from "lucide-react-native";
 
+// Auth and API imports
+import { useAuth } from '../Context/auth-context';
+import { getVehiclesByIdsRequest } from '@/interconnection/vehicle';
+import { getAllPlacesRequest } from '@/interconnection/place';
+import { registerTripRequest } from '@/interconnection/trip';
+
 
 // Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
@@ -24,20 +35,29 @@ const logoHeader = require("@/assets/images/HHLogoDisplay.png");
 // Payment method options - now handled by SelectPaymentModal
 
 interface Vehiculo {
-  nombre: string;
+  _id: string;
+  model: string;
+  brand: string;
+  color: string;
+  plate: string;
+  year: string;
+  userId: string;
 }
 
 export default function FormPublicarRuta() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ScrollView>(null);  const { user } = useAuth(); // Get current user from auth context
 
   // Add ref only for the remaining text input (asientos)
   const asientosRef = useRef<TextInput>(null);
-
-  const [userVehicles, setUserVehicles] = useState<Vehiculo[]>([]);
+  const lastFetchedUserIdRef = useRef<string | null>(null); // Track the last user ID we fetched vehicles for
+    const [userVehicles, setUserVehicles] = useState<Vehiculo[]>([]);
   const [showNoVehicleModal, setShowNoVehicleModal] = useState(false);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
+  const [vehicleCache, setVehicleCache] = useState<{[userId: string]: Vehiculo[]}>({});
+
   const [fecha, setFecha] = useState(new Date());
   const [hora, setHora] = useState(new Date());
   const [origen, setOrigen] = useState("");
@@ -45,11 +65,16 @@ export default function FormPublicarRuta() {
   const [destino, setDestino] = useState("");
   const [asientosDisponibles, setAsientosDisponibles] = useState("");
   const [vehiculo, setVehiculo] = useState("");
-  const [metodoPago, setMetodoPago] = useState("");    // Modal visibility states
+  const [metodoPago, setMetodoPago] = useState("");// Modal visibility states
   const [dateTimeModalVisible, setDateTimeModalVisible] = useState(false);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);  const [successModalVisible, setSuccessModalVisible] = useState(false);
-    // Cost state
+  // Cost state
   const [costoPasajero, setCostoPasajero] = useState("");
+  
+  // Trip submission states
+  const [isSubmittingTrip, setIsSubmittingTrip] = useState(false);
+  const [allPlaces, setAllPlaces] = useState<any[]>([]);
+  
   // Validation error states
   const [fieldErrors, setFieldErrors] = useState({
     origen: false,
@@ -59,26 +84,73 @@ export default function FormPublicarRuta() {
     metodoPago: false
   });
   const [showValidationError, setShowValidationError] = useState(false);
-    useEffect(() => {
+
+  // Optimize vehicle fetching - only fetch once per session or when user changes
+  useEffect(() => {
+    // Extract vehicle IDs at the beginning to satisfy ESLint
+    const userVehicleIds = user?.vehicles ?? [];
+    
     const fetchUserVehicles = async () => {
-      try {
-        const vehiculos: Vehiculo[] = []; // Simulación de vehículos del usuario #TODO: Reemplazar con llamada a API real
-        vehiculos.push({ nombre: "Vehículo 1" });
-        vehiculos.push({ nombre: "Vehículo 2" });
-        vehiculos.push({ nombre: "Vehículo 3" });
-        if (vehiculos.length === 0) {
+      try {         
+        const userId = user._id;
+
+        // Check if we already have cached vehicles for this user
+        if (vehicleCache[userId] && lastFetchedUserIdRef.current === userId) {
+          console.log("Using cached vehicles for user:", userId);
+          setUserVehicles(vehicleCache[userId]);
+          setShowNoVehicleModal(vehicleCache[userId].length === 0);
+          setIsLoadingVehicles(false);
+          return;
+        }
+        if (!userId || userVehicleIds.length === 0) {
+          console.log("No user found or user ID missing");
           setShowNoVehicleModal(true);
+          setIsLoadingVehicles(false);
+          lastFetchedUserIdRef.current = null;
+          return;
+        }
+
+        // First time loading for this user - fetch from API
+        console.log("Fetching vehicles for first time for user:", userId);
+        setIsLoadingVehicles(true);
+        
+        // Call API to get user vehicles using the vehicle IDs from the user object
+        const vehiculos = await getVehiclesByIdsRequest(userVehicleIds);
+        
+        if (!vehiculos || vehiculos.length === 0) {
+          setShowNoVehicleModal(true);
+          setUserVehicles([]);
+          // Cache empty result
+          setVehicleCache(prev => ({ ...prev, [userId]: [] }));
         } else {
           setUserVehicles(vehiculos);
-          setShowNoVehicleModal(false);
-        }
-      } catch (error) {
+          setShowNoVehicleModal(false);          // Cache successful result
+          setVehicleCache(prev => ({ ...prev, [userId]: vehiculos }));
+        }      } catch (error) {
         console.error("Error fetching user vehicles:", error);
+        setShowNoVehicleModal(true);
+        setUserVehicles([]);
+        // Cache empty result on error
+        if (user?._id) {
+          setVehicleCache(prev => ({ ...prev, [user._id]: [] }));
+        }
+      } finally {
+        setIsLoadingVehicles(false);
       }
-    };
+    };    // Only fetch vehicles if user exists
+    if (user?._id) {
+      fetchUserVehicles();
+    } else if (!user?._id) {
+      // Reset state if no user
+      setUserVehicles([]);
+      setIsLoadingVehicles(false);
+      lastFetchedUserIdRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id, user?.vehicles]); // Only depend on user ID and vehicles array (vehicleCache excluded to prevent infinite loop)
 
-    fetchUserVehicles();
-  }, []);  // Effect to handle incoming data from navigation
+
+  // Effect to handle incoming data from navigation
   useEffect(() => {
     // Update all values at once to prevent conflicts
     if (params.selectedOrigin) {
@@ -110,6 +182,22 @@ export default function FormPublicarRuta() {
       setHora(new Date(params.contextHora as string));
     }
   }, [params.selectedOrigin, params.selectedDestination, params.selectedStops, params.contextVehiculo, params.contextAsientosDisponibles, params.contextMetodoPago, params.contextCostoPasajero, params.contextFecha, params.contextHora]);
+  
+  // Load all places for trip submission
+  useEffect(() => {
+    const loadPlaces = async () => {
+      try {
+        const places = await getAllPlacesRequest();
+        if (places && Array.isArray(places)) {
+          setAllPlaces(places);
+        }
+      } catch (error) {
+        console.error('Error loading places:', error);
+      }
+    };
+    
+    loadPlaces();
+  }, []);
   
   // Effect to clear validation errors when user starts filling fields
   useEffect(() => {
@@ -147,7 +235,101 @@ export default function FormPublicarRuta() {
         }
       }
     }
-  }, [origen, destino, vehiculo, asientosDisponibles, metodoPago, fieldErrors, showValidationError]);  const handlePublicarRuta = () => {
+  }, [origen, destino, vehiculo, asientosDisponibles, metodoPago, fieldErrors, showValidationError]);  // Helper function to find place ID by name
+  
+  const findPlaceIdByName = (placeName: string): string | null => {
+    const place = allPlaces.find(p => p.name === placeName.trim());
+    return place ? place._id : null;
+  };
+
+  // Function to submit trip to backend
+  const submitTripToBackend = async (): Promise<boolean> => {
+    try {
+      setIsSubmittingTrip(true);
+      
+      // Find place IDs
+      const startPointId = findPlaceIdByName(origen);
+      const endPointId = findPlaceIdByName(destino);
+      
+      if (!startPointId || !endPointId) {
+        console.error('Could not find place IDs for origin or destination');
+        return false;
+      }
+        // Process stops
+      const stopsList = paradas ? paradas.split(',').map(stop => stop.trim()).filter(Boolean) : [];
+      const stopsWithIds = stopsList.map(stopName => {
+        const placeId = findPlaceIdByName(stopName);
+        if (!placeId) {
+          console.error(`Could not find place ID for stop: ${stopName}`);
+          return null;
+        }
+        return {
+          place: placeId,
+          status: 'Pendiente' as const
+        };
+      }).filter((stop): stop is { place: string; status: 'Pendiente' } => stop !== null);        // Get selected vehicle ID
+      const selectedVehicle = userVehicles.find(v => getVehicleDisplayName(v) === vehiculo);
+      if (!selectedVehicle) {
+        console.error('Could not find selected vehicle');
+        return false;
+      }
+        // Combine date and time for departure
+      const departureDatetime = new Date(fecha);
+      departureDatetime.setHours(hora.getHours(), hora.getMinutes(), 0, 0);
+      
+      // For arrival, since it's unknown, set it to same day at 23:59 as a placeholder
+      // This represents "unknown arrival time" but satisfies the backend requirement
+      const arrivalDatetime = new Date(departureDatetime);
+      arrivalDatetime.setHours(23, 59, 59, 999);
+      
+      // Parse payment method for backend - simplified logic
+      const paymentMethods = metodoPago.split(',').map(method => method.trim());
+      let backendPaymethod: 'Gratuito' | 'Sinpe' | 'Efectivo';
+      
+      if (paymentMethods.includes('Gratuito')) {
+        backendPaymethod = 'Gratuito';
+      } else if (paymentMethods.includes('Sinpe')) {
+        backendPaymethod = 'Sinpe';
+      } else {
+        backendPaymethod = 'Efectivo';
+      }
+        // Prepare trip data
+      const tripData = {
+        startpoint: startPointId,
+        endpoint: endPointId,
+        departure: departureDatetime,
+        arrival: arrivalDatetime,
+        stops: stopsWithIds,
+        passengers: [], // Initially empty
+        driver: user._id,
+        vehicle: selectedVehicle._id, // Add vehicle ObjectId
+        passengerLimit: parseInt(asientosDisponibles), // Add passenger limit
+        paymethod: backendPaymethod,
+        costPerPerson: parseFloat(costoPasajero) || 0
+      };
+      
+      console.log('Submitting trip data:', tripData);
+      
+      // Submit to backend
+      const result = await registerTripRequest(tripData);
+      
+      if (result) {
+        console.log('Trip submitted successfully:', result);
+        return true;
+      } else {
+        console.error('Failed to submit trip');
+        return false;
+      }
+      
+    } catch (error) {
+      console.error('Error submitting trip:', error);
+      return false;
+    } finally {
+      setIsSubmittingTrip(false);
+    }
+  };
+
+  const handlePublicarRuta = async () => {
     // Reset validation errors
     const errors = {
       origen: false,
@@ -193,20 +375,28 @@ export default function FormPublicarRuta() {
     if (hasErrors) {
       return;
     }
+      // All validations passed, try to submit to backend
+    const success = await submitTripToBackend();
     
-    // All validations passed, show success modal
-    console.log("Ruta publicada:", {
-      fecha,
-      hora,
-      origen,
-      paradas,
-      destino,
-      asientosDisponibles,
-      vehiculo,
-      metodoPago,
-      costoPasajero
-    });
+    if (success) {
+      console.log("Ruta publicada exitosamente:", {
+        fecha,
+        hora,
+        origen,
+        paradas,
+        destino,
+        asientosDisponibles,
+        vehiculo,
+        metodoPago,
+        costoPasajero
+      });
       setSuccessModalVisible(true);
+    } else {
+      // Handle submission error
+      console.error("Error al publicar la ruta");
+      // You could show an error modal here or update state to show error message
+      alert("Error al publicar la ruta. Por favor intente nuevamente.");
+    }
   };
   
   // Function to handle success modal acceptance
@@ -243,6 +433,11 @@ export default function FormPublicarRuta() {
     }, 100);
   };
 
+  // Helper function to get vehicle display name
+  const getVehicleDisplayName = (vehicle: Vehiculo) => {
+    return `${vehicle.brand} ${vehicle.model} (${vehicle.plate})`;
+  };
+  
   // Helper function to get payment display text
   const getPaymentDisplayText = () => {
     if (!metodoPago) {
@@ -284,18 +479,24 @@ export default function FormPublicarRuta() {
             style={styles.flechaBack}
             resizeMode="contain"
           />        </TouchableOpacity>
-      </View>
-
-      <View style={styles.formContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          contentContainerStyle={styles.container}
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={true}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          nestedScrollEnabled={true}
-        >          {/* Contenido del formulario */}
+      </View>      <View style={styles.formContainer}>
+        {/* Loading state */}
+        {isLoadingVehicles ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#7875F8" />
+            <Text style={styles.loadingText}>Cargando vehículos...</Text>
+          </View>
+        ) : (
+          // Form content
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={styles.container}
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={true}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            nestedScrollEnabled={true}
+          >{/* Contenido del formulario */}
           <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, fieldErrors.origen && styles.errorLabel]}>
               Punto de Inicio<Text style={styles.asterisk}>*</Text>
@@ -366,10 +567,9 @@ export default function FormPublicarRuta() {
           <View style={styles.divider} />          <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, fieldErrors.vehiculo && styles.errorLabel]}>
               Vehículo a Usar<Text style={styles.asterisk}>*</Text>
-            </Text>
-            {userVehicles.length > 0 ? (
+            </Text>            {userVehicles.length > 0 ? (
               <Select
-              options={userVehicles.map((v) => v.nombre)}
+              options={userVehicles.map((v) => getVehicleDisplayName(v))}
               selectedValue={vehiculo}
               onValueChange={setVehiculo}
               placeholder="Seleccione un vehículo"
@@ -448,12 +648,15 @@ export default function FormPublicarRuta() {
               <Text style={styles.validationError}>
                 *Por favor, complete los campos obligatorios.
               </Text>
-            )}
-            <Button onPress={handlePublicarRuta} style={styles.button}>
-              <ButtonText style={{ fontWeight: "bold" }}>Registrar Ruta</ButtonText>
+            )}            <Button onPress={handlePublicarRuta} style={styles.button} disabled={isSubmittingTrip}>
+              {isSubmittingTrip ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <ButtonText style={{ fontWeight: "bold" }}>Registrar Ruta</ButtonText>
+              )}
             </Button>
-          </View>
-        </ScrollView>
+          </View>        </ScrollView>
+        )}
       </View>
 
       {showNoVehicleModal && (
@@ -582,13 +785,13 @@ const styles = StyleSheet.create({  root: {
     fontSize: 12,
   },  backgroundImageContainer: {
     width: "115%",
-    height: 150, // Increased height for better effect
+    height: 150,
     position: "absolute",
     alignItems: "flex-end",
     justifyContent: "center",
     top: -25,
     left: 0,
-    zIndex: 0, // Changed from 1 to 0 to ensure form appears above it
+    zIndex: 0, 
     overflow: "hidden",
   },
   backgroundImage: {
@@ -661,8 +864,7 @@ const styles = StyleSheet.create({  root: {
   // New styles for validation
   errorLabel: {
     color: '#dc2626', // Red color for error labels
-  },
-  asterisk: {
+  },  asterisk: {
     color: '#dc2626', // Red color for asterisks
     fontWeight: '600',
   },
@@ -671,6 +873,18 @@ const styles = StyleSheet.create({  root: {
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 10,
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666',
     fontWeight: '500',
   },
 });
