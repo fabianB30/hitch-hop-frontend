@@ -46,7 +46,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => console.log(user._id)}
+          onPress={() => {router.push('/RouteSearch/searchMain')}}
         >
           <Text style={styles.buttonText}>Buscar Viajes</Text>
         </Pressable>
@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
-    width: 141,
-    height: 36,
+    width: 150,
+    height: 50,
     backgroundColor: '#7875F8',
     borderRadius: 8,
     justifyContent: 'center',
@@ -129,5 +129,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'exo.medium',
     fontWeight: '500',
+    alignItems: 'center',
+    alignSelf: 'center',
   },
 });

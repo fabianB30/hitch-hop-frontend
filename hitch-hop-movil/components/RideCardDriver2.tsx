@@ -119,14 +119,14 @@ export function RideCardDriver2({
           <Box
             style={{
               flexDirection: "row",
-              alignItems: "flex-start",
-              gap: 4,
+              alignItems: "center",
+              gap: 0,
               marginRight: 10,
               alignSelf: "flex-end",
               maxWidth: 180,
             }}
           >
-            <Users size={20} color="black" />
+            <Users size={20} color="black" marginRight={-15} />
             <Text style={styles.mediumFont2}>
               Solicitudes pendientes: {users.length}
             </Text>

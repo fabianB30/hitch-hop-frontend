@@ -223,7 +223,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[47px] ${loading ? 'opacity-70' : ''
+                className={`flex-1 bg-[#7875F8] py-3 rounded-lg items-center w-[102px] h-[50px] ${loading ? 'opacity-70' : ''
                   }`}
                 onPress={handleLogin}
                 disabled={loading}
