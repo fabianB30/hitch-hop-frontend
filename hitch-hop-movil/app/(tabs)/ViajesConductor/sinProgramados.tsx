@@ -47,7 +47,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => console.log('Programar Viaje')}
+          onPress={() => {router.push('/PublicarRutasConductor/index')}}
         >
           <Text style={styles.buttonText}>Programar Viaje</Text>
         </Pressable>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
-    width: 180,
+    width: 200,
     height: 36,
     backgroundColor: '#7875F8',
     borderRadius: 8,
