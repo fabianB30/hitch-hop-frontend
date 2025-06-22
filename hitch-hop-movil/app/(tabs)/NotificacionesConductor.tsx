@@ -90,7 +90,7 @@ export default function NotificacionesConductor (){
             </Box>
             
             {/* Titulo de Notificaciones */}
-            <Box style={{left: windowWidth*0.04, marginTop: 15}}>
+            <Box style={{left: windowWidth*0.04, marginTop:0}}>
                 <Text style={styles.tituloNotif}>
                     Notificaciones
                 </Text>
@@ -103,10 +103,10 @@ export default function NotificacionesConductor (){
                 {notificaciones.length === 0 ? (
                     <Box style={styles.noNotifs}>
                         <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain"/>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 24, marginTop: 12, color: "black"}}>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 30, marginTop: 5, color: "black"}}>
                             ¡No hay notificaciones!
                         </Text>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 18, marginTop: 12, color: "black"}}>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 30, marginTop: 12, color: "black"}}>
                             Las notificaciones aparecen aquí.
                         </Text>
                     </Box>
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
         position: "fixed",
         justifyContent: "center",
         alignContent: "center",
-        marginTop: 28
+        marginTop: -60
     },
     scroll: {
         marginTop: 28
@@ -275,8 +275,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignContent: "center",
         position: "absolute",
-        right: 15,
-        bottom: 15,
+        right: 10,
+        bottom: 5,
         height: 27,
         width: "auto"
     },
@@ -286,13 +286,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         height: windowWidth*0.064,
-        width: 61
+        width: 70
     },
     spButtonText: {
-        width: windowWidth*0.04 + 9,
+        width: windowWidth*0.09 + 8,
         fontFamily: "Exo_500Medium",
         fontSize: windowWidth*0.04,
-        lineHeight: windowWidth*0.04,
+        lineHeight: windowWidth*0.05,
         textAlign: "center",
         color: "white"
     },
