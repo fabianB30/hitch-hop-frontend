@@ -219,7 +219,7 @@ export default function ProfileSettings() {
   // Permisos
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
-    alert('Se requieren permisos para acceder a tus fotos.');
+    alert('Se requieren permisos para acceder a tus photoKeys.');
     return;
   }
   // Abre la galería de imágenes
