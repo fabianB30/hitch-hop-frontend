@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Platform, Alert, TouchableWithoutFeedback } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Platform, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface DateTimeModalProps {
@@ -21,24 +21,33 @@ export default function DateTimeModal({
   const now = new Date();
   const defaultMinTime = new Date(now);
   defaultMinTime.setMinutes(now.getMinutes() + 30);
-  
-  // Use provided values or defaults
-  const [date, setDate] = useState(initialDate || new Date());
+    
+  // Calculate minimum allowed date (tomorrow)
+  const minDate = React.useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0); // Set to start of day
+    return tomorrow;
+  }, []);
+
+  // Use provided values or defaults - but ensure they're not before minimum date
+  const [date, setDate] = useState(() => {
+    const initialDateToUse = initialDate || new Date();
+    return initialDateToUse < minDate ? minDate : initialDateToUse;
+  });
   const [time, setTime] = useState(initialTime || defaultMinTime);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-    // Calculate minimum allowed time (current time + 30 mins)
-  const minTime = React.useMemo(() => {
-    const min = new Date();
-    min.setMinutes(min.getMinutes() + 30);
-    return min;
-  }, []);
     // Reset time if needed on date change
   useEffect(() => {
-    if (isToday(date) && time < minTime) {
-      setTime(new Date(minTime));
+    // Since we only allow dates from tomorrow onward, we don't need to check if it's today
+    // But we can ensure a reasonable default time
+    if (!time) {
+      const defaultTime = new Date();
+      defaultTime.setHours(8, 0, 0, 0); // Default to 8:00 AM
+      setTime(defaultTime);
     }
-  }, [date, time, minTime]);
+  }, [date, time]);
   
   const isToday = (someDate: Date) => {
     const today = new Date();
@@ -59,32 +68,12 @@ export default function DateTimeModal({
     setShowTimePicker(Platform.OS === 'ios');
     
     if (selectedTime && event.type !== 'dismissed') {
-      if (isToday(date) && selectedTime < minTime) {
-        if (Platform.OS === 'ios') {
-          setTime(new Date(minTime));
-        } else {
-          Alert.alert(
-            "Tiempo no válido", 
-            "Por favor seleccione un horario al menos 30 minutos en el futuro.",
-            [{ text: "Entendido" }]
-          );
-        }
-      } else {
-        setTime(selectedTime);
-      }
+      setTime(selectedTime);
     }
   };
   
   const handleConfirm = () => {
-    if (isToday(date) && time < minTime) {
-      Alert.alert(
-        "Tiempo no válido", 
-        "Por favor seleccione un horario al menos 30 minutos en el futuro.",
-        [{ text: "Entendido" }]
-      );
-      return;
-    }
-    
+    // Since we only allow dates from tomorrow onward, no need for time validation
     onConfirm(date, time);
     onClose();
   };
@@ -103,17 +92,6 @@ export default function DateTimeModal({
 
   const formatTime = (time: Date) => {
     return time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // A helper function to get the time picker value
-  const getTimePickerValue = () => {
-    if (isToday(date)) {
-      if (time < minTime) {
-        return minTime;
-      }
-      return time;
-    }
-    return time;
   };
 
   return (
@@ -147,7 +125,8 @@ export default function DateTimeModal({
                     mode="date"
                     display={Platform.OS === 'ios' ? "inline" : "default"}
                     onChange={handleDateChange}
-                    minimumDate={new Date()}
+                    minimumDate={minDate}
+                    accentColor="#7875F8" 
                   />
                 )}
               </View>
@@ -165,17 +144,17 @@ export default function DateTimeModal({
                 </TouchableOpacity>
                   {showTimePicker && (
                   <DateTimePicker
-                    value={getTimePickerValue()}
+                    value={time}
                     mode="time"
                     display={Platform.OS === 'ios' ? "inline" : "default"}
                     onChange={handleTimeChange}
-                    minimumDate={isToday(date) ? minTime : undefined}
+                    accentColor="#7875F8" // Your purple color
                   />
                 )}
                 
                 {isToday(date) && (
                   <Text style={styles.helpText}>
-                    Debe ser al menos 30 minutos en el futuro
+                    Debe ser al menos 1 día previo
                   </Text>
                 )}
               </View>

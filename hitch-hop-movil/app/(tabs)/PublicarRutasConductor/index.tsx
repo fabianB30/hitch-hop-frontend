@@ -7,13 +7,26 @@ import { useRouter } from "expo-router";
 export default function Index() {
     const router = useRouter();
 
+    const handleBackPress = () => {
+        router.push("/(tabs)");
+    };
+
+    const handlePublicarRutaPress = () => {
+        router.push("/(tabs)/PublicarRutasConductor/formPublicarRuta");
+    };
+
+    const handleVerRutasPress = () => {
+        // Add navigation when ready
+        // router.push("/(tabs)/PublicarRutasConductor/verRutasPublicadas");
+    };
+
     return (
         <ImageBackground
             source={require("@/assets/images/fondo.png")}
             style={styles.background}
             resizeMode="cover"
         >
-            <Pressable onPress={() => router.push("/(tabs)")} style={styles.backArrow}>
+            <Pressable onPress={handleBackPress} style={styles.backArrow}>
                 <Image
                     source={require("@/assets/images/backArrow.png")}
                     style={{ width: 30, height: 30 }}
@@ -36,11 +49,7 @@ export default function Index() {
                 }}
             >
                 {/* Card 1 */}
-                <Pressable
-                    onPress={() =>
-                        router.push("/(tabs)/PublicarRutasConductor/formPublicarRuta")
-                    }
-                >
+                <Pressable onPress={handlePublicarRutaPress}>
                     <Box
                         style={{
                             height: 240,
@@ -102,9 +111,7 @@ export default function Index() {
                 </Pressable>
 
                 {/* Card 2 */}
-                <Pressable
-                    // onPress={() => router.push('')}
-                >
+                <Pressable onPress={handleVerRutasPress}>
                     <Box
                         style={{
                             height: 240,

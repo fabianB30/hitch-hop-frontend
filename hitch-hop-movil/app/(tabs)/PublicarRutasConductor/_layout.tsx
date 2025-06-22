@@ -14,10 +14,17 @@ export default function Layout() {
       <Stack.Screen
         name="publicarRuta"
         options={{ title: "Publicar Ruta" }}
-      />
-      <Stack.Screen
+      />      <Stack.Screen
         name="verRutasPublicadas"
         options={{ title: "Rutas Publicadas" }}
+      />
+      <Stack.Screen
+        name="searchDestination"
+        options={{ title: "Buscar Destino" }}
+      />
+      <Stack.Screen
+        name="manageStops"
+        options={{ title: "Gestionar Paradas" }}
       />
     </Stack>
   );

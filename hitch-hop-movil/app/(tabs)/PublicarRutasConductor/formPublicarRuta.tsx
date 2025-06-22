@@ -1,17 +1,19 @@
 // Import React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Input Fields Components
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, KeyboardAvoidingView, Platform } from "react-native";
 // Removed unused imports from @/components/ui/input
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select";
 import { Button, ButtonText } from "@/components/ui/button";
 import DateTimeModal from '@/components/SelectDateTimeModal';
 import SelectPaymentModal from '@/components/SelectPaymentModal';
-import { LucideCalendar } from "lucide-react-native";
+import ClickableInput from '@/components/ClickableInput';
+import RouteSuccessModal from '@/components/RouteSuccessModal';
+import { LucideCalendarDays, LucideChevronRight } from "lucide-react-native";
 
 
 // Assets
@@ -28,10 +30,14 @@ interface Vehiculo {
 export default function FormPublicarRuta() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Add ref only for the remaining text input (asientos)
+  const asientosRef = useRef<TextInput>(null);
 
   const [userVehicles, setUserVehicles] = useState<Vehiculo[]>([]);
   const [showNoVehicleModal, setShowNoVehicleModal] = useState(false);
-
   const [fecha, setFecha] = useState(new Date());
   const [hora, setHora] = useState(new Date());
   const [origen, setOrigen] = useState("");
@@ -39,15 +45,21 @@ export default function FormPublicarRuta() {
   const [destino, setDestino] = useState("");
   const [asientosDisponibles, setAsientosDisponibles] = useState("");
   const [vehiculo, setVehiculo] = useState("");
-  const [metodoPago, setMetodoPago] = useState("");
-    // Modal visibility states
+  const [metodoPago, setMetodoPago] = useState("");    // Modal visibility states
   const [dateTimeModalVisible, setDateTimeModalVisible] = useState(false);
-  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
-  
-  // Cost state
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);  const [successModalVisible, setSuccessModalVisible] = useState(false);
+    // Cost state
   const [costoPasajero, setCostoPasajero] = useState("");
-  
-  useEffect(() => {
+  // Validation error states
+  const [fieldErrors, setFieldErrors] = useState({
+    origen: false,
+    destino: false,
+    vehiculo: false,
+    asientosDisponibles: false,
+    metodoPago: false
+  });
+  const [showValidationError, setShowValidationError] = useState(false);
+    useEffect(() => {
     const fetchUserVehicles = async () => {
       try {
         const vehiculos: Vehiculo[] = []; // Simulación de vehículos del usuario #TODO: Reemplazar con llamada a API real
@@ -66,9 +78,123 @@ export default function FormPublicarRuta() {
     };
 
     fetchUserVehicles();
-  }, []);
-  const handlePublicarRuta = () => {
-    // Aquí iría la lógica para publicar la ruta
+  }, []);  // Effect to handle incoming data from navigation
+  useEffect(() => {
+    // Update all values at once to prevent conflicts
+    if (params.selectedOrigin) {
+      setOrigen(params.selectedOrigin as string);
+    }
+    if (params.selectedDestination) {
+      setDestino(params.selectedDestination as string);
+    }
+    if (params.selectedStops) {
+      setParadas(params.selectedStops as string);
+    }
+    // Restore other form values from context
+    if (params.contextVehiculo) {
+      setVehiculo(params.contextVehiculo as string);
+    }
+    if (params.contextAsientosDisponibles) {
+      setAsientosDisponibles(params.contextAsientosDisponibles as string);
+    }
+    if (params.contextMetodoPago) {
+      setMetodoPago(params.contextMetodoPago as string);
+    }
+    if (params.contextCostoPasajero) {
+      setCostoPasajero(params.contextCostoPasajero as string);
+    }
+    if (params.contextFecha) {
+      setFecha(new Date(params.contextFecha as string));
+    }
+    if (params.contextHora) {
+      setHora(new Date(params.contextHora as string));
+    }
+  }, [params.selectedOrigin, params.selectedDestination, params.selectedStops, params.contextVehiculo, params.contextAsientosDisponibles, params.contextMetodoPago, params.contextCostoPasajero, params.contextFecha, params.contextHora]);
+  
+  // Effect to clear validation errors when user starts filling fields
+  useEffect(() => {
+    if (showValidationError) {
+      const newErrors = { ...fieldErrors };
+      let shouldUpdate = false;
+      
+      if (origen.trim() && fieldErrors.origen) {
+        newErrors.origen = false;
+        shouldUpdate = true;
+      }
+      if (destino.trim() && fieldErrors.destino) {
+        newErrors.destino = false;
+        shouldUpdate = true;
+      }
+      if (vehiculo.trim() && fieldErrors.vehiculo) {
+        newErrors.vehiculo = false;
+        shouldUpdate = true;
+      }
+      if (asientosDisponibles.trim() && parseInt(asientosDisponibles) > 0 && fieldErrors.asientosDisponibles) {
+        newErrors.asientosDisponibles = false;
+        shouldUpdate = true;
+      }
+      if (metodoPago.trim() && fieldErrors.metodoPago) {
+        newErrors.metodoPago = false;
+        shouldUpdate = true;
+      }
+      
+      if (shouldUpdate) {
+        setFieldErrors(newErrors);
+        // Check if all errors are resolved
+        const hasAnyErrors = Object.values(newErrors).some(error => error);
+        if (!hasAnyErrors) {
+          setShowValidationError(false);
+        }
+      }
+    }
+  }, [origen, destino, vehiculo, asientosDisponibles, metodoPago, fieldErrors, showValidationError]);  const handlePublicarRuta = () => {
+    // Reset validation errors
+    const errors = {
+      origen: false,
+      destino: false,
+      vehiculo: false,
+      asientosDisponibles: false,
+      metodoPago: false
+    };
+    
+    let hasErrors = false;
+    
+    // Validate all required fields
+    if (!origen.trim()) {
+      errors.origen = true;
+      hasErrors = true;
+    }
+    
+    if (!destino.trim()) {
+      errors.destino = true;
+      hasErrors = true;
+    }
+    
+    if (!vehiculo.trim()) {
+      errors.vehiculo = true;
+      hasErrors = true;
+    }
+    
+    if (!asientosDisponibles.trim() || parseInt(asientosDisponibles) <= 0) {
+      errors.asientosDisponibles = true;
+      hasErrors = true;
+    }
+    
+    if (!metodoPago.trim()) {
+      errors.metodoPago = true;
+      hasErrors = true;
+    }
+    
+    // Update error states
+    setFieldErrors(errors);
+    setShowValidationError(hasErrors);
+    
+    // If there are errors, don't proceed
+    if (hasErrors) {
+      return;
+    }
+    
+    // All validations passed, show success modal
     console.log("Ruta publicada:", {
       fecha,
       hora,
@@ -80,14 +206,21 @@ export default function FormPublicarRuta() {
       metodoPago,
       costoPasajero
     });
+      setSuccessModalVisible(true);
   };
+  
+  // Function to handle success modal acceptance
+  const handleSuccessAccept = () => {
+    setSuccessModalVisible(false);
+    router.push("/(tabs)/HomeConductor");
+  };
+  
   // Function to handle the date/time selection
   const handleDateTimeConfirm = (selectedDate: Date, selectedTime: Date) => {
     setFecha(selectedDate);
     setHora(selectedTime);
   };
-  
-  // Function to handle payment method selection
+    // Function to handle payment method selection
   const handlePaymentConfirm = (paymentMethods: string[], cost: string) => {
     setMetodoPago(paymentMethods.join(", "));
     setCostoPasajero(cost);
@@ -98,8 +231,41 @@ export default function FormPublicarRuta() {
     }
   };
   
+  // Function to scroll to input when focused
+  const scrollToInput = (inputRef: React.RefObject<TextInput | null>) => {
+    setTimeout(() => {
+      inputRef.current?.measure((x, y, width, height, pageX, pageY) => {
+        scrollViewRef.current?.scrollTo({
+          y: pageY - 50, // Offset to show the input clearly
+          animated: true,
+        });
+      });
+    }, 100);
+  };
+
+  // Helper function to get payment display text
+  const getPaymentDisplayText = () => {
+    if (!metodoPago) {
+      return "Seleccione un método de pago";
+    }
+    
+    if (metodoPago.includes("Gratuito")) {
+      return metodoPago;
+    }
+    
+    if (costoPasajero && costoPasajero !== "0") {
+      return `${metodoPago} - ₡${costoPasajero}`;
+    }
+    
+    return metodoPago;
+  };
+  
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
+    <KeyboardAvoidingView 
+      style={[styles.root, { paddingTop: insets.top }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
+    >
       {/* Imagen de fondo Superior*/}
       <View style={styles.backgroundImageContainer}>
         <Image
@@ -112,104 +278,155 @@ export default function FormPublicarRuta() {
 
       {/* Flecha back */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/HomeConductor")}>
           <Image
             source={flechaBack}
             style={styles.flechaBack}
             resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>      <View
-        style={styles.formContainer}
-      >        <ScrollView
+          />        </TouchableOpacity>
+      </View>
+
+      <View style={styles.formContainer}>
+        <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.container}
+          style={styles.scrollView}
           showsVerticalScrollIndicator={true}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-        >
-          {/* Contenido del formulario */}
+          nestedScrollEnabled={true}
+        >          {/* Contenido del formulario */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Punto de Inicio</Text>
-            <TextInput
+            <Text style={[styles.inputLabel, fieldErrors.origen && styles.errorLabel]}>
+              Punto de Inicio<Text style={styles.asterisk}>*</Text>
+            </Text>
+            <ClickableInput
+              header=""
               value={origen}
-              onChangeText={setOrigen}
-              placeholder="Ingrese el punto de inicio"
-              style={styles.textInput}
+              placeholder="Sin seleccionar"
+              destinationType="origin"
+              currentOrigin={origen}
+              currentDestination={destino}
+              currentStops={paradas}
+              currentVehiculo={vehiculo}
+              currentAsientosDisponibles={asientosDisponibles}
+              currentMetodoPago={metodoPago}
+              currentCostoPasajero={costoPasajero}
+              currentFecha={fecha.toISOString()}
+              currentHora={hora.toISOString()}
             />
           </View>
+          
           {/* Divider */}
-          <View style={styles.divider} />
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Puntos de Parada</Text>
-            <TextInput
+          <View style={styles.divider} />          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Puntos de Parada<Text style={styles.asterisk}>*</Text>
+            </Text>
+            <ClickableInput
+              header=""
               value={paradas}
-              onChangeText={setParadas}
-              placeholder="Ingrese los puntos de parada"
-              style={styles.textInput}
+              placeholder="Sin seleccionar"
+              destinationType="stops"
+              currentOrigin={origen}
+              currentDestination={destino}
+              currentStops={paradas}
+              currentVehiculo={vehiculo}
+              currentAsientosDisponibles={asientosDisponibles}
+              currentMetodoPago={metodoPago}
+              currentCostoPasajero={costoPasajero}
+              currentFecha={fecha.toISOString()}
+              currentHora={hora.toISOString()}
             />
           </View>
+          
           {/* Divider */}
           <View style={styles.divider} />
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Punto Final</Text>
-            <TextInput
+            <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, fieldErrors.destino && styles.errorLabel]}>
+              Punto Final<Text style={styles.asterisk}>*</Text>
+            </Text>
+            <ClickableInput
+              header=""
               value={destino}
-              onChangeText={setDestino}
-              placeholder="Ingrese el punto final"
-              style={styles.textInput}
+              placeholder="Sin seleccionar"
+              destinationType="destination"
+              currentOrigin={origen}
+              currentDestination={destino}
+              currentStops={paradas}
+              currentVehiculo={vehiculo}
+              currentAsientosDisponibles={asientosDisponibles}
+              currentMetodoPago={metodoPago}
+              currentCostoPasajero={costoPasajero}
+              currentFecha={fecha.toISOString()}
+              currentHora={hora.toISOString()}
             />
           </View>
+          
           {/* Divider */}
-          <View style={styles.divider} />
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Vehículo a Usar</Text>
+          <View style={styles.divider} />          <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, fieldErrors.vehiculo && styles.errorLabel]}>
+              Vehículo a Usar<Text style={styles.asterisk}>*</Text>
+            </Text>
             {userVehicles.length > 0 ? (
               <Select
-                options={userVehicles.map((v) => v.nombre)}
-                selectedValue={vehiculo}
-                onValueChange={setVehiculo}
-                placeholder="Seleccione un vehículo"
+              options={userVehicles.map((v) => v.nombre)}
+              selectedValue={vehiculo}
+              onValueChange={setVehiculo}
+              placeholder="Seleccione un vehículo"
               />
             ) : (
               <TouchableOpacity 
-                style={styles.disabledSelect}
-                onPress={() => setShowNoVehicleModal(true)}
+              style={styles.disabledSelect}
+              onPress={() => setShowNoVehicleModal(true)}
               >
-                <Text style={styles.placeholderText}>No hay vehículos disponibles</Text>
+              <Text style={[styles.placeholderText, { fontSize: 15 }]}>No hay vehículos disponibles</Text>
               </TouchableOpacity>
-            )}
-          </View>
+            )}          </View>
+          
           {/* Divider */}
           <View style={styles.divider} />
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Cantidad de Pasajeros</Text>
+            <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, fieldErrors.asientosDisponibles && styles.errorLabel]}>
+              Cantidad de Pasajeros<Text style={styles.asterisk}>*</Text>
+            </Text>
             <TextInput
+              ref={asientosRef}
               value={asientosDisponibles}
               onChangeText={setAsientosDisponibles}
-              placeholder="Ingrese la cantidad de asientos disponibles"
+              placeholder="Ingrese la cantidad de pasajeros"
               keyboardType="numeric"
               style={styles.textInput}
-            />
-          </View>
+              onFocus={() => scrollToInput(asientosRef)}
+              returnKeyType="done"
+            />          </View>
+          
           {/* Divider */}
-          <View style={styles.divider} />          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Método de Pago</Text>
-            <TouchableOpacity 
+          <View style={styles.divider} />
+            <View style={styles.inputGroup}>
+            <Text style={[styles.inputLabel, fieldErrors.metodoPago && styles.errorLabel]}>
+              Método de Pago<Text style={styles.asterisk}>*</Text>
+            </Text>
+            <TouchableOpacity
               style={styles.dateTimeSelector}
               onPress={() => setPaymentModalVisible(true)}
             >
-              <View style={styles.dateTimeSelectorInner}>                <Text style={[styles.dateTimeText, !metodoPago && styles.placeholderText]}>
-                  {metodoPago || "Seleccione un método de pago"}
-                  {costoPasajero && metodoPago && !metodoPago.includes("Gratuito") ? ` - ₡${costoPasajero}` : ""}
+              <View style={styles.dateTimeSelectorInner}>
+                <Text style={[styles.dateTimeText, !metodoPago && styles.placeholderText]}>
+                  {getPaymentDisplayText()}
                 </Text>
+                <LucideChevronRight
+                  size={24}
+                  color="#414040"
+                />
               </View>
             </TouchableOpacity>
           </View>
           {/* Divider */}
-          <View style={styles.divider} />
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Horario del Viaje</Text>
-            <TouchableOpacity 
+          <View style={styles.divider} />          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>
+              Horario del Viaje<Text style={styles.asterisk}>*</Text>
+            </Text>
+            <TouchableOpacity
               style={styles.dateTimeSelector}
               onPress={() => setDateTimeModalVisible(true)}
             >
@@ -217,14 +434,21 @@ export default function FormPublicarRuta() {
                 <Text style={styles.dateTimeText}>
                   {fecha.toLocaleDateString('es-ES')} - {hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                 </Text>
-                <LucideCalendar
+                <LucideCalendarDays
                   size={24}
-                  color="#7875F8"
+                  color="#414040"
                 />
-              </View>
-            </TouchableOpacity>
-              </View>          {/* Button with proper margins */}
+              </View>            </TouchableOpacity>
+            
+            {/* Divider */}
+            <View style={styles.divider} />
+          </View>          {/* Button with proper margins */}
           <View style={styles.buttonContainer}>
+            {showValidationError && (
+              <Text style={styles.validationError}>
+                *Por favor, complete los campos obligatorios.
+              </Text>
+            )}
             <Button onPress={handlePublicarRuta} style={styles.button}>
               <ButtonText style={{ fontWeight: "bold" }}>Registrar Ruta</ButtonText>
             </Button>
@@ -242,8 +466,8 @@ export default function FormPublicarRuta() {
             </ModalHeader>
             <ModalBody>
               <Text>Para publicar una ruta, primero debes agregar un vehículo.</Text>
-            </ModalBody>
-            <ModalFooter>            <Button 
+            </ModalBody>            <ModalFooter>
+              <Button 
                 onPress={() => {
                   setShowNoVehicleModal(false);
                   router.push('/(tabs)/vehiculos/agregarVehiculo');
@@ -255,7 +479,9 @@ export default function FormPublicarRuta() {
             </ModalFooter>
           </ModalContent>
         </Modal>
-      )}      {/* Modal that appears when clicking on the date/time selector */}
+      )}
+
+      {/* Modal that appears when clicking on the date/time selector */}
       <DateTimeModal 
         isVisible={dateTimeModalVisible}
         onClose={() => setDateTimeModalVisible(false)}
@@ -263,8 +489,7 @@ export default function FormPublicarRuta() {
         initialDate={fecha}
         initialTime={hora}
       />
-      
-      {/* Modal that appears when clicking on the payment method selector */}
+        {/* Modal that appears when clicking on the payment method selector */}
       <SelectPaymentModal
         isVisible={paymentModalVisible}
         onClose={() => setPaymentModalVisible(false)}
@@ -272,7 +497,13 @@ export default function FormPublicarRuta() {
         initialPaymentMethods={metodoPago ? metodoPago.split(", ") : []}
         initialCost={costoPasajero}
       />
-    </View>
+      
+      {/* Success modal that appears when route is published successfully */}
+      <RouteSuccessModal
+        isVisible={successModalVisible}
+        onAccept={handleSuccessAccept}
+      />
+    </KeyboardAvoidingView>
   );
 }
 
@@ -284,10 +515,17 @@ const styles = StyleSheet.create({  root: {
     alignItems: "center",
     paddingHorizontal: 45,
     paddingTop: 10, 
-    paddingBottom: 30, // Added bottom padding to ensure the button is not cut off
+    paddingBottom: 30, 
     backgroundColor: "#fff",
-    borderRadius: 30,
-    flexGrow: 1, // Use flexGrow instead of flex to ensure content can expand in scrollview
+    minHeight: '100%', 
+  },
+  scrollView: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    overflow: 'hidden',
   },
   formContainer: {
     width: "100%",
@@ -314,15 +552,30 @@ const styles = StyleSheet.create({  root: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    padding: 10,
-    width: "100%",    marginBottom: 5,
+    padding: 12, 
+    width: "100%",
+    marginBottom: 5,
+    fontSize: 13, 
+    backgroundColor: "#fff",
+  },
+  // Add focused input style
+  textInputFocused: {
+    borderColor: "#7875F8",
+    borderWidth: 2,
+    shadowColor: "#7875F8",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },  inputGroup: {
     marginVertical: 10,
     width: "100%",
   },
   inputLabel: {
     marginBottom: 5,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontSize: 16,
+    color: "#000"
   },
   errorText: {
     color: "red",
@@ -382,8 +635,6 @@ const styles = StyleSheet.create({  root: {
     color: "#999",
   },
   dateTimeSelector: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 8,
     backgroundColor: 'white',
     paddingVertical: 12,
@@ -402,11 +653,24 @@ const styles = StyleSheet.create({  root: {
     backgroundColor: '#DDDCDB',
     width: '100%',
     alignSelf: 'center',
-    marginVertical: 8,
-  },
-  buttonContainer: {
+  },  buttonContainer: {
     width: '100%',
     marginTop: 20,
     marginBottom: 20,
+  },
+  // New styles for validation
+  errorLabel: {
+    color: '#dc2626', // Red color for error labels
+  },
+  asterisk: {
+    color: '#dc2626', // Red color for asterisks
+    fontWeight: '600',
+  },
+  validationError: {
+    color: '#dc2626',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 10,
+    fontWeight: '500',
   },
 });

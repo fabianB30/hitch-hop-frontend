@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, TouchableWithoutFeedback } from 'react-native';
-import { Square, CheckSquare, DollarSign } from 'lucide-react-native';
+import { CheckSquare } from 'lucide-react-native';
 
 interface PaymentMethod {
   id: string;
@@ -121,11 +121,14 @@ export default function SelectPaymentModal({
                     onPress={() => togglePaymentMethod(method.id)}
                   >
                     <View style={styles.checkboxRow}>
-                      {method.selected ? (
-                        <CheckSquare size={24} color="#7875F8" />
-                      ) : (
-                        <Square size={24} color="#7875F8" />
-                      )}
+                      <View style={[
+                        styles.customCheckbox,
+                        method.selected && styles.checkedCheckbox
+                      ]}>
+                        {method.selected && (
+                          <CheckSquare size={20} color="#FFFFFF" />
+                        )}
+                      </View>
                       <Text style={styles.methodText}>{method.name}</Text>
                     </View>
                   </TouchableOpacity>
@@ -149,16 +152,15 @@ export default function SelectPaymentModal({
                   onChangeText={setCost}
                   editable={!paymentMethods[0].selected}
                 />
-                <View style={styles.currencyIcon}>
-                  <DollarSign size={20} color={paymentMethods[0].selected ? "#ccc" : "#7875F8"} />
-                </View>
               </View>
               
               {/* Action Buttons */}
               <View style={styles.buttonsContainer}>
+                {/* Cancel Button */}
                 <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
+                {/* Confirm Button */}
                 <TouchableOpacity 
                   style={[
                     styles.confirmButton, 
@@ -211,7 +213,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Exo',
   },
   contentContainer: {
-    marginBottom: 16,
+    alignItems: 'flex-start',
+    alignContent: 'center',
+    justifyContent: 'center',
   },
   checkboxContainer: {
     marginBottom: 12,
@@ -219,6 +223,20 @@ const styles = StyleSheet.create({
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  customCheckbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#7875F8',
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  checkedCheckbox: {
+    backgroundColor: '#7875F8',
+    borderColor: '#7875F8',
   },
   methodText: {
     fontSize: 16,
