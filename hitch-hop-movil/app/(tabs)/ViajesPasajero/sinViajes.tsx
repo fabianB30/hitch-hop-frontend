@@ -46,7 +46,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => {router.push('/RouteSearch')}}
+          onPress={() => {router.push('/RouteSearch/searchMain')}}
         >
           <Text style={styles.buttonText}>Buscar Viajes</Text>
         </Pressable>

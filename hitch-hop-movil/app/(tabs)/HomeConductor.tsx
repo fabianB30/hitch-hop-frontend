@@ -38,7 +38,7 @@ export default function HomeConductor() {
           </View>
           <Image source={require('@/assets/images/car.png')} style={styles.firstCharacter} />
           <Pressable
-            onPress={() => router.push('/PublicarRutasConductor')}
+            onPress={() => router.push('/PublicarRutasConductor/index')}
             style={{
               position: 'absolute',
               top: 0,
