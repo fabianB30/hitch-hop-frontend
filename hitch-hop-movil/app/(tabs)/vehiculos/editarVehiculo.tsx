@@ -16,6 +16,7 @@ export default function EditarVehiculo() {
   const [plate, setPlaca] = useState('BTR-932');
   const [color, setColor] = useState('Gris');
   const [anio, setAnio] = useState('2019');
+  //editarVehiculo
   const [foto, setFoto] = useState<string | null>(null);
   const { user, setUser } = useAuth();
 
@@ -47,6 +48,8 @@ export default function EditarVehiculo() {
           brand: brand, 
           color: color, 
           plate: plate,
+          //nuevo
+          photoKey: foto,
           year: anio
         };
       try {
