@@ -13,7 +13,7 @@ export const HHTabBar = () => {
   
   if (shouldHide) return null;
 
-  const tabs = user.role === 'Conductor'
+  const tabs = user?.role === 'Conductor'
     ? [
         { icon: 'home-outline', route: '/HomeConductor' },
         { icon: 'notifications-outline', route: '/NotificacionesConductor' },
@@ -30,11 +30,13 @@ export const HHTabBar = () => {
   
 
   return (
+    user ? (
     <View className="flex-row justify-around items-center h-14 bg-[#7875F8]">
       {tabs.map(({ icon, route }) => (
         <TabItem key={route} icon={icon} route={route} currentPath={pathname} />
       ))}
     </View>
+    ) : null
   );
 };
 
