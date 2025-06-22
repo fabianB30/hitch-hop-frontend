@@ -34,7 +34,6 @@ const items = [
       { title: "Cancelaciones", url: "/consultas/top-cancelaciones" },
       { title: "Viajes gratuitos", url: "/consultas/top-gratis" },
       { title: "Viajes más caros", url: "/consultas/top-viajes-caros" },
-      { title: "Pasajeros únicos", url: "/consultas/pasajeros-unicos" }
     ],
   },
   { title: "Estadísticas", url: "/estadistica", icon: ChartNoAxesColumnIncreasing },

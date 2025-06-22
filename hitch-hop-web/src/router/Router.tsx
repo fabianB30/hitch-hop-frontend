@@ -12,7 +12,6 @@ import NuevosUsuarios from "@/pages/consultas/NuevosUsuarios";
 import TopCancelaciones from "@/pages/consultas/TopCancelaciones";
 import TopGratis from "@/pages/consultas/TopGratis";
 import TopViajesCaros from "@/pages/consultas/TopViajesCaros";
-import PasajerosUnicos from "@/pages/consultas/PasajerosUnicos";
 import TotalViajes from "@/pages/consultas/TotalViajes";
 import PromedioMonto from "@/pages/consultas/PromedioMonto";
 import SidebarAdmin from "@/components/shared/SidebarAdmin";
@@ -52,7 +51,6 @@ const router = createBrowserRouter(
           <Route path="top-cancelaciones" element={<TopCancelaciones />} />
           <Route path="top-gratis" element={<TopGratis />} />
           <Route path="top-viajes-caros" element={<TopViajesCaros />} />
-          <Route path="pasajeros-unicos" element={<PasajerosUnicos />} />
           <Route path="total-viajes" element={<TotalViajes />} />
           <Route path="promedio-monto" element={<PromedioMonto />} />
         </Route>
