@@ -17,6 +17,8 @@ import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, Moda
 import TripDetailItem from '@/components/TripDetailItem'
 import { getAllTripsRequest, getTripsParams } from '../../../interconnection/trip'
 import {useAuth} from '../Context/auth-context'
+import * as Font from 'expo-font';
+import { getPathWithConventionsCollapsed } from 'expo-router/build/fork/getPathFromState-forks'
 
 const {width, height} = Dimensions.get("window")
 
@@ -27,6 +29,8 @@ const searchMain = () => {
     
     const { date, setDate, destination} = useForm()
     
+    const [fontsLoaded, setFontsLoaded] = useState(false);
+
     const [mode, setMode] = useState<'date' | 'time'>('date')
     const [show, setShow] = useState(false)
     const [msgError, setMsgError] = useState(false)
@@ -39,7 +43,7 @@ const searchMain = () => {
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
         if (selectedDate) {
             if (mode === 'date') {
-                const newDate = new Date(
+                const newDate  = new Date(
                     selectedDate.getFullYear(),
                     selectedDate.getMonth(),
                     selectedDate.getDate(),
@@ -47,7 +51,8 @@ const searchMain = () => {
                     date.getMinutes(),
                     date.getSeconds()
                 )
-                setDate(newDate)
+                //const newDateUtcLiteral = pickerDateToUtcLiteral(combinedDate);
+                setDate(newDate);
             } else if (mode === 'time') {
                 const newDate = new Date(
                     date.getFullYear(),
@@ -57,7 +62,8 @@ const searchMain = () => {
                     selectedDate.getMinutes(),
                     selectedDate.getSeconds()
                 )
-                setDate(newDate)
+                //const newDateUtcLiteral = pickerDateToUtcLiteral(combinedDate);
+                setDate(newDate);
             }
         }
         setShow(false)
@@ -74,19 +80,26 @@ const searchMain = () => {
     }
 
     const searchTrips = async () => {
-
         setMsgError(false)
-
+        const utcDate = dateToUtcDate(date)
+        const StartDate = new Date(utcDate.getTime() - 30 * 60 * 1000)
+        const EndDate = new Date(utcDate.getTime() + 30 * 60 * 1000)
         const queryData = {
-            "endDate": date,
-            "institutionId": "6841390cb2cce04f89706f02", //user.institutionId
+            "startDate": StartDate,
+            "endDate": EndDate,
+            "institutionId": user.institutionId, //"6841390cb2cce04f89706f02", 
             "endpoint": destination._id
         }
 
         const data = await getTripsParams(queryData);
+ 
+        const availableTrips = data.filter((trip:any) => 
+            trip.passengers.length < trip.passengerLimit && 
+            trip.passengers.every((passenger:any) => passenger.user !== user._id)
+        );
 
-        if(data && data.length > 0){
-            setShownTrips(data); 
+        if(availableTrips && availableTrips.length > 0){
+            setShownTrips(availableTrips); 
         } else{
             setShowConfirmationModal(true);
         }   
@@ -97,14 +110,47 @@ const searchMain = () => {
         (!destination.name) ? setMsgError(true) : searchTrips(); 
     }
 
+    const dateToUtcDate = (pickerDate: Date): Date => {
+    const offset = pickerDate.getTimezoneOffset();
+    return new Date(pickerDate.getTime() - offset * 60 * 1000);
+    }
+
+    const roundDate = (date: Date) => {
+        const minutes = date.getMinutes();
+        const remainder = minutes % 15;
+        const diff = remainder === 0 ? 0 : 15 - remainder;
+
+        const roundedDate = new Date(date);
+        roundedDate.setMinutes(minutes + diff);
+        roundedDate.setSeconds(0);
+        roundedDate.setMilliseconds(0);
+
+        return roundedDate;
+    }
+
     useEffect(() => {
         if(destination.name){
             const description = destination.description.split(", ")
             setDestinationMsg(destination.name + ", " + description[description.length - 1])
         }
+
     }, [destination])
 
-  return (
+    useEffect(() => {
+        const roundedDateUtcLiteral = roundDate(date); // redondea en UTC literal
+
+        setDate(roundedDateUtcLiteral);
+
+        Font.loadAsync({
+        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+        }).then(() => setFontsLoaded(true));
+      }, [])
+
+    if (!fontsLoaded) return null;
+
+    return (
       <ImageBackground
       source={require("@/assets/images/pattern-background-main.png")}>
             <SafeAreaView>
@@ -112,11 +158,11 @@ const searchMain = () => {
 
             {/* Main view */}
             <VStack style={styles.container}>
-                <Text style={styles.text}>Búsqueda de Rutas</Text>
+                <Text style={[styles.text, {fontFamily: 'Exo-SemiBold'}]}>Búsqueda de Rutas</Text>
 
                 <HStack style={styles.data}>
                     <VStack style={{flex: 2.4}}>
-                        <Text style={[styles.dataText, styles.text]}>Fecha</Text>
+                        <Text style={[styles.text, styles.dataText]}>Fecha</Text>
                         <TouchableOpacity
                             onPress={() => showDatepicker()}
                         >
@@ -135,7 +181,7 @@ const searchMain = () => {
                         </TouchableOpacity>
                     </VStack>
                     <VStack style={{flex: 1.9}}>
-                        <Text style={[styles.dataText, styles.text]}>Hora</Text>
+                        <Text style={[styles.text, styles.dataText]}>Hora</Text>
                         <TouchableOpacity
                             onPress={() => showTimepicker()}
                         >
@@ -162,11 +208,12 @@ const searchMain = () => {
                         is24Hour={false}
                         onChange={onDateChange}
                         minimumDate={new Date()}
+                        minuteInterval={15}
                     />
                 )}
 
                 <VStack>
-                    <Text style={[styles.dataText, styles.text, msgError && {color: 'red'}]}>Destino</Text>
+                    <Text style={[styles.text, styles.dataText, msgError && {color: 'red'}]}>Destino</Text>
                     <TouchableOpacity
                         onPress= {() => {
                             router.push('/RouteSearch/selectDestination')
@@ -186,7 +233,7 @@ const searchMain = () => {
                     </TouchableOpacity>
                 </VStack>
                 
-                {msgError && <Text style={{color: 'red'}}>Algunos campos se encuentran vacíos*</Text>}
+                {msgError && <Text style={{color: 'red', marginTop: -15}}>Algunos campos se encuentran vacíos*</Text>}
 
                 {/*Inicio del ScrollView para las tarjetas*/}
                 <ScrollView
@@ -198,8 +245,8 @@ const searchMain = () => {
                 <TripDetailItem key={index} {...trip}/>))):
                 (<>
                     <Image source={require("@/assets/images/conductorFlorSquare.png")} style={styles.charaImage}/>
-                    <Text style={[styles.charaText, styles.text]}>¿A dónde quieres ir?</Text>
-                    <Text style={[styles.charaSubtext, styles.text]}>¡Encuentre su próximo viaje con nosotros!</Text>
+                    <Text style={[styles.text, styles.charaText]}>¿A dónde quieres ir?</Text>
+                    <Text style={[styles.charaSubtext]}>¡Encuentre su próximo viaje con nosotros!</Text>
                 </>)}
                 </ScrollView>
                 {/*Fin del ScrollView para las tarjetas*/}
@@ -222,7 +269,7 @@ const searchMain = () => {
                 </ModalBody>
                 <ModalFooter className="mx-auto">
                     <Button variant='outline' style={styles.modalBackButton} onPress={() => { setShowConfirmationModal(false)}}>
-                        <ButtonText style={{color: "#7875F8"}} >Regresar</ButtonText>
+                        <ButtonText style={{fontFamily: 'Exo-Medium', fontWeight: 500, color: "#7875F8"}} >Regresar</ButtonText>
                     </Button>   
                 </ModalFooter>
                 </ModalContent>
@@ -246,22 +293,22 @@ container: {
 },
 text: {
     fontSize: 20,
-    fontWeight: 'semibold',
-    color: '#262627',
-    fontFamily: 'Exo',
+    fontWeight: '600',
+    color: '#000000',
+    fontFamily: 'Exo-Medium',
 },
 boldText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: '#171717',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 normalText: {
     fontSize: 16,
-    fontWeight: 'normal',
+    fontWeight: '500',
     color: '#262627',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 data: {
@@ -270,19 +317,22 @@ data: {
     marginBottom: 8.5
 },
 dataText: {
-    fontWeight: 'bold',
     marginBottom: 0.5,
+    fontWeight: '700',
+    fontFamily: 'Exo_Bold',
 },
 dataInput: {
     borderRadius: 8,
     paddingRight: 12,
+    borderColor: '#A5A3A3'
 },
 dataInputLong: {
     maxWidth: 358,
     marginBottom: 20,
     paddingRight: 12,
     borderRadius: 8,
-    paddingLeft: 12
+    paddingLeft: 12,
+    borderColor: '#A5A3A3'
 },
 charaImage: {
     marginHorizontal: 'auto',
@@ -293,11 +343,13 @@ charaImage: {
 charaText: {
     marginHorizontal: 'auto',
     fontSize: 24,
-    fontWeight: 'bold'
+    fontFamily: 'Exo-SemiBold',
+    fontWeight: '600'
 },
 charaSubtext: {
     marginHorizontal: 'auto',
     fontSize: 18,
+    fontFamily: 'Exo-Medium',
     textAlign: 'center'
 },
 button: {

@@ -13,7 +13,9 @@ export const registerVehicleRequest = async ( data: {
         model: string, 
         brand: string, 
         color: string, 
-        plate: string
+        plate: string,
+        year: string,
+        userId: string
     }): Promise<any | null> => {
 
     try {

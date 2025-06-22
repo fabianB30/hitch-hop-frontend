@@ -3,11 +3,14 @@ import CancelRideSuccess from "@/components/CancelRideSuccess";
 import { RideCardDriver } from "@/components/RideCardDriver";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
-import { getTripsByUserRequest } from "@/interconnection/trip";
+import {
+  deleteTripRequest,
+  getTripsByUserRequest,
+} from "@/interconnection/trip";
 import { useFonts } from "expo-font";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   ImageBackground,
   ScrollView,
@@ -51,53 +54,78 @@ export default function VerViajesAceptados() {
     setModalVisible(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Lógica para cancelar el viaje con selectedRequestId
+  const handleConfirmCancel = async () => {
+    if (selectedRequestId) {
+      const result = await deleteTripRequest(selectedRequestId);
+      if (result) {
+        setRequests((prev) => prev.filter((r) => r.id !== selectedRequestId));
+        if (requests.length !== 0) {
+          setSuccessVisible(true);
+        } else {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+      }
+    }
     setModalVisible(false);
     setSelectedRequestId(null);
-    setSuccessVisible(true);
   };
 
   const handleCloseSuccess = () => {
     setSuccessVisible(false);
   };
 
-  useEffect(() => {
-    async function fetchTrips() {
-      try {
-        const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
-        if (trips) {
-          const mappedRequests = trips.map((trip: any) => ({
-            id: trip._id,
-            users:
-              trip.passengers?.filter((p: any) => p.status === "Aprobado")
-                .length ?? 0,
-            userLimit: 4,
-            price: `₡${trip.costPerPerson}`,
-            date: trip.departure.split("T")[0],
-            time: trip.departure.split("T")[1]?.slice(0, 5),
-            start: trip.startpoint?.name || "",
-            end: trip.endpoint?.name || "",
-          }));
-          setRequests(mappedRequests);
+  // Move fetchTrips outside useEffect so it can be reused
+  const fetchTrips = async () => {
+    try {
+      const trips = await getTripsByUserRequest(user._id, true, "Aprobado");
+      if (trips) {
+        const mappedRequests: Requests[] = trips.map((trip: any) => ({
+          id: trip._id,
+          users:
+            trip.passengers?.filter((p: any) => p.status === "Aprobado")
+              .length ?? 0,
+          userLimit: 4,
+          price: `₡${trip.costPerPerson}`,
+          date: trip.departure.split("T")[0],
+          time: trip.departure.split("T")[1]?.slice(0, 5),
+          start: trip.startpoint?.name || "",
+          end: trip.endpoint?.name || "",
+        }));
 
-          if (mappedRequests.length === 0) {
-            router.replace("/(tabs)/ViajesConductor/sinProgramados");
-          }
-        } else {
-          setRequests([]);
+        const now = new Date();
+        const filteredRequests = mappedRequests.filter((req) => {
+          const tripDateTime = new Date(`${req.date}T${req.time}`);
+          return tripDateTime.getTime() >= now.getTime();
+        });
+
+        filteredRequests.sort((a, b) => {
+          const dateA = new Date(`${a.date}T${a.time}`);
+          const dateB = new Date(`${b.date}T${b.time}`);
+          return dateA.getTime() - dateB.getTime();
+        });
+        setRequests(filteredRequests);
+
+        if (mappedRequests.length === 0) {
           router.replace("/(tabs)/ViajesConductor/sinProgramados");
         }
-      } catch (error) {
+      } else {
         setRequests([]);
         router.replace("/(tabs)/ViajesConductor/sinProgramados");
       }
+    } catch (error) {
+      setRequests([]);
+      router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
+  };
 
-    if (user?._id) {
-      fetchTrips();
-    }
-  }, [user, router]);
+  // Replace useEffect with useFocusEffect
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchTrips();
+      }
+    }, [user, router])
+  );
 
   if (!fontsLoaded) return null;
   if (requests.length === 0) {

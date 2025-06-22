@@ -2,10 +2,12 @@ import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image }
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
 import { useFonts } from "expo-font";
+import { useAuth } from '../Context/auth-context';
 
 export default function sinViajes() {
 
   const router = useRouter();
+  const { user } = useAuth();
   const { width } = Dimensions.get('window');
   const [fontsLoaded] = useFonts({
     'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
