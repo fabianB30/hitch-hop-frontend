@@ -96,7 +96,7 @@ export default function HomeConductor() {
           </View>
           <Image source={require('@/assets/images/search.png')} style={styles.thirdCharacter} />
           <Pressable
-            onPress={() => { }}
+            onPress={() => {router.push('./RouteSearch')}}
             style={{
               position: 'absolute',
               top: 0,

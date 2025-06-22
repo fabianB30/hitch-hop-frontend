@@ -1,3 +1,7 @@
+// Creado por Adrián
+// Ediciones: Adrián, Xotchil
+// Contiene el código del componente RideCardDriver que muestra la información de un viaje 
+// programado para el conductor.
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Image } from "expo-image";
@@ -9,6 +13,7 @@ import { MoveRight, Users } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 
+// Define los datos que se reciben 
 type RideCardProps = {
   users: number;
   userLimit: number;
@@ -77,7 +82,7 @@ export function RideCardDriver({
 
       <HStack
         style={{
-          alignItems: "stretch",
+          alignItems: "center", 
           justifyContent: "space-between",
           marginBottom: 10,
           width: "100%",
@@ -87,14 +92,20 @@ export function RideCardDriver({
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50, 
           }}
         >
-          <Text style={styles.mediumFont}>{date}</Text>
-          <Text style={styles.BigFont}>{time}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 14, lineHeight: 18}]}>{date}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{time}</Text>
         </VStack>
         <VStack
           style={{
             gap: 7,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: 50,
           }}
         >
           <Box
@@ -103,15 +114,15 @@ export function RideCardDriver({
               alignItems: "flex-end",
               gap: 4,
               marginRight: 10,
-              alignSelf: "flex-end", // Add this line to push the box to the right
+              alignSelf: "flex-end",
             }}
           >
-            <Users size={24} color="black" />
-            <Text style={styles.mediumFont}>
+            <Users size={20} color="black" />
+            <Text style={[styles.regularFont, {fontSize: 16, lineHeight: 20}]}>
               {users}/{userLimit}
             </Text>
           </Box>
-          <Text style={styles.BigFont}>{price}</Text>
+          <Text style={[styles.mediumFont, {fontSize: 24, lineHeight: 28, textAlignVertical: 'center'}]}>{price}</Text>
         </VStack>
       </HStack>
       <HStack
@@ -142,8 +153,8 @@ export function RideCardDriver({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
-              fontFamily: 'Exo', 
+              fontSize: 16, 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
             }} 
@@ -171,8 +182,8 @@ export function RideCardDriver({
           <ButtonText 
             style={{ 
               color: "#FEFEFF",
-              fontSize: 20, 
-              fontFamily: 'Exo', 
+              fontSize: 16, 
+              fontFamily: 'Exo-Regular', 
               fontWeight: '500', 
               wordWrap: 'break-word' 
             }} 
@@ -188,38 +199,29 @@ export function RideCardDriver({
 
 const styles = StyleSheet.create({
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
   },
   end: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontSize: 12,
-    fontStyle: "normal",
     fontWeight: "400",
     color: "#171717",
-    textAlign: "right",
+    textAlign: "left",
   },
   mediumFont: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+    fontFamily: 'exo.medium',
     fontWeight: "400",
     color: "#171717",
-    textAlign: "left",
-    wordWrap: 'break-word'
+    textAlign: "center",
   },
-  BigFont: {
-    fontFamily: "Exo",
-    fontSize: 24,
-    fontStyle: "normal",
-    fontWeight: "500",
+  regularFont: {
+    fontFamily: 'Exo-Regular',
+    fontWeight: "400",
     color: "#171717",
-    textAlign: "left",
-    paddingTop: 5,
-    wordWrap: 'break-word'
+    textAlign: "center",
   },
 });

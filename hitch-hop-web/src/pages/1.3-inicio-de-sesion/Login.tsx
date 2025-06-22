@@ -9,7 +9,7 @@ import { useAuth } from '@/Context/auth-context';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  const {signIn, isAuthenticated, errors: loginErrors = []} = useAuth();
+  const {signIn } = useAuth();
   const navigate = useNavigate();
   
   const [showPassword, setShowPassword] = useState(false);
@@ -17,6 +17,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,17 +40,29 @@ const Login: React.FC = () => {
       const user = await signIn({ email: email, password: password});
       // Navegar a la pantalla principal
       if (user) {
+        if (user.type === 'Inactivo - User' || user.type === 'Inactivo - Admin') {
+          setError('Cuenta inactiva. Por favor, contacte a soporte.');
+          return;
+        } 
+
+        if (user == 'contrasena incorrecta') {
+          setError('Contraseña incorrecta. Por favor, inténtelo de nuevo.');
+          return;
+        } else if (user == 'No hay una cuenta asociada al correo') {
+          setError('El correo no se encuentra registrado. Por favor regístrese en la app y inténtelo de nuevo.');
+          return;
+        }
+
         if (user.type === 'Administrador'){
           navigate("/bienvenida");
-        } else {
-          
+        } else if (user.type === 'Usuario') { // Si es usuario, redirigir a la pantalla de descarga de la app
+          navigate("/download-app");
         }
-      } else {
-        console.log('Login error');
+
+        
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setErrorMessage('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
+      setError('Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.');
     }
   };
   
@@ -87,7 +100,8 @@ const Login: React.FC = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-          </div>          <div className="flex flex-col w-full max-w-[440px] mb-4">
+          </div>          
+          <div className="flex flex-col w-full max-w-[440px] mb-4">
             <label htmlFor="password" className="text-[20px] font-medium text-gray-700 select-none mb-1 text-left">
               Contraseña
             </label>

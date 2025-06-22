@@ -1,27 +1,27 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Pressable } from "@/components/ui/pressable";
-import { Image } from "expo-image";
-import { ImageSourcePropType, StyleSheet } from "react-native";
-import { Phone, MapPin } from "lucide-react-native";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
+import { MapPin, Phone } from "lucide-react-native";
+import { StyleSheet } from "react-native";
 import { VStack } from "./ui/vstack";
-import { Button, ButtonText } from "@/components/ui/button";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { View } from "react-native";
 
 type RideCardProps = {
   name: string;
   price: string;
   phone: string;
   location: string;
+  image: string;
 };
 
-export function PassengerCard({ name, price, phone, location }: RideCardProps) {
+export function PassengerCard({
+  name,
+  price,
+  phone,
+  location,
+  image,
+}: RideCardProps) {
   return (
     <Box
       style={{
@@ -49,7 +49,13 @@ export function PassengerCard({ name, price, phone, location }: RideCardProps) {
         }}
       >
         <Avatar size="xl">
-          <AvatarImage source={require("@/assets/images/image17.png")} />
+          <AvatarImage
+            source={
+              image
+                ? { uri: image } // <-- Use base64 if provided
+                : require("@/assets/images/image17.png")
+            }
+          />
         </Avatar>
         <VStack
           style={{
@@ -70,10 +76,7 @@ export function PassengerCard({ name, price, phone, location }: RideCardProps) {
             }}
           >
             <Box style={{ flex: 1 }}>
-              <Text style={styles.name}>{name}</Text>
-            </Box>
-            <Box style={{ flex: 1, alignItems: "flex-end" }}>
-              <Text style={styles.price}>{price}</Text>
+              <Text style={styles.name} numberOfLines={3} ellipsizeMode="tail">{name}</Text>
             </Box>
           </HStack>
           <HStack
@@ -87,30 +90,44 @@ export function PassengerCard({ name, price, phone, location }: RideCardProps) {
             <Box
               style={{
                 flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                alignContent: "flex-end",
+                gap: 5,
+                marginRight: 0,
               }}
             >
-              <MapPin size={18} color="black" />
-              <Text
-                style={styles.location}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                {location}
-              </Text>
-            </Box>
-            <Box
-              style={{
-                flexDirection: "row",
-                gap: 4,
-              }}
-            >
-              <Phone size={18} color="black" />
-              <Text style={styles.phone}>{phone}</Text>
+              <Text style={styles.price}>{price}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", flex: 1, justifyContent: "flex-end" }}>
+                <Phone size={18} style={{marginRight: 4}} color="black" />
+                <Text style={styles.phone}>{phone}</Text>
+              </View>
             </Box>
           </HStack>
+          <HStack
+            style={{
+              flex: 1,
+              marginLeft: 10,
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+            >
+              <Box
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                alignContent: "flex-start",
+                marginTop: 5,
+              }}
+              >
+                <MapPin size={18} color="black" style={{ marginRight: 4 }} />
+                  <Text
+                    style={styles.location}
+                    ellipsizeMode="tail"
+                    numberOfLines={5}
+                  >
+                    {location}
+                  </Text>
+              </Box>
+            </HStack>
         </VStack>
       </HStack>
     </Box>
@@ -119,41 +136,42 @@ export function PassengerCard({ name, price, phone, location }: RideCardProps) {
 
 const styles = StyleSheet.create({
   name: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-Bold",
     fontSize: 18,
-    fontStyle: "normal",
     fontWeight: "700",
     color: "#171717",
     textAlign: "left",
     paddingTop: 5,
   },
   phone: {
-    fontFamily: "Exo",
-    fontSize: 16,
-    fontStyle: "normal",
+    fontFamily: "exo.medium",
+    fontSize: 17,
     fontWeight: "500",
     color: "#171717",
+    paddingTop: 5,
     textAlign: "right",
   },
   price: {
-    fontFamily: "Exo",
+    fontFamily: "exo.medium",
     fontSize: 18,
     fontStyle: "normal",
     fontWeight: "500",
     color: "#171717",
-    textAlign: "right",
+    textAlign: "left",
     paddingTop: 5,
+    paddingRight: 15,
   },
   location: {
-    fontFamily: "Exo",
-    fontSize: 10,
-    fontStyle: "normal",
+    fontFamily: "Exo-Regular",
+    fontSize: 14,
     fontWeight: "400",
     color: "#171717",
     textAlign: "left",
     flexShrink: 1,
     flexWrap: "wrap",
-    maxWidth: 80,
-    lineHeight: 14,
+    maxWidth: "100%",
+    lineHeight: 18,
+    alignSelf: "center",
+    width: "100%",
   },
 });

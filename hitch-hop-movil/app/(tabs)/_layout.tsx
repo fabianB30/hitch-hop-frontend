@@ -8,7 +8,7 @@ import 'react-native-reanimated';
 import { HHTabBar } from '@/components/ui/HHTabBar';
 import { Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@expo-google-fonts/exo';
 import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat'
-import { AuthProvider } from './Context/auth-context';
+import { AuthProvider } from './Context/auth-context';import { AuthProvider } from './Context/auth-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
@@ -33,7 +33,7 @@ export default function RootLayout() {
       <GluestackUIProvider mode="light">
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack screenOptions={{headerShown: false}}>
-            <Stack.Screen name="VentanaInicial" options={{ headerShown: false }} />
+            <Stack.Screen name="GestionPerfilConductor" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
           <HHTabBar />

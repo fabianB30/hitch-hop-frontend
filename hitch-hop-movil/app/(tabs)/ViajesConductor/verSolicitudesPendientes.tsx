@@ -1,25 +1,48 @@
-import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter, useLocalSearchParams } from "expo-router";
 import { PendingRequestCard } from "@/components/PendingRequestCard";
+import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
-import { MoveRight, Users } from "lucide-react-native";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
-import { useEffect } from "react";
+import { updatePassangerStatusRequest } from "@/interconnection/trip";
+import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { MoveRight } from "lucide-react-native";
+import { useEffect, useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerSolicitudesPendientes() {
   const router = useRouter();
+  const { user } = useAuth();
 
-  const { users, userLimit, actualPassengerNumber } = useLocalSearchParams();
+  const {
+    users,
+    userLimit,
+    actualPassengerNumber,
+    tripIdParam,
+    startParam,
+    endParam,
+  } = useLocalSearchParams();
   const usersList = users ? JSON.parse(users as string) : [];
   const userLimitNumber = userLimit ? Number(userLimit) : 0;
-  const passengerCount = actualPassengerNumber ? Number(actualPassengerNumber) : 0;
+  const passengerCount = actualPassengerNumber
+    ? Number(actualPassengerNumber)
+    : 0;
+  const tripId = tripIdParam ? String(tripIdParam) : "0";
+  const start = startParam ? String(startParam) : "Empty";
+  const end = endParam ? String(endParam) : "Empty";
   const capacity = userLimitNumber - passengerCount;
   // boolean if ride is full
   const isFull = capacity <= 0;
+  const [fontsLoaded] = useFonts({
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
+  });
+  if (!fontsLoaded) return null;
 
   interface Requests {
     id: number;
@@ -28,25 +51,52 @@ export default function VerSolicitudesPendientes() {
     location: string;
     time: string;
     capacity: string;
+    image?: string; // base64
   }
 
-  const requests: Requests[] = usersList.map((user: any, idx: number) => ({
-    id: idx + 1,
-    name: user.name,
-    price: user.price,
-    location: user.location,
-    time: user.time,
-    capacity: String(capacity),
-  }));
+  // Use state for requests
+  const [requests, setRequests] = useState<Requests[]>(
+    usersList.map((user: any, idx: number) => ({
+      id: user.id,
+      name: user.name,
+      price: user.price,
+      location: user.location,
+      time: user.time,
+      capacity: String(capacity),
+      image: user.image,
+    }))
+  );
 
   useEffect(() => {
-    if (requests.length == 0) {
-      router.replace("/(tabs)/ViajesConductor/sinProgramados");
-    }
+    // if (requests.length == 0) {
+    //   router.replace("/(tabs)/ViajesConductor/sinProgramados");
+    // }
   }, [requests, router]);
-  
-  if (requests.length === 0) {
-    return null;
+
+  async function handleAccept(tripId: String, requestId: number) {
+    const res = await updatePassangerStatusRequest(
+      tripId,
+      requestId,
+      "Aprobado"
+    );
+    if (res) {
+      setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    } else {
+      console.error("No se pudo actualizar el estado del pasajero.");
+    }
+  }
+
+  async function handleReject(tripId: String, requestId: number) {
+    const res = await updatePassangerStatusRequest(
+      tripId,
+      requestId,
+      "Rechazado"
+    );
+    if (res) {
+      setRequests((prev) => prev.filter((req) => req.id !== requestId));
+    } else {
+      console.error("No se pudo actualizar el estado del pasajero.");
+    }
   }
 
   return (
@@ -87,9 +137,7 @@ export default function VerSolicitudesPendientes() {
             }}
           >
             <Box style={{ flex: 1, alignItems: "flex-start", paddingRight: 5 }}>
-              <Text style={styles.start}>
-                Tecnológico de Costa Rica, San José Av. 9.
-              </Text>
+              <Text style={styles.start}>{start}</Text>
             </Box>
             <Box
               style={{
@@ -103,33 +151,39 @@ export default function VerSolicitudesPendientes() {
             <Box style={{ flex: 1, alignItems: "flex-end", paddingLeft: 5 }}>
               <Text
                 style={{
-                  fontFamily: "Exo",
+                  fontFamily: "Exo-SemiBold",
                   fontSize: 14,
-                  fontStyle: "normal",
                   fontWeight: "600",
                   color: "#171717",
-                  textAlign: "right",
+                  textAlign: "left",
                   maxWidth: "90%",
                 }}
               >
-                Tecnológico de Costa Rica, Cartago
+                {end}
               </Text>
             </Box>
           </HStack>
         </Box>
-        <Text style={
-          isFull
-            ? {
-                color: "#EF4444",
-                fontSize: 18,
-                fontFamily: "Exo",
-                fontWeight: "600",
-                textAlign: "left",
-                left: 25,
-                zIndex: 10,
-              }
-            : styles.disponibles
-        }> {isFull ? "Sin espacios disponibles" : `Espacios disponibles: ${capacity} `} </Text>
+        <Text
+          style={
+            isFull
+              ? {
+                  color: "#EF4444",
+                  fontSize: 18,
+                  fontFamily: "Exo-SemiBold",
+                  fontWeight: "600",
+                  textAlign: "left",
+                  left: 25,
+                  zIndex: 10,
+                }
+              : styles.disponibles
+          }
+        >
+          {" "}
+          {isFull
+            ? "Sin espacios disponibles"
+            : `Espacios disponibles: ${capacity} `}{" "}
+        </Text>
         <Box
           style={{ height: "100%", paddingHorizontal: 20, marginBottom: 100 }}
         >
@@ -137,9 +191,28 @@ export default function VerSolicitudesPendientes() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.cardsContainer}
           >
-            {requests.map((request) => (
-              <PendingRequestCard key={request.id} {...request} />
-            ))}
+            {requests.length === 0 ? (
+              <Text
+                style={{
+                  fontFamily: "Exo-SemiBold",
+                  fontSize: 20,
+                  color: "#171717",
+                  textAlign: "center",
+                  marginTop: 40,
+                }}
+              >
+                No hay solicitudes pendientes
+              </Text>
+            ) : (
+              requests.map((request) => (
+                <PendingRequestCard
+                  key={request.id}
+                  {...request}
+                  onAccept={() => handleAccept(tripId, request.id)}
+                  onReject={() => handleReject(tripId, request.id)}
+                />
+              ))
+            )}
           </ScrollView>
         </Box>
       </Box>
@@ -165,13 +238,11 @@ const styles = StyleSheet.create({
   },
   hitchhopText: {
     position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   title: {
@@ -243,7 +314,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   start: {
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontSize: 14,
     fontStyle: "normal",
     fontWeight: "600",
@@ -254,7 +325,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 18,
-    fontFamily: "Exo",
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 10,

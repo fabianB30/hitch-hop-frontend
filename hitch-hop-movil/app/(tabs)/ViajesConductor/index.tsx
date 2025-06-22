@@ -3,9 +3,20 @@ import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import * as Font from 'expo-font';
 
 export default function Index() {
   const router = useRouter();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  useEffect(() => {
+    Font.loadAsync({   
+      'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),      
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+      
+  if (!fontsLoaded) return null;
 
   return (
     <ImageBackground
@@ -13,7 +24,7 @@ export default function Index() {
       style={styles.background}
       resizeMode="cover"
     >
-      <Pressable onPress={() => router.push("/(tabs)")} style={styles.backArrow}>
+      <Pressable onPress={() => router.back()} style={styles.backArrow}>
         <Image
           source={require("@/assets/images/backArrow.png")}
           style={{ width: 30, height: 30 }}
@@ -85,7 +96,7 @@ export default function Index() {
                   textAlign: "center",
                   color: "#FEFEFF",
                   fontSize: 30,
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-Bold',
                   fontWeight: "700",
                   letterSpacing: 0.2,
                   textShadowColor: "#6C63FF",
@@ -150,7 +161,7 @@ export default function Index() {
                   textAlign: "center",
                   color: "#FEFEFF",
                   fontSize: 30,
-                  fontFamily: "Exo",
+                  fontFamily: 'Exo-Bold',
                   fontWeight: "700",
                   letterSpacing: 0.2,
                   textShadowColor: "#6C63FF",
@@ -187,14 +198,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: "absolute",
-    top: 40,
-    right: 24,
-    color: "black",
+    position: 'absolute',
+    top: 30,
+    right: 20,
     fontSize: 20,
-    fontFamily: "Montserrat",
-    fontWeight: "800",
-    textAlign: "right",
+    fontFamily: 'Montserrat-ExtraBold',
+    color: '#000',
     zIndex: 10,
   },
   overlay: {

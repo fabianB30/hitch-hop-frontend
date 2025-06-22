@@ -1,3 +1,6 @@
+// Funcionalidad realizada por Carlos Cabrera y Diego Duran
+// Ventana de gestión de perfil del usuario, donde el usuario puede editar la información de su cuenta
+
 import React, { useRef, useState, useEffect } from "react";
 import Imagen1 from "../assets/1.6-DefaultPFP.png";
 import { Button } from "../components/ui/button";
@@ -9,28 +12,31 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
-import { format } from "date-fns";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useAuth } from '@/Context/auth-context';
+import { getParameterByNameRequest } from '@/interconnection/paremeter';
+import { getAllInstitutionsRequest } from '@/interconnection/institution';
+import { updateUserRequest } from "@/interconnection/user";
+import { changePasswordRequest } from "@/interconnection/user";
 
+// Definicion de datos del usuario
 const initialUser = {
-  nombre: "Juan",
-  primerApellido: "Rodríguez",
-  segundoApellido: "Chaves",
-  correo: "juan@estudiantec.cr",
-  institucion: "Tecnológico de Costa Rica",
-  tipoId: "Cédula",
-  numeroId: "116032348",
-  fechaNacimiento: "27 / 02 / 2003",
-  telefono: "83017776",
-  genero: "Masculino",
-  username: "juanRC02",
-  tipoUsuario: "Administrador",
+  nombre: "",
+  primerApellido: "",
+  segundoApellido: "",
+  correo: "",
+  institucion: "",
+  tipoId: "",
+  numeroId: "",
+  fechaNacimiento: "",
+  telefono: "",
+  genero: "",
+  username: "",
+  tipoUsuario: "",
   foto: Imagen1,
 };
 
-const tiposId = ["Cédula", "DIMEX", "Pasaporte"];
-const generos = ["Masculino", "Femenino", "Otro"];
-const tiposUsuario = ["Administrador", "Usuario"];
-
+// Componente principal 
 const ProfileSettings: React.FC = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [editable, setEditable] = useState(false);
@@ -46,24 +52,103 @@ const ProfileSettings: React.FC = () => {
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showSavedDialog, setShowSavedDialog] = useState(false);
+  const [tiposId, setTiposId] = useState<string[]>([]);
+  const [generos, setGeneros] = useState<string[]>([]);
+  const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
+  const [instituciones, setInstituciones] = useState<string[]>([]);
+  const [passwordChangeError, setPasswordChangeError] = useState("");
+  const { user, updateUser } = useAuth();
+  const userMapped = user
+    ? {
+        nombre: user.name || "",
+        primerApellido: user.firstSurname || "",
+        segundoApellido: user.secondSurname || "",
+        correo: user.email || "",
+        institucion: user.institutionId || "",
+        tipoId: user.identificationTypeId || "",
+        numeroId: user.identificationNumber ? String(user.identificationNumber) : "",
+        fechaNacimiento: user.birthDate || "",
+        telefono: user.phone ? String(user.phone) : "",
+        genero: user.genre || "",
+        username: user.username || "",
+        tipoUsuario: (user.type || "").trim(),
+        foto: user.photoUrl || Imagen1,
+      }
+    : initialUser;
 
+  // Carga los datos del usuario al iniciar
+  useEffect(() => {
+    if (user) {
+      let fechaNacimiento = user.birthDate || "";
+      if (fechaNacimiento && !fechaNacimiento.includes("/")) {
+        const dateObj = new Date(fechaNacimiento);
+        fechaNacimiento = formatDate(dateObj);
+      }
+      const institucionObj = instituciones.find((inst) => inst._id === user.institutionId);
+      const institucionNombre = institucionObj ? institucionObj.nombre : "";
+      
+      let tipoUsuario = (user.type || "").trim();
+      if (tiposUsuario.length > 0) {
+        const match = tiposUsuario.find(
+          (tipo) => tipo.toLowerCase() === tipoUsuario.toLowerCase()
+        );
+        if (match) tipoUsuario = match;
+      }
+      console.log("Tipo de usuario normalizado:", tipoUsuario);
+      const mapped = {
+        ...userMapped,
+        fechaNacimiento,
+        institucion: institucionNombre,
+        tipoUsuario,
+      };
+      setUserData(mapped);
+      setBackupData(mapped);
+    }
+    
+  }, [user, instituciones]);
+
+  // Cargar opciones desde la base de datos
+  useEffect(() => {
+    async function fetchOptions() {
+      try {
+        const paramId = await getParameterByNameRequest("Tipo de identificación");
+        const paramGenero = await getParameterByNameRequest("Géneros");
+        const paramTipoUsuario = await getParameterByNameRequest("Tipo de Usuario");
+        const resInstitutions = await getAllInstitutionsRequest();
+
+        if (paramId) setTiposId(paramId.parameterList);
+        if (paramGenero) setGeneros(paramGenero.parameterList);
+        if (paramTipoUsuario) setTiposUsuario(paramTipoUsuario.parameterList);
+        if (resInstitutions) setInstituciones(resInstitutions);
+      } catch (error) {
+        console.error("Error al obtener opciones:", error);
+      }
+    }
+    fetchOptions();
+  }, []);
+  
+  // Valida errores al cambiar datos
   useEffect(() => {
     const validationErrors = validateUserData(userData);
     setErrors(validationErrors);
   }, [userData]);
 
+  // Formatea la fecha a formato dd/mm/yyyy
   function formatDate(date: Date) {
     return date
       ? `${String(date.getDate()).padStart(2, "0")} / ${String(date.getMonth() + 1).padStart(2, "0")} / ${date.getFullYear()}`
       : "";
   }
 
+  // Parsea la fecha a objeto Date
   function parseDate(str: string) {
     const [day, month, year] = str.split("/").map((s) => parseInt(s.trim(), 10));
     if (!day || !month || !year) return null;
     return new Date(year, month - 1, day);
   }
 
+  // Validación de datos del usuario
   const validateUserData = (data: typeof initialUser) => {
     const newErrors: Record<string, string> = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
@@ -72,7 +157,6 @@ const ProfileSettings: React.FC = () => {
     if (!data.primerApellido.trim()) newErrors.primerApellido = "El primer apellido es obligatorio.";
     if (!data.segundoApellido.trim()) newErrors.segundoApellido = "El segundo apellido es obligatorio.";
     if (!data.correo.trim()) newErrors.correo = "El correo es obligatorio.";
-    if (!data.institucion.trim()) newErrors.institucion = "La institución es obligatoria.";
     if (!data.tipoId.trim()) newErrors.tipoId = "El tipo de ID es obligatorio.";
     if (!data.numeroId.trim()) newErrors.numeroId = "El número de ID es obligatorio.";
     if (!data.fechaNacimiento.trim()) newErrors.fechaNacimiento = "La fecha de nacimiento es obligatoria.";
@@ -91,14 +175,52 @@ const ProfileSettings: React.FC = () => {
     return newErrors;
   };
 
-  const toggleEdit = () => {
+  // Guardar los cambios del usuario
+  const toggleEdit = async () => {
     if (!editable) {
       setBackupData(userData);
       setEditable(true);
     } else {
       if (Object.keys(errors).length > 0) return;
-      console.log("Datos guardados:", userData);
+      const isValid = validateUserData(userData);
+      if (!isValid) {
+        return;
+      }
+      try {
+        const userId = user._id;
+        let birthDateISO = "";
+        if (userData.fechaNacimiento) {
+          const [day, month, year] = userData.fechaNacimiento.split("/").map(s => s.trim());
+          birthDateISO = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        }
+        const { password, ...restUser } = user;
+
+        const dataToUpdate: User = {
+          ...restUser,
+          name: userData.nombre,
+          firstSurname: userData.primerApellido,
+          secondSurname: userData.segundoApellido,
+          email: userData.correo,
+          institutionName: userData.institucion,
+          identificationTypeId: userData.tipoId,
+          identificationNumber: Number(userData.numeroId),
+          birthDate: birthDateISO,
+          phone: Number(userData.telefono),
+          genre: userData.genero,
+          username: userData.username,
+          type: userData.tipoUsuario,
+          photoKey: typeof userData.foto === "string" ? userData.foto : "",
+          photoUrl: typeof userData.foto === "string" ? userData.foto : Imagen1,
+        };
+
+        await updateUserRequest(userId, dataToUpdate);
+        await updateUser(dataToUpdate);
+
+      } catch (error) {
+        console.error("Error updating user:", error);
+      }
       setEditable(false);
+      setShowSavedDialog(true);
     }
   };
 
@@ -111,36 +233,87 @@ const ProfileSettings: React.FC = () => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleChangePassword = (key: keyof typeof userData, value: string) => {
-    // validaciones
-
-    if (newPassword !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
+  // Cambio de contraseña
+  const handleChangePassword = async () => {
+    setPasswordChangeError("");
+    // Validación de campos
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordChangeError("Todos los campos son obligatorios.");
+      return false;
     }
-    // Logica para guardar la nueva contraseña
-    
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword)) {
+      setPasswordChangeError("La contraseña nueva no cumple los requisitos.");
+      return false;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordChangeError("Las contraseñas no coinciden.");
+      return false;
+    }
+    // Validar contraseña actual con la base de datos
+    const result = await changePasswordRequest({
+      email: user.email,
+      currentPassword,
+      newPassword,
+    });
+    if (!result.success) {
+      setPasswordChangeError(result.msg || "La contraseña actual es incorrecta.");
+      return false;
+    }
+
     setShowPasswordModal(false);
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
-    setUserData((prev) => ({ ...prev, [key]: value })); 
-  }
+    setShowSavedDialog(true);
+    return true;
+  };
 
   const handleEditPhoto = () => {
     fileInputRef.current?.click();
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Maneja el cambio de foto de perfil
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setUserData((prev) => ({ ...prev, foto: ev.target?.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedBase64 = await compressImage(file, 200, 0.7);
+        setUserData((prev) => ({ ...prev, foto: compressedBase64 }));
+
+        const userId = user._id;
+        await updateUserRequest(userId, { ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
+        await updateUser({ ...user, photoKey: compressedBase64, photoUrl: compressedBase64 });
+      } catch (error) {
+        console.error("Error al comprimir la imagen:", error);
+      }
     }
-  };
+ };
+
+ // Función para comprimir imágenes
+ const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    img.onload = () => {
+      // Calcular nuevas dimensiones manteniendo la proporción
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+
+      // Dibujar imagen redimensionada
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Convertir a base64 con compresión
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressedDataUrl);
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 
   return (
     <div className="min-h-screen w-full bg-white flex">
@@ -148,9 +321,8 @@ const ProfileSettings: React.FC = () => {
         <span className="mt-2 mb-4 text-[48px] font-semibold leading-[100%] font-exo text-left">
           Gestión de Perfil
         </span>
-
         <div className="flex flex-row gap-12 mt-4">
-          <div className="flex flex-col items-center min-w-[260px] pt-6">
+          <div className="flex flex-col items-center min-w-[260px] pt-0">
             <span className="text-lg font-medium font-exo mb-3 text-gray-700">Foto de perfil</span>
             <Avatar className="w-40 h-40 mb-2 border-4 border-[#ECECFF] shadow">
               <AvatarImage src={userData.foto} alt="Foto de perfil" className="object-cover" />
@@ -169,6 +341,7 @@ const ProfileSettings: React.FC = () => {
             )}
           </div>
 
+          {/* Formulario de edición de datos */}
           <form className="flex-1">
             <div className="grid grid-cols-2 gap-x-8 gap-y-5">
               {Object.entries({
@@ -191,8 +364,8 @@ const ProfileSettings: React.FC = () => {
                   editable={editable}
                   onChange={(v) => handleChange(key as keyof typeof userData, v)}
                   error={errors[key as keyof typeof userData]}
-                  as={key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
-                  options={key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
+                  as={key === "institucion" || key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
+                  options={ key === "institucion" ? instituciones.map(inst => inst.nombre) : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
                 />
               ))}
               <div className="flex flex-col gap-1">
@@ -217,13 +390,15 @@ const ProfileSettings: React.FC = () => {
                         setCalendarOpen(false);
                       }}
                       initialFocus
+                      captionLayout="buttons" // Selector 
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                     />
                   </PopoverContent>
                 </Popover>
                 {errors.fechaNacimiento && <p className="text-red-500 text-sm mt-1">{errors.fechaNacimiento}</p>}
               </div>
             </div>
-
             <div className="flex justify-end mt-8 gap-4">
               {editable && (
                 <Button type="button" onClick={cancelEdit} variant="outline" className="border-gray-400 text-gray-600">
@@ -241,14 +416,12 @@ const ProfileSettings: React.FC = () => {
             </div>
           </form>
 
-
          {/* Dialogo para cambiar password */}
         <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
             </DialogHeader>
-
             <div className="space-y-6 mt-4">
               {/* Contraseña actual */}
               <div className="flex flex-col gap-y-3">
@@ -269,8 +442,11 @@ const ProfileSettings: React.FC = () => {
                     {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
+                {/* Mostrar error de contraseña actual*/}
+                {passwordChangeError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordChangeError}</p>
+                )}
               </div>
-
               {/* Contraseña nueva */}
               <div className="flex flex-col gap-y-3">
                 <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
@@ -296,7 +472,6 @@ const ProfileSettings: React.FC = () => {
                   </p>
                 )}
               </div>
-
               {/* Confirmar contraseña */}
               <div className="flex flex-col gap-y-3">
                 <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
@@ -320,10 +495,8 @@ const ProfileSettings: React.FC = () => {
                   <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
                 )}
               </div>
-
               <p className="text-xs text-red-500">* Información obligatoria</p>
             </div>
-
             <DialogFooter className="flex justify-between mt-6">
               <Button variant="ghost" onClick={() => {
                     setShowPasswordModal(false);
@@ -346,29 +519,37 @@ const ProfileSettings: React.FC = () => {
                   !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
                   newPassword !== confirmPassword
                 }
-                onClick={() => {
-                  // Aquí iría la lógica real para guardar contraseña
-                  setShowPasswordModal(false);
-                  setCurrentPassword("");
-                  setNewPassword("");
-                  setConfirmPassword("");
-                }}
+                onClick={handleChangePassword}
               >
                 Confirmar cambios
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-
-
-
         </div>
       </main>
+      {/* AlertDialog de confirmación de guardado */}
+      <AlertDialog open={showSavedDialog} onOpenChange={setShowSavedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¡Cambios guardados!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tus cambios han sido guardados exitosamente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowSavedDialog(false)}
+              className="bg-[#7875F8] text-white hover:bg-[#5f5be6]">
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
+// Componente para los inputs del perfil
 function ProfileInput({ label, value, onChange, editable = false, as, options, type = "text", error }: {
   label: string;
   value: string;
@@ -383,7 +564,7 @@ function ProfileInput({ label, value, onChange, editable = false, as, options, t
     <div className="flex flex-col gap-1">
       <Label className="text-base">{label}</Label>
       {as === "select" && options ? (
-        <Select disabled={!editable} onValueChange={(val) => onChange?.(val)} defaultValue={value}>
+        <Select disabled={!editable} onValueChange={(val) => onChange?.(val)} value={value}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -396,7 +577,9 @@ function ProfileInput({ label, value, onChange, editable = false, as, options, t
       ) : (
         <Input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} disabled={!editable} className={error ? "border-red-500" : ""} />
       )}
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {editable && error && (
+        <span className="text-red-500 text-xs">{error}</span>
+      )}
     </div>
   );
 }
