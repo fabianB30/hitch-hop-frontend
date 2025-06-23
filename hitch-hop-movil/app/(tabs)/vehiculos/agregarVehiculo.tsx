@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
@@ -9,6 +10,15 @@ import { registerVehicleRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 import { addCarsRequest } from '@/interconnection/user';
 
+/*Desde esta página se puede agregar un vehículo a la aplicación
+*
+* Esta página fue trabajada por:
+*	Laura Amador
+*	Óscar Obando
+*	Mariano Mayorga
+*
+*
+* */
 
 export default function AgregarVehiculo() {
   const router = useRouter();

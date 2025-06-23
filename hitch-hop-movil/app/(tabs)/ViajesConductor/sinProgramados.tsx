@@ -47,7 +47,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => {router.push('/PublicarRutasConductor/index')}}
+          onPress={() => {router.push('/PublicarRutasConductor/formPublicarRuta')}}
         >
           <Text style={styles.buttonText}>Programar Viaje</Text>
         </Pressable>
