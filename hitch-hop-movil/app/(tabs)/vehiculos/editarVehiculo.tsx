@@ -1,214 +1,235 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import * as Font from 'expo-font';
-import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
+import * as Font from 'expo-font';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { getVehicleByIdRequest, updateVehicleByIdRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 
 export default function EditarVehiculo() {
   const router = useRouter();
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-  const { id } = useLocalSearchParams();;
-  const [brand, setMarca] = useState('Hyundai');
-  const [model, setModelo] = useState('Santa Fe');
-  const [plate, setPlaca] = useState('BTR-932');
-  const [color, setColor] = useState('Gris');
-  const [anio, setAnio] = useState('2019');
-  //editarVehiculo
-  const [foto, setFoto] = useState<string | null>(null);
+  const { id } = useLocalSearchParams();
   const { user, setUser } = useAuth();
 
-  useEffect(() => {
-        const fetchVehicle = async () => {
-          try {
-            if (typeof id === 'string'){
-              const data = await getVehicleByIdRequest(id); 
-              setMarca(data.brand);
-              setModelo(data.model);
-              setPlaca(data.plate);
-              setColor(data.color);
-              setAnio(data.year);
-              setFoto(data.photoUrl);
-            } else {
-               console.log('Error mamadisimo que no deberia pasar, id:', id);
-            }
-          } catch (error) {
-            console.error("Error fetching vehicles:", error);
-          }
-        };
-    
-        fetchVehicle();
-  }, [id]);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [brand, setMarca] = useState('');
+  const [model, setModelo] = useState('');
+  const [plate, setPlaca] = useState('');
+  const [color, setColor] = useState('');
+  const [anio, setAnio] = useState('');
+  const [foto, setFoto] = useState<string | null>(null);
 
-  const handleEditar = async () => {
-        const vehicleData = { 
-          model: model, 
-          brand: brand, 
-          color: color, 
-          plate: plate,
-          //nuevo
-          photoUrl: foto,
-          year: anio
-        };
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    const fetchVehicle = async () => {
       try {
         if (typeof id === 'string') {
-          await updateVehicleByIdRequest(id, vehicleData);
-          setUser({...user});
-        } else {
-          console.log('Error mamadisimo que no deberia pasar, id:', id);
+          const data = await getVehicleByIdRequest(id);
+          setMarca(data.brand);
+          setModelo(data.model);
+          setPlaca(data.plate);
+          setColor(data.color);
+          setAnio(data.year);
+          setFoto(data.photoUrl);
         }
       } catch (error) {
-        console.error('Error al editar el vehículo:', error);
+        console.error("Error fetching vehicle:", error);
       }
-  
-      router.push('/vehiculos/vehiculosIndex')
     };
+    fetchVehicle();
+  }, [id]);
 
+  if (!fontsLoaded) return null;
+
+  const handleEditar = async () => {
+    const vehicleData = {
+      model,
+      brand,
+      color,
+      plate,
+      photoUrl: foto,
+      year: anio,
+    };
+    try {
+      if (typeof id === 'string') {
+        await updateVehicleByIdRequest(id, vehicleData);
+        setUser({ ...user });
+        router.push('/vehiculos/vehiculosIndex');
+      }
+    } catch (error) {
+      console.error('Error al editar el vehículo:', error);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={{ flex: 1, padding: 24 }}>
-      <Image
-                    source={require('@/assets/images/hitchhop-logo.png')} 
-                    style={{ width: '115%', height: 100, resizeMode: 'cover', marginBottom: 8, marginTop: -24, marginLeft: -25 }}
-                  />
-      <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Editar Vehículo</Text>
-      <Text>Marca*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={brand} onChangeText={setMarca} />
-      <Text>Modelo*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={model} onChangeText={setModelo} />
-      <Text>Placa*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={plate} onChangeText={setPlaca} />
-      <Text>Color*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={color} onChangeText={setColor} />
-      <Text>Año*</Text>
-      <TextInput style={{ borderWidth: 1, borderRadius: 8, marginBottom: 8, padding: 8 }} value={anio} onChangeText={setAnio} keyboardType="numeric" />
-      <Text style={{ marginTop: 8 }}>Fotografía del vehículo</Text>
-      {foto ? (
-        <Image source={{ uri: foto }} style={{ width: 120, height: 80, borderRadius: 8, marginVertical: 8 }} />
-      ) : (
-        <View style={{ borderWidth: 1, borderRadius: 8, height: 100, justifyContent: 'center', alignItems: 'center', marginVertical: 8 }}>
-          <Text>Sube una foto</Text>
+    <View style={{ flex: 1, backgroundColor: '#A18AFF' }}>
+      <View style={styles.topBackground}>
+        <Image
+          source={require('@/assets/images/mg_backround_gestion.png')}
+          style={styles.bgPattern}
+          resizeMode="cover"
+        />
+        <Image
+          source={require('@/assets/images/HHLogoDisplay.png')}
+          style={{ width: 120, height: 36, position: 'absolute', top: 16, right: 16 }}
+          resizeMode="contain"
+        />
+      </View>
+
+      <View style={styles.formContainer}>
+        <View style={styles.formHeader}>
+          <TouchableOpacity onPress={() => router.push("/vehiculos/vehiculosIndex")}>
+            <Image source={require('@/assets/images/flechaback.png')} style={{ width: 32, height: 32 }} />
+          </TouchableOpacity>
+          <View style={{ flex: 1, alignItems: 'center', marginRight: 32 }}>
+            <Text style={styles.formTitle}>Editar Información</Text>
+          </View>
         </View>
-      )}
-      <TouchableOpacity
-        style={{ backgroundColor: '#FFB800', borderRadius: 8, padding: 12, marginTop: 16 }}
-        onPress={() => handleEditar()}
-      >
-        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: 'bold' }}>Editar</Text>
-      </TouchableOpacity>
-      
-    </ScrollView>
+
+        <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+          {[
+            { label: 'Marca', value: brand, setter: setMarca },
+            { label: 'Modelo', value: model, setter: setModelo },
+            { label: 'Placa', value: plate, setter: setPlaca },
+            { label: 'Color', value: color, setter: setColor },
+            { label: 'Año', value: anio, setter: setAnio, keyboard: 'numeric' },
+          ].map((f, i) => (
+            <View key={i} style={styles.inputRow}>
+              <Text style={styles.label}>{f.label}<Text style={styles.required}>*</Text></Text>
+              <TextInput
+                style={styles.input}
+                value={f.value}
+                onChangeText={f.setter}
+                keyboardType={f.keyboard as any}
+              />
+            </View>
+          ))}
+
+          <Text style={styles.photoLabel}>Fotografía del vehículo</Text>
+          <View style={styles.photoUploadArea}>
+            {foto ? (
+              <Image source={{ uri: foto }} style={styles.photoRect} />
+            ) : (
+              <View style={styles.photoPlaceholderRect}>
+                <Text style={styles.browseButtonText}>Sin foto</Text>
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity style={styles.editButton} onPress={handleEditar}>
+            <Text style={styles.editButtonText}>Guardar Datos</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  topBackground: { height: 120, position: 'relative' },
+  bgPattern: { position: 'absolute' },
   formContainer: {
     flex: 1,
-    backgroundColor: '#F3F2FF',
+    backgroundColor: '#fff',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    marginTop: 100,
+    marginTop: -24,
     paddingTop: 24,
-    paddingHorizontal: 0,
+    zIndex: 10,
   },
-  title: {
-    fontFamily: 'Exo-Bold',
-    fontSize: 32,
-    color: '#181718',
-    marginLeft: 18,
-  },
-  inputGroupRow: {
+  formHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    paddingHorizontal: 18,
-    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingHorizontal: 24,
+  },
+  formTitle: {
+    fontFamily: 'Exo-Bold',
+    fontSize: 28,
+    color: '#181718',
+    marginLeft: 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 24,
   },
   label: {
     fontFamily: 'Exo-Bold',
-    fontSize: 18,
+    fontSize: 16,
     color: '#181718',
-    marginBottom: 2,
+    width: 80,
   },
-  inputRight: {
+  required: {
+    color: '#E53935',
+    fontSize: 16,
+  },
+  input: {
     flex: 1,
-    fontFamily: 'Exo-Regular',
-    fontSize: 17,
-    backgroundColor: '#fff',
-    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    paddingVertical: 7,
-    paddingHorizontal: 12,
-    marginLeft: 12,
-    color: '#181718',
-    minWidth: 120,
-    maxWidth: 270,
-  },
-  vehicleImg: {
-    width: 180,
-    height: 110,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    marginLeft: 18,
-  },
-  changePhotoBtn: {
-    alignSelf: 'flex-start',
-    marginLeft: 18,
-    marginBottom: 18,
-    backgroundColor: '#fff',
-    borderColor: '#FFA800',
-    borderWidth: 1.5,
     borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 22,
+    borderColor: '#D1D5DB',
+    padding: 8,
+    marginLeft: 8,
+    fontFamily: 'Exo-Regular',
+    fontSize: 16,
+    backgroundColor: '#F9FAFB',
   },
-  changePhotoBtnText: {
-    color: '#FFA800',
+  photoLabel: {
     fontFamily: 'Exo-Bold',
     fontSize: 16,
-    textAlign: 'center',
-  },
-  saveBtn: {
-    backgroundColor: '#7B61FF',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    alignSelf: 'flex-end',
-    marginRight: 18,
+    color: '#181718',
     marginTop: 8,
+    marginBottom: 8,
+    paddingHorizontal: 24,
   },
-  saveBtnText: {
+  photoUploadArea: {
+    alignSelf: 'center',
+    marginBottom: 20,
+    position: 'relative',
+  },
+  photoRect: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+  },
+  photoPlaceholderRect: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+    backgroundColor: '#EAEAEA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+  },
+  browseButtonText: {
+    color: '#A18AFF',
+    fontFamily: 'Exo-Regular',
+    fontSize: 16,
+  },
+  editButton: {
+    width: 170,
+    height: 44,
+    backgroundColor: '#7B61FF',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+  editButtonText: {
     color: '#fff',
-    fontFamily: 'Exo-Bold',
-    fontSize: 18,
     textAlign: 'center',
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 56,
-    backgroundColor: '#A18AFF',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-  },
-  bottomIcon: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  iconImg: {
-    width: 32,
-    height: 32,
-    tintColor: '#fff',
+    fontFamily: 'Exo-SemiBold',
+    fontSize: 18,
   },
 });
