@@ -35,8 +35,8 @@ export default function NuevosUsuarios() {
     const fetchData = async () => {
       try {
         const result = await queryRecentRegisteredUsers();
-        if (result) {
-          setUsers(result);
+        if (result?.data) {
+          setUsers(result.data.slice(0, 8)); // Limita a 8 usuarios
           setTotal(result.count);
         }
       } catch (error) {
