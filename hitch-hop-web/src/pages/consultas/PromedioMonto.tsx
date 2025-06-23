@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import fondoConsultas from "../../assets/fondo_consultas.png";
+import { queryAverageRevenuePerDriver } from "../../interconnection/queries";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/select";
 
 export default function PromedioMonto() {
+  const [drivers, setDrivers] = useState<DriverRevenue[]>([]);
   const [sortStates, setSortStates] = useState({
     institucion: true,
     monto: true,
@@ -23,6 +25,24 @@ export default function PromedioMonto() {
       [column]: !prev[column],
     }));
   };
+
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const result = await queryAverageRevenuePerDriver();
+      console.log(result); // para inspeccionar datos
+      if (Array.isArray(result)) {
+        setDrivers(result);
+      } else {
+        console.error("Estructura inesperada:", result);
+      }
+    } catch (error) {
+      console.error("Error al cargar los datos:", error);
+    }
+  };
+  fetchData();
+}, []);
+
 
   return (
     <div className="p-6">
@@ -113,13 +133,15 @@ export default function PromedioMonto() {
               </tr>
             </thead>
             <tbody>
-              {[...Array(8)].map((_, i) => (
-                <tr key={i} className="border-t">
-                  <td className="px-4 py-2">&nbsp;</td>
-                  <td className="px-4 py-2">&nbsp;</td>
-                  <td className="px-4 py-2">&nbsp;</td>
-                  <td className="px-4 py-2">&nbsp;</td>
-                  <td className="px-4 py-2">&nbsp;</td>
+              {drivers.map((driver) => (
+                <tr key={driver.driverId} className="border-t text-[15px]">
+                  <td className="px-4 py-2">{driver.email}</td>
+                  <td className="px-4 py-2">{driver.name}</td>
+                  <td className="px-4 py-2">
+                    {driver.institution === "685867addd87c1da6b6d6215" ? "Instituto Tecnológico de Costa Rica" : "Otro"}
+                  </td>
+                  <td className="px-4 py-2">{driver.tripCount}</td>
+                  <td className="px-4 py-2">₡{driver.averageRevenue.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -127,7 +149,7 @@ export default function PromedioMonto() {
         </div>
 
         <div className="mt-4 w-[588px] h-[46px] flex flex-col justify-center text-black font-exo text-[20px] font-semibold">
-          Mostrando 8 de *** montos promedio
+          Mostrando {drivers.length} de {drivers.length} montos promedio
         </div>
       </div>
     </div>
