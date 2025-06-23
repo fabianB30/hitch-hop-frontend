@@ -36,7 +36,7 @@ interface Trip {
 /**
  * Columnas permitidas para ordenar la tabla.
  */
-type SortColumn = "_id" | "fecha" | "estado" | "conductor" | "origen" | "destino";
+type SortColumn = "fecha" | "estado" | "conductor" | "origen" | "destino";
 
 /**
  * Componente funcional que muestra la tabla de viajes con paginación y ordenamiento.
@@ -101,10 +101,6 @@ export default function TotalViajes() {
     let bVal: any;
 
     switch (sortColumn) {
-      case "_id":
-        aVal = a._id;
-        bVal = b._id;
-        break;
       case "fecha":
         aVal = new Date(a.departure).getTime();
         bVal = new Date(b.departure).getTime();
@@ -157,14 +153,13 @@ export default function TotalViajes() {
             <thead className="bg-[#FFC750AA] text-[#262626] font-exo text-[16px] font-semibold">
               <tr>
                 {[
-                  { key: "_id", label: "ID" },
                   { key: "fecha", label: "Fecha" },
                   { key: "estado", label: "Estado" },
                   { key: "conductor", label: "Conductor" },
                   { key: "origen", label: "Punto de partida" },
                   { key: "destino", label: "Punto de llegada" },
                 ].map(({ key, label }) => (
-                  <th key={key} className="px-4 py-2 text-left">
+                  <th key={key} className="px-2 py-2 text-left">
                     <Button
                       onClick={() => toggleSort(key as SortColumn)}
                       variant="ghost"
@@ -185,7 +180,6 @@ export default function TotalViajes() {
                     key={trip._id}
                     className="bg-[#FFF9ED] border-b border-[#FFBA2A] font-exo text-[#171717] text-[15px] h-[58px]"
                   >
-                    <td className="px-4">{trip._id}</td>
                     <td className="px-4">{new Date(trip.departure).toLocaleDateString()}</td>
                     <td className="px-4">{getTripStatus(trip)}</td>
                     <td className="px-4">{trip.driver?.name || "-"}</td>

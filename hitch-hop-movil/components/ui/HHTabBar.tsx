@@ -17,14 +17,14 @@ export const HHTabBar = () => {
     ? [
         { icon: 'home-outline', route: '/HomeConductor' },
         { icon: 'notifications-outline', route: '/NotificacionesConductor' },
-        { icon: 'search-outline', route: '/ViajesConductor' },
+        { icon: 'search-outline', route: '/RouteSearch' },
         //{ icon: 'car-outline', route: '/vehiculos' },
         { icon: 'menu-outline', route: '/GestionPerfilConductor' },
       ]
     : [
         { icon: 'home-outline', route: '/HomePasajero' },
         { icon: 'notifications-outline', route: '/NotificacionesPasajero' },
-        { icon: 'search-outline', route: '/ViajesPasajero' },
+        { icon: 'search-outline', route: '/RouteSearch' },
         { icon: 'menu-outline', route: '/GestionPerfilPasajero' },
       ];
   

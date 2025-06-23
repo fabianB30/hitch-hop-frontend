@@ -59,6 +59,8 @@ const ProfileSettings: React.FC = () => {
   const [instituciones, setInstituciones] = useState<string[]>([]);
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const { user, updateUser } = useAuth();
+  if (!user) return null;
+
   const userMapped = React.useMemo(() => {
     if (!user) return initialUser;
 
@@ -278,7 +280,7 @@ const ProfileSettings: React.FC = () => {
   // Maneja el cambio de foto de perfil
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return; 
+    if (!file || !user) return;
     if (file) {
       try {
         const compressedBase64 = await compressImage(file, 200, 0.7);
