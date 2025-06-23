@@ -30,7 +30,7 @@ export default function PromedioMonto() {
   const fetchData = async () => {
     try {
       const result = await queryAverageRevenuePerDriver();
-      console.log(result); // para inspeccionar datos
+      
       if (Array.isArray(result)) {
         setDrivers(result);
       } else {
