@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     paddingRight: 44,
-    fontSize: 16,
+    fontSize: 12,
     color: "#000",
   },
   searchIconContainer: {
