@@ -20,6 +20,15 @@ import {useAuth} from '../Context/auth-context'
 import * as Font from 'expo-font';
 import { getPathWithConventionsCollapsed } from 'expo-router/build/fork/getPathFromState-forks'
 
+/**
+ * This page allows the user to search for routes.
+ * Users can search based on a specified date, time and starting point.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const {width, height} = Dimensions.get("window")
 
 const searchMain = () => {
@@ -41,6 +50,14 @@ const searchMain = () => {
     const [shownTrips, setShownTrips] = useState<any[]>([])
 
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date | undefined) => {
+        /**
+         * This function handles how changes in date and time should behave
+         * Sets date while preserving time or sets time preserving date based on the current mode
+         * 
+         * Function inputs:
+         *   event: not used for anything insinde this funciton
+         *   selectedDate: new date to replace the old one
+         */
         if (selectedDate) {
             if (mode === 'date') {
                 const newDate  = new Date(
@@ -69,17 +86,35 @@ const searchMain = () => {
         setShow(false)
     }
     const showMode = (currentMode: 'date' | 'time') => {
+        /**
+         * This function shows the date or time pickers based on the current mode
+         * 
+         * Funtion inputs:
+         *  currentMode: mode used to display the date or time picker
+         */
         setShow(true)
         setMode(currentMode)
     }
     const showDatepicker = () => {
+        /**
+         * This function calls showMode with 'date' as the parameter
+         */
         showMode('date')
     }
     const showTimepicker = () => {
+        /**
+         * This function calls showMode with 'time' as the parameter
+         */
         showMode('time')
     }
 
     const searchTrips = async () => {
+        /**
+         * This function handles API requests to search for trips based on current user variables
+         * It sets the start date and end date to be 30 minutes before and after the selected time respectively
+         * It then sets the data of the query based on current user variables before making a request to the API
+         * If trips are found they are filtered and shown, else a dialog notifying the user appears instead
+         */
         setMsgError(false)
         const utcDate = dateToUtcDate(date)
         const StartDate = new Date(utcDate.getTime() - 30 * 60 * 1000)
@@ -107,15 +142,36 @@ const searchMain = () => {
     }
 
     const checkInputs = () => {
+        /**
+         * This function verifies that all required inputs are filled and if so searches for trips
+         */
         (!destination.name) ? setMsgError(true) : searchTrips(); 
     }
 
     const dateToUtcDate = (pickerDate: Date): Date => {
-    const offset = pickerDate.getTimezoneOffset();
-    return new Date(pickerDate.getTime() - offset * 60 * 1000);
+        /**
+         * Sets date to UTC format
+         * 
+         * Funtion inputs:
+         *  pickerDate: current picker's date
+         * 
+         * Function outputs:
+         *  date in UTC format
+         */
+        const offset = pickerDate.getTimezoneOffset();
+        return new Date(pickerDate.getTime() - offset * 60 * 1000);
     }
 
     const roundDate = (date: Date) => {
+        /**
+         * Rounds date to only increment in 15 minute intervals
+         * 
+         * Function inputs:
+         *  date: date to be rounded
+         * 
+         * Function outputs:
+         *  rounded date
+         */
         const minutes = date.getMinutes();
         const remainder = minutes % 15;
         const diff = remainder === 0 ? 0 : 15 - remainder;
@@ -129,6 +185,12 @@ const searchMain = () => {
     }
 
     useEffect(() => {
+        /**
+         * Runs whenever the selected destination changes.
+         * If a destination is selected, formats a user-friendly message combining:
+         *   - Destination name
+         *   - The last element of the description, usually the region
+         */
         if(destination.name){
             const description = destination.description.split(", ")
             setDestinationMsg(destination.name + ", " + description[description.length - 1])
@@ -137,6 +199,11 @@ const searchMain = () => {
     }, [destination])
 
     useEffect(() => {
+        /**
+         * Runs on component mount to:
+         *   - Round the selected date to the nearest 15-minute interval
+         *   - Update the date state with the rounded UTC literal value
+         */
         const roundedDateUtcLiteral = roundDate(date); // redondea en UTC literal
 
         setDate(roundedDateUtcLiteral);

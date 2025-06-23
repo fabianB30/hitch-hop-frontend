@@ -13,6 +13,15 @@ import { useLocalSearchParams } from 'expo-router';
 import { getBrandVehicleRequest } from '@/interconnection/vehicle'
 import * as Font from 'expo-font';
 
+/**
+ * This page displays detailed information about a selected trip.
+ * It retrieves both trip details and related vehicle information.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const wh = Dimensions.get("window").height
 
 const tripInformation = () => {
@@ -31,6 +40,10 @@ const tripInformation = () => {
 */
   useEffect(() => {
       async function fetchVehicleInformation() {
+        /**
+         * Makes an API request to retrieve vehicle information.
+         * Updates state if data is successfully received.
+         */
           const data = await getBrandVehicleRequest(trip.vehicle);
           
           if (data){

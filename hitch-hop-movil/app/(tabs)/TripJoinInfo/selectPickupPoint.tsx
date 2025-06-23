@@ -11,6 +11,15 @@ import { Button, ButtonText } from '@/components/ui/button'
 import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/radio'
 import * as Font from 'expo-font';
 
+/**
+ * This page allows the user to select a pickup point for their trip.
+ * It displays all available stops, including the starting point, allowing the user to choose where they will board the vehicle.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const wh = Dimensions.get("window").height
 
 const selectPickupPoint = () => {
@@ -26,6 +35,10 @@ const selectPickupPoint = () => {
   const vehicleInformation = JSON.parse(params.additionalInfo as string)
 
   useEffect(() => {
+    /**
+     * This effect initializes the stop list and loads required fonts on component mount.
+     * It combines the trip's starting point and all additional stops into a single list of available pickup points.
+     */
       const stopList = [{
         _id: trip.startpoint._id,
         name: trip.startpoint.name, 
