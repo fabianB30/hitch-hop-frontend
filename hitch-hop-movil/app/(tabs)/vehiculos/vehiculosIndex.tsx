@@ -222,7 +222,7 @@ export default function VehiculosIndex() {
                   setInfoModal({ visible: false, vehiculo: null });
                   router.push({
                     pathname: "/(tabs)/vehiculos/editarVehiculo",
-                    /*params: { id: vehiculo._id },*/
+                    params: { id: infoModal.vehiculo._id },
                   });
                 }}
               >

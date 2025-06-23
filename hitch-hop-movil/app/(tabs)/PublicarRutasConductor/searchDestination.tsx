@@ -149,7 +149,7 @@ export default function SearchDestination() {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#7875F8" />
-          <Text style={styles.loadingText}>Cargando ubicaciones...</Text>
+          <Text style={styles.loadingText}>Cargando...</Text>
         </View>
       );
     }
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     paddingRight: 44, // Add padding to prevent text overlap with icon
-    fontSize: 16,
+    fontSize: 12,
     color: "#000",
   },
   searchIconContainer: {

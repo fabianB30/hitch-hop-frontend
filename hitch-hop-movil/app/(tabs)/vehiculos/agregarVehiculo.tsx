@@ -138,8 +138,6 @@ export default function AgregarVehiculo() {
           </View>
 
 
-
-
           <TouchableOpacity style={styles.addButton} onPress={handleAgregar}>
             <Text style={styles.addButtonText}>Agregar</Text>
           </TouchableOpacity>
