@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#7875F8',
         borderRadius: 12,
-        padding: 16,
+        padding: 13,
         alignItems: 'center',
     },
     confirmButtonText: {
