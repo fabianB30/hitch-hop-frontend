@@ -72,9 +72,12 @@ export default function ProfileSettings() {
     const year = date.getFullYear();
     return `${day} / ${month} / ${year}`;
   };
-  const [userData, setUserData] = useState({
-    ...user,
-    birthDate: formatDate(user.birthDate),
+  const [userData, setUserData] = useState(() => {
+    if (!user || typeof user !== 'object') return {};
+    return {
+      ...user,
+      birthDate: formatDate(user.birthDate),
+    };
   });
 
 

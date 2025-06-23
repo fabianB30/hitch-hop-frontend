@@ -59,11 +59,8 @@ const ProfileSettings: React.FC = () => {
   const [instituciones, setInstituciones] = useState<string[]>([]);
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const { user, updateUser } = useAuth();
-  if (!user) return null;
-
-  const userMapped = React.useMemo(() => {
-    if (!user) return initialUser;
-
+  
+   const userMapped = React.useMemo(() => { 
     return {
       nombre: user.name || "",
       primerApellido: user.firstSurname || "",

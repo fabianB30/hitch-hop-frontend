@@ -8,7 +8,7 @@ import RideStopDetailIcon from '@/components/RideStopDetailIcon'
 import { ImageBackground } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Users } from 'lucide-react-native'
-import { HStack} from '@/components/ui/hstack'
+import { HStack } from '@/components/ui/hstack'
 import { VStack } from "@/components/ui/vstack";
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
@@ -27,92 +27,92 @@ import { useAuth } from '../Context/auth-context'
  *   Andrey Calvo
  */
 
-const {width, height} = Dimensions.get("window")
+const { width, height } = Dimensions.get("window")
 
 const checkoutTrip = () => {
-    const [fontsLoaded, setFontsLoaded] = useState(false);
-    const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
-    const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
-    
-    const { user } = useAuth()
-    const router = useRouter()
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
+  const [showAcceptModal, setShowAcceptModal] = useState<boolean>(false);
 
-    const params = useLocalSearchParams()
+  const { user } = useAuth()
+  const router = useRouter()
 
-    const trip = JSON.parse(params.trip as string)
-    const vehicleInformation = JSON.parse(params.additionalInfo as string)
-    const selectedStop = JSON.parse(params.selectedStop as string)
-    const stopList = JSON.parse(params.stopList as string);
+  const params = useLocalSearchParams()
 
-    console.log(stopList[Number(selectedStop)])
+  const trip = JSON.parse(params.trip as string)
+  const vehicleInformation = JSON.parse(params.additionalInfo as string)
+  const selectedStop = JSON.parse(params.selectedStop as string)
+  const stopList = JSON.parse(params.stopList as string);
 
-    async function openLastModal() {
-      /**
-       * This function finalizes the user's selection by:
-       *   - Adding the user to the selected stop
-       *   - Registering the user as a passenger for the trip
-       * If both operations are successful, closes the confirmation modal 
-       * and displays the final success modal.
-       */
-      const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
-      if(addStop){
-        const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
-        console.log(addPassenger)
-      }
-      console.log(addStop)
-      setShowConfirmationModal(false);
-      setShowAcceptModal(true);
+  console.log(stopList[Number(selectedStop)])
+
+  async function openLastModal() {
+    /**
+     * This function finalizes the user's selection by:
+     *   - Adding the user to the selected stop
+     *   - Registering the user as a passenger for the trip
+     * If both operations are successful, closes the confirmation modal 
+     * and displays the final success modal.
+     */
+    const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
+    if (addStop) {
+      const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
+      console.log(addPassenger)
     }
-    
-    function leaveToMenu() {
-      /**
-       * Closes the success modal and redirects the user to the passenger home page.
-       */
-      setShowAcceptModal(false);
-      router.push('/HomePasajero')
+    console.log(addStop)
+    setShowConfirmationModal(false);
+    setShowAcceptModal(true);
+  }
+
+  function leaveToMenu() {
+    /**
+     * Closes the success modal and redirects the user to the passenger home page.
+     */
+    setShowAcceptModal(false);
+    router.push('/HomePasajero')
+  }
+
+  function goToPendingRequests() {
+    /**
+     * Closes the success modal and redirects the user to the passenger home page.
+     */
+    setShowAcceptModal(false);
+    router.push('/HomePasajero')
+  }
+
+  useEffect(() => {
+    /**
+     * This effect disables the Android hardware back button 
+     * when the final accept modal is visible.
+     * Prevents the user from accidentally navigating away during confirmation.
+     */
+    if (showAcceptModal) {
+      const backAction = () => {
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      );
+
+      return () => backHandler.remove();
     }
+  }, [showAcceptModal]);
 
-    function goToPendingRequests() {
-      /**
-       * Closes the success modal and redirects the user to the passenger home page.
-       */
-      setShowAcceptModal(false);
-      router.push('/HomePasajero')
-    }
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+      'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+      'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
 
-    useEffect(() => {
-      /**
-       * This effect disables the Android hardware back button 
-       * when the final accept modal is visible.
-       * Prevents the user from accidentally navigating away during confirmation.
-       */
-      if (showAcceptModal) {
-        const backAction = () => {
-          return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-          'hardwareBackPress',
-          backAction
-        );
-
-        return () => backHandler.remove();
-      }
-    }, [showAcceptModal]);
-
-    useEffect(() => {
-      Font.loadAsync({
-        'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
-        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
-        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
-        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
-      }).then(() => setFontsLoaded(true));
-    } , []);
-
-    if (!fontsLoaded) return null;
+  if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
+    <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
       <HitchHopHeader />
 
       <ImageBackground
@@ -121,38 +121,46 @@ const checkoutTrip = () => {
         imageStyle={styles.containerImage}
       >
         <View style={styles.card}>
-          <HStack style={{gap: 10}}>
-            <Image 
-              source={{uri: trip.driver.photoUrl}}
+          <HStack style={{ gap: 10 }}>
+            <Image
+              source={
+                trip?.driver?.photoUrl
+                  ? { uri: trip.driver.photoUrl }
+                  : require('@/assets/images/iconPrimary.png')
+              }
               style={styles.profilePic}
             />
-            
+
             <View>
-              <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
+              <Text style={styles.carInfo}>
+                {vehicleInformation?.brand && vehicleInformation?.model && vehicleInformation?.color
+                  ? `${vehicleInformation.brand} ${vehicleInformation.model} ${vehicleInformation.color}`
+                  : "Información del vehículo no disponible"}
+              </Text>
               <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}</Text>
+            <Text style={[styles.detailText, { marginTop: 10 }]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
           </View>
 
-          <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
+          <ScrollView style={[styles.stops, { gap: 10 }]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
-            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)].name}/>
-            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true} />
+            <RideStopDetailIcon stopType="Parada de recogida" detail={stopList[Number(selectedStop)].name} />
+            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true} />
           </ScrollView>
 
-          <HStack style={{marginTop: 20}}>
+          <HStack style={{ marginTop: 20 }}>
             <View style={styles.rideDetails}>
-              <HStack style={{gap: 4, alignItems: 'center'}}>
+              <HStack style={{ gap: 4, alignItems: 'center' }}>
                 <Text style={styles.priceText}>{(trip.costPerPerson === 0) ? "Gratis" : <>&#8353; {trip.costPerPerson.toString()}</>}</Text>
-                <Users strokeWidth={2.5} size={18} color='black'/>
+                <Users strokeWidth={2.5} size={18} color='black' />
                 <Text style={styles.detailText}>{trip.passengerLimit}</Text>
-              </HStack>    
-            </View>     
+              </HStack>
+            </View>
             <Button onPress={() => setShowConfirmationModal(true)} style={[styles.button, styles.joinButton]}>
               <ButtonText style={styles.buttonText}>Unirse</ButtonText>
             </Button>
@@ -173,14 +181,14 @@ const checkoutTrip = () => {
                 </ModalBody>
                 <ModalFooter>
                   <Button style={[styles.button, styles.modalBackButton]} variant="outline" onPress={() => { setShowConfirmationModal(false) }}>
-                    <ButtonText style={{color: "#FFAB00", fontFamily: 'Exo-Medium', fontSize: 14}}>Volver</ButtonText>
+                    <ButtonText style={{ color: "#FFAB00", fontFamily: 'Exo-Medium', fontSize: 14 }}>Volver</ButtonText>
                   </Button>
                   <Button style={[styles.button]} onPress={openLastModal}>
-                    <ButtonText style={{fontFamily: 'Exo-Medium', fontSize: 14}}>Aceptar</ButtonText>
+                    <ButtonText style={{ fontFamily: 'Exo-Medium', fontSize: 14 }}>Aceptar</ButtonText>
                   </Button>
                 </ModalFooter>
               </ModalContent>
-            </Modal>   
+            </Modal>
             {/* Fin del Modal de confirmación */}
 
             {/* Código para el Modal una vez confirmado */}
@@ -201,12 +209,12 @@ const checkoutTrip = () => {
                       <ButtonText style={styles.modalButtonText}>Ver mis solicitudes pendientes</ButtonText>
                     </Button  >
                     <Button style={[styles.button, styles.modalBackButton]} variant='outline' className="mb-2" onPress={leaveToMenu}>
-                      <ButtonText style={[styles.modalButtonText, {color: "#FFAB00"}]}>Volver al menú principal</ButtonText>
+                      <ButtonText style={[styles.modalButtonText, { color: "#FFAB00" }]}>Volver al menú principal</ButtonText>
                     </Button>
                   </VStack>
                 </ModalFooter>
               </ModalContent>
-            </Modal>   
+            </Modal>
             {/* Fin del Modal una vez confirmado */}
 
           </HStack>
@@ -234,8 +242,8 @@ const styles = StyleSheet.create({
     marginVertical: 'auto',
     borderRadius: 30,
     backgroundColor: 'white',
-    padding: 10 ,
-    maxHeight: height * 0.6 
+    padding: 10,
+    maxHeight: height * 0.6
   },
   detailText: {
     color: '#000000',
@@ -256,7 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 300,
     fontFamily: 'Exo-Light',
-    color: '#171717', 
+    color: '#171717',
   },
   driverInfo: {
     fontSize: 24,
@@ -295,7 +303,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: -5,
     marginLeft: 'auto',
-    marginRight: 21,  
+    marginRight: 21,
   },
   buttonText: {
     color: 'white',

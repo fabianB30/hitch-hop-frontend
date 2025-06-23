@@ -6,7 +6,7 @@ import RideStopDetail from '@/components/RideStopDetail'
 import { ImageBackground } from 'expo-image'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Users } from 'lucide-react-native'
-import { HStack} from '@/components/ui/hstack'
+import { HStack } from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { Button, ButtonText } from '@/components/ui/button'
 import { useLocalSearchParams } from 'expo-router';
@@ -29,7 +29,7 @@ const tripInformation = () => {
   const [vehicleInformation, setVehicleInformation] = useState<any>({})
 
   const router = useRouter()
-  
+
   const params = useLocalSearchParams();
   const trip = JSON.parse(params.trip as string);
 
@@ -39,31 +39,35 @@ const tripInformation = () => {
   }
 */
   useEffect(() => {
-      async function fetchVehicleInformation() {
-        /**
-         * Makes an API request to retrieve vehicle information.
-         * Updates state if data is successfully received.
-         */
-          const data = await getBrandVehicleRequest(trip.vehicle);
-          
-          if (data){
-              setVehicleInformation(data);
-          }
-      }
-      fetchVehicleInformation()
+    async function fetchVehicleInformation() {
+      /**
+       * Makes an API request to retrieve vehicle information.
+       * Updates state if data is successfully received.
+       */
+      if (!trip?.vehicle) return;
 
-      Font.loadAsync({
-        'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
-        'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
-        'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
-        'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
-      }).then(() => setFontsLoaded(true));
+      try {
+        const data = await getBrandVehicleRequest(trip.vehicle);
+        if (data) setVehicleInformation(data);
+      } catch (err) {
+        console.error("Error al obtener datos del vehículo:", err);
+      }
+    }
+
+    fetchVehicleInformation();
+
+    Font.loadAsync({
+      'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
+      'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
+      'Exo-Semibold': require('@/assets/fonts/Exo-SemiBold.otf'),
+      'Exo_Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
   }, [])
 
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
+    <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
       <HitchHopHeader />
 
       <ImageBackground
@@ -72,33 +76,41 @@ const tripInformation = () => {
         imageStyle={styles.containerImage}
       >
         <View style={styles.card}>
-          <HStack style={{gap: 10}}>
-            <Image 
-              source={{uri: trip.driver.photoUrl}}
+          <HStack style={{ gap: 10 }}>
+            <Image
+              source={
+                trip?.driver?.photoUrl
+                  ? { uri: trip.driver.photoUrl }
+                  : require('@/assets/images/iconPrimary.png')
+              }
               style={styles.profilePic}
             />
-            
+
             <View>
-              <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
+              <Text style={styles.carInfo}>
+                {vehicleInformation?.brand && vehicleInformation?.model && vehicleInformation?.color
+                  ? `${vehicleInformation.brand} ${vehicleInformation.model} ${vehicleInformation.color}`
+                  : "Información del vehículo no disponible"}
+              </Text>              
               <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit'})}</Text>
+            <Text style={[styles.detailText, { marginTop: 10 }]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit' })}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</Text>
           </View>
 
-          <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>
+          <ScrollView style={[styles.stops, { gap: 10 }]} showsVerticalScrollIndicator={false}>
             <View style={styles.verticalLine} />
-            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true}/>
-            {trip.stopPlaces.length > 0 && trip.stopPlaces.map((stop: any, index: any) => <RideStopDetail key={index} stopType="Parada" detail={stop.name} isAtEnd={false}/>)}
-            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true}/>
+            <RideStopDetail stopType="Partida" detail={trip.startpoint.name} isAtEnd={true} />
+            {trip.stopPlaces.length > 0 && trip.stopPlaces.map((stop: any, index: any) => <RideStopDetail key={index} stopType="Parada" detail={stop.name} isAtEnd={false} />)}
+            <RideStopDetail stopType="Destino" detail={trip.endpoint.name} isAtEnd={true} />
           </ScrollView>
 
-          <HStack style={{marginTop: 20}}>
+          <HStack style={{ marginTop: 20 }}>
             <View style={styles.rideDetails}>
-              <HStack style={{gap: 4}}>
+              <HStack style={{ gap: 4 }}>
                 <Users strokeWidth={2.5} size={18} color='black' />
                 <Text style={styles.detailText}>{trip.passengerLimit}</Text>
               </HStack>
@@ -106,13 +118,15 @@ const tripInformation = () => {
             </View>
 
             <Button style={styles.button}
-              onPress={() => {router.push({
-                pathname: "/(tabs)/TripJoinInfo/selectPickupPoint",
-                params: {
-                  trip: params.trip,
-                  additionalInfo: JSON.stringify(vehicleInformation)
-                }
-              })}}
+              onPress={() => {
+                router.push({
+                  pathname: "/(tabs)/TripJoinInfo/selectPickupPoint",
+                  params: {
+                    trip: params.trip,
+                    additionalInfo: JSON.stringify(vehicleInformation)
+                  }
+                })
+              }}
             >
               <ButtonText style={styles.buttonText}>Unirse</ButtonText>
             </Button>
@@ -152,7 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 300,
     fontFamily: 'Exo-Light',
-    color: '#171717', 
+    color: '#171717',
   },
   driverInfo: {
     fontSize: 24,

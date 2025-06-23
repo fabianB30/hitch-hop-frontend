@@ -303,7 +303,7 @@ export default function VerDetallesViajeProgramado() {
               style={{
                 width: 320,
                 marginTop: 24,
-                marginBottom: 18, // Slightly less to fit button closer
+                marginBottom: 18, 
                 alignSelf: "center",
               }}
             >
@@ -368,11 +368,11 @@ const styles = StyleSheet.create({
   title: {
     left: 25,
     color: "#171717",
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
-    zIndex: 10,
+    zIndex:  10,
   },
   capacity: {
     left: 25,
