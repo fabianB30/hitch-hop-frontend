@@ -153,7 +153,7 @@ export default function ManageStops() {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#7875F8" />
-          <Text style={styles.loadingText}>Cargando ubicaciones...</Text>
+          <Text style={styles.loadingText}>Cargando...</Text>
         </View>
       );
     }
