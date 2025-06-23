@@ -18,7 +18,7 @@ interface ApprovedUser {
   userId: string;
   name: string;
   email: string;
-  institution?: string;
+  institution?: any;
   approvedTripCount: number;
 }
 
@@ -26,13 +26,14 @@ interface ApprovedUser {
  * Componente funcional que carga y despliega los usuarios con más viajes aprobados.
  */
 export default function TopUsuarios() {
-  const [users, setUsers] = useState<ApprovedUser[]>([]);
+  const [users, setUsers] = useState([]);
 
   // Hook para cargar datos al montar el componente
   useEffect(() => {
     const fetchData = async () => {
       try {
         const result = await queryTopUsersWithApprovedTrips(0);
+        console.log(result);
         if (Array.isArray(result)) {
           // Limitamos a los primeros 5 usuarios
           setUsers(result.slice(0, 5));
@@ -89,7 +90,8 @@ export default function TopUsuarios() {
                     <td className="px-6 truncate whitespace-nowrap" title={user.name}>
                       {user.name}
                     </td>
-                    <td className="px-6">{user.institution || "—"}</td>
+                    <td className="px-6"> {user.institution?.id === "685867addd87c1da6b6d6215" ? "Instituto Tecnológico de Costa Rica" : "Otro"} </td>
+
                     <td className="px-6">{user.approvedTripCount}</td>
                   </tr>
                 ))

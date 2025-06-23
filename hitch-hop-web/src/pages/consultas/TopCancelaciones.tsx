@@ -1,6 +1,26 @@
 import fondoConsultas from "../../assets/fondo_consultas.png";
+import { queryTopDriversWithMostCancellations } from "../../interconnection/queries";
+import { useEffect, useState } from "react";
 
 export default function TopCancelaciones() {
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await queryTopDriversWithMostCancellations();
+        console.log(result);
+        if (Array.isArray(result)) {
+          setDrivers(result.slice(0, 5));
+        } else {
+          console.error("Estructura inesperada en la respuesta:", result);
+        }
+      } catch (error) {
+        console.error("Error al obtener conductores:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="p-6">
       <h1 className="font-exo text-[48px] font-bold leading-none tracking-[0.2px]" style={{ color: "var(--text-950)" }}>
@@ -27,6 +47,16 @@ export default function TopCancelaciones() {
                 <th className="px-4 py-2 text-left">Cancelaciones</th>
               </tr>
             </thead>
+            <tbody>
+              {drivers.map((driver, index) => (
+                <tr key={index} className="hover:bg-[#fff5e5] transition-colors">
+                  <td className="px-4 py-2">{driver.email}</td>
+                  <td className="px-4 py-2">{driver.name}</td>
+                  <td className="px-4 py-2">{driver.institution === "685867addd87c1da6b6d6215" ? "Instituto Tecnológico de Costa Rica" : "Otro"} </td>
+                  <td className="px-4 py-2">{driver.cancelledCount}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
         <div className="mt-4 w-[588px] h-[46px] flex flex-col justify-center text-black font-exo text-[20px] font-semibold">
