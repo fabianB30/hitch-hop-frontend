@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LucideSearch, LucideX, LucideChevronUp, LucideChevronDown } from 'lucide-react-native';
 import { getAllPlacesRequest } from '@/interconnection/place';
+import * as Font from 'expo-font';
 
 // Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
@@ -22,8 +23,7 @@ interface Place {
   latitude: number;
 }
 
-export default function ManageStops() {
-  const {
+export default function ManageStops() {  const {
     currentStops,
     contextOrigin,
     contextDestination,
@@ -32,7 +32,8 @@ export default function ManageStops() {
     contextMetodoPago,
     contextCostoPasajero,
     contextFecha,
-    contextHora
+    contextHora,
+    contextHoraLlegada
   } = useLocalSearchParams<{
     currentStops: string;
     contextOrigin?: string;
@@ -43,8 +44,12 @@ export default function ManageStops() {
     contextCostoPasajero?: string;
     contextFecha?: string;
     contextHora?: string;
-  }>(); const router = useRouter();
+    contextHoraLlegada?: string;
+  }>();const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStops, setSelectedStops] = useState<string[]>(
@@ -53,7 +58,6 @@ export default function ManageStops() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
   // Fetch all places when component mounts
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -79,6 +83,16 @@ export default function ManageStops() {
 
     fetchPlaces();
   }, []);
+
+  // Load fonts
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  // Don't render until fonts are loaded
+  if (!fontsLoaded) return null;
 
   // Filter places based on search query and exclude already selected stops
   const filteredLocations = searchQuery.trim()
@@ -113,7 +127,7 @@ export default function ManageStops() {
     const [movedItem] = newStops.splice(fromIndex, 1);
     newStops.splice(toIndex, 0, movedItem);
     setSelectedStops(newStops);
-  }; const handleConfirm = () => {
+  };  const handleConfirm = () => {
     // Navigate back with the selected stops as a parameter using replace to preserve form state
     router.replace({
       pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
@@ -127,11 +141,11 @@ export default function ManageStops() {
         contextMetodoPago: contextMetodoPago ?? '',
         contextCostoPasajero: contextCostoPasajero ?? '',
         contextFecha: contextFecha ?? '',
-        contextHora: contextHora ?? ''
+        contextHora: contextHora ?? '',
+        contextHoraLlegada: contextHoraLlegada ?? ''
       }
     });
-  };
-  const handleCancel = () => {
+  };  const handleCancel = () => {
     router.replace({
       pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
       params: {
@@ -144,10 +158,11 @@ export default function ManageStops() {
         contextMetodoPago: contextMetodoPago ?? '',
         contextCostoPasajero: contextCostoPasajero ?? '',
         contextFecha: contextFecha ?? '',
-        contextHora: contextHora ?? ''
+        contextHora: contextHora ?? '',
+        contextHoraLlegada: contextHoraLlegada ?? ''
       }
     });
-  };  // Separate function to render search results
+  };// Separate function to render search results
   const renderSearchResults = () => {
     if (isLoading) {
       return (
@@ -189,8 +204,7 @@ export default function ManageStops() {
             <Text style={styles.retryButtonText}>Reintentar</Text>
           </TouchableOpacity>
         </View>
-      );
-    }
+      );    }
 
     if (searchQuery.trim() === '') {
       return (
@@ -240,13 +254,8 @@ export default function ManageStops() {
       </View>
     );
   };
-
   return (
-    <KeyboardAvoidingView
-      style={[styles.root, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
-    >
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       {/* Imagen de fondo Superior*/}
       <View style={styles.backgroundImageContainer}>
         <Image
@@ -266,23 +275,26 @@ export default function ManageStops() {
             resizeMode="contain"
           />
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.formContainer}>
+      </View>      <KeyboardAvoidingView
+        style={styles.formContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
         <ScrollView
           contentContainerStyle={styles.container}
           style={styles.scrollView}
           showsVerticalScrollIndicator={true}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-        >
-          {/* Título */}
+        >          {/* Título */}
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Agregar Paradas</Text>
-            <Text style={styles.subtitle}>
-              Seleccione y ordene las paradas de su viaje
-            </Text>
-          </View>          {/* Selected Stops Section */}
+            {selectedStops.length === 0 && (
+              <Text style={styles.subtitle}>
+                Busque y seleccione las paradas para su ruta
+              </Text>
+            )}
+          </View>{/* Selected Stops Section */}
           {selectedStops.length > 0 && (
             <View style={styles.selectedStopsContainer}>
               <Text style={styles.sectionTitle}>Paradas Seleccionadas ({selectedStops.length})</Text>
@@ -337,8 +349,7 @@ export default function ManageStops() {
           {/* Search Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Buscar nueva parada</Text>
-            <View style={styles.searchInputContainer}>
-              <TextInput
+            <View style={styles.searchInputContainer}>              <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="Ingrese el nombre de la ubicación"
@@ -346,6 +357,7 @@ export default function ManageStops() {
                 style={styles.searchInput}
                 returnKeyType="search"
                 autoCapitalize="words"
+                autoFocus={true}
               />
               <TouchableOpacity
                 style={styles.searchIconContainer}
@@ -364,31 +376,30 @@ export default function ManageStops() {
           {/* Search results */}
           <View style={styles.resultsContainer}>
             {renderSearchResults()}
-          </View>
-        </ScrollView>
+          </View>        </ScrollView>
+      </KeyboardAvoidingView>
 
-        {/* Action Buttons - Fixed at bottom */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={handleCancel}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
-          </TouchableOpacity>
+      {/* Action Buttons - Fixed at bottom, outside KeyboardAvoidingView */}
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={handleCancel}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.cancelButtonText}>Cancelar</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.confirmButton}
-            onPress={handleConfirm}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.confirmButtonText}>
-              Guardar {selectedStops.length > 0 ? `(${selectedStops.length})` : ''}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={styles.confirmButton}
+          onPress={handleConfirm}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.confirmButtonText}>
+            Guardar {selectedStops.length > 0 ? `(${selectedStops.length})` : ''}
+          </Text>
+        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -396,12 +407,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  container: {
+  },  container: {
     alignItems: "center",
-    paddingHorizontal: 45,
+    paddingHorizontal: 30,
     paddingTop: 10,
-    paddingBottom: 100, // Add extra padding for fixed buttons
+    paddingBottom: 100, // Add extra bottom padding to account for fixed buttons
     backgroundColor: "#fff",
     minHeight: '100%',
   },
@@ -412,10 +422,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     overflow: 'hidden',
-  },
-  formContainer: {
+  },  formContainer: {
     width: "100%",
-    alignItems: "center",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     backgroundColor: "#fff",
@@ -468,51 +476,51 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     marginRight: 16,
-  },
-  titleContainer: {
+  },  titleContainer: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 5, 
     alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
+  },  title: {
+    fontSize: 22, 
     fontWeight: 'bold',
     color: '#000',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
+    fontFamily: 'Exo-Bold',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-  },
-  inputGroup: {
+    fontFamily: 'Exo-Regular',
+    marginTop: 4,
+  },inputGroup: {
     width: "100%",
-    marginVertical: 10,
+    marginVertical: 8, 
   },
   inputLabel: {
     marginBottom: 5,
     fontWeight: "600",
     fontSize: 16,
-    color: "#000"
-  },
-  searchInputContainer: {
+    color: "#000",
+    fontFamily: 'Exo-Bold',
+  },  searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
+    borderRadius: 8,
     backgroundColor: "#fff",
     width: "100%",
     position: 'relative',
-    minHeight: 48,
-  },
-  searchInput: {
+    minHeight: 30, 
+  },  searchInput: {
     flex: 1,
-    padding: 12,
-    paddingRight: 44,
-    fontSize: 12,
+    padding: 10, 
+    paddingRight: 40, 
+    fontSize: 14, 
     color: "#000",
+    fontFamily: 'Exo-Regular',
   },
   searchIconContainer: {
     position: 'absolute',
@@ -520,65 +528,61 @@ const styles = StyleSheet.create({
     padding: 4,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  resultsContainer: {
+  },  resultsContainer: {
     width: "100%",
-    marginTop: 20,
-    flex: 1,
-  },
-  placeholder: {
+    marginTop: 1,
+    marginBottom: 5,   },placeholder: {
     fontSize: 16,
     color: "#999",
     textAlign: "center",
     fontStyle: "italic",
     padding: 20,
+    fontFamily: 'Exo-Regular',
   },
   locationsList: {
     width: "100%",
-  },
-  resultsHeader: {
+  },  resultsHeader: {
     fontSize: 10,
     fontWeight: '600',
     color: '#333',
-  },
-  locationItem: {
+    fontFamily: 'Exo-Bold',
+  },  locationItem: {
     backgroundColor: '#F8F8F8',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    marginVertical: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 20, 
+    marginVertical: 3, 
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-  },
-  locationText: {
+  },locationText: {
     fontSize: 16,
     color: '#333',
-  },  // New styles for stops management
-  selectedStopsContainer: {
+    fontFamily: 'Exo-Regular',
+  },  selectedStopsContainer: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 15,
     backgroundColor: '#F9F9F9',
     borderRadius: 12,
-    padding: 16,
-    maxHeight: 250, // Limit height to make it scrollable
+    padding: 12,
+    maxHeight: 200, // Reduced from 250
   },
   selectedStopsScrollView: {
-    maxHeight: 180, // Allow scrolling within the container
+    maxHeight: 140, // Reduced from 180
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '700',
     color: '#333',
-    marginBottom: 12,
-  },
-  selectedStopItem: {
+    marginBottom: 5,
+    fontFamily: 'Exo-Bold',
+  },  selectedStopItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: 12,
-    marginVertical: 4,
+    padding: 10, 
+    marginVertical: 3,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     shadowColor: '#000',
@@ -608,11 +612,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     marginRight: 12,
-  },
-  stopText: {
+  },  stopText: {
     fontSize: 14,
     color: '#333',
     flex: 1,
+    fontFamily: 'Exo-Regular',
   },
   controlsContainer: {
     flexDirection: 'row',
@@ -635,19 +639,18 @@ const styles = StyleSheet.create({
   removeButton: {
     padding: 8,
     borderRadius: 4,
-  },
-  // Scrollable search results
+  },  // Scrollable search results
   searchResultsScrollView: {
-    maxHeight: 200, // Limit height for search results
-  }, buttonsContainer: {
+    maxHeight: 255, // Reduced from 200
+  },  buttonsContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
-    paddingHorizontal: 10,
+    paddingHorizontal: 30, 
     paddingVertical: 10,
-    paddingBottom: 20,
+    paddingBottom: 15,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
@@ -661,11 +664,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-  },
-  cancelButtonText: {
+  },  cancelButtonText: {
     color: '#7875F8',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Exo-Bold',
   },
   confirmButton: {
     flex: 1,
@@ -673,22 +676,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-  }, confirmButtonText: {
+  },  confirmButtonText: {
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Exo-Bold',
   },
   // Loading and error states
   loadingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     padding: 40,
-  },
-  loadingText: {
+  },  loadingText: {
     fontSize: 16,
     color: '#666',
     marginTop: 12,
     textAlign: 'center',
+    fontFamily: 'Exo-Regular',
   },
   retryButton: {
     backgroundColor: '#7875F8',
@@ -696,17 +700,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 16,
-  },
-  retryButtonText: {
+  },  retryButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  locationDescription: {
+    fontFamily: 'Exo-Bold',
+  },  locationDescription: {
     fontSize: 14,
     color: '#666',
     marginTop: 4,
     fontStyle: 'italic',
+    fontFamily: 'Exo-Regular',
   },
 });

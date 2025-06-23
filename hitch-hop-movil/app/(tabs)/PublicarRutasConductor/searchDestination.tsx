@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LucideSearch } from 'lucide-react-native';
 import { getAllPlacesRequest } from '@/interconnection/place';
+import * as Font from 'expo-font';
 
 // Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
@@ -22,8 +23,7 @@ interface Place {
   latitude: number;
 }
 
-export default function SearchDestination() {
-  const { type, currentValue, contextOrigin, contextDestination, contextStops, contextVehiculo, contextAsientosDisponibles, contextMetodoPago, contextCostoPasajero, contextFecha, contextHora } = useLocalSearchParams<{
+export default function SearchDestination() {  const { type, currentValue, contextOrigin, contextDestination, contextStops, contextVehiculo, contextAsientosDisponibles, contextMetodoPago, contextCostoPasajero, contextFecha, contextHora, contextHoraLlegada } = useLocalSearchParams<{
     type: 'origin' | 'destination';
     currentValue: string;
     contextOrigin?: string;
@@ -35,10 +35,14 @@ export default function SearchDestination() {
     contextCostoPasajero?: string;
     contextFecha?: string;
     contextHora?: string;
+    contextHoraLlegada?: string;
   }>();
-
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  
+  // Font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [places, setPlaces] = useState<Place[]>([]);
@@ -66,10 +70,19 @@ export default function SearchDestination() {
       } finally {
         setIsLoading(false);
       }
-    };
-
-    fetchPlaces();
+    };    fetchPlaces();
   }, []);
+
+  // Load fonts
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  // Don't render until fonts are loaded
+  if (!fontsLoaded) return null;
 
   // Filter places based on search query - show more results for shorter queries
   const filteredLocations = searchQuery.trim() 
@@ -87,9 +100,7 @@ export default function SearchDestination() {
 
   const handleLocationSelect = (place: Place) => {
     setSelectedLocation(place.name);
-  };
-
-  const handleConfirm = () => {
+  };  const handleConfirm = () => {
     if (selectedLocation) {
       // Navigate back with the selected location as a parameter using replace to preserve form state
       if (type === 'origin') {
@@ -105,7 +116,8 @@ export default function SearchDestination() {
             contextMetodoPago: contextMetodoPago ?? '',
             contextCostoPasajero: contextCostoPasajero ?? '',
             contextFecha: contextFecha ?? '',
-            contextHora: contextHora ?? ''
+            contextHora: contextHora ?? '',
+            contextHoraLlegada: contextHoraLlegada ?? ''
           }
         });
       } else if (type === 'destination') {
@@ -121,29 +133,32 @@ export default function SearchDestination() {
             contextMetodoPago: contextMetodoPago ?? '',
             contextCostoPasajero: contextCostoPasajero ?? '',
             contextFecha: contextFecha ?? '',
-            contextHora: contextHora ?? ''
+            contextHora: contextHora ?? '',
+            contextHoraLlegada: contextHoraLlegada ?? ''
           }
         });
       }
     }
-  };
-  const handleCancel = () => {
+  };  const handleCancel = () => {
     router.replace({
-          pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
-          params: { 
-            selectedDestination: selectedLocation,
-            // Preserve other values from context
-            selectedOrigin: contextOrigin ?? '',
-            selectedStops: contextStops ?? '',
-            contextVehiculo: contextVehiculo ?? '',
-            contextAsientosDisponibles: contextAsientosDisponibles ?? '',
-            contextMetodoPago: contextMetodoPago ?? '',
-            contextCostoPasajero: contextCostoPasajero ?? '',
-            contextFecha: contextFecha ?? '',
-            contextHora: contextHora ?? ''
-          }
-        });
-  };  // Separate function to render search results
+      pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
+      params: {
+        // Preserve other values from context
+        selectedOrigin: contextOrigin ?? '',
+        selectedDestination: contextDestination ?? '',
+        selectedStops: contextStops ?? '',
+        contextVehiculo: contextVehiculo ?? '',
+        contextAsientosDisponibles: contextAsientosDisponibles ?? '',
+        contextMetodoPago: contextMetodoPago ?? '',
+        contextCostoPasajero: contextCostoPasajero ?? '',
+        contextFecha: contextFecha ?? '',
+        contextHora: contextHora ?? '',
+        contextHoraLlegada: contextHoraLlegada ?? ''
+      }
+    });
+  };
+
+  // Separate function to render search results
   const renderSearchResults = () => {
     if (isLoading) {
       return (
@@ -203,46 +218,47 @@ export default function SearchDestination() {
           No se encontraron ubicaciones para &quot;{searchQuery}&quot;
         </Text>
       );
-    }
-
-    return (
+    }    return (
       <View style={styles.locationsList}>
         <Text style={styles.resultsHeader}>
           Resultados para &quot;{searchQuery}&quot;:
         </Text>
-        {filteredLocations.map((place) => (
-          <TouchableOpacity
-            key={place._id}
-            style={[
-              styles.locationItem,
-              selectedLocation === place.name && styles.selectedLocationItem
-            ]}
-            onPress={() => handleLocationSelect(place)}
-            activeOpacity={0.7}
-          >
-            <Text style={[
-              styles.locationText,
-              selectedLocation === place.name && styles.selectedLocationText
-            ]}>
-              {place.name}
-            </Text>
-            {place.description && (
-              <Text style={styles.locationDescription}>
-                {place.description}
+        <ScrollView 
+          style={styles.locationsScrollView}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled={true}
+        >
+          {filteredLocations.map((place) => (
+            <TouchableOpacity
+              key={place._id}
+              style={[
+                styles.locationItem,
+                selectedLocation === place.name && styles.selectedLocationItem
+              ]}
+              onPress={() => handleLocationSelect(place)}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.locationText,
+                selectedLocation === place.name && styles.selectedLocationText
+              ]}>
+                {place.name}
               </Text>
-            )}
-          </TouchableOpacity>
-        ))}
+              {place.description && (
+                <Text style={styles.locationDescription}>
+                  {place.description}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
     );
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={[styles.root, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
-    >
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       {/* Imagen de fondo Superior*/}
       <View style={styles.backgroundImageContainer}>
         <Image
@@ -264,19 +280,27 @@ export default function SearchDestination() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.formContainer}>
+      <KeyboardAvoidingView 
+        style={styles.formContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
         <ScrollView
           contentContainerStyle={styles.container}
           style={styles.scrollView}
           showsVerticalScrollIndicator={true}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-        >
-          {/* Título */}
+        >          {/* Título */}
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{getTitle()}</Text>            {Boolean(currentValue) && (
               <Text style={styles.subtitle}>
                 Actual: {currentValue}
+              </Text>
+            )}
+            {!selectedLocation && !currentValue && (
+              <Text style={styles.subtitle}>
+                Busque y seleccione una ubicación
               </Text>
             )}
           </View>
@@ -291,6 +315,7 @@ export default function SearchDestination() {
                 style={styles.searchInput}
                 returnKeyType="search"
                 autoCapitalize="words"
+                autoFocus={true}
               />
               <TouchableOpacity 
                 style={styles.searchIconContainer}
@@ -307,33 +332,32 @@ export default function SearchDestination() {
             </View>          </View>          {/* Search results */}
           <View style={styles.resultsContainer}>
             {renderSearchResults()}
-          </View>
-        </ScrollView>
+          </View>        </ScrollView>
+      </KeyboardAvoidingView>
 
-        {/* Action Buttons - Fixed at bottom */}
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={handleCancel}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[
-              styles.confirmButton,
-              !selectedLocation && styles.disabledButton
-            ]}
-            onPress={handleConfirm}
-            disabled={!selectedLocation}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.confirmButtonText}>Agregar</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Action Buttons*/}
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={handleCancel}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.cancelButtonText}>Cancelar</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            !selectedLocation && styles.disabledButton
+          ]}
+          onPress={handleConfirm}
+          disabled={!selectedLocation}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.confirmButtonText}>Agregar</Text>
+        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -345,7 +369,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 45,
     paddingTop: 10, 
-    paddingBottom: 100, // Add extra padding for fixed buttons
+    paddingBottom: 100,
     backgroundColor: "#fff",
     minHeight: '100%', 
   },
@@ -356,10 +380,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     overflow: 'hidden',
-  },
-  formContainer: {
+  },  formContainer: {
     width: "100%",
-    alignItems: "center",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     backgroundColor: "#fff",
@@ -417,27 +439,27 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 20,
     alignItems: "center",
-  },
-  title: {
+  },  title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 8,
     textAlign: 'center',
-  },
-  subtitle: {
+    fontFamily: 'Exo-Bold',
+  },  subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+    fontFamily: 'Exo-Regular',
   },
   inputGroup: {
     width: "100%",
-  },
-  inputLabel: {
+  },  inputLabel: {
     marginBottom: 5,
     fontWeight: "600",
     fontSize: 16,
-    color: "#000"
+    color: "#000",
+    fontFamily: 'Exo-Bold',
   },  textInput: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -447,7 +469,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontSize: 16, 
     backgroundColor: "#fff",
-  },  searchInputContainer: {
+    fontFamily: 'Exo-Regular',
+  },searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -457,13 +480,13 @@ const styles = StyleSheet.create({
     width: "100%",
     position: 'relative',
     minHeight: 48,
-  },
-  searchInput: {
+  },  searchInput: {
     flex: 1,
     padding: 12,
-    paddingRight: 44, // Add padding to prevent text overlap with icon
+    paddingRight: 44, 
     fontSize: 12,
     color: "#000",
+    fontFamily: 'Exo-Regular',
   },
   searchIconContainer: {
     position: 'absolute',
@@ -474,17 +497,22 @@ const styles = StyleSheet.create({
   },  resultsContainer: {
     width: "100%",
     marginTop: 20,
-    flex: 1,
-  },
-  placeholder: {
+    maxHeight: 400, // Set a maximum height to allow scrolling
+    minHeight: 200, // Minimum height to ensure some content is visible
+  },placeholder: {
     fontSize: 16,
     color: "#999",
     textAlign: "center",
     fontStyle: "italic",
     padding: 20,
-  },
-  locationsList: {
+    fontFamily: 'Exo-Regular',
+  },  locationsList: {
     width: "100%",
+    maxHeight: 350, // Allow scrolling when there are many results
+  },
+  locationsScrollView: {
+    flexGrow: 1,
+    maxHeight: 300, // Constrain the scroll view height
   },
   resultsHeader: {
     fontSize: 13,
@@ -492,6 +520,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 5,
     paddingHorizontal: 20,
+    fontFamily: 'Exo-Bold',
   },
   locationItem: {
     backgroundColor: '#F8F8F8',
@@ -506,16 +535,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8E7FF',
     borderColor: '#7875F8',
     borderWidth: 2,
-  },
-  locationText: {
+  },  locationText: {
     fontSize: 16,
     color: '#333',
-  },
-  selectedLocationText: {
+    fontFamily: 'Exo-Regular',
+  },  selectedLocationText: {
     fontSize: 16,
     color: '#7875F8',
     fontWeight: '600',
-  },  buttonsContainer: {
+    fontFamily: 'Exo-Bold',
+  },buttonsContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -537,11 +566,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     alignItems: 'center',
-  },
-  cancelButtonText: {
+  },  cancelButtonText: {
     color: '#7875F8',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Exo-Bold',
   },
   confirmButton: {
     flex: 1,
@@ -549,11 +578,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     alignItems: 'center',
-  },
-  confirmButtonText: {
+  },  confirmButtonText: {
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Exo-Bold',
   },
   disabledButton: {
     backgroundColor: '#D1D1D1',
@@ -563,17 +592,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 50,
-  },
-  loadingText: {
+  },  loadingText: {
     marginTop: 15,
     fontSize: 16,
     color: '#666',
     fontWeight: '500',
+    fontFamily: 'Exo-Regular',
   },  locationDescription: {
     fontSize: 14,
     color: '#666',
     marginTop: 4,
     fontStyle: 'italic',
+    fontFamily: 'Exo-Regular',
   },
   retryButton: {
     marginTop: 16,
@@ -585,11 +615,12 @@ const styles = StyleSheet.create({
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  hintText: {
+    fontFamily: 'Exo-Bold',
+  },  hintText: {
     fontSize: 14,
     color: '#999',
     marginTop: 8,
     textAlign: 'center',
+    fontFamily: 'Exo-Regular',
   },
 });
