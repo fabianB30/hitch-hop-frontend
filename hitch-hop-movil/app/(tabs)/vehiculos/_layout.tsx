@@ -5,6 +5,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Children,ReactNode } from "react";
+import '@/utils/warningSuppressions';
 
 export default function TabLayout({children} : {children: ReactNode}) {
   const colorScheme = useColorScheme();
