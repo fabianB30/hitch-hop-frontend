@@ -1,3 +1,7 @@
+// Autores: Anthony Guevara
+// Componente utilizado para las cartas de selección de destinos
+// Llamado en la página del formulario de publicación de rutas
+
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -96,6 +100,7 @@ export default function ClickableInput({
     >
       <View style={styles.content}>
         <View style={styles.textContainer}>
+          {/* Header and value display */}
           <Text style={styles.header}>{header}</Text>
           <Text style={[
             styles.subHeader,

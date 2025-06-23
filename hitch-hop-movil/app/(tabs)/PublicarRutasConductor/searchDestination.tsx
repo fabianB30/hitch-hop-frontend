@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+// Autores: Anthony Guevara
+// Pagina para buscar un destino o punto de inicio
+// Llamado en la página del formulario de publicación de rutas
+
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LucideSearch } from 'lucide-react-native';
+import { getAllPlacesRequest } from '@/interconnection/place';
 
 // Assets
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
 const flechaBack = require("@/assets/images/flechaback.png");
 const logoHeader = require("@/assets/images/HHLogoDisplay.png");
+
+interface Place {
+  _id: string;
+  name: string;
+  description?: string;
+  longitude: number;
+  latitude: number;
+}
 
 export default function SearchDestination() {
   const { type, currentValue, contextOrigin, contextDestination, contextStops, contextVehiculo, contextAsientosDisponibles, contextMetodoPago, contextCostoPasajero, contextFecha, contextHora } = useLocalSearchParams<{
@@ -22,39 +35,61 @@ export default function SearchDestination() {
     contextCostoPasajero?: string;
     contextFecha?: string;
     contextHora?: string;
-  }>();  const router = useRouter();
+  }>();
+
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string>('');
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
-  // Mock locations for demonstration - this would come from an API
-  const [locations] = useState([
-    'Universidad de Costa Rica, San José',
-    'Universidad Nacional, Heredia',
-    'Instituto Tecnológico de Costa Rica, Cartago',
-    'Universidad Estatal a Distancia, San José',
-    'Universidad Técnica Nacional, Alajuela',
-    'Centro Comercial Multiplaza, Escazú',
-    'Hospital México, San José',
-    'Aeropuerto Juan Santamaría, Alajuela',
-    'Estadio Nacional, San José',
-    'Teatro Nacional, San José'
-  ]);
+  // Fetch all places when component mounts
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError(null);
+        const result = await getAllPlacesRequest();
+        if (result && Array.isArray(result)) {
+          setPlaces(result);
+        } else {
+          console.error('Failed to fetch places or invalid response format');
+          setPlaces([]);
+          setLoadError('Error al cargar las ubicaciones. Intente nuevamente.');
+        }
+      } catch (error) {
+        console.error('Error fetching places:', error);
+        setPlaces([]);
+        setLoadError('Error de conexión. Verifique su conexión a internet.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Filter locations based on search query
+    fetchPlaces();
+  }, []);
+
+  // Filter places based on search query - show more results for shorter queries
   const filteredLocations = searchQuery.trim() 
-    ? locations.filter(location => 
-        location.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? places.filter(place => {
+        const query = searchQuery.toLowerCase();
+        const nameMatch = place.name.toLowerCase().includes(query);
+        const descriptionMatch = place.description?.toLowerCase().includes(query);
+        return nameMatch || descriptionMatch;
+      }).slice(0, 20) // Limit to 20 results for performance
     : [];
 
   const getTitle = () => {
     return `Buscar ${type === 'origin' ? 'Punto de Inicio' : 'Punto Final'}`;
   };
 
-  const handleLocationSelect = (location: string) => {
-    setSelectedLocation(location);
-  };  const handleConfirm = () => {
+  const handleLocationSelect = (place: Place) => {
+    setSelectedLocation(place.name);
+  };
+
+  const handleConfirm = () => {
     if (selectedLocation) {
       // Navigate back with the selected location as a parameter using replace to preserve form state
       if (type === 'origin') {
@@ -93,16 +128,72 @@ export default function SearchDestination() {
     }
   };
   const handleCancel = () => {
-    router.back();
-  };
-
-  // Separate function to render search results
+    router.replace({
+          pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
+          params: { 
+            selectedDestination: selectedLocation,
+            // Preserve other values from context
+            selectedOrigin: contextOrigin ?? '',
+            selectedStops: contextStops ?? '',
+            contextVehiculo: contextVehiculo ?? '',
+            contextAsientosDisponibles: contextAsientosDisponibles ?? '',
+            contextMetodoPago: contextMetodoPago ?? '',
+            contextCostoPasajero: contextCostoPasajero ?? '',
+            contextFecha: contextFecha ?? '',
+            contextHora: contextHora ?? ''
+          }
+        });
+  };  // Separate function to render search results
   const renderSearchResults = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#7875F8" />
+          <Text style={styles.loadingText}>Cargando ubicaciones...</Text>
+        </View>
+      );
+    }
+
+    if (loadError) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.placeholder}>{loadError}</Text>
+          <TouchableOpacity 
+            onPress={() => {
+              // Retry loading places
+              setLoadError(null);
+              setIsLoading(true);
+              const fetchPlaces = async () => {
+                try {
+                  const result = await getAllPlacesRequest();
+                  if (result && Array.isArray(result)) {
+                    setPlaces(result);
+                  } else {
+                    setLoadError('Error al cargar las ubicaciones. Intente nuevamente.');
+                  }                } catch (error) {
+                  console.error('Error retrying places fetch:', error);
+                  setLoadError('Error de conexión. Verifique su conexión a internet.');
+                } finally {
+                  setIsLoading(false);
+                }
+              };
+              fetchPlaces();
+            }}
+            style={styles.retryButton}
+          >
+            <Text style={styles.retryButtonText}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
     if (searchQuery.trim() === '') {
       return (
-        <Text style={styles.placeholder}>
-          Ingrese una ubicación para buscar
-        </Text>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.placeholder}>
+            Ingrese una ubicación para buscar
+          </Text>
+        </View>
       );
     }
 
@@ -119,22 +210,27 @@ export default function SearchDestination() {
         <Text style={styles.resultsHeader}>
           Resultados para &quot;{searchQuery}&quot;:
         </Text>
-        {filteredLocations.map((location) => (
+        {filteredLocations.map((place) => (
           <TouchableOpacity
-            key={location}
+            key={place._id}
             style={[
               styles.locationItem,
-              selectedLocation === location && styles.selectedLocationItem
+              selectedLocation === place.name && styles.selectedLocationItem
             ]}
-            onPress={() => handleLocationSelect(location)}
+            onPress={() => handleLocationSelect(place)}
             activeOpacity={0.7}
           >
             <Text style={[
               styles.locationText,
-              selectedLocation === location && styles.selectedLocationText
+              selectedLocation === place.name && styles.selectedLocationText
             ]}>
-              {location}
+              {place.name}
             </Text>
+            {place.description && (
+              <Text style={styles.locationDescription}>
+                {place.description}
+              </Text>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -159,7 +255,7 @@ export default function SearchDestination() {
 
       {/* Flecha back */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={handleCancel}>
           <Image
             source={flechaBack}
             style={styles.flechaBack}
@@ -425,13 +521,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 24,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingBottom: 20,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    gap: 12,
+    gap: 15,
     zIndex: 10,
   },
   cancelButton: {
@@ -439,7 +535,7 @@ const styles = StyleSheet.create({
     borderColor: '#7875F8',
     borderWidth: 1,
     borderRadius: 12,
-    padding: 16,
+    padding: 10,
     alignItems: 'center',
   },
   cancelButtonText: {
@@ -451,7 +547,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#7875F8',
     borderRadius: 12,
-    padding: 16,
+    padding: 10,
     alignItems: 'center',
   },
   confirmButtonText: {
@@ -461,5 +557,39 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#D1D1D1',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },  locationDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: '#7875F8',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },  retryButtonText: {
+    color: '#FEFEFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  hintText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });

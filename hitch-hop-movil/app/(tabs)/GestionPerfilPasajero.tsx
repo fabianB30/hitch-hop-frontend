@@ -9,6 +9,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { getParameterByNameRequest } from "@/interconnection/paremeter";
+import { useAuth } from './Context/auth-context';
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -32,6 +33,7 @@ const headerHeight = windowHeight * 0.15;
 //   }, []);
 
 export default function GestionPerfil(){
+  const { logout } = useAuth();
   const router = useRouter();
     return(
 <Box style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -68,7 +70,7 @@ export default function GestionPerfil(){
               <TouchableOpacity style={styles.buttonHitch} onPress={() => router.push("/HistorialMain")}>
                 <Text style={styles.buttonTextHitch}>Historial de actividad</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buttonHitch} onPress={() => router.replace("/VentanaInicial")}>
+              <TouchableOpacity style={styles.buttonHitch} onPress={async () => {await logout(); router.replace("/VentanaInicial");}}>
                 <Text style={styles.buttonTextHitch}>Cerrar sesión</Text>
               </TouchableOpacity>
             </VStack>

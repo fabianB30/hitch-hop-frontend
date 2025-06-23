@@ -1,3 +1,5 @@
+// Autores: Anthony Guevara
+// Modal para mostrar que la ruta se ha publicado con éxito
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Modal, ModalBackdrop, ModalContent } from "@/components/ui/modal";
@@ -65,7 +67,7 @@ const styles = StyleSheet.create({
   },
   successMessage: {
     fontFamily: 'Exo',
-    fontWeight: '600', // SemiBold
+    fontWeight: '600', 
     fontSize: 16,
     lineHeight: 18,
     color: '#000000',
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
   },
   acceptButtonText: {
     fontFamily: 'Exo',
-    fontWeight: '500', // Medium
+    fontWeight: '500',
     fontSize: 14,
     lineHeight: 14,
     color: '#fefeff',

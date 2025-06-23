@@ -111,7 +111,7 @@ export default function Bienvenida() {
               />
             </Link>
 
-            <Link to={"/consultas"}>
+            <Link to={"/consultas/total-viajes"}>
               <img
                 src={Boton3}
                 alt="Consultas"

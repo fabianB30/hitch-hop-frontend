@@ -1,3 +1,7 @@
+// Autores: Anthony Guevara
+// Modal para seleccionar fecha y hora de inicio de una ruta
+// Llamado en la página del formulario de publicación de rutas
+
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Platform, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';

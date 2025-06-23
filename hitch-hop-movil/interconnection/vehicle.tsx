@@ -15,7 +15,6 @@ export const registerVehicleRequest = async ( data: {
         color: string, 
         plate: string,
         year: string,
-	photoKey?:string,
         userId: string
     }): Promise<any | null> => {
 
@@ -117,6 +116,37 @@ export const deleteVehicleByIdRequest = async (id: string): Promise<any | null> 
         }
     } catch (error) {
         console.error('http request error at deleteVehicleByIdRequest: ', error);
+        return null;
+    }
+};
+
+// Autor: Anthony Guevara
+// Función para recibir vehiculos ligados a un usuario por sus IDs
+// Esta función recibe un array de IDs de vehiculos y retorna un array con los detalles de esos vehiculos.
+
+export const getVehiclesByIdsRequest = async (vehicleIds: string[]): Promise<any[] | null> => {
+    try {
+        // Check if user has any vehicles
+        if (!vehicleIds?.length) {
+            return [];
+        }
+        
+        // Get details for each vehicle
+        const vehiclePromises = vehicleIds.map((vehicleId: string) => 
+            axios.get(`/backend/vehicle/get/${vehicleId}`)
+        );
+
+        const vehicleResponses = await Promise.allSettled(vehiclePromises);
+        
+        const vehicles = vehicleResponses
+            .filter(result => result.status === 'fulfilled')
+            .map(result => (result as PromiseFulfilledResult<any>).value.data.data)
+            .filter(vehicle => vehicle);
+        
+        return vehicles;
+
+    } catch (error) {
+        console.error('http request error at getVehiclesByIdsRequest: ', error);
         return null;
     }
 };
