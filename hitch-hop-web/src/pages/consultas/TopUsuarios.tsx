@@ -33,7 +33,6 @@ export default function TopUsuarios() {
     const fetchData = async () => {
       try {
         const result = await queryTopUsersWithApprovedTrips(0);
-        console.log(result);
         if (Array.isArray(result)) {
           // Limitamos a los primeros 5 usuarios
           setUsers(result.slice(0, 5));

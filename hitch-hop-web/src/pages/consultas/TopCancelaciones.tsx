@@ -8,7 +8,6 @@ export default function TopCancelaciones() {
     const fetchData = async () => {
       try {
         const result = await queryTopDriversWithMostCancellations();
-        console.log(result);
         if (Array.isArray(result)) {
           setDrivers(result.slice(0, 5));
         } else {

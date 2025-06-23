@@ -32,7 +32,6 @@ export default function PuntosRecurrentes() {
     const fetchData = async () => {
       try {
         const data = await queryTopVisitedPlaces();
-        console.log(data);
         if (data) {
           // Mostrar sólo los primeros 5 puntos
           setPlaces(data.slice(0, 5));
