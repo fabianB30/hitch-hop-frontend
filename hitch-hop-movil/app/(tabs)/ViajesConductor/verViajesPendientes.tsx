@@ -1,31 +1,42 @@
-import { ImageBackground, ScrollView, View, StyleSheet, Text } from "react-native";
-import { Image } from "expo-image";
-import { Pressable } from "@/components/ui/pressable";
-import { Box } from "@/components/ui/box";
-import { useRouter } from "expo-router";
-import { RideCardDriver2 } from "@/components/RideCardDriver2";
-import { useEffect, useState } from "react";
 import { CancelRideModal } from "@/components/cancelRide";
 import CancelRideSuccess from "@/components/CancelRideSuccess";
-import { useAuth } from "../Context/auth-context";
-import { getTripsByUserRequest } from "../../../interconnection/trip";
+import { RideCardDriver2 } from "@/components/RideCardDriver2";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
 import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ImageBackground,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import {
+  deleteTripRequest,
+  getTripsByUserRequest,
+} from "../../../interconnection/trip";
+import { useAuth } from "../Context/auth-context";
 
 export default function VerViajesPendientes() {
   const { user } = useAuth();
   const router = useRouter();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
+    null
+  );
   const [successVisible, setSuccessVisible] = useState(false);
   const [requests, setRequests] = useState<Requests[]>([]);
   const [fontsLoaded] = useFonts({
-    'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
-    'exo.medium': require('@/assets/fonts/exo.medium.otf'),
-    'Exo-SemiBold': require('@/assets/fonts/Exo-SemiBold.otf'),
-    'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
-    'Exo-Light': require('@/assets/fonts/Exo-Light.otf'),
-    'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+    "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
+    "exo.medium": require("@/assets/fonts/exo.medium.otf"),
+    "Exo-SemiBold": require("@/assets/fonts/Exo-SemiBold.otf"),
+    "Exo-Bold": require("@/assets/fonts/Exo-Bold.otf"),
+    "Exo-Light": require("@/assets/fonts/Exo-Light.otf"),
+    "Exo-Regular": require("@/assets/fonts/Exo-Regular.otf"),
   });
 
   type PendingRequestCard = {
@@ -34,7 +45,7 @@ export default function VerViajesPendientes() {
     price: string;
     location: string;
     time: string;
-};
+  };
 
   interface Requests {
     id: number;
@@ -53,11 +64,21 @@ export default function VerViajesPendientes() {
     setModalVisible(true);
   };
 
-  const handleConfirmCancel = () => {
-    // Lógica para cancelar el viaje con selectedRequestId
+  const handleConfirmCancel = async () => {
+    if (selectedRequestId) {
+      const result = await deleteTripRequest(selectedRequestId);
+      if (result) {
+        setRequests((prev) => prev.filter((r) => r.id !== selectedRequestId));
+        if (requests.length !== 0) {
+          setSuccessVisible(true);
+        } else {
+          router.replace("/(tabs)/ViajesConductor/sinProgramados");
+        }
+        setSuccessVisible(true);
+      }
+    }
     setModalVisible(false);
     setSelectedRequestId(null);
-    setSuccessVisible(true);
   };
 
   const handleCloseSuccess = () => {
@@ -69,17 +90,18 @@ export default function VerViajesPendientes() {
       try {
         const trips = await getTripsByUserRequest(user._id, true, "all");
         if (trips) {
-          const mappedRequests = trips.map((trip: any) => {
+          const mappedRequests: Requests[] = trips.map((trip: any) => {
             // Solo pasajeros pendientes
-            const pendingPassengers = trip.passengers
-              ?.filter((p: any) => p.status === "Pendiente")
-              .map((p: any) => ({
-                id: p.user._id,
-                name: p.user.name,
-                price: `₡${trip.costPerPerson}`,
-                location: trip.startpoint?.name || "",
-                time: trip.departure.split("T")[1]?.slice(0, 5) || "",
-              })) ?? [];
+            const pendingPassengers =
+              trip.passengers
+                ?.filter((p: any) => p.status === "Pendiente")
+                .map((p: any) => ({
+                  id: p.user._id,
+                  name: p.user.name,
+                  price: `₡${trip.costPerPerson}`,
+                  location: trip.startpoint?.name || "",
+                  time: trip.departure.split("T")[1]?.slice(0, 5) || "",
+                })) ?? [];
 
             return {
               id: trip._id,
@@ -94,7 +116,19 @@ export default function VerViajesPendientes() {
             };
           });
 
-          setRequests(mappedRequests);
+          const now = new Date();
+          const filteredRequests = mappedRequests.filter((req) => {
+            const tripDateTime = new Date(`${req.date}T${req.time}`);
+            return tripDateTime.getTime() >= now.getTime();
+          });
+
+          filteredRequests.sort((a, b) => {
+            const dateA = new Date(`${a.date}T${a.time}`);
+            const dateB = new Date(`${b.date}T${b.time}`);
+            return dateA.getTime() - dateB.getTime();
+          });
+
+          setRequests(filteredRequests);
 
           if (mappedRequests.length === 0) {
             router.replace("/(tabs)/ViajesConductor/sinProgramados");
@@ -113,7 +147,7 @@ export default function VerViajesPendientes() {
       fetchTrips();
     }
   }, [user, router]);
-  
+
   if (!fontsLoaded) return null;
   if (requests.length === 0) {
     return null;
@@ -125,10 +159,7 @@ export default function VerViajesPendientes() {
       style={styles.background}
       resizeMode="cover"
     >
-      <Pressable
-        onPress={() => router.back()}
-        style={styles.backArrow}
-      >
+      <Pressable onPress={() => router.back()} style={styles.backArrow}>
         <Image
           source={require("@/assets/images/backArrow.png")}
           style={{ width: 30, height: 30 }}
@@ -142,7 +173,12 @@ export default function VerViajesPendientes() {
       <Text style={styles.title}>Viajes Programados</Text>
 
       <Box style={styles.buttonsContainer}>
-        <Pressable onPress={() => router.replace('/(tabs)/ViajesConductor/verViajesAceptados')} style={styles.aprobadosButton}>
+        <Pressable
+          onPress={() =>
+            router.replace("/(tabs)/ViajesConductor/verViajesAceptados")
+          }
+          style={styles.aprobadosButton}
+        >
           <Text style={styles.buttonText}>Programados</Text>
         </Pressable>
         <Pressable style={styles.pendientesButton}>
@@ -175,11 +211,15 @@ export default function VerViajesPendientes() {
               if (!users || users.length === 0) return;
               router.push({
                 pathname: "/(tabs)/ViajesConductor/verSolicitudesPendientes",
-                params: { users: JSON.stringify(users),
-                    userLimit: String(request.userLimit),
-                    actualPassengerNumber: String(request.actualPassengerNumber),
-                 },
-              })
+                params: {
+                  users: JSON.stringify(users),
+                  userLimit: String(request.userLimit),
+                  actualPassengerNumber: String(request.actualPassengerNumber),
+                  tripIdParam: String(request.id),
+                  startParam: request.start,
+                  endParam: request.end,
+                },
+              });
             }}
           />
         ))}
@@ -205,12 +245,12 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   hitchhopText: {
-    position: 'absolute',
+    position: "absolute",
     top: 30,
     right: 20,
     fontSize: 20,
-    fontFamily: 'Montserrat-ExtraBold',
-    color: '#000',
+    fontFamily: "Montserrat-ExtraBold",
+    color: "#000",
     zIndex: 10,
   },
   overlay: {
@@ -224,7 +264,7 @@ const styles = StyleSheet.create({
     left: 24,
     color: "#171717",
     fontSize: 25,
-    fontFamily:'Exo-SemiBold',
+    fontFamily: "Exo-SemiBold",
     fontWeight: "600",
     textAlign: "left",
     zIndex: 2,
@@ -263,7 +303,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FEFEFF",
     fontSize: 16,
-    fontFamily: 'exo.medium',
+    fontFamily: "exo.medium",
     fontWeight: "500",
   },
   cardsScroll: {

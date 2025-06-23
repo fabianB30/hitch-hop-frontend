@@ -1,15 +1,18 @@
+import { CancelRideModal } from "@/components/cancelRide";
+import CancelRideSucess from "@/components/CancelRideSuccess";
 import { PassengerCard } from "@/components/PassengerCard";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import { getTripByIdRequest } from "@/interconnection/trip";
+import { deleteTripRequest, getTripByIdRequest } from "@/interconnection/trip";
+import { useFocusEffect } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MoveRight, Users } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { useAuth } from "../Context/auth-context";
 
@@ -17,6 +20,11 @@ export default function VerDetallesViajeProgramado() {
   const router = useRouter();
   const { tripId } = useLocalSearchParams();
   const { user } = useAuth();
+  const [showPopup, setShowPopup] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined
+  );
   const [fontsLoaded] = useFonts({
     "Montserrat-ExtraBold": require("@/assets/fonts/Montserrat-ExtraBold.ttf"),
     "exo.medium": require("@/assets/fonts/exo.medium.otf"),
@@ -29,9 +37,45 @@ export default function VerDetallesViajeProgramado() {
   // boolean if ride is full
   var isFull = false;
 
+  const handleConfirmCancel = async () => {
+    console.log("Confirm cancel tripId:", tripId);
+    if (tripId) {
+      try {
+        setShowPopup(false);
+        const result = await deleteTripRequest(tripId);
+        if (result) {
+          setShowPopup(false);
+          router.push("/(tabs)/ViajesConductor/verViajesAceptados");
+        } else {
+          setSuccessMessage("Hubo un error al cancelar la solicitud.");
+          setShowSuccessPopup(true);
+        }
+      } catch (error) {
+        setSuccessMessage("Hubo un error al cancelar la solicitud.");
+        setShowSuccessPopup(true);
+      }
+      setShowPopup(false);
+    }
+  };
+
+  const handleCloseSuccessPopup = () => {
+    setShowSuccessPopup(false);
+  };
+
   //Esto no funciona, la página recibe parámetros para crear las cards
   const handlePendingRequests = () => {
-    router.push("/(tabs)/ViajesConductor/verSolicitudesPendientes");
+    console.log(trip, pendingPassengers);
+    router.push({
+      pathname: "/(tabs)/ViajesConductor/verSolicitudesPendientes",
+      params: {
+        users: JSON.stringify(pendingPassengers),
+        userLimit: trip ? trip.userLimit : 0,
+        actualPassengerNumber: trip ? trip.users : 0,
+        tripIdParam: trip ? trip.id : 0,
+        startParam: trip ? trip.start : "Empty",
+        endParam: trip ? trip.end : "Empty",
+      },
+    });
   };
 
   interface Passenger {
@@ -39,9 +83,12 @@ export default function VerDetallesViajeProgramado() {
     name: string;
     price: string;
     phone: string;
-    location: string; // Optional, if you want to include location
+    location: string;
+    image: string;
+    time: string;
   }
   const [passengers, setPassengers] = useState<Passenger[]>([]);
+  const [pendingPassengers, setPendingPassengers] = useState<Passenger[]>([]);
 
   interface Trip {
     id: number;
@@ -52,57 +99,73 @@ export default function VerDetallesViajeProgramado() {
   }
   const [trip, setTrip] = useState<Trip | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const trip = await getTripByIdRequest(tripId as string);
-        const price = trip.costPerPerson;
-        if (trip) {
-          const mappedRequests = trip.passengers.map((passenger: any) => ({
-            id: passenger.user._id,
-            name: passenger.user.name + " " + passenger.user.secondSurname,
-            price: "₡" + price, 
-            phone: passenger.user.phone,
-            location: "FALTA", 
-            // Para poder arreglar debían observar el backend y ver los modelos
-            
-            // Arreglar location: if passenger.user.id se encuentra en trip.stops.passenger (esto es un array de ids) el stop es un array
-            // significa que el user está en ese lugar, tienen que ver en cada stop a ver en qué lugar está, ahí van a tener un objeto
-            // place y con place.name pueden obtener el nombre del lugar
-            
-            // Para obtener el punto de inicio y de salida es trip.startPoint y trip.endPoint
-            
-            // Instrucciones para el vehículo
-            // El trip da el vehículo, al vehículo le sacan el id y de ahí sacan la placa, el modelo y el color
-            // con la id backend/user/:carId/owner (falta hacer el servicio) y así obtiene el chofer
-          }));
-          setTrip({
-            id: trip._id,
-            users: trip.passengers.length,
-            userLimit: trip.capacity,
-            start: trip.startpoint.name,
-            end: trip.endpoint.name,
+  // Move fetchData outside of useEffect so it can be reused
+  const fetchData = async () => {
+    try {
+      const trip = await getTripByIdRequest(tripId as string);
+      const price = trip.costPerPerson;
+      if (trip) {
+        const mappedRequests = trip.passengers
+          .filter((passenger: any) => passenger.status === "Aprobado")
+          .map((passenger: any) => {
+            const userStop = trip.stops?.find((stop: any) =>
+              stop.passengersId?.includes(passenger.user._id)
+            );
+            return {
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: userStop ? userStop.place.name : "No asignado",
+              image: passenger.user.photoUrl,
+              time: "FALTA",
+            };
           });
-          setPassengers(mappedRequests);
-
-          if (mappedRequests.length === 0) {
-            router.replace("/(tabs)/ViajesConductor/sinProgramados");
-          }
-        } else {
-          setPassengers([]);
-          router.replace("/(tabs)/ViajesConductor/sinProgramados");
-        }
-      } catch (error) {
+        setPassengers(mappedRequests);
+        setTrip({
+          id: trip._id,
+          users: mappedRequests.length,
+          userLimit: trip.passengerLimit,
+          start: trip.startpoint.name,
+          end: trip.endpoint.name,
+        });
+        setPendingPassengers(
+          trip.passengers
+            .filter((passenger: any) => passenger.status === "Pendiente")
+            .map((passenger: any) => ({
+              id: passenger.user._id,
+              name: passenger.user.name + " " + passenger.user.firstSurname,
+              price: "₡" + price,
+              phone: passenger.user.phone,
+              location: trip.startpoint.name,
+              image: passenger.user.photoUrl,
+              time: trip.departure.split("T")[1]?.slice(0, 5),
+            }))
+        );
+      } else {
         setPassengers([]);
-        console.log(tripId);
         router.replace("/(tabs)/ViajesConductor/sinProgramados");
       }
+    } catch (error) {
+      setPassengers([]);
+      console.log(tripId);
+      router.replace("/(tabs)/ViajesConductor/sinProgramados");
     }
+  };
 
+  useEffect(() => {
     if (user?._id) {
       fetchData();
     }
   }, [user, router]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?._id) {
+        fetchData();
+      }
+    }, [user, tripId])
+  );
 
   return (
     <ImageBackground
@@ -159,7 +222,7 @@ export default function VerDetallesViajeProgramado() {
                   marginLeft: 2,
                 }}
               >
-                3/4
+                {trip ? trip.users + "/" + trip.userLimit : "..."}
               </Text>
             </Box>
           </HStack>
@@ -261,12 +324,23 @@ export default function VerDetallesViajeProgramado() {
                 zIndex: 10,
                 alignSelf: "center",
               }}
+              onPress={() => setShowPopup(true)}
             >
               <ButtonText style={styles.buttonText}>Cancelar</ButtonText>
             </Button>
           </ScrollView>
         </Box>
       </Box>
+      <CancelRideModal
+        visible={showPopup}
+        onCancel={() => setShowPopup(false)}
+        onConfirm={handleConfirmCancel}
+      />
+      <CancelRideSucess
+        visible={showSuccessPopup}
+        onClose={handleCloseSuccessPopup}
+        message={successMessage}
+      />
     </ImageBackground>
   );
 }
@@ -309,7 +383,7 @@ const styles = StyleSheet.create({
     left: 25,
     color: "#171717",
     fontSize: 16,
-    fontFamily: "Exo",
+    fontFamily: "Exo-Regular",
     fontWeight: "400",
     textAlign: "left",
     zIndex: 10,

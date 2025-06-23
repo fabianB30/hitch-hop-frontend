@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import * as Font from 'expo-font';
 import { Image as ExpoImage } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
@@ -8,14 +9,15 @@ import { useAuth } from '../Context/auth-context';
 
 export default function EditarVehiculo() {
   const router = useRouter();
-  //Por el momento voy a dejar la id as[i, luego hay que comunicarlo con todo]
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const { id } = useLocalSearchParams();;
   const [brand, setMarca] = useState('Hyundai');
   const [model, setModelo] = useState('Santa Fe');
   const [plate, setPlaca] = useState('BTR-932');
   const [color, setColor] = useState('Gris');
   const [anio, setAnio] = useState('2019');
-  const [foto, setFoto] = useState(null);
+  //editarVehiculo
+  const [foto, setFoto] = useState<string | null>(null);
   const { user, setUser } = useAuth();
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function EditarVehiculo() {
               setPlaca(data.plate);
               setColor(data.color);
               setAnio(data.year);
-              //setFoto(data.foto);
+              setFoto(data.photoUrl);
             } else {
                console.log('Error mamadisimo que no deberia pasar, id:', id);
             }
@@ -46,11 +48,13 @@ export default function EditarVehiculo() {
           brand: brand, 
           color: color, 
           plate: plate,
+          //nuevo
+          photoUrl: foto,
           year: anio
         };
       try {
         if (typeof id === 'string') {
-          const vehicle = await updateVehicleByIdRequest(id, vehicleData);
+          await updateVehicleByIdRequest(id, vehicleData);
           setUser({...user});
         } else {
           console.log('Error mamadisimo que no deberia pasar, id:', id);
@@ -59,7 +63,7 @@ export default function EditarVehiculo() {
         console.error('Error al editar el vehículo:', error);
       }
   
-      router.push('/vehiculos')
+      router.push('/vehiculos/vehiculosIndex')
     };
 
 
@@ -98,3 +102,113 @@ export default function EditarVehiculo() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  formContainer: {
+    flex: 1,
+    backgroundColor: '#F3F2FF',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: 100,
+    paddingTop: 24,
+    paddingHorizontal: 0,
+  },
+  title: {
+    fontFamily: 'Exo-Bold',
+    fontSize: 32,
+    color: '#181718',
+    marginLeft: 18,
+  },
+  inputGroupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 18,
+    justifyContent: 'space-between',
+  },
+  label: {
+    fontFamily: 'Exo-Bold',
+    fontSize: 18,
+    color: '#181718',
+    marginBottom: 2,
+  },
+  inputRight: {
+    flex: 1,
+    fontFamily: 'Exo-Regular',
+    fontSize: 17,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    marginLeft: 12,
+    color: '#181718',
+    minWidth: 120,
+    maxWidth: 270,
+  },
+  vehicleImg: {
+    width: 180,
+    height: 110,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    marginLeft: 18,
+  },
+  changePhotoBtn: {
+    alignSelf: 'flex-start',
+    marginLeft: 18,
+    marginBottom: 18,
+    backgroundColor: '#fff',
+    borderColor: '#FFA800',
+    borderWidth: 1.5,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 22,
+  },
+  changePhotoBtnText: {
+    color: '#FFA800',
+    fontFamily: 'Exo-Bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  saveBtn: {
+    backgroundColor: '#7B61FF',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    alignSelf: 'flex-end',
+    marginRight: 18,
+    marginTop: 8,
+  },
+  saveBtnText: {
+    color: '#fff',
+    fontFamily: 'Exo-Bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: 56,
+    backgroundColor: '#A18AFF',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+  },
+  bottomIcon: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  iconImg: {
+    width: 32,
+    height: 32,
+    tintColor: '#fff',
+  },
+});

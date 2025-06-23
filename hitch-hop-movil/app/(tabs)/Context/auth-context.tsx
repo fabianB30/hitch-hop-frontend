@@ -37,8 +37,10 @@ interface AuthContextType {
   signUp: (userData: UserData) => Promise<void>;
   signIn: (userData: { username: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (newUser: User) => Promise<void>;
   loading: boolean;
   user: UserData | null;
+  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
   isAuthenticated: boolean;
   errors: string[];
 }
@@ -124,6 +126,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUser = async (newUser: User) => {
+    try {
+      setUser(newUser);
+      setIsAuthenticated(true);
+      setErrors([]);
+      await AsyncStorage.setItem("user", JSON.stringify(newUser));
+    } catch (err) {
+      console.log("Error al actualizar usuario:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -145,8 +160,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signUp,
         signIn,
         logout,
+        updateUser,
         loading,
         user,
+	//Para actualizar lista de vehiculos
+	setUser,
         isAuthenticated,
         errors,
       }}

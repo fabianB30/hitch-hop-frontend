@@ -1,3 +1,6 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// // Contiene el código que muestra un modal de éxito al eliminar un viaje.
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -5,12 +8,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 type Props = {
   visible: boolean;
   onClose: () => void;
+  message?: string;
 };
 
 const { width } = Dimensions.get('window');
 const CONTAINER_WIDTH = Math.min(Math.max(width * 0.9, 310), 368);
 
-export default function CancelSuccessPopup({ visible, onClose }: Props) {
+export default function CancelSuccessPopup({ visible, onClose , message}: Props) {
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
@@ -22,7 +26,7 @@ export default function CancelSuccessPopup({ visible, onClose }: Props) {
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <MaterialCommunityIcons name="close" size={20} color="#8E8E8E" />
           </TouchableOpacity>          
-          <Text style={styles.message}>Las solicitudes pendientes del viaje fueron eliminadas.</Text>
+          <Text style={styles.message}>{message ?? "Las solicitudes pendientes del viaje fueron eliminadas."} </Text>
         </View>
       </View>
     </Modal>

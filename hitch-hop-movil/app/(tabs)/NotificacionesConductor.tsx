@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { StyleSheet } from 'react-native';
 import { ClockIcon, Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
-import { MapPin, Calendar, ChevronLeft, SignalZero, WindArrowDownIcon } from "lucide-react-native"
+import { MapPin, Calendar} from "lucide-react-native"
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
@@ -20,69 +20,6 @@ const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-// const notificaciones: any[] = [
-//     {
-//         id: 0,
-//         tipo: "SP",
-//         fecha: "Lun. 14 de abril, 2025.",
-//         hora: "11:55am"
-//     },
-//     {
-//         id: 1,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "02:00pm"
-//     },
-//     {
-//         id: 2,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 3,
-//         tipo: "SP",
-//         fecha: "Vie. 11 de abril, 2025.",
-//         hora: "02:10pm"
-//     },
-//     {
-//         id: 4,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 5,
-//         tipo: "SP",
-//         fecha: "Vie. 11 de abril, 2025.",
-//         hora: "02:10pm"
-//     },
-//     {
-//         id: 6,
-//         tipo: "SP",
-//         fecha: "Vie. 11 de abril, 2025.",
-//         hora: "02:10pm"
-//     },
-//     {
-//         id: 7,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 8,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 9,
-//         tipo: "SP",
-//         fecha: "Vie. 11 de abril, 2025.",
-//         hora: "02:10pm"
-//     }
-// ]
-
 type Notification = User["notifications"][number];
 
 export default function NotificacionesConductor (){
@@ -90,7 +27,7 @@ export default function NotificacionesConductor (){
 
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;
-    //console.log(userId);
+    // console.log(userId);
 
     // Conseguir notificaciones de usuario
     useEffect(() => {
@@ -105,12 +42,12 @@ export default function NotificacionesConductor (){
         };
         fetchNotifications();
     }, [userId]);
-    //console.log(notificaciones);
+    // console.log(notificaciones);
 
     // Formateo para la hora
     const formatHour = (tripDate: string) => {
         const date = new Date(tripDate);
-        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit'});
+        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit', timeZone: 'UTC'});
     };
 
     // Formateo para la fecha
@@ -134,18 +71,17 @@ export default function NotificacionesConductor (){
     const router = useRouter();
 
     return(
+        //Fondo de ventana
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
                 <Image style={styles.fondo} source={require("@/assets/images/fondoNotificaciones.png")} resizeMode="cover"/>
             </Box>
-        
+
+            {/* Espacio para barra de notificaciones sin obstrucciones visuales */}
             <Box style={{height: 30}}/>  
 
+            {/* Titulo HitchHop */}
             <Box style={styles.header}>
-                <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-                    <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
-                </Box>
-    
                 <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
                     <Text style={styles.appTitulo}>
                         HitchHop
@@ -153,35 +89,47 @@ export default function NotificacionesConductor (){
                 </Box>
             </Box>
             
-            <Box style={{left: windowWidth*0.04, marginTop: 15}}>
+            {/* Titulo de Notificaciones */}
+            <Box style={{left: windowWidth*0.04, marginTop:0}}>
                 <Text style={styles.tituloNotif}>
                     Notificaciones
                 </Text>
             </Box>
+
+            {/* Cartas de las notificaciones */}
             <Box style={{width: windowWidth, height: windowHeight*0.86, alignContent: "center", alignItems: "center"}}>
+
+                {/* Ver si hay o no hay notificaciones para mostrar */}
                 {notificaciones.length === 0 ? (
                     <Box style={styles.noNotifs}>
                         <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain"/>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 24, marginTop: 12, color: "black"}}>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 30, marginTop: 5, color: "black"}}>
                             ¡No hay notificaciones!
                         </Text>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 18, marginTop: 12, color: "black"}}>
+                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 30, marginTop: 12, color: "black"}}>
                             Las notificaciones aparecen aquí.
                         </Text>
                     </Box>
                 ) : (
+                // Contenedor scroll de las notificaciones
                 <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 110}} horizontal={false} style={styles.scroll}>
+
+                    {/* Contenedor vertical de las notificaciones */}
                     <VStack space="lg" style={styles.notifBox}>
                         
+                        {/* Metodo para mostrar notificaciones */}
                         {notificaciones.map((notif) => {
                             return (
-                            <Card key={notif.tripDate} variant="filled" style={styles.cards}>
+                            <Card key={notif.timestamp} variant="filled" style={styles.cards}>
 
                                     <Text style={styles.cardHeadFont}>
+                                        {/* Titulo de notificacion segun tipo de notificacion */}
                                         {notif.type === "SP" ? "Solicitud pendiente" : "Viaje cancelado"}
                                     </Text>
 
+                                {/* Diferente manera de mostrar si es solicitud pendiente o viaje cancelado */}
                                 {notif.type === "SP" ? (
+                                // Cuerpo de carta de solicitud pendiente
                                 <>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={Calendar} size="md" />
@@ -202,6 +150,7 @@ export default function NotificacionesConductor (){
                                     </Box>
                                 </>
                                 ) : (
+                                // Cuerpo de carta de viaje cancelado
                                 <>
                                     <HStack space="sm" style={styles.hstackStyle}>
                                         <Icon as={MapPin} size="md" />
@@ -228,6 +177,7 @@ export default function NotificacionesConductor (){
     )
 }
 
+//Estilos utilizados para cada componente
 const styles = StyleSheet.create({
     header: {
         height: windowHeight*0.11,
@@ -237,10 +187,6 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         position: "relative",
         zIndex: 2
-    },
-    backArrow: {
-        width: 30,
-        height: 30
     },
     buttonTextHitch: {
         fontFamily: "Exo_600SemiBold",
@@ -290,7 +236,7 @@ const styles = StyleSheet.create({
         position: "fixed",
         justifyContent: "center",
         alignContent: "center",
-        marginTop: 28
+        marginTop: -60
     },
     scroll: {
         marginTop: 28
@@ -329,8 +275,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignContent: "center",
         position: "absolute",
-        right: 15,
-        bottom: 15,
+        right: 10,
+        bottom: 5,
         height: 27,
         width: "auto"
     },
@@ -340,13 +286,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         height: windowWidth*0.064,
-        width: 61
+        width: 70
     },
     spButtonText: {
-        width: windowWidth*0.04 + 9,
+        width: windowWidth*0.09 + 8,
         fontFamily: "Exo_500Medium",
         fontSize: windowWidth*0.04,
-        lineHeight: windowWidth*0.04,
+        lineHeight: windowWidth*0.05,
         textAlign: "center",
         color: "white"
     },

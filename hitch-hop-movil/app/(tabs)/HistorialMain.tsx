@@ -64,7 +64,10 @@ export default function HistorialMain() {
         {/* Opción Conductor */}
         <TouchableOpacity
           style={{ alignItems: 'center', width: 240, marginTop: 24, marginBottom: -5 }}
-          onPress={() => router.push('/(tabs)/HistorialConductor/C_historialLleno')}
+          onPress={() => router.push({
+		  pathname: '/(tabs)/Historial/historialLleno',
+		  params: {isDriver: true} 
+	  })}
         >
           <View
             style={{
@@ -101,7 +104,10 @@ export default function HistorialMain() {
         {/* Opción Pasajero */}
         <TouchableOpacity
           style={{ alignItems: 'center', width: 240, marginBottom: 0 }}
-          onPress={() => router.push('/(tabs)/HistorialPasajero/P_historialLleno')}
+          onPress={() => router.push({
+		  pathname: '/(tabs)/Historial/historialLleno', 
+		  params: {isDriver: false} 
+	  })}
         >
           <View
             style={{

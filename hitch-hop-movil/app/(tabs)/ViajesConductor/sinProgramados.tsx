@@ -2,10 +2,12 @@ import {ImageBackground, StyleSheet, Text, ScrollView, Dimensions, View, Image }
 import { Pressable } from "@/components/ui/pressable";
 import { useRouter } from 'expo-router';
 import { useFonts } from "expo-font";
+import { useAuth } from '../Context/auth-context';
 
 export default function sinViajes() {
 
   const router = useRouter();
+  const { user } = useAuth();
   const { width } = Dimensions.get('window');
   const [fontsLoaded] = useFonts({
     'Montserrat-ExtraBold': require('@/assets/fonts/Montserrat-ExtraBold.ttf'),
@@ -45,7 +47,7 @@ export default function sinViajes() {
         </View>
         <Pressable
           style={styles.button}
-          onPress={() => console.log('Programar Viaje')}
+          onPress={() => {router.push('/PublicarRutasConductor/index')}}
         >
           <Text style={styles.buttonText}>Programar Viaje</Text>
         </Pressable>
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
-    width: 180,
+    width: 200,
     height: 36,
     backgroundColor: '#7875F8',
     borderRadius: 8,

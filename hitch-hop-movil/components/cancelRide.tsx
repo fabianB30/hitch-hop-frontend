@@ -1,3 +1,7 @@
+// Creado por Xotchil
+// Ediciones: Xotchil
+// Contiene el código del componente CancelRideModal que muestra un modal de confirmación
+// para cancelar un viaje.
 import React from "react";
 import { View, Dimensions, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 

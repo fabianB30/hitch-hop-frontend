@@ -18,69 +18,11 @@ const windowWidth = Dimensions.get("window").width;
 const boxWidth = windowWidth * 0.72;
 const boxHeight = windowHeight * 0.5;
 
-// const notificaciones: any[] = [
-//     {
-//         id: 0,
-//         tipo: "VA",
-//         lugar: "Estación del Pacífico",
-//         hora: "02:00pm"
-//     },
-//     {
-//         id: 1,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 2,
-//         tipo: "VA",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 3,
-//         tipo: "VA",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 4,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 5,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 6,
-//         tipo: "VA",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 7,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     },
-//     {
-//         id: 8,
-//         tipo: "VC",
-//         lugar: "Estación del Pacífico",
-//         hora: "12:50pm"
-//     }
-// ]
-
-
 type Notification = User["notifications"][number];
 
-export default function NotificacionesConductor (){
-    const { user } = useAuth() as {user: User | null};
-    
+export default function NotificacionesConductor() {
+    const { user } = useAuth() as { user: User | null };
+
     const [notificaciones, setNotificaciones] = useState<Notification[]>([]);
     const userId = user?._id;
     //console.log(userId);
@@ -91,9 +33,7 @@ export default function NotificacionesConductor (){
             if (!userId) return;
             const result = await getNotificationsByUserRequest(userId);
             if (result) {
-                setNotificaciones(result); // Aquí lo que pasa es que result no tiene tipo, lo puede hacer mapeando como results.map
-                //puede agarrar de ejemplo los mappedRequest de verDetallesViajeProgramado algo así 
-                // const mappedRequests = trip.passengers.map((passenger: any) => ({
+                setNotificaciones(result);
             } else {
                 setNotificaciones([]);
             }
@@ -105,93 +45,101 @@ export default function NotificacionesConductor (){
     // Formateo para la hora
     const formatHour = (timestamp: string) => {
         const date = new Date(timestamp);
-        return date.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit'});
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
     };
 
 
-    return(
+    return (
+        //Fondo de ventana
         <Box style={{ flex: 1, backgroundColor: "#fff" }}>
             <Box style={styles.contenedorFondo}>
-                <Image style={styles.fondo} source={require("@/assets/images/fondoNotificaciones.png")} resizeMode="cover"/>
+                <Image style={styles.fondo} source={require("@/assets/images/fondoNotificaciones.png")} resizeMode="cover" />
             </Box>
-        
-            <Box style={{height: 30}}/> 
 
+            {/* Espacio para barra de notificaciones sin obstrucciones visuales */}
+            <Box style={{ height: 30 }} />
+
+            {/* Titulo HitchHop */}
             <Box style={styles.header}>
-                <Box style={{position: "absolute", top: windowHeight*0.04, left: windowWidth*0.08}}>
-                    <Icon as={ChevronLeft} style={{width: 50, height: 50}}/>
-                </Box>
-    
-                <Box style={{flex: 1, top: 0, alignItems: "flex-end"}}>
+                <Box style={{ flex: 1, top: 0, alignItems: "flex-end" }}>
                     <Text style={styles.appTitulo}>
                         HitchHop
-                    </Text>  
+                    </Text>
                 </Box>
             </Box>
-            
-            <Box style={{left: windowWidth*0.04, marginTop: 15}}>
+
+            {/* Titulo de Notificaciones */}
+            <Box style={{ left: windowWidth * 0.04, marginTop: 0 }}>
                 <Text style={styles.tituloNotif}>
                     Notificaciones
                 </Text>
             </Box>
-            <Box style={{width: windowWidth, height: windowHeight*0.86, alignContent: "center", alignItems: "center"}}>
+
+            {/* Cartas de las notificaciones */}
+            <Box style={{ width: windowWidth, height: windowHeight * 0.86, alignContent: "center", alignItems: "center" }}>
+
+                {/* Ver si hay o no hay notificaciones para mostrar */}
                 {notificaciones.length === 0 ? (
                     <Box style={styles.noNotifs}>
-                        <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain"/>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 24, marginTop: 12, color: "black"}}>
+                        <Image source={require("@/assets/images/noNotificaciones.png")} style={styles.imagenNoNotis} resizeMode="contain" />
+                        <Text style={{ textAlign: "center", fontFamily: "Exo_600SemiBold", fontSize: 24, height: 30, marginTop: 5, color: "black" }}>
                             ¡No hay notificaciones!
                         </Text>
-                        <Text style={{textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 18, marginTop: 12, color: "black"}}>
+                        <Text style={{ textAlign: "center", fontFamily: "Exo_500Medium", fontSize: 18, height: 30, marginTop: 12, color: "black" }}>
                             Las notificaciones aparecen aquí.
                         </Text>
                     </Box>
                 ) : (
-                <ScrollView contentContainerStyle={{flexGrow: 1, paddingBottom: 40}} horizontal={false} style={styles.scroll}>
-                    <VStack space="lg" style={styles.notifBox}>
-                        
-                        {notificaciones.map((notif) => {
-                            return (
-                                <Card key={notif.tripDate} variant="filled" style={styles.cards}>
-                                    <Text style={styles.cardHeadFont}>
-                                        {notif.type === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
-                                    </Text>
+                    // Contenedor scroll de las notificaciones
+                    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }} horizontal={false} style={styles.scroll}>
 
-                                    <HStack space="sm" style={styles.hstackStyle}>
-                                        <Icon as={MapPin} size="md" />
-                                        <Text size="sm" style={styles.lugarFechaFont}>
-                                            {notif.place}
+                        {/* Contenedor vertical de las notificaciones */}
+                        <VStack space="lg" style={styles.notifBox}>
+
+                            {/* Metodo para mostrar notificaciones */}
+                            {notificaciones.map((notif) => {
+                                return (
+                                    <Card key={notif.timestamp} variant="filled" style={styles.cards}>
+                                        <Text style={styles.cardHeadFont}>
+                                            {/* Titulo de notificacion segun tipo de notificacion */}
+                                            {notif.type === "VA" ? "Viaje aprobado" : "Viaje cancelado"}
                                         </Text>
-                                    </HStack>
-                                    <HStack space="sm" style={styles.hstackStyle}>
-                                        <Icon color="#404040" as={ClockIcon} size="md" />
-                                        <Text size="sm" style={styles.horaFont}>
-                                            {formatHour(notif.tripDate || "")}
-                                        </Text>
-                                    </HStack>
-                                </Card>
-                            );
-                        })}
-                    </VStack>
-                </ScrollView>
+
+                                        {/* Cuerpo de la carta */}
+                                        <HStack space="sm" style={styles.hstackStyle}>
+                                            <Icon as={MapPin} size="md" />
+                                            <Text size="sm" style={styles.lugarFechaFont}>
+                                                {notif.place}
+                                            </Text>
+                                        </HStack>
+                                        <HStack space="sm" style={styles.hstackStyle}>
+                                            <Icon color="#404040" as={ClockIcon} size="md" />
+                                            <Text size="sm" style={styles.horaFont}>
+                                                {formatHour(notif.tripDate || "")}
+                                            </Text>
+                                        </HStack>
+                                    </Card>
+                                );
+                            })}
+                        </VStack>
+                    </ScrollView>
                 )}
             </Box>
         </Box>
     )
-}
+} 
+
+//Estilos utilizados para cada componente
 
 const styles = StyleSheet.create({
     header: {
-        height: windowHeight*0.11,
+        height: windowHeight * 0.11,
         flexDirection: "row",
         justifyContent: "space-between",
         paddingHorizontal: 10,
         paddingVertical: 16,
         position: "relative",
         zIndex: 2
-    },
-    backArrow: {
-        width: 30,
-        height: 30
     },
     buttonTextHitch: {
         fontFamily: "Exo_600SemiBold",
@@ -206,7 +154,7 @@ const styles = StyleSheet.create({
         height: boxHeight,
         zIndex: 2
     },
-    appTitulo:{
+    appTitulo: {
         fontSize: 24,
         height: 24,
         top: 0,
@@ -219,7 +167,7 @@ const styles = StyleSheet.create({
         left: 0,
         width: windowWidth,
         height: windowHeight,
-        zIndex: 0, 
+        zIndex: 0,
     },
     fondo: {
         width: windowWidth,
@@ -233,7 +181,7 @@ const styles = StyleSheet.create({
         color: "black"
     },
     imagenNoNotis: {
-        height: windowHeight*0.3,
+        height: windowHeight * 0.3,
         transform: [{ scale: 2.6 }, { translateX: 0 }, { translateY: -10 }]
     },
     noNotifs: {
@@ -241,7 +189,7 @@ const styles = StyleSheet.create({
         position: "fixed",
         justifyContent: "center",
         alignContent: "center",
-        marginTop: 28
+        marginTop: -60,
     },
     scroll: {
         marginTop: 28
@@ -261,7 +209,7 @@ const styles = StyleSheet.create({
     },
     cardHeadFont: {
         height: 25,
-        maxHeight: 70, 
+        maxHeight: 70,
         fontSize: 20,
         fontFamily: "Exo_700Bold",
         color: "black"
@@ -283,8 +231,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignContent: "center",
         position: "absolute",
-        right: 15,
-        bottom: 15,
+        right: 10,
+        bottom: 5,
         height: 27,
         width: "auto"
     },

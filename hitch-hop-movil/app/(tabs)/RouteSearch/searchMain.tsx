@@ -405,7 +405,7 @@ charaImage: {
     marginHorizontal: 'auto',
     width: width * 0.44, 
     height: width * 0.44,
-    marginBottom: 18
+    marginBottom: 10
 },
 charaText: {
     marginHorizontal: 'auto',
@@ -428,7 +428,7 @@ button: {
     fontWeight: 'medium',
     marginLeft: 17,
     marginRight: 17,
-    marginTop: 30
+    marginTop: -15
 },
 modalBackButton: {
     height: 36,
