@@ -98,10 +98,9 @@ export default function ClickableInput({
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      <View style={styles.content}>
-        <View style={styles.textContainer}>
+      <View style={styles.content}>        <View style={styles.textContainer}>
           {/* Header and value display */}
-          <Text style={styles.header}>{header}</Text>
+          {Boolean(header) && <Text style={styles.header}>{header}</Text>}
           <Text style={[
             styles.subHeader,
             isPlaceholder && styles.placeholder

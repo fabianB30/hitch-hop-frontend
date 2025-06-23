@@ -10,7 +10,6 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Input Fields Components
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Image, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
-// Removed unused imports from @/components/ui/input
 import { Modal, ModalBackdrop, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@/components/ui/modal"
 import { Select } from "@/components/ui/select";
 import { Button, ButtonText } from "@/components/ui/button";
@@ -31,8 +30,6 @@ import { registerTripRequest } from '@/interconnection/trip';
 const fondoHeader = require("@/assets/images/fondoPubRutas2.png");
 const flechaBack = require("@/assets/images/flechaback.png");
 const logoHeader = require("@/assets/images/HHLogoDisplay.png");
-
-// Payment method options - now handled by SelectPaymentModal
 
 interface Vehiculo {
   _id: string;
@@ -146,8 +143,7 @@ export default function FormPublicarRuta() {
       setIsLoadingVehicles(false);
       lastFetchedUserIdRef.current = null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?._id, user?.vehicles]); // Only depend on user ID and vehicles array (vehicleCache excluded to prevent infinite loop)
+  }, [user?._id, user?.vehicles]); // Only depend on user ID and vehicles array
 
 
   // Effect to handle incoming data from navigation
@@ -267,7 +263,7 @@ export default function FormPublicarRuta() {
           place: placeId,
           status: 'Pendiente' as const
         };
-      }).filter((stop): stop is { place: string; status: 'Pendiente' } => stop !== null);        // Get selected vehicle ID
+      }).filter((stop): stop is { place: string; status: 'Pendiente' } => stop !== null); // Get selected vehicle ID
       const selectedVehicle = userVehicles.find(v => getVehicleDisplayName(v) === vehiculo);
       if (!selectedVehicle) {
         console.error('Could not find selected vehicle');
@@ -282,7 +278,7 @@ export default function FormPublicarRuta() {
       const arrivalDatetime = new Date(departureDatetime);
       arrivalDatetime.setHours(23, 59, 59, 999);
       
-      // Parse payment method for backend - simplified logic
+      // Parse payment method for backend
       const paymentMethods = metodoPago.split(',').map(method => method.trim());
       let backendPaymethod: 'Gratuito' | 'Sinpe' | 'Efectivo';
       
@@ -432,27 +428,46 @@ export default function FormPublicarRuta() {
       });
     }, 100);
   };
-
   // Helper function to get vehicle display name
-  const getVehicleDisplayName = (vehicle: Vehiculo) => {
-    return `${vehicle.brand} ${vehicle.model} (${vehicle.plate})`;
+  const getVehicleDisplayName = (vehicle: Vehiculo): string => {
+    try {
+      return `${vehicle.brand} ${vehicle.model} (${vehicle.plate})`;
+    } catch (error) {
+      console.error('Error formatting vehicle name:', error);
+      return "Vehículo sin nombre";
+    }
   };
-  
   // Helper function to get payment display text
-  const getPaymentDisplayText = () => {
-    if (!metodoPago) {
-      return "Seleccione un método de pago";
-    }
-    
-    if (metodoPago.includes("Gratuito")) {
+  const getPaymentDisplayText = (): string => {
+    try {
+      if (!metodoPago) {
+        return "Seleccione un método de pago";
+      }
+      
+      if (metodoPago.includes("Gratuito")) {
+        return metodoPago;
+      }
+      
+      if (costoPasajero && costoPasajero !== "0") {
+        return `${metodoPago} - ₡${costoPasajero}`;
+      }
+      
       return metodoPago;
+    } catch (error) {
+      console.error('Error formatting payment text:', error);
+      return "Método de pago no válido";
     }
-    
-    if (costoPasajero && costoPasajero !== "0") {
-      return `${metodoPago} - ₡${costoPasajero}`;
+  };
+  // Helper function to get formatted date and time
+  const getFormattedDateTime = (): string => {
+    try {
+      const dateStr = fecha.toLocaleDateString('es-ES');
+      const timeStr = hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      return `${dateStr} - ${timeStr}`;
+    } catch (error) {
+      console.error('Error formatting date/time:', error);
+      return "Fecha no válida";
     }
-    
-    return metodoPago;
   };
   
   return (
@@ -481,7 +496,7 @@ export default function FormPublicarRuta() {
           />        </TouchableOpacity>
       </View>      <View style={styles.formContainer}>
         {/* Loading state */}
-        {isLoadingVehicles ? (
+        {Boolean(isLoadingVehicles) ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#7875F8" />
             <Text style={styles.loadingText}>Cargando vehículos...</Text>
@@ -497,9 +512,8 @@ export default function FormPublicarRuta() {
             keyboardDismissMode="on-drag"
             nestedScrollEnabled={true}
           >{/* Contenido del formulario */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, fieldErrors.origen && styles.errorLabel]}>
-              Punto de Inicio<Text style={styles.asterisk}>*</Text>
+          <View style={styles.inputGroup}>            <Text style={[styles.inputLabel, fieldErrors.origen && styles.errorLabel]}>
+              <Text>Punto de Inicio</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <ClickableInput
               header=""
@@ -519,9 +533,8 @@ export default function FormPublicarRuta() {
           </View>
           
           {/* Divider */}
-          <View style={styles.divider} />          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>
-              Puntos de Parada<Text style={styles.asterisk}>*</Text>
+          <View style={styles.divider} />          <View style={styles.inputGroup}>            <Text style={styles.inputLabel}>
+              <Text>Puntos de Parada</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <ClickableInput
               header=""
@@ -542,9 +555,8 @@ export default function FormPublicarRuta() {
           
           {/* Divider */}
           <View style={styles.divider} />
-            <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, fieldErrors.destino && styles.errorLabel]}>
-              Punto Final<Text style={styles.asterisk}>*</Text>
+            <View style={styles.inputGroup}>            <Text style={[styles.inputLabel, fieldErrors.destino && styles.errorLabel]}>
+              <Text>Punto Final</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <ClickableInput
               header=""
@@ -564,10 +576,10 @@ export default function FormPublicarRuta() {
           </View>
           
           {/* Divider */}
-          <View style={styles.divider} />          <View style={styles.inputGroup}>
-            <Text style={[styles.inputLabel, fieldErrors.vehiculo && styles.errorLabel]}>
-              Vehículo a Usar<Text style={styles.asterisk}>*</Text>
-            </Text>            {userVehicles.length > 0 ? (
+          <View style={styles.divider} />          <View style={styles.inputGroup}>            <Text style={[styles.inputLabel, fieldErrors.vehiculo && styles.errorLabel]}>
+              <Text>Vehículo a Usar</Text><Text style={styles.asterisk}>*</Text>
+            </Text>
+            {Boolean(userVehicles.length > 0) ? (
               <Select
               options={userVehicles.map((v) => getVehicleDisplayName(v))}
               selectedValue={vehiculo}
@@ -579,15 +591,17 @@ export default function FormPublicarRuta() {
               style={styles.disabledSelect}
               onPress={() => setShowNoVehicleModal(true)}
               >
-              <Text style={[styles.placeholderText, { fontSize: 15 }]}>No hay vehículos disponibles</Text>
-              </TouchableOpacity>
-            )}          </View>
+              <Text style={[styles.placeholderText, { fontSize: 15 }]}>
+                No hay vehículos disponibles
+              </Text>              </TouchableOpacity>
+            )}
+          </View>
           
-          {/* Divider */}
-          <View style={styles.divider} />
-            <View style={styles.inputGroup}>
+          {/* Divider */}          <View style={styles.divider} />
+          
+          <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, fieldErrors.asientosDisponibles && styles.errorLabel]}>
-              Cantidad de Pasajeros<Text style={styles.asterisk}>*</Text>
+              <Text>Cantidad de Pasajeros</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <TextInput
               ref={asientosRef}
@@ -596,22 +610,22 @@ export default function FormPublicarRuta() {
               placeholder="Ingrese la cantidad de pasajeros"
               keyboardType="numeric"
               style={styles.textInput}
-              onFocus={() => scrollToInput(asientosRef)}
-              returnKeyType="done"
-            />          </View>
+              onFocus={() => scrollToInput(asientosRef)}              returnKeyType="done"
+            />
+          </View>
           
           {/* Divider */}
           <View style={styles.divider} />
-            <View style={styles.inputGroup}>
+          
+          <View style={styles.inputGroup}>
             <Text style={[styles.inputLabel, fieldErrors.metodoPago && styles.errorLabel]}>
-              Método de Pago<Text style={styles.asterisk}>*</Text>
+              <Text>Método de Pago</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <TouchableOpacity
               style={styles.dateTimeSelector}
               onPress={() => setPaymentModalVisible(true)}
             >
-              <View style={styles.dateTimeSelectorInner}>
-                <Text style={[styles.dateTimeText, !metodoPago && styles.placeholderText]}>
+              <View style={styles.dateTimeSelectorInner}>                <Text style={[styles.dateTimeText, !Boolean(metodoPago) && styles.placeholderText]}>
                   {getPaymentDisplayText()}
                 </Text>
                 <LucideChevronRight
@@ -620,46 +634,48 @@ export default function FormPublicarRuta() {
                 />
               </View>
             </TouchableOpacity>
-          </View>
-          {/* Divider */}
-          <View style={styles.divider} />          <View style={styles.inputGroup}>
+          </View>          {/* Divider */}
+          <View style={styles.divider} />
+          
+          <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>
-              Horario del Viaje<Text style={styles.asterisk}>*</Text>
+              <Text>Horario del Viaje</Text><Text style={styles.asterisk}>*</Text>
             </Text>
             <TouchableOpacity
               style={styles.dateTimeSelector}
               onPress={() => setDateTimeModalVisible(true)}
             >
-              <View style={styles.dateTimeSelectorInner}>
-                <Text style={styles.dateTimeText}>
-                  {fecha.toLocaleDateString('es-ES')} - {hora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+              <View style={styles.dateTimeSelectorInner}>                <Text style={styles.dateTimeText}>
+                  {getFormattedDateTime()}
                 </Text>
                 <LucideCalendarDays
                   size={24}
                   color="#414040"
-                />
-              </View>            </TouchableOpacity>
+                />              </View>
+            </TouchableOpacity>
             
             {/* Divider */}
             <View style={styles.divider} />
-          </View>          {/* Button with proper margins */}
-          <View style={styles.buttonContainer}>
-            {showValidationError && (
+          </View>
+          
+          {/* Button with proper margins */}
+          <View style={styles.buttonContainer}>            {Boolean(showValidationError) && (
               <Text style={styles.validationError}>
                 *Por favor, complete los campos obligatorios.
               </Text>
-            )}            <Button onPress={handlePublicarRuta} style={styles.button} disabled={isSubmittingTrip}>
-              {isSubmittingTrip ? (
+            )}
+            
+            <Button onPress={handlePublicarRuta} style={styles.button} disabled={isSubmittingTrip}>              {Boolean(isSubmittingTrip) ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
                 <ButtonText style={{ fontWeight: "bold" }}>Registrar Ruta</ButtonText>
-              )}
-            </Button>
-          </View>        </ScrollView>
+              )}</Button>
+          </View>
+        </ScrollView>
         )}
       </View>
 
-      {showNoVehicleModal && (
+      {Boolean(showNoVehicleModal) && (
         <Modal isOpen={showNoVehicleModal} onClose={() => setShowNoVehicleModal(false)}>
           <ModalBackdrop />
           <ModalContent>

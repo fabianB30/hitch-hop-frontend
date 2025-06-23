@@ -11,6 +11,9 @@ import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_800ExtraBold } fr
 import { AuthProvider } from './Context/auth-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+// Import warning suppressions
+import '@/utils/warningSuppressions';
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
