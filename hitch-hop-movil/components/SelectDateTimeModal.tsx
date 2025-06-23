@@ -5,13 +5,15 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Platform, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Font from 'expo-font';
 
 interface DateTimeModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onConfirm: (date: Date, time: Date) => void;
+  onConfirm: (date: Date, departureTime: Date, arrivalTime: Date) => void;
   initialDate?: Date;
-  initialTime?: Date;
+  initialDepartureTime?: Date;
+  initialArrivalTime?: Date;
 }
 
 export default function DateTimeModal({
@@ -19,12 +21,19 @@ export default function DateTimeModal({
   onClose,
   onConfirm,
   initialDate,
-  initialTime,
+  initialDepartureTime,
+  initialArrivalTime,
 }: Readonly<DateTimeModalProps>) {
+  // Font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [showValidationMessage, setShowValidationMessage] = useState(false);
+
   // Create default values that respect the 30 min minimum
   const now = new Date();
   const defaultMinTime = new Date(now);
   defaultMinTime.setMinutes(now.getMinutes() + 30);
+    const defaultArrivalTime = new Date(defaultMinTime);
+  defaultArrivalTime.setMinutes(defaultMinTime.getMinutes() + 30); // Default 30 minutes after departure
     
   // Calculate minimum allowed date (tomorrow)
   const minDate = React.useMemo(() => {
@@ -39,26 +48,49 @@ export default function DateTimeModal({
     const initialDateToUse = initialDate || new Date();
     return initialDateToUse < minDate ? minDate : initialDateToUse;
   });
-  const [time, setTime] = useState(initialTime || defaultMinTime);
+  
+  const [departureTime, setDepartureTime] = useState(initialDepartureTime ?? defaultMinTime);
+  const [arrivalTime, setArrivalTime] = useState(initialArrivalTime ?? defaultArrivalTime);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-    // Reset time if needed on date change
+  const [showDepartureTimePicker, setShowDepartureTimePicker] = useState(false);
+  const [showArrivalTimePicker, setShowArrivalTimePicker] = useState(false);
+  // Load fonts
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+  
+  // Clean up validation message when modal opens/closes
+  useEffect(() => {
+    if (isVisible) {
+      setShowValidationMessage(false);
+    }
+  }, [isVisible]);
+
+  // Reset time if needed on date change
   useEffect(() => {
     // Since we only allow dates from tomorrow onward, we don't need to check if it's today
     // But we can ensure a reasonable default time
-    if (!time) {
+    if (!departureTime) {
       const defaultTime = new Date();
       defaultTime.setHours(8, 0, 0, 0); // Default to 8:00 AM
-      setTime(defaultTime);
+      setDepartureTime(defaultTime);
     }
-  }, [date, time]);
-  
-  const isToday = (someDate: Date) => {
-    const today = new Date();
-    return someDate.getDate() === today.getDate() &&
-      someDate.getMonth() === today.getMonth() &&
-      someDate.getFullYear() === today.getFullYear();
-  };
+    
+    // Don't automatically adjust arrival time here - let the validation message show first
+    // Only auto-adjust on initial load if no initial arrival time was provided
+    if (!initialArrivalTime && arrivalTime && departureTime) {
+      const minimumArrivalTime = new Date(departureTime);
+      minimumArrivalTime.setMinutes(departureTime.getMinutes() + 30);
+      
+      if (arrivalTime < minimumArrivalTime) {
+        setArrivalTime(minimumArrivalTime);
+      }
+    }
+  }, [date, departureTime, arrivalTime, initialArrivalTime]);// Don't render until fonts are loaded
+  if (!fontsLoaded) return null;
   
   const handleDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -67,18 +99,68 @@ export default function DateTimeModal({
       setDate(selectedDate);
     }
   };
-  
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
+  const handleDepartureTimeChange = (event: any, selectedTime?: Date) => {
+    setShowDepartureTimePicker(Platform.OS === 'ios');
     
     if (selectedTime && event.type !== 'dismissed') {
-      setTime(selectedTime);
+      setDepartureTime(selectedTime);
+      setShowValidationMessage(true);
+      
+      // Show validation message for 2 seconds, then auto-adjust if needed
+      setTimeout(() => {
+        const minimumArrivalTime = new Date(selectedTime);
+        minimumArrivalTime.setMinutes(selectedTime.getMinutes() + 30);
+        
+        if (arrivalTime < minimumArrivalTime) {
+          setArrivalTime(minimumArrivalTime);
+          setShowValidationMessage(false);
+        } else {
+          setShowValidationMessage(false);
+        }
+      }, 2000);
     }
   };
-  
+  const handleArrivalTimeChange = (event: any, selectedTime?: Date) => {
+    setShowArrivalTimePicker(Platform.OS === 'ios');
+    
+    if (selectedTime && event.type !== 'dismissed') {
+      // Always update the arrival time first to show the user's selection
+      setArrivalTime(selectedTime);
+      
+      // Check if selected time is valid
+      const minimumArrivalTime = new Date(departureTime);
+      minimumArrivalTime.setMinutes(departureTime.getMinutes() + 30);
+      
+      if (selectedTime >= minimumArrivalTime) {
+        setShowValidationMessage(false);
+      } else {
+        setShowValidationMessage(true);
+        // Auto-correct after showing the validation message for 2 seconds
+        setTimeout(() => {
+          setArrivalTime(minimumArrivalTime);
+          setShowValidationMessage(false);
+        }, 2000);
+      }
+    }
+  };
   const handleConfirm = () => {
-    // Since we only allow dates from tomorrow onward, no need for time validation
-    onConfirm(date, time);
+    // Validate that arrival is at least 30 minutes after departure
+    const minimumArrivalTime = new Date(departureTime);
+    minimumArrivalTime.setMinutes(departureTime.getMinutes() + 30);
+    
+    if (arrivalTime < minimumArrivalTime) {
+      // Auto-fix: set arrival 30 minutes after departure
+      setArrivalTime(minimumArrivalTime);
+      onConfirm(date, departureTime, minimumArrivalTime);
+    } else {
+      onConfirm(date, departureTime, arrivalTime);
+    }
+    setShowValidationMessage(false);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setShowValidationMessage(false);
     onClose();
   };
 
@@ -98,23 +180,21 @@ export default function DateTimeModal({
     return time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   };
 
-  return (
-    <Modal
+  return (    <Modal
       visible={isVisible}
       transparent={true}
       animationType="fade"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={handleClose}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.modalContainer}>
-              {/* Header */}
+            <View style={styles.modalContainer}>              {/* Header */}
               <View style={styles.header}>
-                <Text style={styles.title}>Elije una fecha y hora de inicio</Text>
+                <Text style={styles.title}>Elije fecha y horarios</Text>
               </View>
               
-              {/* Simple Date Display */}
+              {/* Date Selection */}
               <View style={styles.contentContainer}>
                 <TouchableOpacity 
                   style={styles.valueContainer}
@@ -134,38 +214,74 @@ export default function DateTimeModal({
                   />
                 )}
               </View>
-              
-              {/* Divider */}
+                {/* Divider */}
               <View style={styles.divider} />
               
-              {/* Simple Time Display */}
-              <View style={styles.contentContainer}>
-                <TouchableOpacity 
-                  style={styles.valueContainer}
-                  onPress={() => setShowTimePicker(true)}
-                >
-                  <Text style={styles.valueText}>{formatTime(time)}</Text>
-                </TouchableOpacity>
-                  {showTimePicker && (
-                  <DateTimePicker
-                    value={time}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? "inline" : "default"}
-                    onChange={handleTimeChange}
-                    accentColor="#7875F8" // Your purple color
-                  />
-                )}
+              {/* Time Selection Row */}
+              <View style={styles.timeRowContainer}>
+                {/* Departure Time Selection */}
+                <View style={styles.timeContainer}>
+                  <Text style={styles.labelText}>Hora de salida</Text>
+                  <TouchableOpacity 
+                    style={styles.valueContainer}
+                    onPress={() => setShowDepartureTimePicker(true)}
+                  >
+                    <Text style={styles.valueText}>{formatTime(departureTime)}</Text>
+                  </TouchableOpacity>
+                  
+                  {showDepartureTimePicker && (
+                    <DateTimePicker
+                      value={departureTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? "inline" : "default"}
+                      onChange={handleDepartureTimeChange}
+                      accentColor="#7875F8"
+                    />
+                  )}
+                </View>
                 
-                {isToday(date) && (
+                {/* Arrival Time Selection */}
+                <View style={styles.timeContainer}>
+                  <Text style={styles.labelText}>Hora de llegada</Text>
+                  <TouchableOpacity 
+                    style={styles.valueContainer}
+                    onPress={() => setShowArrivalTimePicker(true)}
+                  >
+                    <Text style={styles.valueText}>{formatTime(arrivalTime)}</Text>
+                  </TouchableOpacity>
+                  
+                  {showArrivalTimePicker && (
+                    <DateTimePicker
+                      value={arrivalTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? "inline" : "default"}
+                      onChange={handleArrivalTimeChange}
+                      accentColor="#7875F8"
+                    />
+                  )}
+                </View>
+              </View>              {/* Validation message */}
+              {(showValidationMessage || (() => {
+                const minimumArrivalTime = new Date(departureTime);
+                minimumArrivalTime.setMinutes(departureTime.getMinutes() + 30);
+                return arrivalTime < minimumArrivalTime;
+              })()) && (
+                <View style={styles.helpTextContainer}>
                   <Text style={styles.helpText}>
-                    Debe ser al menos 1 día previo
+                    La hora de llegada debe ser al menos 30 minutos después de la salida
                   </Text>
-                )}
-              </View>
-              
-              {/* Action Buttons */}
+                  <Text style={styles.hintText}>
+                    Selecciona {(() => {
+                      const minTime = new Date(departureTime);
+                      minTime.setMinutes(departureTime.getMinutes() + 30);
+                      return minTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    })()} o más tarde
+                  </Text>
+                </View>
+              )}
+                {/* Action Buttons */}
               <View style={styles.buttonsContainer}>
-                <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                <TouchableOpacity style={styles.cancelButton} onPress={handleClose}>
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
@@ -205,51 +321,77 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 24,
-    },
-    title: {
+    },    title: {
         fontSize: 18,
         fontWeight: '700',
         color: '#000',
-        fontFamily: 'Exo',
+        fontFamily: 'Exo-Bold',
     },
     closeButton: {
         padding: 4,
-    },
-    contentContainer: {
+    },    contentContainer: {
         marginBottom: 8,
         alignContent: 'center',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    labelText: {
-        fontSize: 14,
+    timeRowContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        width: '100%',
+        gap: 10,
+    },
+    timeContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },    labelText: {
+        fontSize: 12,
         color: '#666',
-        marginBottom: 8,
+        fontFamily: 'Exo-Regular',
+        textAlign: 'center',
+        fontWeight: '600',
     },
     valueContainer: {
-        paddingVertical: 8,
+        paddingVertical: 5,
         alignItems: 'center',
         justifyContent: 'center',
     },    valueText: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '400',
         color: '#000000',
+        fontFamily: 'Exo-Regular',
     },
     pickerContainer: {
         marginTop: 8,
         backgroundColor: '#F5F5F5',
         borderRadius: 8,
         padding: 8,
-    },
-    selectorText: {
+    },    selectorText: {
         fontSize: 16,
         color: '#424242',
-    },
-    helpText: {
+        fontFamily: 'Exo-Regular',
+    },    helpText: {
         fontSize: 12,
         color: '#757575',
         fontStyle: 'italic',
         marginTop: 4,
+        fontFamily: 'Exo-Regular',
+        textAlign: 'center',
+    },
+    hintText: {
+        fontSize: 11,
+        color: '#7875F8',
+        fontWeight: '600',
+        marginTop: 2,
+        fontFamily: 'Exo-Bold',
+        textAlign: 'center',
+    },
+    helpTextContainer: {
+        width: '100%',
+        alignItems: 'center',
+        marginTop: 8,
     },
     divider: {
         height: 1,
@@ -273,16 +415,16 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 13,
         alignItems: 'center',
-    },
-    confirmButtonText: {
+    },    confirmButtonText: {
         color: '#FEFEFF',
         fontSize: 16,
         fontWeight: '600',
-    },
-    cancelButtonText: {
+        fontFamily: 'Exo-Bold',
+    },    cancelButtonText: {
         color: '#7875F8',
         fontSize: 16,
         fontWeight: '600',
+        fontFamily: 'Exo-Bold',
     },
     cancelButton: {
         flex: 1,

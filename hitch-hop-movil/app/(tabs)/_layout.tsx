@@ -10,7 +10,6 @@ import { Exo_400Regular, Exo_500Medium, Exo_600SemiBold, Exo_700Bold } from '@ex
 import { Montserrat_400Regular, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat'
 import { AuthProvider } from './Context/auth-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import '@/utils/warningSuppressions';
 
 // Import warning suppressions
 import '@/utils/warningSuppressions';
