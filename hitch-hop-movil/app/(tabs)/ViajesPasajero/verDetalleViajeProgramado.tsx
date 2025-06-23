@@ -254,11 +254,6 @@ export default function VerDetalleViajeProgramado() {
               marginBottom: 12, 
             }}
           >
-            <Image
-              source={require("@/assets/images/MapaRepresentacion.png")}
-              style={{ width: 320, height: 180, borderRadius: 16 }}
-              resizeMode="cover"
-            />
           </Box>
           <Button
             size="md"

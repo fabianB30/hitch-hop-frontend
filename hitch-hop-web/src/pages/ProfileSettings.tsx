@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon , Eye, EyeOff } from "lucide-react";
+import { Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useAuth } from '@/Context/auth-context';
 import { getParameterByNameRequest } from '@/interconnection/paremeter';
@@ -59,23 +59,26 @@ const ProfileSettings: React.FC = () => {
   const [instituciones, setInstituciones] = useState<string[]>([]);
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const { user, updateUser } = useAuth();
-  const userMapped = user
-    ? {
-        nombre: user.name || "",
-        primerApellido: user.firstSurname || "",
-        segundoApellido: user.secondSurname || "",
-        correo: user.email || "",
-        institucion: user.institutionId || "",
-        tipoId: user.identificationTypeId || "",
-        numeroId: user.identificationNumber ? String(user.identificationNumber) : "",
-        fechaNacimiento: user.birthDate || "",
-        telefono: user.phone ? String(user.phone) : "",
-        genero: user.genre || "",
-        username: user.username || "",
-        tipoUsuario: (user.type || "").trim(),
-        foto: user.photoUrl || Imagen1,
-      }
-    : initialUser;
+  const userMapped = React.useMemo(() => {
+    if (!user) return initialUser;
+
+    return {
+      nombre: user.name || "",
+      primerApellido: user.firstSurname || "",
+      segundoApellido: user.secondSurname || "",
+      correo: user.email || "",
+      institucion: user.institutionId || "",
+      tipoId: user.identificationTypeId || "",
+      numeroId: user.identificationNumber ? String(user.identificationNumber) : "",
+      fechaNacimiento: user.birthDate || "",
+      telefono: user.phone ? String(user.phone) : "",
+      genero: user.genre || "",
+      username: user.username || "",
+      tipoUsuario: (user.type || "").trim(),
+      foto: user.photoUrl || Imagen1,
+    };
+  }, [user]);
+
 
   // Carga los datos del usuario al iniciar
   useEffect(() => {
@@ -87,7 +90,7 @@ const ProfileSettings: React.FC = () => {
       }
       const institucionObj = instituciones.find((inst) => inst._id === user.institutionId);
       const institucionNombre = institucionObj ? institucionObj.nombre : "";
-      
+
       let tipoUsuario = (user.type || "").trim();
       if (tiposUsuario.length > 0) {
         const match = tiposUsuario.find(
@@ -105,7 +108,7 @@ const ProfileSettings: React.FC = () => {
       setUserData(mapped);
       setBackupData(mapped);
     }
-    
+
   }, [user, instituciones]);
 
   // Cargar opciones desde la base de datos
@@ -127,7 +130,7 @@ const ProfileSettings: React.FC = () => {
     }
     fetchOptions();
   }, []);
-  
+
   // Valida errores al cambiar datos
   useEffect(() => {
     const validationErrors = validateUserData(userData);
@@ -275,6 +278,7 @@ const ProfileSettings: React.FC = () => {
   // Maneja el cambio de foto de perfil
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (!file || !user) return; 
     if (file) {
       try {
         const compressedBase64 = await compressImage(file, 200, 0.7);
@@ -287,32 +291,32 @@ const ProfileSettings: React.FC = () => {
         console.error("Error al comprimir la imagen:", error);
       }
     }
- };
+  };
 
- // Función para comprimir imágenes
- const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
+  // Función para comprimir imágenes
+  const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
 
-    img.onload = () => {
-      // Calcular nuevas dimensiones manteniendo la proporción
-      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
-      canvas.width = img.width * ratio;
-      canvas.height = img.height * ratio;
+      img.onload = () => {
+        // Calcular nuevas dimensiones manteniendo la proporción
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
 
-      // Dibujar imagen redimensionada
-      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Dibujar imagen redimensionada
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Convertir a base64 con compresión
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-      resolve(compressedDataUrl);
-    };
+        // Convertir a base64 con compresión
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataUrl);
+      };
 
-    img.src = URL.createObjectURL(file);
-  });
-};
+      img.src = URL.createObjectURL(file);
+    });
+  };
 
 
   return (
@@ -365,7 +369,7 @@ const ProfileSettings: React.FC = () => {
                   onChange={(v) => handleChange(key as keyof typeof userData, v)}
                   error={errors[key as keyof typeof userData]}
                   as={key === "institucion" || key === "tipoId" || key === "tipoUsuario" || key === "genero" ? "select" : undefined}
-                  options={ key === "institucion" ? instituciones.map(inst => inst.nombre) : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
+                  options={key === "institucion" ? instituciones.map(inst => inst.nombre) : key === "tipoId" ? tiposId : key === "tipoUsuario" ? tiposUsuario : key === "genero" ? generos : [userData[key as keyof typeof userData]]}
                 />
               ))}
               <div className="flex flex-col gap-1">
@@ -416,116 +420,116 @@ const ProfileSettings: React.FC = () => {
             </div>
           </form>
 
-         {/* Dialogo para cambiar password */}
-        <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6 mt-4">
-              {/* Contraseña actual */}
-              <div className="flex flex-col gap-y-3">
-                <Label>Contraseña actual <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <Input
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="pr-12"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                    onClick={() => setShowCurrentPassword((v) => !v)}
-                    tabIndex={-1}
-                  >
-                    {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+          {/* Dialogo para cambiar password */}
+          <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-exo font-semibold">Cambiar Contraseña</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 mt-4">
+                {/* Contraseña actual */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Contraseña actual <span className="text-red-500">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                      onClick={() => setShowCurrentPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {/* Mostrar error de contraseña actual*/}
+                  {passwordChangeError && (
+                    <p className="text-red-500 text-sm mt-1">{passwordChangeError}</p>
+                  )}
                 </div>
-                {/* Mostrar error de contraseña actual*/}
-                {passwordChangeError && (
-                  <p className="text-red-500 text-sm mt-1">{passwordChangeError}</p>
-                )}
-              </div>
-              {/* Contraseña nueva */}
-              <div className="flex flex-col gap-y-3">
-                <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <Input
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="pr-12"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                    onClick={() => setShowNewPassword((v) => !v)}
-                    tabIndex={-1}
-                  >
-                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+                {/* Contraseña nueva */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Contraseña nueva <span className="text-red-500">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                      onClick={() => setShowNewPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {newPassword && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
+                    </p>
+                  )}
                 </div>
-                {newPassword && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número.
-                  </p>
-                )}
-              </div>
-              {/* Confirmar contraseña */}
-              <div className="flex flex-col gap-y-3">
-                <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pr-12"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                    onClick={() => setShowConfirmPassword((v) => !v)}
-                    tabIndex={-1}
-                  >
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+                {/* Confirmar contraseña */}
+                <div className="flex flex-col gap-y-3">
+                  <Label>Confirmar contraseña <span className="text-red-500">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pr-12"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {confirmPassword && newPassword !== confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
+                  )}
                 </div>
-                {confirmPassword && newPassword !== confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">Las contraseñas no coinciden.</p>
-                )}
+                <p className="text-xs text-red-500">* Información obligatoria</p>
               </div>
-              <p className="text-xs text-red-500">* Información obligatoria</p>
-            </div>
-            <DialogFooter className="flex justify-between mt-6">
-              <Button variant="ghost" onClick={() => {
-                    setShowPasswordModal(false);
-                    setCurrentPassword("");
-                    setNewPassword("");
-                    setConfirmPassword("");
-                    setShowCurrentPassword(false);
-                    setShowNewPassword(false);
-                    setShowConfirmPassword(false);
-                    setPasswordsMatch(true);
-                  }} className="text-blue-600">
-                Volver
-              </Button>
-              <Button
-                className="bg-[#7875F8] text-white"
-                disabled={
-                  !currentPassword ||
-                  !newPassword ||
-                  !confirmPassword ||
-                  !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
-                  newPassword !== confirmPassword
-                }
-                onClick={handleChangePassword}
-              >
-                Confirmar cambios
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter className="flex justify-between mt-6">
+                <Button variant="ghost" onClick={() => {
+                  setShowPasswordModal(false);
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                  setShowCurrentPassword(false);
+                  setShowNewPassword(false);
+                  setShowConfirmPassword(false);
+                  setPasswordsMatch(true);
+                }} className="text-blue-600">
+                  Volver
+                </Button>
+                <Button
+                  className="bg-[#7875F8] text-white"
+                  disabled={
+                    !currentPassword ||
+                    !newPassword ||
+                    !confirmPassword ||
+                    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newPassword) ||
+                    newPassword !== confirmPassword
+                  }
+                  onClick={handleChangePassword}
+                >
+                  Confirmar cambios
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </main>
       {/* AlertDialog de confirmación de guardado */}

@@ -413,9 +413,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#7875F8',
         borderRadius: 12,
-        padding: 13,
+        padding: 10,
         alignItems: 'center',
-    },    confirmButtonText: {
+    },    
+    confirmButtonText: {
         color: '#FEFEFF',
         fontSize: 16,
         fontWeight: '600',

@@ -45,10 +45,10 @@ export default function ProfileSettings() {
   const [genres, setGenres] = useState<string[]>([]);
   const [tiposUsuario, setTiposUsuario] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
-  const { user , updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [passwordChangeError, setPasswordChangeError] = useState("");
   const [editable, setEditable] = useState(false);
-  
+
   const [backupData, setBackupData] = useState(user);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -73,11 +73,11 @@ export default function ProfileSettings() {
     return `${day} / ${month} / ${year}`;
   };
   const [userData, setUserData] = useState({
-  ...user,
-  birthDate: formatDate(user.birthDate),
-});
+    ...user,
+    birthDate: formatDate(user.birthDate),
+  });
 
-  
+
   //////////////////////////////////////////////////////////////////////////////////////
   ///    Initial User Data
   //  Here all the information is fetched from the backend and fed to special variables
@@ -112,6 +112,8 @@ export default function ProfileSettings() {
   // Reload user data when the screen is opened
   useFocusEffect(
     React.useCallback(() => {
+      if (editable) return;
+
       async function reloadUser() {
         const storedUser = await AsyncStorage.getItem("user");
         if (storedUser) {
@@ -123,8 +125,9 @@ export default function ProfileSettings() {
         }
       }
       reloadUser();
-    }, [])
+    }, [editable])
   );
+
 
   //////////////////////////////////////////////////////////////////////////////////////
   // Check every text field to verify it has the proper format and values
@@ -151,7 +154,7 @@ export default function ProfileSettings() {
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
- };
+  };
 
   //////////////////////////////////////////////////////////////////////////////////////
   // editar y llamar al backend
@@ -188,7 +191,7 @@ export default function ProfileSettings() {
           role: userData.role,
           type: userData.type,
           photoUrl: userData.photoUrl,
-       };
+        };
 
         await updateUserRequest(userId, dataToUpdate);
         await updateUser(dataToUpdate);
@@ -216,34 +219,34 @@ export default function ProfileSettings() {
 
   // Update the user photo, special compression is applied
   const handleEditPhoto = async () => {
-  // Permisos
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== 'granted') {
-    alert('Se requieren permisos para acceder a tus fotos.');
-    return;
-  }
-  // Abre la galería de imágenes
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
-    quality: 1, 
-    base64: false,
-  });
+    // Permisos
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se requieren permisos para acceder a tus fotos.');
+      return;
+    }
+    // Abre la galería de imágenes
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+      base64: false,
+    });
 
     // Base 64
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const asset = result.assets[0];
-      if (asset.base64) {
-        setUserData({
-          ...userData,
-          photoUrl: `data:image/jpeg;base64,${asset.base64}`,
-        });
-      }
+    if (!result.canceled && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      console.log("Imagen seleccionada:", selectedImage.uri);
+
+      setUserData(prev => ({
+        ...prev,
+        photoUrl: selectedImage.uri,
+      }));
     }
   };
 
-  
+
   // Convierte la fecha de nacimiento a objeto Date
   const getDateFromString = (dateStr: string) => {
     const [day, month, year] = dateStr.split(" / ").map(Number);
@@ -307,19 +310,19 @@ export default function ProfileSettings() {
   //////////////////////////////////////////////////////////////////////////////////////
   // CUERPO DE LA PANTALLA
   return (
-    <View style={{ flex: 1,  width: "100%" }}>
-    <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
-      {/* Imagen de fondo superior */}
-      <View style={styles.backgroundContainer}>  
-        <Image source={ImagenBG} style={styles.backgroundImage} resizeMode="cover" />
-        <Text style={styles.hitchHopText}>HitchHop</Text>
-     </View>
-      {/* Recuadro principal con la información */}
-      <View style={styles.profileCard}>
-        {/* Botón de regresar arriba*/}
-        <TouchableOpacity
-          style={styles.backBtnAbsolute}
-          onPress={() =>{
+    <View style={{ flex: 1, width: "100%" }}>
+      <ScrollView contentContainerStyle={[styles.container, { width: "100%", flexGrow: 1 }]}>
+        {/* Imagen de fondo superior */}
+        <View style={styles.backgroundContainer}>
+          <Image source={ImagenBG} style={styles.backgroundImage} resizeMode="cover" />
+          <Text style={styles.hitchHopText}>HitchHop</Text>
+        </View>
+        {/* Recuadro principal con la información */}
+        <View style={styles.profileCard}>
+          {/* Botón de regresar arriba*/}
+          <TouchableOpacity
+            style={styles.backBtnAbsolute}
+            onPress={() => {
               if (user?.role === "Conductor") {
                 router.replace("/GestionPerfilConductor");
               } else if (user?.role === "Pasajero") {
@@ -328,263 +331,263 @@ export default function ProfileSettings() {
                 router.back();
               }
             }}
-        >
-          <ChevronLeft color="black" size={35} />
-        </TouchableOpacity>
-        {/* Avatar centrado */}
-        <View style={styles.avatarContainerCentered}>
-          <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
-            <Image
-              source={
-                userData.photoUrl
-                  ? { uri: userData.photoUrl }
-                  : require('@/assets/images/iconPrimary.png')
-              }
-              style={styles.avatar}
-            />
+          >
+            <ChevronLeft color="black" size={35} />
+          </TouchableOpacity>
+          {/* Avatar centrado */}
+          <View style={styles.avatarContainerCentered}>
+            <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
+              <Image
+                source={
+                  userData.photoUrl
+                    ? { uri: userData.photoUrl }
+                    : require('@/assets/images/iconPrimary.png')
+                }
+                style={styles.avatar}
+              />
+              {editable && (
+                <TouchableOpacity
+                  style={styles.editPhotoIconBtn}
+                  onPress={handleEditPhoto}
+                  activeOpacity={0.7}
+                >
+                  <Camera color="black" size={22} />
+                </TouchableOpacity>
+              )}
+            </View>
             {editable && (
               <TouchableOpacity
-                style={styles.editPhotoIconBtn}
-                onPress={handleEditPhoto}
-                activeOpacity={0.7}
+                style={styles.editPhotoBtn}
+                onPress={() => setShowPasswordModal(true)}
               >
-                <Camera color="black" size={22} />
+                <Text style={styles.editPhotoText}>Cambiar contraseña</Text>
               </TouchableOpacity>
             )}
           </View>
-          {editable && (
-            <TouchableOpacity
-              style={styles.editPhotoBtn}
-              onPress={() => setShowPasswordModal(true)}
-            >
-              <Text style={styles.editPhotoText}>Cambiar contraseña</Text>
-            </TouchableOpacity>
+          {/* Botón de editar/guardar y cancelar*/}
+          {editable ? (
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={cancelEdit}>
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
+                <Text style={styles.saveBtnText}>Guardar</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.buttonRowCenter}>
+              <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
+                <Text style={styles.saveBtnText}>Editar información</Text>
+              </TouchableOpacity>
+            </View>
           )}
+
+          {/* Información del usuario */}
+          <View style={styles.formSection}>
+            <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
+            <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
+            <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
+            <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />
+            <ProfileInput label="Correo" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
+            <ProfileInput label="Teléfono" value={String(userData.phone)} editable={editable} onChange={v => handleChange("phone", Number(v))} error={fieldErrors.phone} />
+            <ProfileInput label="Tipo de ID" value={userData.identificationTypeId} editable={editable} onChange={v => handleChange("identificationTypeId", v)} options={tiposId} />
+            <ProfileInput label="Número de ID" value={String(userData.identificationNumber)} editable={editable} onChange={v => handleChange("identificationNumber", Number(v))} error={fieldErrors.identificationNumber} />
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Fecha de nacimiento</Text>
+              <TouchableOpacity
+                onPress={() => editable && setShowDatePicker(true)}
+                disabled={!editable}
+                activeOpacity={editable ? 0.7 : 1}
+              >
+                <Input
+                  isDisabled={!editable}
+                  isInvalid={!!fieldErrors.birthDate}
+                  style={{ backgroundColor: "#fff" }}
+                  pointerEvents="none"
+                >
+                  <InputField
+                    value={userData.birthDate || ""}
+                    placeholder="Selecciona una fecha"
+                    editable={false}
+                    pointerEvents="none"
+                    style={{ color: userData.birthDate ? "#222" : "#888" }}
+                  />
+                </Input>
+              </TouchableOpacity>
+              {fieldErrors.birthDate && (
+                <InputError>{fieldErrors.birthDate}</InputError>
+              )}
+              {showDatePicker && (
+                <DateTimePicker
+                  value={getDateFromString(userData.birthDate)}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={handleDateChange}
+                  maximumDate={new Date()}
+                />
+              )}
+            </View>
+            <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
+            <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
+            <ProfileInput label="Rol" value={userData.role} editable={editable} onChange={v => handleChange("role", v)} options={roles} />
+          </View>
         </View>
-        {/* Botón de editar/guardar y cancelar*/}
-        {editable ? (
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={cancelEdit}>
-              <Text style={styles.cancelBtnText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
-              <Text style={styles.saveBtnText}>Guardar</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.buttonRowCenter}>
-            <TouchableOpacity style={styles.saveBtn} onPress={toggleEdit}>
-              <Text style={styles.saveBtnText}>Editar información</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Información del usuario */}
-        <View style={styles.formSection}>
-        <ProfileInput label="Nombre de usuario" value={userData.username} editable={editable} onChange={v => handleChange("username", v)} />
-        <ProfileInput label="Nombre" value={userData.name} editable={editable} onChange={v => handleChange("name", v)} error={fieldErrors.name} />
-        <ProfileInput label="Primer Apellido" value={userData.firstSurname} editable={editable} onChange={v => handleChange("firstSurname", v)} error={fieldErrors.firstSurname} />
-        <ProfileInput label="Segundo Apellido" value={userData.secondSurname} editable={editable} onChange={v => handleChange("secondSurname", v)} error={fieldErrors.secondSurname} />
-        <ProfileInput label="Correo" value={userData.email} editable={editable} onChange={v => handleChange("email", v)} error={fieldErrors.email} />
-        <ProfileInput label="Teléfono" value={String(userData.phone)} editable={editable} onChange={v => handleChange("phone", Number(v))} error={fieldErrors.phone} />
-        <ProfileInput label="Tipo de ID" value={userData.identificationTypeId} editable={editable} onChange={v => handleChange("identificationTypeId", v)} options={tiposId} />
-        <ProfileInput label="Número de ID" value={String(userData.identificationNumber)} editable={editable} onChange={v => handleChange("identificationNumber", Number(v))} error={fieldErrors.identificationNumber} />
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Fecha de nacimiento</Text>
-          <TouchableOpacity
-            onPress={() => editable && setShowDatePicker(true)}
-            disabled={!editable}
-            activeOpacity={editable ? 0.7 : 1}
-          >
-            <Input
-              isDisabled={!editable}
-              isInvalid={!!fieldErrors.birthDate}
-              style={{ backgroundColor: "#fff" }}
-              pointerEvents="none"
-            >
-              <InputField
-                value={userData.birthDate || ""}
-                placeholder="Selecciona una fecha"
-                editable={false}
-                pointerEvents="none"
-                style={{ color: userData.birthDate ? "#222" : "#888" }}
-              />
-            </Input>
-          </TouchableOpacity>
-          {fieldErrors.birthDate && (
-            <InputError>{fieldErrors.birthDate}</InputError>
-          )}
-          {showDatePicker && (
-            <DateTimePicker
-              value={getDateFromString(userData.birthDate)}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={handleDateChange}
-              maximumDate={new Date()}
-            />
-          )}
-        </View>
-        <ProfileInput label="Institución" value={institucionOptions.find(opt => opt.value === userData.institutionId)?.label || ""} editable={editable} onChange={v => handleChange("institucion", v)} options={institucionOptions} />
-        <ProfileInput label="Género" value={userData.genre} editable={editable} onChange={v => handleChange("genre", v)} options={genres} />
-        <ProfileInput label="Rol" value={userData.role} editable={editable} onChange={v => handleChange("role", v)} options={roles} />
-    </View>
-    </View>
-    {/* Modal para cambiar contraseña */}
-    <Modal
-      isOpen={showPasswordModal}
-      onClose={() => setShowPasswordModal(false)}
-    >
-      <ModalBackdrop />
-      <ModalContent>
-        <ModalHeader>
-          <Text style={styles.modalTitle}>Cambiar Contraseña</Text>
-          <ModalCloseButton onPress={() => setShowPasswordModal(false)} />
-        </ModalHeader>
-        <ModalBody>
-          <Input isInvalid={currentPasswordError} style={{ marginBottom: 4 }}>
-            <InputField
-              placeholder="Contraseña actual"
-              secureTextEntry={!showCurrentPassword}
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              style={{ paddingRight: 36 }}
-            />
-            <TouchableOpacity
-              style={{ position: "absolute", right: 10, top: 8 }}
-              onPress={() => setShowCurrentPassword((v) => !v)}
-              hitSlop={10}
-            >
-              {showCurrentPassword ? (
-                <EyeOff size={20} color="#888" />
-              ) : (
-                <Eye size={20} color="#888" />
-              )}
-            </TouchableOpacity>
-          </Input>
-          {passwordChangeError ? (
-            <Text style={{ color: "red", marginBottom: 8 }}>{passwordChangeError}</Text>
-          ) : null}
-
-          <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
-            <InputField
-              placeholder="Contraseña nueva"
-              secureTextEntry={!showNewPassword}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              style={{ paddingRight: 36 }}
-            />
-            <TouchableOpacity
-              style={{ position: "absolute", right: 10, top: 8 }}
-              onPress={() => setShowNewPassword((v) => !v)}
-              hitSlop={10}
-            >
-              {showNewPassword ? (
-                <EyeOff size={20} color="#888" />
-              ) : (
-                <Eye size={20} color="#888" />
-              )}
-            </TouchableOpacity>
-          </Input>
-          {newPasswordError && (
-            <InputError>La contraseña no cumple los requisitos</InputError>
-          )}
-
-          <Input isInvalid={confirmPasswordError} style={{ marginBottom: 0 }}>
-            <InputField
-              placeholder="Confirmar contraseña"
-              secureTextEntry={!showConfirmPassword}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              style={{ paddingRight: 36 }}
-            />
-            <TouchableOpacity
-              style={{ position: "absolute", right: 10, top: 8 }}
-              onPress={() => setShowConfirmPassword((v) => !v)}
-              hitSlop={10}
-            >
-              {showConfirmPassword ? (
-                <EyeOff size={20} color="#888" />
-              ) : (
-                <Eye size={20} color="#888" />
-              )}
-            </TouchableOpacity>
-          </Input>
-          {confirmPasswordError && (
-            <InputError>Las contraseñas no coinciden.</InputError>
-          )}
-
-          <View
-            style={{
-              backgroundColor: "#F5F5F5",
-              borderRadius: 8,
-              padding: 12,
-              marginTop: 16,
-              flexDirection: "row",
-              alignItems: "flex-start",
-              gap: 8,
-            }}
-          >
-            <Info color="#787878" size={20} style={{ marginTop: 2 }} />
-            <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
-              Mínimo 8 caracteres, con al menos{"\n"}
-              1 letra mayúscula, 1 letra minúscula, y 1 número.
-            </Text>
-          </View>
-        </ModalBody>
-        <ModalFooter>
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => {
-              setShowPasswordModal(false);
-              setCurrentPassword("");
-              setNewPassword("");
-              setConfirmPassword("");
-              setCurrentPasswordError(false);
-              setNewPasswordError(false);
-              setConfirmPasswordError(false);
-              setShowCurrentPassword(false);
-              setShowNewPassword(false);
-              setShowConfirmPassword(false);
-              setPasswordChangeError("");
-            }}
-          >
-            <Text style={styles.cancelBtnText}>Volver</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.saveBtn}
-            onPress={handleChangePassword}
-          >
-            <Text style={styles.saveBtnText}>Confirmar</Text>
-          </TouchableOpacity>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  </ScrollView>
-
-  {/* AlertDialog de confirmación de guardado */}
-  <AlertDialog isOpen={showSavedDialog} onClose={() => setShowSavedDialog(false)}>
-    <AlertDialogBackdrop />
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 12 }}>
-          ¡Cambios guardados!
-        </Text>
-      </AlertDialogHeader>
-      <AlertDialogBody>
-        <Text style={{ marginBottom: 24 }}>Tu información se guardó correctamente.</Text>
-      </AlertDialogBody>
-      <AlertDialogFooter>
-        <Pressable
-          onPress={() => setShowSavedDialog(false)}
-          style={{ padding: 8, backgroundColor: "#7875F8", borderRadius: 8, minWidth: 100, alignItems: "center"   }}
+        {/* Modal para cambiar contraseña */}
+        <Modal
+          isOpen={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
         >
-          <Text style={{ color: "white", fontWeight: "bold" }}>Aceptar</Text>
-        </Pressable>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-  </View>
- );
+          <ModalBackdrop />
+          <ModalContent>
+            <ModalHeader>
+              <Text style={styles.modalTitle}>Cambiar Contraseña</Text>
+              <ModalCloseButton onPress={() => setShowPasswordModal(false)} />
+            </ModalHeader>
+            <ModalBody>
+              <Input isInvalid={currentPasswordError} style={{ marginBottom: 4 }}>
+                <InputField
+                  placeholder="Contraseña actual"
+                  secureTextEntry={!showCurrentPassword}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  style={{ paddingRight: 36 }}
+                />
+                <TouchableOpacity
+                  style={{ position: "absolute", right: 10, top: 8 }}
+                  onPress={() => setShowCurrentPassword((v) => !v)}
+                  hitSlop={10}
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff size={20} color="#888" />
+                  ) : (
+                    <Eye size={20} color="#888" />
+                  )}
+                </TouchableOpacity>
+              </Input>
+              {passwordChangeError ? (
+                <Text style={{ color: "red", marginBottom: 8 }}>{passwordChangeError}</Text>
+              ) : null}
+
+              <Input isInvalid={newPasswordError} style={{ marginBottom: 4 }}>
+                <InputField
+                  placeholder="Contraseña nueva"
+                  secureTextEntry={!showNewPassword}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  style={{ paddingRight: 36 }}
+                />
+                <TouchableOpacity
+                  style={{ position: "absolute", right: 10, top: 8 }}
+                  onPress={() => setShowNewPassword((v) => !v)}
+                  hitSlop={10}
+                >
+                  {showNewPassword ? (
+                    <EyeOff size={20} color="#888" />
+                  ) : (
+                    <Eye size={20} color="#888" />
+                  )}
+                </TouchableOpacity>
+              </Input>
+              {newPasswordError && (
+                <InputError>La contraseña no cumple los requisitos</InputError>
+              )}
+
+              <Input isInvalid={confirmPasswordError} style={{ marginBottom: 0 }}>
+                <InputField
+                  placeholder="Confirmar contraseña"
+                  secureTextEntry={!showConfirmPassword}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  style={{ paddingRight: 36 }}
+                />
+                <TouchableOpacity
+                  style={{ position: "absolute", right: 10, top: 8 }}
+                  onPress={() => setShowConfirmPassword((v) => !v)}
+                  hitSlop={10}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} color="#888" />
+                  ) : (
+                    <Eye size={20} color="#888" />
+                  )}
+                </TouchableOpacity>
+              </Input>
+              {confirmPasswordError && (
+                <InputError>Las contraseñas no coinciden.</InputError>
+              )}
+
+              <View
+                style={{
+                  backgroundColor: "#F5F5F5",
+                  borderRadius: 8,
+                  padding: 12,
+                  marginTop: 16,
+                  flexDirection: "row",
+                  alignItems: "flex-start",
+                  gap: 8,
+                }}
+              >
+                <Info color="#787878" size={20} style={{ marginTop: 2 }} />
+                <Text style={{ color: "#444", fontSize: 14, flex: 1 }}>
+                  Mínimo 8 caracteres, con al menos{"\n"}
+                  1 letra mayúscula, 1 letra minúscula, y 1 número.
+                </Text>
+              </View>
+            </ModalBody>
+            <ModalFooter>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => {
+                  setShowPasswordModal(false);
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                  setCurrentPasswordError(false);
+                  setNewPasswordError(false);
+                  setConfirmPasswordError(false);
+                  setShowCurrentPassword(false);
+                  setShowNewPassword(false);
+                  setShowConfirmPassword(false);
+                  setPasswordChangeError("");
+                }}
+              >
+                <Text style={styles.cancelBtnText}>Volver</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={handleChangePassword}
+              >
+                <Text style={styles.saveBtnText}>Confirmar</Text>
+              </TouchableOpacity>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </ScrollView>
+
+      {/* AlertDialog de confirmación de guardado */}
+      <AlertDialog isOpen={showSavedDialog} onClose={() => setShowSavedDialog(false)}>
+        <AlertDialogBackdrop />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <Text style={{ fontWeight: "bold", fontSize: 18, marginBottom: 12 }}>
+              ¡Cambios guardados!
+            </Text>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <Text style={{ marginBottom: 24 }}>Tu información se guardó correctamente.</Text>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Pressable
+              onPress={() => setShowSavedDialog(false)}
+              style={{ padding: 8, backgroundColor: "#7875F8", borderRadius: 8, minWidth: 100, alignItems: "center" }}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>Aceptar</Text>
+            </Pressable>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </View>
+  );
 }
 
 function ProfileInput({
@@ -697,7 +700,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     marginTop: -70,
   },
-    editPhotoIconBtn: {
+  editPhotoIconBtn: {
     position: "absolute",
     bottom: 8,
     right: -5,

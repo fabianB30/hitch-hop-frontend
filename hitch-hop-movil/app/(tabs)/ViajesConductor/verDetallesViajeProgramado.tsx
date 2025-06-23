@@ -307,11 +307,6 @@ export default function VerDetallesViajeProgramado() {
                 alignSelf: "center",
               }}
             >
-              <Image
-                source={require("@/assets/images/MapaRepresentacion.png")}
-                style={{ width: 320, height: 180, borderRadius: 16 }}
-                resizeMode="cover"
-              />
             </Box>
             <Button
               size="md"
