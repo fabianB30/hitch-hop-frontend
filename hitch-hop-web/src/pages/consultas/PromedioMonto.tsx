@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/select";
 
 export default function PromedioMonto() {
-  const [drivers, setDrivers] = useState<DriverRevenue[]>([]);
+  const [drivers, setDrivers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterOption, setFilterOption] = useState("todos");
+
   const [sortStates, setSortStates] = useState({
     institucion: true,
     monto: true,
@@ -27,21 +30,31 @@ export default function PromedioMonto() {
   };
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const result = await queryAverageRevenuePerDriver();
-      
-      if (Array.isArray(result)) {
-        setDrivers(result);
-      } else {
-        console.error("Estructura inesperada:", result);
+    const fetchData = async () => {
+      try {
+        const result = await queryAverageRevenuePerDriver();
+        
+        if (Array.isArray(result)) {
+          setDrivers(result);
+        } else {
+          console.error("Estructura inesperada:", result);
+        }
+      } catch (error) {
+        console.error("Error al cargar los datos:", error);
       }
-    } catch (error) {
-      console.error("Error al cargar los datos:", error);
-    }
-  };
-  fetchData();
-}, []);
+    };
+    fetchData();
+  }, []);
+
+  const filteredDrivers = drivers
+  .filter((driver) =>
+    `${driver.name} ${driver.email}`.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  .sort((a, b) => {
+    if (filterOption === "mayor") return b.averageRevenue - a.averageRevenue;
+    if (filterOption === "menor") return a.averageRevenue - b.averageRevenue;
+    return 0;
+  });
 
 
   return (
@@ -63,9 +76,11 @@ export default function PromedioMonto() {
       <div className="mt-4 flex gap-4 items-center">
         <Input
           placeholder="Buscar usuario..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-[405px] h-[40px] px-[12px] py-[8px] border border-[#E0E0E0] rounded-[8px] bg-white text-base"
         />
-        <Select>
+        <Select onValueChange={(value) => setFilterOption(value)} defaultValue="todos">
           <SelectTrigger className="w-[110px] h-[38px] px-[12px] border border-[#D3D3D3] rounded-[8px] bg-[#FFC750]">
             <SelectValue placeholder="Filtro" />
           </SelectTrigger>
@@ -75,7 +90,6 @@ export default function PromedioMonto() {
             <SelectItem value="menor">Menor</SelectItem>
           </SelectContent>
         </Select>
-
         <button
           type="button"
           className="inline-flex h-[38px] px-[16px] justify-center items-center gap-[8px] flex-shrink-0 rounded-[8px] border border-[#7875F8] bg-[#7875F8] text-white font-semibold"
@@ -133,7 +147,7 @@ export default function PromedioMonto() {
               </tr>
             </thead>
             <tbody>
-              {drivers.map((driver) => (
+              {filteredDrivers.map((driver) => (
                 <tr key={driver.driverId} className="border-t text-[15px]">
                   <td className="px-4 py-2">{driver.email}</td>
                   <td className="px-4 py-2">{driver.name}</td>
@@ -149,7 +163,7 @@ export default function PromedioMonto() {
         </div>
 
         <div className="mt-4 w-[588px] h-[46px] flex flex-col justify-center text-black font-exo text-[20px] font-semibold">
-          Mostrando {drivers.length} de {drivers.length} montos promedio
+          Mostrando {filteredDrivers.length} de {filteredDrivers.length} montos promedio
         </div>
       </div>
     </div>
