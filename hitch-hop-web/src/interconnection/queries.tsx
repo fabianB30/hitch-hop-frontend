@@ -80,18 +80,12 @@ export const queryTopVisitedPlaces = async (): Promise<IJwtResponse | null> => {
 //6
 //recentRegisteredUsers
 //app.get("/backend/statistics/users/recent", statisticsController.recentRegisteredUsers);
-export const queryRecentRegisteredUsers = async (): Promise<IJwtResponse | null> => {
+export const queryRecentRegisteredUsers = async (): Promise<any> => {
   try {
     const res = await axios.get(`/backend/statistics/users/recent`);
-    const query = res.data.data;
-    if (query) {
-      return query;
-    } else {
-      console.error('Invalid response structure:', res);
-      return null;
-    }
+    return res.data;
   } catch (error) {
-    console.error('http request error: ', error);
+    console.error("Error en la consulta:", error);
     return null;
   }
 };

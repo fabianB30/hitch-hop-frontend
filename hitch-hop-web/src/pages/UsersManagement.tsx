@@ -201,7 +201,7 @@ const userRoleFilterOptions = [
       </div>
 
       {/* Tabla con los usuarios existentes */}
-      <div className="max-w-[1108px] mx-auto mt-8">
+      <div className="max-w-[1200px] mx-auto mt-8">
         <div className="relative">
           <div className="absolute w-full h-[644px] bg-[#ECECFF] rounded-[30px] z-0" />
           <div className="relative z-10 px-8 pt-8 pb-4">
@@ -211,7 +211,7 @@ const userRoleFilterOptions = [
               <div className="text-black font-exo font-semibold text-base">Email</div>
               <div className="text-black font-exo font-semibold text-base">Tipo de Usuario</div>
               <div className="text-black font-exo font-semibold text-base">Fecha de Registro</div>
-              <div className="text-black font-exo font-semibold text-base text-center">Institución</div>
+              <div className="text-black font-exo font-semibold text-base">Institución</div>
               <div></div>
             </div>
             <div
@@ -235,11 +235,11 @@ const userRoleFilterOptions = [
                     </span>
                   </div>
                   <div className="text-[#8886D7] font-exo text-base">{user.date}</div>
-                  <div className="text-black font-exo font-medium text-base text-center">
+                  <div className="text-black font-exo font-medium text-base">
                     {instituciones.find((i: any) => i._id === user.institutionId)?.nombre || ""}
                   </div>
                   <button
-                    className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-5 py-0.5 text-xs font-exo font-semibold items-center justify-cente"
+                    className="bg-[#7875F8] hover:bg-[#5a57c7] text-white rounded px-5 py-0.5 text-xs font-exo font-semibold items-center justify-center"
                     onClick={() => setSelectedUser(user)}
                   >
                     <ChevronRight />

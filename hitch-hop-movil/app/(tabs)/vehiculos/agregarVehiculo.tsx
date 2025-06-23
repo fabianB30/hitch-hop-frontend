@@ -20,6 +20,7 @@ export default function AgregarVehiculo() {
   const [placa, setPlaca] = useState('');
   const [color, setColor] = useState('');
   const [anio, setAnio] = useState('');
+  //agregarVehiculo
   const [foto, setFoto] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function AgregarVehiculo() {
     }
   };
 
+  // agregarVehiculo
   const handleAgregar = async () => {
       const vehicleData = { 
         model: modelo, 
@@ -51,6 +53,8 @@ export default function AgregarVehiculo() {
         color: color, 
         plate: placa,
         year: anio,
+        //nuevo
+	photoUrl: foto,
         userId: user._id
       };
     try {

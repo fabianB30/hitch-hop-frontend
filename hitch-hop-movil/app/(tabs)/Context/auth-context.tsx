@@ -163,6 +163,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updateUser,
         loading,
         user,
+	//Para actualizar lista de vehiculos
+	setUser,
         isAuthenticated,
         errors,
       }}
