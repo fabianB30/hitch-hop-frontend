@@ -2,10 +2,11 @@
 // Componente utilizado para las cartas de selección de destinos
 // Llamado en la página del formulario de publicación de rutas
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
+import * as Font from 'expo-font';
 
 interface ClickableInputProps {
   header: string;
@@ -24,6 +25,7 @@ interface ClickableInputProps {
   currentCostoPasajero?: string;
   currentFecha?: string;
   currentHora?: string;
+  currentHoraLlegada?: string;
 }
 
 export default function ClickableInput({
@@ -40,17 +42,31 @@ export default function ClickableInput({
   currentMetodoPago,
   currentCostoPasajero,
   currentFecha,
-  currentHora
+  currentHora,
+  currentHoraLlegada
 }: Readonly<ClickableInputProps>) {
   const router = useRouter();
+
+  // Font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Load fonts
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  // Don't render until fonts are loaded
+  if (!fontsLoaded) return null;
 
   const handlePress = () => {
     if (onPress) {
       onPress();
       return;
     }    // Navigate based on destination type
-    switch (destinationType) {
-      case 'origin':
+    switch (destinationType) {      case 'origin':
       case 'destination':
         router.replace({
           pathname: '/(tabs)/PublicarRutasConductor/searchDestination' as any,
@@ -66,11 +82,11 @@ export default function ClickableInput({
             contextMetodoPago: currentMetodoPago ?? '',
             contextCostoPasajero: currentCostoPasajero ?? '',
             contextFecha: currentFecha ?? '',
-            contextHora: currentHora ?? ''
+            contextHora: currentHora ?? '',
+            contextHoraLlegada: currentHoraLlegada ?? ''
           }
         });
-        break;
-      case 'stops':
+        break;      case 'stops':
         router.replace({
           pathname: '/(tabs)/PublicarRutasConductor/manageStops' as any,
           params: { 
@@ -83,7 +99,9 @@ export default function ClickableInput({
             contextMetodoPago: currentMetodoPago ?? '',
             contextCostoPasajero: currentCostoPasajero ?? '',
             contextFecha: currentFecha ?? '',
-            contextHora: currentHora ?? ''          }
+            contextHora: currentHora ?? '',
+            contextHoraLlegada: currentHoraLlegada ?? ''
+          }
         });
         break;
     }
@@ -98,10 +116,9 @@ export default function ClickableInput({
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      <View style={styles.content}>
-        <View style={styles.textContainer}>
+      <View style={styles.content}>        <View style={styles.textContainer}>
           {/* Header and value display */}
-          <Text style={styles.header}>{header}</Text>
+          {Boolean(header) && <Text style={styles.header}>{header}</Text>}
           <Text style={[
             styles.subHeader,
             isPlaceholder && styles.placeholder
@@ -133,20 +150,21 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
     marginRight: 12,
-  },
-  header: {
+  },  header: {
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
     marginBottom: 4,
     lineHeight: 20,
-  },
-  subHeader: {
+    fontFamily: 'Exo-Bold',
+  },  subHeader: {
     color: '#171717',
     lineHeight: 22,
+    fontFamily: 'Exo-Regular',
   },  placeholder: {
     fontSize: 13,
     color: '#999',
+    fontFamily: 'Exo-Regular',
   },
   iconContainer: {
     padding: 0,

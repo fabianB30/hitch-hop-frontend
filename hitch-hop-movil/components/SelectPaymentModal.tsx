@@ -2,9 +2,10 @@
 // Modal para seleccionar el método de pago y costo de una ruta
 // Llamado en la página del formulario de publicación de rutas
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { CheckSquare } from 'lucide-react-native';
+import * as Font from 'expo-font';
 
 interface PaymentMethod {
   id: string;
@@ -26,7 +27,11 @@ export default function SelectPaymentModal({
   onConfirm,
   initialPaymentMethods = [],
   initialCost = '',
-}: Readonly<SelectPaymentModalProps>) {  // Initialize payment methods
+}: Readonly<SelectPaymentModalProps>) {  
+  // Font loading state
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  // Initialize payment methods
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
     { 
       id: 'gratuito', 
@@ -43,9 +48,19 @@ export default function SelectPaymentModal({
       name: 'Efectivo', 
       selected: initialPaymentMethods.includes('Efectivo') 
     },
-  ]);
-  
+  ]);  
   const [cost, setCost] = useState(initialCost);
+
+  // Load fonts
+  useEffect(() => {
+    Font.loadAsync({
+      'Exo-Regular': require('@/assets/fonts/Exo-Regular.otf'),
+      'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
+    }).then(() => setFontsLoaded(true));
+  }, []);
+
+  // Don't render until fonts are loaded
+  if (!fontsLoaded) return null;
 
   // Handle checkbox toggle
   const togglePaymentMethod = (id: string) => {
@@ -220,12 +235,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
-  },
-  title: {
+  },  title: {
     fontSize: 18,
     fontWeight: '700',
     color: '#000',
-    fontFamily: 'Exo',
+    fontFamily: 'Exo-Bold',
   },
   contentContainer: {
     alignItems: 'flex-start',
@@ -252,11 +266,11 @@ const styles = StyleSheet.create({
   checkedCheckbox: {
     backgroundColor: '#7875F8',
     borderColor: '#7875F8',
-  },
-  methodText: {
+  },  methodText: {
     fontSize: 16,
     color: '#333',
     marginLeft: 10,
+    fontFamily: 'Exo-Regular',
   },
   divider: {
     height: 1,
@@ -269,14 +283,14 @@ const styles = StyleSheet.create({
   costContainer: {
     marginBottom: 24,
     position: 'relative',
-  },
-  costInput: {
+  },  costInput: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 8,
     padding: 12,
     paddingRight: 40,
     fontSize: 16,
+    fontFamily: 'Exo-Regular',
   },
   disabledInput: {
     backgroundColor: '#F5F5F5',
@@ -302,16 +316,16 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#D1D1D1',
-  },
-  confirmButtonText: {
+  },  confirmButtonText: {
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  cancelButtonText: {
+    fontFamily: 'Exo-Bold',
+  },  cancelButtonText: {
     color: '#7875F8',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'Exo-Bold',
   },
   cancelButton: {
     flex: 1,
