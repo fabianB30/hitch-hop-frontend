@@ -54,7 +54,7 @@ export default function AgregarVehiculo() {
         plate: placa,
         year: anio,
         //nuevo
-	      photoKey: foto,
+	photoUrl: foto,
         userId: user._id
       };
     try {

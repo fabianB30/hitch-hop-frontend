@@ -30,7 +30,7 @@ export default function EditarVehiculo() {
               setPlaca(data.plate);
               setColor(data.color);
               setAnio(data.year);
-              setFoto(data.photoKey);
+              setFoto(data.photoUrl);
             } else {
                console.log('Error mamadisimo que no deberia pasar, id:', id);
             }
@@ -49,7 +49,7 @@ export default function EditarVehiculo() {
           color: color, 
           plate: plate,
           //nuevo
-          photoKey: foto,
+          photoUrl: foto,
           year: anio
         };
       try {
