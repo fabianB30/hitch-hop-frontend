@@ -13,6 +13,16 @@ import { useRouter } from 'expo-router'
 import { getAllPlacesRequest } from '../../../interconnection/place'
 import * as Font from 'expo-font';
 
+/**
+ * This page allows the user to select a destination from a list of available places.
+ * Users can search through destinations using a text input.
+ * Once a destination is selected, the app navigates back to the previous screen.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const { width, height } = Dimensions.get('window')
 
 export type DestinationType = {
@@ -29,15 +39,40 @@ const selectDestination = () => {
     const [shownDestination, setShownDestinations] = useState<Place[]>([])
 
     const handleDestintationSelect = (dest: Place) => {
+        /**
+         * Handles user selection of a destination from the list.
+         * Sets the selected destination in global state and navigates back.
+         * 
+         * Function inputs:
+         *   dest: Place object representing the selected destination
+         */
         setDestination(dest)
         router.back()
     }
 
     function normalizeString(str: string): string {
+        /**
+         * Normalizes and simplifies a string for consistent search comparisons.
+         * Removes accents and converts the string to lowercase.
+         * 
+         * Function inputs:
+         *   str: string to normalize
+         * 
+         * Function outputs:
+         *   normalized string without accents in lowercase
+         */
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
 
     const handleSearch = (text: string) => {
+        /**
+         * Handles real-time search logic for filtering available destinations.
+         * If the search text is empty, resets the shown destinations to all destinations.
+         * Otherwise, filters based on normalized name or description containing the search query.
+         * 
+         * Function inputs:
+         *   text: user-provided search string
+         */
         if (text === "") {
             setShownDestinations(allDestinations)
         } else {
@@ -50,6 +85,11 @@ const selectDestination = () => {
     }
 
     useEffect(() => {
+        /**
+         * Runs on component mount to:
+         *   - Fetch all available destinations for the user
+         *   - Set the list of shown destinations to all destinations by default
+         */
         async function fetchPlaces() {
             const data = await getAllPlacesRequest();
             

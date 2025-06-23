@@ -13,6 +13,15 @@ import { useLocalSearchParams } from 'expo-router';
 import { getBrandVehicleRequest } from '@/interconnection/vehicle'
 import * as Font from 'expo-font';
 
+/**
+ * This page displays detailed information about a selected trip.
+ * It retrieves both trip details and related vehicle information.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const wh = Dimensions.get("window").height
 
 const tripInformation = () => {
@@ -31,6 +40,10 @@ const tripInformation = () => {
 */
   useEffect(() => {
       async function fetchVehicleInformation() {
+        /**
+         * Makes an API request to retrieve vehicle information.
+         * Updates state if data is successfully received.
+         */
           const data = await getBrandVehicleRequest(trip.vehicle);
           
           if (data){
@@ -66,14 +79,14 @@ const tripInformation = () => {
             />
             
             <View>
-              <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+              <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
               <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
+            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit'})}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>

@@ -17,6 +17,16 @@ import * as Font from 'expo-font';
 import { addUserToStop, addPassengerToTripRequest } from '../../../interconnection/trip'
 import { useAuth } from '../Context/auth-context'
 
+/**
+ * This page allows the user to finalize the process of joining a selected trip.
+ * It handles confirming the user's stop and registering them as a passenger.
+ * After successful registration, a confirmation modal is shown.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const {width, height} = Dimensions.get("window")
 
 const checkoutTrip = () => {
@@ -37,6 +47,13 @@ const checkoutTrip = () => {
     console.log(stopList[Number(selectedStop)])
 
     async function openLastModal() {
+      /**
+       * This function finalizes the user's selection by:
+       *   - Adding the user to the selected stop
+       *   - Registering the user as a passenger for the trip
+       * If both operations are successful, closes the confirmation modal 
+       * and displays the final success modal.
+       */
       const addStop = await addUserToStop(trip._id, stopList[Number(selectedStop)]._id, user._id)
       if(addStop){
         const addPassenger = await addPassengerToTripRequest(trip._id, user._id);
@@ -48,16 +65,27 @@ const checkoutTrip = () => {
     }
     
     function leaveToMenu() {
+      /**
+       * Closes the success modal and redirects the user to the passenger home page.
+       */
       setShowAcceptModal(false);
       router.push('/HomePasajero')
     }
 
     function goToPendingRequests() {
+      /**
+       * Closes the success modal and redirects the user to the passenger home page.
+       */
       setShowAcceptModal(false);
       router.push('/HomePasajero')
     }
 
     useEffect(() => {
+      /**
+       * This effect disables the Android hardware back button 
+       * when the final accept modal is visible.
+       * Prevents the user from accidentally navigating away during confirmation.
+       */
       if (showAcceptModal) {
         const backAction = () => {
           return true;
@@ -100,14 +128,14 @@ const checkoutTrip = () => {
             />
             
             <View>
-              <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+              <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
               <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
+            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>

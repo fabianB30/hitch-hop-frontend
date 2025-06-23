@@ -11,6 +11,15 @@ import { Button, ButtonText } from '@/components/ui/button'
 import { Radio, RadioGroup, RadioIndicator, RadioLabel } from '@/components/ui/radio'
 import * as Font from 'expo-font';
 
+/**
+ * This page allows the user to select a pickup point for their trip.
+ * It displays all available stops, including the starting point, allowing the user to choose where they will board the vehicle.
+ * 
+ * This page was worked on by:
+ *   Rubén Hurtado
+ *   Andrey Calvo
+ */
+
 const wh = Dimensions.get("window").height
 
 const selectPickupPoint = () => {
@@ -26,10 +35,11 @@ const selectPickupPoint = () => {
   const vehicleInformation = JSON.parse(params.additionalInfo as string)
 
   useEffect(() => {
-      const stopList = [{
-        _id: trip.startpoint._id,
-        name: trip.startpoint.name, 
-      },
+    /**
+     * This effect initializes the stop list and loads required fonts on component mount.
+     * It combines the trip's starting point and all additional stops into a single list of available pickup points.
+     */
+      const stopList = [
         ...trip.stopPlaces.map((stop:any) => ({
           _id: stop._id,
           name: stop.name}))
@@ -65,14 +75,14 @@ const selectPickupPoint = () => {
               />
 
               <View>
-                <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+                <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
                 <Text style={styles.driverInfo}>{trip.driver.name}</Text>
               </View>
             </HStack>
 
             <View style={styles.rideDetails}>
-              <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
-              <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
+              <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
+              <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit'})}</Text>
             </View>
 
             <ScrollView style={styles.stops} showsVerticalScrollIndicator={false}>
