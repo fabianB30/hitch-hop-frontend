@@ -421,59 +421,61 @@ export default function RegisterStep2({ firstFormData, secondFormData, onBack, o
                         </AlertDialogContent>
                     </AlertDialog>
 
-                    <View className="flex-row w-full px-6 mb-0 mt-[10px]">
-                        <View className="relative">
-                            <Avatar
-                                className="w-[96px] h-[96px] rounded-full bg-[#ECECFF] justify-center items-center overflow-hidden"
-                                style={{
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 4,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 8,
-                                    elevation: 8,
-                                }}
-                            >
-                                {avatar && avatar.startsWith('data:image') ? (
-                                    <ImageBackground
-                                        source={{ uri: avatar }}
-                                        className="w-full h-full rounded-full"
-                                        resizeMode="cover"
-                                        style={{ borderRadius: 48 }}
-                                    />
-                                ) : (
-                                    <ImageBackground
-                                        source={require('@/assets/images/Meli2.png')}
-                                        className="w-full h-full rounded-full"
-                                        resizeMode="cover"
-                                        style={{ borderRadius: 48 }}
-                                    />
-                                )}
-                            </Avatar>
+<View className="flex-row w-full px-6 mb-0 mt-[10px] z-20">
+  <View style={{ position: 'relative' }}>
+    <Avatar
+      className="w-[96px] h-[96px] rounded-full bg-[#ECECFF] justify-center items-center overflow-hidden"
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 8,
+      }}
+    >
+      {avatar && avatar.startsWith('data:image') ? (
+        <ImageBackground
+          source={{ uri: avatar }}
+          className="w-full h-full rounded-full"
+          resizeMode="cover"
+          style={{ borderRadius: 48 }}
+        />
+      ) : (
+        <ImageBackground
+          source={require('@/assets/images/Meli2.png')}
+          className="w-full h-full rounded-full"
+          resizeMode="cover"
+          style={{ borderRadius: 48 }}
+        />
+      )}
+    </Avatar>
 
-                            {/* Botón de cámara en la esquina del avatar */}
-                            <TouchableOpacity
-                                className="w-[34px] h-[34px] rounded-full bg-[#FFC750] justify-center items-center absolute -bottom-1 -right-1"
-                                style={{
-                                    bottom: -2,
-                                    right: -2,
-                                    shadowColor: '#000',
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 2,
-                                    },
-                                    shadowOpacity: 0.25,
-                                    shadowRadius: 3.84,
-                                    elevation: 5,
-                                }}
-                                onPress={showImagePickerOptions}
-                            >
-                                <Camera size={20} color="#000000" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+    {/* Botón flotante de cámara */}
+    <TouchableOpacity
+      onPress={showImagePickerOptions}
+      style={{
+        position: 'absolute',
+        bottom: -2,
+        right: -2,
+        zIndex: 100,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: '#FFC750',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      }}
+    >
+      <Camera size={20} color="#000000" />
+    </TouchableOpacity>
+  </View>
+</View>
+
 
 
                     <FormControl className='top-[-70px]'>
