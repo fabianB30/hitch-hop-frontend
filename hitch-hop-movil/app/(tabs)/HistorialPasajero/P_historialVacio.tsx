@@ -64,34 +64,6 @@ export default function P_historialVacio() {
           No hay viajes registrados como pasajero
         </Text>
       </View>
-
-      {/* Barra de navegación inferior */}
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        height: 64,
-        backgroundColor: '#7B61FF',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-      }}>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={"asset"} style={{ width: 32, height: 32 }} />
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

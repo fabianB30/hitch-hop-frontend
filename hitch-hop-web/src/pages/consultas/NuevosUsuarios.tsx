@@ -36,7 +36,7 @@ export default function NuevosUsuarios() {
       try {
         const result = await queryRecentRegisteredUsers();
         if (result) {
-          setUsers(result.data.slice(0, 8));
+          setUsers(result);
           setTotal(result.count);
         }
       } catch (error) {

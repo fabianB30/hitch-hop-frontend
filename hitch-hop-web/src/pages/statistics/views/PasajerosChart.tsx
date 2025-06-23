@@ -12,7 +12,7 @@ const PasajerosChart = () => {
   ];
   const now = new Date();
   const startDate = new Date(now.getFullYear(), 0, 1);
-  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endDate = new Date(now);
   const handleFiltros = async (filtrosAplicados: any) => {
     setFiltros(filtrosAplicados);
     const payload = {
