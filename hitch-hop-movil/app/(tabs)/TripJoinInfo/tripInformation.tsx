@@ -79,14 +79,14 @@ const tripInformation = () => {
             />
             
             <View>
-              <Text style={styles.carInfo}>{vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color}</Text>
+              <Text style={styles.carInfo}>{(Object.keys(vehicleInformation).length > 0) ? (vehicleInformation.brand + " " + vehicleInformation.model + " " + vehicleInformation.color) : ""}</Text>
               <Text style={styles.driverInfo}>{trip.driver.name}</Text>
             </View>
           </HStack>
 
           <View style={styles.rideDetails}>
-            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' })}</Text>
-            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
+            <Text style={[styles.detailText, {marginTop: 10}]}>{new Date(trip.arrival).toLocaleDateString([], { day: '2-digit', month: '2-digit', year: '2-digit'})}</Text>
+            <Text style={styles.detailText}>{new Date(trip.arrival).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit'})}</Text>
           </View>
 
           <ScrollView style={[styles.stops, {gap: 10}]} showsVerticalScrollIndicator={false}>

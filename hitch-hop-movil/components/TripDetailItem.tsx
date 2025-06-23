@@ -68,7 +68,7 @@ const TripDetailItem = (props: tripDetailProp) => {
                     <Text style={styles.regText}>{props.passengerLimit}</Text>
                 </HStack>
                 <Text style={styles.regText}>{(props.costPerPerson === 0) ? "Gratis" : <>&#8353; {props.costPerPerson.toString()}</>}</Text>
-                <Text style={styles.regText}>{new Date(props.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}</Text>
+                <Text style={styles.regText}>{new Date(props.arrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}</Text>
             </VStack>
         </HStack>
     </TouchableOpacity>

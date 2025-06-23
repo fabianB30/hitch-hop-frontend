@@ -116,13 +116,13 @@ const searchMain = () => {
          * If trips are found they are filtered and shown, else a dialog notifying the user appears instead
          */
         setMsgError(false)
-        const utcDate = dateToUtcDate(date)
-        const StartDate = new Date(utcDate.getTime() - 30 * 60 * 1000)
-        const EndDate = new Date(utcDate.getTime() + 30 * 60 * 1000)
+        //const utcDate = dateToUtcDate(date)
+        const StartDate = new Date(date.getTime() - 30 * 60 * 1000)
+        const EndDate = new Date(date.getTime() + 30 * 60 * 1000)
         const queryData = {
             "startDate": StartDate,
             "endDate": EndDate,
-            "institutionId": user.institutionId, //"6841390cb2cce04f89706f02", 
+            "institutionId": user.institutionId, 
             "endpoint": destination._id
         }
 
@@ -162,6 +162,7 @@ const searchMain = () => {
         return new Date(pickerDate.getTime() - offset * 60 * 1000);
     }
 
+    
     const roundDate = (date: Date) => {
         /**
          * Rounds date to only increment in 15 minute intervals
@@ -183,7 +184,7 @@ const searchMain = () => {
 
         return roundedDate;
     }
-
+    
     useEffect(() => {
         /**
          * Runs whenever the selected destination changes.
@@ -204,9 +205,9 @@ const searchMain = () => {
          *   - Round the selected date to the nearest 15-minute interval
          *   - Update the date state with the rounded UTC literal value
          */
-        const roundedDateUtcLiteral = roundDate(date); // redondea en UTC literal
+       const roundedDate = roundDate(date); // redondea en UTC literal
 
-        setDate(roundedDateUtcLiteral);
+        setDate(roundedDate);
 
         Font.loadAsync({
         'Exo-Medium': require('@/assets/fonts/exo.medium.otf'),
@@ -256,7 +257,7 @@ const searchMain = () => {
                                 pointerEvents='none'
                             >
                                 <InputField 
-                                    value={date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    value={date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}
                                     editable={false}
                                     pointerEvents='none'
                                 />
