@@ -23,9 +23,9 @@ interface Place {
 }
 
 export default function ManageStops() {
-  const { 
-    currentStops, 
-    contextOrigin, 
+  const {
+    currentStops,
+    contextOrigin,
     contextDestination,
     contextVehiculo,
     contextAsientosDisponibles,
@@ -43,9 +43,9 @@ export default function ManageStops() {
     contextCostoPasajero?: string;
     contextFecha?: string;
     contextHora?: string;
-  }>();  const router = useRouter();
+  }>(); const router = useRouter();
   const insets = useSafeAreaInsets();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStops, setSelectedStops] = useState<string[]>(
     currentStops ? currentStops.split(',').map(stop => stop.trim()).filter(Boolean) : []
@@ -53,7 +53,7 @@ export default function ManageStops() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  
+
   // Fetch all places when component mounts
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -79,16 +79,16 @@ export default function ManageStops() {
 
     fetchPlaces();
   }, []);
-  
+
   // Filter places based on search query and exclude already selected stops
-  const filteredLocations = searchQuery.trim() 
+  const filteredLocations = searchQuery.trim()
     ? places.filter(place => {
-        const query = searchQuery.toLowerCase();
-        const nameMatch = place.name.toLowerCase().includes(query);
-        const descriptionMatch = place.description?.toLowerCase().includes(query);
-        const locationName = place.name;
-        return (nameMatch || descriptionMatch) && !selectedStops.includes(locationName);
-      }).slice(0, 20) // Limit to 20 results for performance
+      const query = searchQuery.toLowerCase();
+      const nameMatch = place.name.toLowerCase().includes(query);
+      const descriptionMatch = place.description?.toLowerCase().includes(query);
+      const locationName = place.name;
+      return (nameMatch || descriptionMatch) && !selectedStops.includes(locationName);
+    }).slice(0, 20) // Limit to 20 results for performance
     : [];
   const handleLocationAdd = (place: Place) => {
     const locationName = place.name;
@@ -103,21 +103,21 @@ export default function ManageStops() {
   };
   const handleMoveStop = (fromIndex: number, direction: 'up' | 'down') => {
     const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
-    
+
     // Check bounds
     if (toIndex < 0 || toIndex >= selectedStops.length) {
       return;
     }
-    
+
     const newStops = [...selectedStops];
     const [movedItem] = newStops.splice(fromIndex, 1);
     newStops.splice(toIndex, 0, movedItem);
     setSelectedStops(newStops);
-  };  const handleConfirm = () => {
+  }; const handleConfirm = () => {
     // Navigate back with the selected stops as a parameter using replace to preserve form state
     router.replace({
       pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
-      params: { 
+      params: {
         selectedStops: selectedStops.join(', '),
         // Preserve other values from context
         selectedOrigin: contextOrigin ?? '',
@@ -134,7 +134,7 @@ export default function ManageStops() {
   const handleCancel = () => {
     router.replace({
       pathname: '/(tabs)/PublicarRutasConductor/formPublicarRuta',
-      params: { 
+      params: {
         // Preserve other values from context without changing stops
         selectedOrigin: contextOrigin ?? '',
         selectedDestination: contextDestination ?? '',
@@ -162,7 +162,7 @@ export default function ManageStops() {
       return (
         <View style={styles.loadingContainer}>
           <Text style={styles.placeholder}>{loadError}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => {
               // Retry loading places
               setLoadError(null);
@@ -242,7 +242,7 @@ export default function ManageStops() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={[styles.root, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
@@ -286,7 +286,7 @@ export default function ManageStops() {
           {selectedStops.length > 0 && (
             <View style={styles.selectedStopsContainer}>
               <Text style={styles.sectionTitle}>Paradas Seleccionadas ({selectedStops.length})</Text>
-              <ScrollView 
+              <ScrollView
                 style={styles.selectedStopsScrollView}
                 showsVerticalScrollIndicator={true}
                 nestedScrollEnabled={true}
@@ -299,19 +299,19 @@ export default function ManageStops() {
                         <Text style={styles.stopText}>{stop}</Text>
                       </View>
                     </View>
-                    
+
                     {/* Reorder and Remove Controls */}
                     <View style={styles.controlsContainer}>
                       {/* Move Up/Down Buttons */}
                       <View style={styles.reorderButtons}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={[styles.reorderButton, index === 0 && styles.disabledReorderButton]}
                           onPress={() => handleMoveStop(index, 'up')}
                           disabled={index === 0}
                         >
                           <LucideChevronUp size={16} color={index === 0 ? "#CCC" : "#666"} />
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={[styles.reorderButton, index === selectedStops.length - 1 && styles.disabledReorderButton]}
                           onPress={() => handleMoveStop(index, 'down')}
                           disabled={index === selectedStops.length - 1}
@@ -319,9 +319,9 @@ export default function ManageStops() {
                           <LucideChevronDown size={16} color={index === selectedStops.length - 1 ? "#CCC" : "#666"} />
                         </TouchableOpacity>
                       </View>
-                      
+
                       {/* Remove Button */}
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.removeButton}
                         onPress={() => handleLocationRemove(stop)}
                       >
@@ -336,7 +336,8 @@ export default function ManageStops() {
 
           {/* Search Input */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Buscar nueva parada</Text>            <View style={styles.searchInputContainer}>
+            <Text style={styles.inputLabel}>Buscar nueva parada</Text>
+            <View style={styles.searchInputContainer}>
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -346,15 +347,15 @@ export default function ManageStops() {
                 returnKeyType="search"
                 autoCapitalize="words"
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.searchIconContainer}
                 onPress={() => {
                   console.log(`Searching for: ${searchQuery}`);
                 }}
               >
-                <LucideSearch 
-                  size={20} 
-                  color="#8E8E8E" 
+                <LucideSearch
+                  size={20}
+                  color="#8E8E8E"
                 />
               </TouchableOpacity>
             </View>
@@ -375,7 +376,7 @@ export default function ManageStops() {
           >
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.confirmButton}
             onPress={handleConfirm}
@@ -399,10 +400,10 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     paddingHorizontal: 45,
-    paddingTop: 10, 
+    paddingTop: 10,
     paddingBottom: 100, // Add extra padding for fixed buttons
     backgroundColor: "#fff",
-    minHeight: '100%', 
+    minHeight: '100%',
   },
   scrollView: {
     flex: 1,
@@ -638,7 +639,7 @@ const styles = StyleSheet.create({
   // Scrollable search results
   searchResultsScrollView: {
     maxHeight: 200, // Limit height for search results
-  },  buttonsContainer: {
+  }, buttonsContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -672,7 +673,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-  },confirmButtonText: {
+  }, confirmButtonText: {
     color: '#FEFEFF',
     fontSize: 16,
     fontWeight: '600',
