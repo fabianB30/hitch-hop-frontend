@@ -54,10 +54,12 @@ export default function VehiculosIndex() {
     if (!deleteModal.id) return;
     try {
       await deleteVehicleByIdRequest(deleteModal.id);
-      setUser({
-        ...user,
-        vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
-      });
+      if (user) {
+        setUser({
+          ...user,
+          vehicles: user.vehicles.filter((v: string) => v !== deleteModal.id),
+        });
+      }
       setVehicles(prev => prev.filter(v => v._id !== deleteModal.id));
     } catch (error) {
       console.error("Error al eliminar vehículo:", error);
@@ -74,8 +76,9 @@ export default function VehiculosIndex() {
     }).then(() => setFontsLoaded(true));
   }, []);
 
-  if (!fontsLoaded) return null;
 
+  if (!fontsLoaded) return null;
+  if (!user || !user.vehicles) return null;
   return (
     <View style={styles.container}>
       <View style={styles.topBackground}>
