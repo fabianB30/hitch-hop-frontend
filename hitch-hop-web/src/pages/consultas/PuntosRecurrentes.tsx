@@ -32,6 +32,7 @@ export default function PuntosRecurrentes() {
     const fetchData = async () => {
       try {
         const data = await queryTopVisitedPlaces();
+        console.log(data);
         if (data) {
           // Mostrar sólo los primeros 5 puntos
           setPlaces(data.slice(0, 5));
@@ -88,9 +89,9 @@ export default function PuntosRecurrentes() {
                     </td>
                     <td
                       className="px-6 py-[14px] truncate whitespace-nowrap"
-                      title={place.address || "—"}
+                      title={place.description || "—"}
                     >
-                      {place.address || "—"}
+                      {place.description || "—"}
                     </td>
                     <td className="px-6 py-[14px]">{place.totalVisits}</td>
                   </tr>

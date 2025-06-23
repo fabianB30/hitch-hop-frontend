@@ -83,7 +83,13 @@ export const queryTopVisitedPlaces = async (): Promise<IJwtResponse | null> => {
 export const queryRecentRegisteredUsers = async (): Promise<any> => {
   try {
     const res = await axios.get(`/backend/statistics/users/recent`);
-    return res.data;
+    const query = res.data.data;
+    if (query) {
+      return query;
+    } else {
+      console.error('Invalid response structure:', res);
+      return null;
+    }
   } catch (error) {
     console.error("Error en la consulta:", error);
     return null;
