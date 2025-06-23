@@ -2,9 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Font from 'expo-font';
+import * as ImagePicker from 'expo-image-picker';
+import { FontAwesome } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { getVehicleByIdRequest, updateVehicleByIdRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
+
+/*Desde esta página se puede editar un vehículo en la aplicación
+*
+* Esta página fue trabajada por:
+*	Laura Amador
+*	Óscar Obando
+*	Mariano Mayorga
+*
+*
+* */
 
 export default function EditarVehiculo() {
   const router = useRouter();
@@ -47,6 +59,18 @@ export default function EditarVehiculo() {
   }, [id]);
 
   if (!fontsLoaded) return null;
+
+  const handleBrowseFile = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setFoto(result.assets[0].uri);
+    }
+  };
 
   const handleEditar = async () => {
     const vehicleData = {
@@ -115,11 +139,16 @@ export default function EditarVehiculo() {
           <Text style={styles.photoLabel}>Fotografía del vehículo</Text>
           <View style={styles.photoUploadArea}>
             {foto ? (
-              <Image source={{ uri: foto }} style={styles.photoRect} />
-            ) : (
-              <View style={styles.photoPlaceholderRect}>
-                <Text style={styles.browseButtonText}>Sin foto</Text>
+              <View>
+                <Image source={{ uri: foto }} style={styles.photoRect} />
+                <TouchableOpacity style={styles.editIcon} onPress={handleBrowseFile}>
+                  <FontAwesome name="pencil" size={20} color="#fff" />
+                </TouchableOpacity>
               </View>
+            ) : (
+              <TouchableOpacity style={styles.photoPlaceholderRect} onPress={handleBrowseFile}>
+                <Text style={styles.browseButtonText}>+ Seleccionar foto</Text>
+              </TouchableOpacity>
             )}
           </View>
 
@@ -196,11 +225,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
   },
-  photoRect: {
-    width: 180,
-    height: 180,
-    borderRadius: 12,
-  },
   photoPlaceholderRect: {
     width: 180,
     height: 180,
@@ -210,6 +234,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
+  },
+  photoRect: {
+    width: 180,
+    height: 180,
+    borderRadius: 12,
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    backgroundColor: '#7875F8',
+    padding: 6,
+    borderRadius: 16,
   },
   browseButtonText: {
     color: '#A18AFF',

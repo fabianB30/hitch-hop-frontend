@@ -7,6 +7,16 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getAllVehiclesRequest, deleteVehicleByIdRequest } from '@/interconnection/vehicle';
 import { useAuth } from '../Context/auth-context';
 
+/*Página de inicio de gestión de vehículos desde aquí aparecen los modals y la página con toda la información de vehículos 
+*
+* Esta página fue trabajada por:
+*	Laura Amador
+*	Óscar Obando
+*	Mariano Mayorga
+*
+*
+* */
+
 export default function VehiculosIndex() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -54,7 +64,7 @@ export default function VehiculosIndex() {
       setDeleteModal({ visible: false });
     }
   };
-  
+
   useEffect(() => {
     Font.loadAsync({
       'Exo-Bold': require('@/assets/fonts/Exo-Bold.otf'),
@@ -193,11 +203,18 @@ export default function VehiculosIndex() {
             <View style={styles.modalTopStripe} />
 
             <View style={styles.modalInfoHeader}>
-              <TouchableOpacity onPress={() => setInfoModal({ visible: false, vehiculo: null })}>
-                <Image source={require('@/assets/images/flechaback.png')} style={styles.backIcon} />
+              <TouchableOpacity
+                onPress={() => setInfoModal({ visible: false, vehiculo: null })}
+                style={styles.backButton}
+              >
+                <Image
+                  source={require('@/assets/images/flechaback.png')}
+                  style={styles.backIcon}
+                />
               </TouchableOpacity>
               <Text style={styles.modalInfoTitle}>Información</Text>
             </View>
+
 
             <View style={styles.modalInfoBody}>
               <View style={styles.textBlock}>
@@ -215,25 +232,26 @@ export default function VehiculosIndex() {
 
                 <Text style={styles.infoLabel}>Año</Text>
                 <Text style={styles.infoValue}>{infoModal.vehiculo?.year || '—'}</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => {
-                  setInfoModal({ visible: false, vehiculo: null });
-                  router.push({
-                    pathname: "/(tabs)/vehiculos/editarVehiculo",
-                    params: { id: infoModal.vehiculo._id },
-                  });
-                }}
-              >
-                <Text style={styles.editButtonText}>Editar información</Text>
-              </TouchableOpacity>
-            </View>
 
-            <View style={styles.imageBox}>
-              <View style={styles.purpleBgBox} />
-              <Image source={{ uri: infoModal.vehiculo?.foto }} style={styles.vehicleImage} />
-              {/*<Image source={{ uri: vehiculo.foto }} style={styles.vehicleImage} />*/}
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => {
+                    setInfoModal({ visible: false, vehiculo: null });
+                    router.push({
+                      pathname: "/(tabs)/vehiculos/editarVehiculo",
+                      params: { id: infoModal.vehiculo._id },
+                    });
+                  }}
+                >
+                  <Text style={styles.editButtonText}>Editar información</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Imagen al lado derecho */}
+              <View style={styles.imageBox}>
+                <View style={styles.purpleBgBox} />
+                <Image source={{ uri: infoModal.vehiculo?.photoUrl }} style={styles.vehicleImage} />
+              </View>
             </View>
           </View>
         </View>
@@ -388,6 +406,33 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 8,
   },
+  backButton: {
+    position: 'absolute',
+    left: -15,
+    top: 0,
+    padding: 8,
+  },
+
+  backIcon: {
+    width: 28,
+    height: 28,
+  },
+
+  modalInfoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+    position: 'relative',
+    height: 48,
+  },
+
+  modalInfoTitle: {
+    fontSize: 30,
+    fontFamily: 'Exo-Bold',
+    color: '#181718',
+  },
+
   buttonContainer: {
     position: 'absolute',
     left: 0,
@@ -520,43 +565,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F2FF',
     borderRadius: 30,
     paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingBottom: 0,
     paddingTop: 24 + 6,
     overflow: 'hidden',
-  },
-
-  modalInfoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 0,
-    position: 'relative',
-  },
-
-
-  backIcon: {
-    width: 28,
-    height: 28,
-    top: 15,
-    left: -60,
-  },
-
-  modalInfoTitle: {
-    fontSize: 30,
-    fontFamily: 'Exo-Bold',
-    color: '#181718',
-    top: 15,
-
   },
 
   modalInfoBody: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    top: 20,
+    top: 5,
   },
 
   textBlock: {
     flex: 1,
+    justifyContent: 'space-between',
   },
 
   infoLabel: {
@@ -576,7 +598,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     position: 'relative',
-    marginLeft: 16,
+    marginLeft: 13,
   },
 
   purpleBgBox: {
@@ -599,12 +621,15 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
-    alignSelf: 'flex-end',
     backgroundColor: '#FFB800',
+    width: 180,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 8,
-    marginTop: 24,
+    marginBottom: 10,
+    bottom: 30,
+    left: 130,
+    alignSelf: 'flex-start',
   },
 
   editButtonText: {
